@@ -11,7 +11,6 @@ if(G5_COMMUNITY_USE === false) {
 </div>
 
 
-<?php echo poll('theme/basic'); // 설문조사 ?>
 <?php echo visit('theme/basic'); // 방문자수 ?>
 
 

@@ -433,7 +433,6 @@ $pg_anchor = '<ul class="anchor">
     <li><a href="#anc_cf_mail">기본메일환경</a></li>
     <li><a href="#anc_cf_article_mail">글작성메일</a></li>
     <li><a href="#anc_cf_join_mail">가입메일</a></li>
-    <li><a href="#anc_cf_vote_mail">투표메일</a></li>
     <li><a href="#anc_cf_sns">SNS</a></li>
     <li><a href="#anc_cf_lay">레이아웃 추가설정</a></li>
     <li><a href="#anc_cf_sms">SMS</a></li>
@@ -1211,32 +1210,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </table>
         </div>
     </section>
-
-
-    <section id="anc_cf_vote_mail">
-        <h2 class="h2_frm">투표 기타의견 작성 시 메일 설정</h2>
-        <?php echo $pg_anchor ?>
-
-        <div class="tbl_frm01 tbl_wrap">
-            <table>
-                <caption>투표 기타의견 작성 시 메일 설정</caption>
-                <colgroup>
-                    <col class="grid_4">
-                    <col>
-                </colgroup>
-                <tbody>
-                    <tr>
-                        <th scope="row"><label for="cf_email_po_super_admin">최고관리자 메일발송</label></th>
-                        <td>
-                            <?php echo help('최고관리자에게 메일을 발송합니다.') ?>
-                            <input type="checkbox" name="cf_email_po_super_admin" value="1" id="cf_email_po_super_admin" <?php echo $config['cf_email_po_super_admin'] ? 'checked' : ''; ?>> 사용
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
 
     <section id="anc_cf_sns">
         <h2 class="h2_frm">소셜네트워크서비스(SNS : Social Network Service)</h2>

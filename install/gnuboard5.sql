@@ -250,7 +250,6 @@ CREATE TABLE IF NOT EXISTS `g5_config` (
   `cf_email_wr_comment_all` tinyint(4) NOT NULL DEFAULT '0',
   `cf_email_mb_super_admin` tinyint(4) NOT NULL DEFAULT '0',
   `cf_email_mb_member` tinyint(4) NOT NULL DEFAULT '0',
-  `cf_email_po_super_admin` tinyint(4) NOT NULL DEFAULT '0',
   `cf_prohibit_id` text NOT NULL,
   `cf_prohibit_email` text NOT NULL,
   `cf_new_del` int(11) NOT NULL DEFAULT '0',
@@ -587,61 +586,6 @@ CREATE TABLE IF NOT EXISTS `g5_point` (
   KEY `index1` (`mb_id`,`po_rel_table`,`po_rel_id`,`po_rel_action`),
   KEY `index2` (`po_expire_date`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `g5_poll`
---
-
-DROP TABLE IF EXISTS `g5_poll`;
-CREATE TABLE IF NOT EXISTS `g5_poll` (
-  `po_id` int(11) NOT NULL auto_increment,
-  `po_subject` varchar(255) NOT NULL default '',
-  `po_poll1` varchar(255) NOT NULL default '',
-  `po_poll2` varchar(255) NOT NULL default '',
-  `po_poll3` varchar(255) NOT NULL default '',
-  `po_poll4` varchar(255) NOT NULL default '',
-  `po_poll5` varchar(255) NOT NULL default '',
-  `po_poll6` varchar(255) NOT NULL default '',
-  `po_poll7` varchar(255) NOT NULL default '',
-  `po_poll8` varchar(255) NOT NULL default '',
-  `po_poll9` varchar(255) NOT NULL default '',
-  `po_cnt1` int(11) NOT NULL default '0',
-  `po_cnt2` int(11) NOT NULL default '0',
-  `po_cnt3` int(11) NOT NULL default '0',
-  `po_cnt4` int(11) NOT NULL default '0',
-  `po_cnt5` int(11) NOT NULL default '0',
-  `po_cnt6` int(11) NOT NULL default '0',
-  `po_cnt7` int(11) NOT NULL default '0',
-  `po_cnt8` int(11) NOT NULL default '0',
-  `po_cnt9` int(11) NOT NULL default '0',
-  `po_etc` varchar(255) NOT NULL default '',
-  `po_level` tinyint(4) NOT NULL default '0',
-  `po_point` int(11) NOT NULL default '0',
-  `po_date` date NOT NULL default '0000-00-00',
-  `po_ips` mediumtext NOT NULL,
-  `mb_ids` text NOT NULL,
-  `po_use` tinyint(4) NOT NULL default '0',
-  PRIMARY KEY  (`po_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `g5_poll_etc`
---
-
-DROP TABLE IF EXISTS `g5_poll_etc`;
-CREATE TABLE IF NOT EXISTS `g5_poll_etc` (
-  `pc_id` int(11) NOT NULL default '0',
-  `po_id` int(11) NOT NULL default '0',
-  `mb_id` varchar(20) NOT NULL default '',
-  `pc_name` varchar(255) NOT NULL default '',
-  `pc_idea` varchar(255) NOT NULL default '',
-  `pc_datetime` datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (`pc_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 

@@ -10,7 +10,6 @@ if(G5_IS_MOBILE) {
 
 include_once(G5_THEME_PATH.'/head.sub.php');
 include_once(G5_LIB_PATH.'/outlogin.lib.php');
-include_once(G5_LIB_PATH.'/poll.lib.php');
 include_once(G5_LIB_PATH.'/visit.lib.php');
 include_once(G5_LIB_PATH.'/connect.lib.php');
 include_once(G5_LIB_PATH.'/popular.lib.php');
@@ -241,7 +240,6 @@ jQuery(function ($){
             <?php } ?>
             
             <?php echo display_banner('왼쪽', 'boxbanner.skin.php'); ?>
-            <?php echo poll('theme/shop_basic'); // 설문조사 ?>
         </div>
         <?php } // end if ?>
         <?php

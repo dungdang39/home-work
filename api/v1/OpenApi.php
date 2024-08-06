@@ -33,7 +33,6 @@ define('G5_REFRESH_TOKEN_URL', G5_URL . '/api/v1/token/refresh');
  *      @OA\Tag(name="최신글", description="최신 게시글 API"),
  *      @OA\Tag(name="콘텐츠", description="콘텐츠 API"),
  *      @OA\Tag(name="메뉴", description="메뉴 API"),
- *      @OA\Tag(name="설문조사", description="설문조사 API"),
  *      @OA\Tag(name="인기 검색어", description="인기 검색어 API"),
  *      @OA\Tag(name="팝업 레이어", description="팝업 레이어 API"),
  *      @OA\Tag(name="방문자", description="방문자 API"),
