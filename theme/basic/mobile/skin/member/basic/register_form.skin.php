@@ -118,12 +118,10 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
                 <input type="email" name="mb_email" value="<?php echo isset($member['mb_email'])?$member['mb_email']:''; ?>" id="reg_mb_email" required class="frm_input email required" size="50" maxlength="100" placeholder="E-mail (필수)">
 			</li>
 
-	        <?php if ($config['cf_use_homepage']) { ?>
 	        <li>
-	            <label for="reg_mb_homepage" class="sound_only">홈페이지<?php if ($config['cf_req_homepage']){ ?> (필수)<?php } ?></label>
-	            <input type="text" name="mb_homepage" value="<?php echo get_text($member['mb_homepage']) ?>" id="reg_mb_homepage" class="frm_input full_input <?php echo $config['cf_req_homepage']?"required":""; ?>" maxlength="255" <?php echo $config['cf_req_homepage']?"required":""; ?> placeholder="홈페이지<?php if ($config['cf_req_homepage']){ ?> (필수)<?php } ?>">
+	            <label for="reg_mb_homepage" class="sound_only">홈페이지</label>
+	            <input type="text" name="mb_homepage" value="<?php echo get_text($member['mb_homepage']) ?>" id="reg_mb_homepage" class="frm_input full_input" maxlength="255" placeholder="홈페이지">
 	        </li>
-	        <?php } ?>
 	
 	        <?php if ($config['cf_use_tel']) { ?>
 	        <li>

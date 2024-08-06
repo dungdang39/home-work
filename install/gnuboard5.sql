@@ -223,8 +223,6 @@ CREATE TABLE IF NOT EXISTS `g5_config` (
   `cf_analytics` text NOT NULL,
   `cf_add_meta` text NOT NULL,
   `cf_member_skin` varchar(50) NOT NULL DEFAULT '',
-  `cf_use_homepage` tinyint(4) NOT NULL DEFAULT '0',
-  `cf_req_homepage` tinyint(4) NOT NULL DEFAULT '0',
   `cf_use_tel` tinyint(4) NOT NULL DEFAULT '0',
   `cf_req_tel` tinyint(4) NOT NULL DEFAULT '0',
   `cf_use_hp` tinyint(4) NOT NULL DEFAULT '0',

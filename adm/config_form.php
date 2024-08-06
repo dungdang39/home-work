@@ -846,11 +846,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">홈페이지 입력</th>
-                        <td>
-                            <input type="checkbox" name="cf_use_homepage" value="1" id="cf_use_homepage" <?php echo $config['cf_use_homepage'] ? 'checked' : ''; ?>> <label for="cf_use_homepage">보이기</label>
-                            <input type="checkbox" name="cf_req_homepage" value="1" id="cf_req_homepage" <?php echo $config['cf_req_homepage'] ? 'checked' : ''; ?>> <label for="cf_req_homepage">필수입력</label>
-                        </td>
                         <th scope="row">주소 입력</th>
                         <td>
                             <input type="checkbox" name="cf_use_addr" value="1" id="cf_use_addr" <?php echo $config['cf_use_addr'] ? 'checked' : ''; ?>> <label for="cf_use_addr">보이기</label>

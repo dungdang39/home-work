@@ -21,18 +21,6 @@ class MemberConfigResponse
     public int $cf_use_email_certify = 0;
 
     /**
-     * 홈페이지 입력 사용 여부
-     * @OA\Property(example=0)
-     */
-    public int $cf_use_homepage = 0;
-
-    /**
-     * 홈페이지 필수
-     * @OA\Property(example=0)
-     */
-    public int $cf_req_homepage = 0;
-
-    /**
      * 전화번호 입력 사용 여부
      * @OA\Property(example=0)
      */

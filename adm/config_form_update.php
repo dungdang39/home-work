@@ -53,8 +53,6 @@ if (isset($_POST['cf_intercept_ip']) && $_POST['cf_intercept_ip']) {
 
 $check_keys = array(
     'cf_use_email_certify' => 'int',
-    'cf_use_homepage' => 'int',
-    'cf_req_homepage' => 'int',
     'cf_use_tel' => 'int',
     'cf_req_tel' => 'int',
     'cf_use_hp' => 'int',
@@ -217,8 +215,6 @@ $sql = " update {$g5['config_table']}
                 cf_syndi_except = '{$_POST['cf_syndi_except']}',
                 cf_bbs_rewrite = '{$_POST['cf_bbs_rewrite']}',
                 cf_member_skin = '{$_POST['cf_member_skin']}',
-                cf_use_homepage = '{$_POST['cf_use_homepage']}',
-                cf_req_homepage = '{$_POST['cf_req_homepage']}',
                 cf_use_tel = '{$_POST['cf_use_tel']}',
                 cf_req_tel = '{$_POST['cf_req_tel']}',
                 cf_use_hp = '{$_POST['cf_use_hp']}',
