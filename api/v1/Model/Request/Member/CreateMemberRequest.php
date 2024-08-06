@@ -130,12 +130,6 @@ class CreateMemberRequest
     public string $mb_signature = '';
 
     /**
-     * 자기소개
-     * @OA\Property(example="안녕하세요. 반갑습니다.")
-     */
-    public string $mb_profile = '';
-
-    /**
      * 추천인
      * @OA\Property(example="test")
      */

@@ -70,7 +70,6 @@ $check_keys = array(
     'mb_mailling',
     'mb_sms',
     'mb_open',
-    'mb_profile',
     'mb_level'
 );
 
@@ -79,7 +78,7 @@ for ($i = 1; $i <= 10; $i++) {
 }
 
 foreach ($check_keys as $key) {
-    if( in_array($key, array('mb_signature', 'mb_profile')) ){
+    if( in_array($key, array('mb_signature')) ){
         $posts[$key] = isset($_POST[$key]) ? clean_xss_tags($_POST[$key], 1, 1, 0, 0) : '';
     } else {
         $posts[$key] = isset($_POST[$key]) ? clean_xss_tags($_POST[$key], 1, 1) : '';
@@ -109,7 +108,6 @@ $sql_common = "  mb_name = '{$posts['mb_name']}',
                  mb_mailling = '{$posts['mb_mailling']}',
                  mb_sms = '{$posts['mb_sms']}',
                  mb_open = '{$posts['mb_open']}',
-                 mb_profile = '{$posts['mb_profile']}',
                  mb_level = '{$posts['mb_level']}',
                  mb_1 = '{$posts['mb_1']}',
                  mb_2 = '{$posts['mb_2']}',

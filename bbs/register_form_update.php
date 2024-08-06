@@ -48,7 +48,6 @@ $mb_addr2       = isset($_POST['mb_addr2'])         ? trim($_POST['mb_addr2'])  
 $mb_addr3       = isset($_POST['mb_addr3'])         ? trim($_POST['mb_addr3'])       : "";
 $mb_addr_jibeon = isset($_POST['mb_addr_jibeon'])   ? trim($_POST['mb_addr_jibeon']) : "";
 $mb_signature   = isset($_POST['mb_signature'])     ? trim($_POST['mb_signature'])   : "";
-$mb_profile     = isset($_POST['mb_profile'])       ? trim($_POST['mb_profile'])     : "";
 $mb_recommend   = isset($_POST['mb_recommend'])     ? trim($_POST['mb_recommend'])   : "";
 $mb_mailling    = isset($_POST['mb_mailling'])      ? trim($_POST['mb_mailling'])    : "";
 $mb_sms         = isset($_POST['mb_sms'])           ? trim($_POST['mb_sms'])         : "";
@@ -230,7 +229,6 @@ if ($w == '') {
                      mb_addr3 = '{$mb_addr3}',
                      mb_addr_jibeon = '{$mb_addr_jibeon}',
                      mb_signature = '{$mb_signature}',
-                     mb_profile = '{$mb_profile}',
                      mb_today_login = '".G5_TIME_YMDHIS."',
                      mb_datetime = '".G5_TIME_YMDHIS."',
                      mb_ip = '{$_SERVER['REMOTE_ADDR']}',
@@ -361,7 +359,6 @@ if ($w == '') {
                     mb_addr3 = '{$mb_addr3}',
                     mb_addr_jibeon = '{$mb_addr_jibeon}',
                     mb_signature = '{$mb_signature}',
-                    mb_profile = '{$mb_profile}',
                     mb_1 = '{$mb_1}',
                     mb_2 = '{$mb_2}',
                     mb_3 = '{$mb_3}',

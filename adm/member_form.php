@@ -24,7 +24,6 @@ $mb = array(
     'mb_addr3' => null,
     'mb_addr_jibeon' => null,
     'mb_signature' => null,
-    'mb_profile' => null,
     'mb_memo' => null,
     'mb_leave_date' => null,
     'mb_1' => null,
@@ -80,7 +79,6 @@ if ($w == '') {
     $mb['mb_addr3'] = get_text($mb['mb_addr3']);
     $mb['mb_signature'] = get_text($mb['mb_signature']);
     $mb['mb_recommend'] = get_text($mb['mb_recommend']);
-    $mb['mb_profile'] = get_text($mb['mb_profile']);
     $mb['mb_1'] = get_text($mb['mb_1']);
     $mb['mb_2'] = get_text($mb['mb_2']);
     $mb['mb_3'] = get_text($mb['mb_3']);
@@ -381,10 +379,6 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
                 <tr>
                     <th scope="row"><label for="mb_signature">서명</label></th>
                     <td colspan="3"><textarea name="mb_signature" id="mb_signature"><?php echo html_purifier($mb['mb_signature']); ?></textarea></td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="mb_profile">자기 소개</label></th>
-                    <td colspan="3"><textarea name="mb_profile" id="mb_profile"><?php echo html_purifier($mb['mb_profile']); ?></textarea></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mb_memo">메모</label></th>

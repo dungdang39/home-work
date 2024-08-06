@@ -183,13 +183,6 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
 	            </li>
 	            <?php }  ?>
 	
-	            <?php if ($config['cf_use_profile']) {  ?>
-	            <li>
-	                <label for="reg_mb_profile">자기소개</label>
-	                <textarea name="mb_profile" id="reg_mb_profile" <?php echo $config['cf_req_profile']?"required":""; ?> class="<?php echo $config['cf_req_profile']?"required":""; ?>" placeholder="자기소개"><?php echo $member['mb_profile'] ?></textarea>
-	            </li>
-	            <?php }  ?>
-	
 	            <?php if ($config['cf_use_member_icon'] && $member['mb_level'] >= $config['cf_icon_level']) {  ?>
 	            <li>
 	                <label for="reg_mb_icon" class="frm_label">

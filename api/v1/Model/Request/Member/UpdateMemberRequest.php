@@ -117,12 +117,6 @@ class UpdateMemberRequest
     public string $mb_signature = '';
 
     /**
-     * 자기소개
-     * @OA\Property(example="안녕하세요. 반갑습니다.")
-     */
-    public string $mb_profile = '';
-
-    /**
      * 메일 수신여부
      * @OA\Property(example=1)
      */

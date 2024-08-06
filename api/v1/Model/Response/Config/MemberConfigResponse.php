@@ -81,18 +81,6 @@ class MemberConfigResponse
     public int $cf_req_signature = 0;
 
     /**
-     * 자기소개 입력 사용 여부
-     * @OA\Property(example=0)
-     */
-    public int $cf_use_profile = 0;
-
-    /**
-     * 자기소개 입력 필수 여부
-     * @OA\Property(example=0)
-     */
-    public int $cf_req_profile = 0;
-
-    /**
      * 회원아이콘 업로드 권한 제한
      * @OA\Property(example=2)
      */

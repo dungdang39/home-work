@@ -176,13 +176,6 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
 	            <textarea name="mb_signature" id="reg_mb_signature" class="<?php echo $config['cf_req_signature']?"required":""; ?>" <?php echo $config['cf_req_signature']?"required":""; ?> placeholder="서명<?php if ($config['cf_req_signature']){ ?> (필수)<?php } ?>"><?php echo $member['mb_signature'] ?></textarea>
 	        </li>
 	        <?php } ?>
-	
-	        <?php if ($config['cf_use_profile']) { ?>
-	        <li>
-	            <label for="reg_mb_profile" class="sound_only">자기소개</label>
-	            <textarea name="mb_profile" id="reg_mb_profile" class="<?php echo $config['cf_req_profile']?"required":""; ?>" <?php echo $config['cf_req_profile']?"required":""; ?> placeholder="자기소개"><?php echo $member['mb_profile'] ?></textarea>
-	        </li>
-	        <?php } ?>
 
 	        <?php if ($config['cf_use_member_icon'] && $member['mb_level'] >= $config['cf_icon_level']) { ?>
 	        <li class="filebox">

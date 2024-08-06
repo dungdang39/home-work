@@ -37,11 +37,6 @@ add_stylesheet('<link rel="stylesheet" href="'.$member_skin_url.'/style.css">', 
         </table>
     </div>
 
-    <section>
-        <h2>인사말</h2>
-        <p><?php echo $mb_profile ?></p>
-    </section>
-
     <div class="win_btn">
         <button type="button" onclick="window.close();" class="btn_close">창닫기</button>
     </div>

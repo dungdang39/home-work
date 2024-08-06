@@ -39,12 +39,6 @@ class GetMemberResponse
     public int $mb_point = 0;
 
     /**
-     * 회원 자기소개
-     * @OA\Property(example="안녕하세요?")
-     */
-    public string $mb_profile = '';
-
-    /**
      * 회원 아이콘 경로
      * @OA\Property(example="/member/test/icon.jpg")
      */

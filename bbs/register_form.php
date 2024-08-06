@@ -112,7 +112,6 @@ if ($w == "") {
     $member['mb_addr2']       = get_text($member['mb_addr2']);
     $member['mb_signature']   = get_text($member['mb_signature']);
     $member['mb_recommend']   = get_text($member['mb_recommend']);
-    $member['mb_profile']     = get_text($member['mb_profile']);
     $member['mb_1']           = get_text($member['mb_1']);
     $member['mb_2']           = get_text($member['mb_2']);
     $member['mb_3']           = get_text($member['mb_3']);

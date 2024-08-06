@@ -875,11 +875,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                             <input type="checkbox" name="cf_use_signature" value="1" id="cf_use_signature" <?php echo $config['cf_use_signature'] ? 'checked' : ''; ?>> <label for="cf_use_signature">보이기</label>
                             <input type="checkbox" name="cf_req_signature" value="1" id="cf_req_signature" <?php echo $config['cf_req_signature'] ? 'checked' : ''; ?>> <label for="cf_req_signature">필수입력</label>
                         </td>
-                        <th scope="row">자기소개 입력</th>
-                        <td>
-                            <input type="checkbox" name="cf_use_profile" value="1" id="cf_use_profile" <?php echo $config['cf_use_profile'] ? 'checked' : ''; ?>> <label for="cf_use_profile">보이기</label>
-                            <input type="checkbox" name="cf_req_profile" value="1" id="cf_req_profile" <?php echo $config['cf_req_profile'] ? 'checked' : ''; ?>> <label for="cf_req_profile">필수입력</label>
-                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="cf_register_level">회원가입시 권한</label></th>

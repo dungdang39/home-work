@@ -12,7 +12,7 @@ class OptionalAccessTokenAuthMiddleware
 {
     private JwtTokenManager $token_manager;
     private MemberService $member_service;
-    private $default_member = array('mb_id' => '', 'mb_level' => 1, 'mb_name' => '', 'mb_point' => 0, 'mb_certify' => '', 'mb_email' => '', 'mb_open' => '', 'mb_homepage' => '', 'mb_tel' => '', 'mb_hp' => '', 'mb_zip1' => '', 'mb_zip2' => '', 'mb_addr1' => '', 'mb_addr2' => '', 'mb_addr3' => '', 'mb_addr_jibeon' => '', 'mb_signature' => '', 'mb_profile' => '');
+    private $default_member = array('mb_id' => '', 'mb_level' => 1, 'mb_name' => '', 'mb_point' => 0, 'mb_certify' => '', 'mb_email' => '', 'mb_open' => '', 'mb_homepage' => '', 'mb_tel' => '', 'mb_hp' => '', 'mb_zip1' => '', 'mb_zip2' => '', 'mb_addr1' => '', 'mb_addr2' => '', 'mb_addr3' => '', 'mb_addr_jibeon' => '', 'mb_signature' => '');
 
     public function __construct(JwtTokenManager $token_manager, MemberService $member_service)
     {
