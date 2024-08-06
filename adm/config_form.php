@@ -316,7 +316,7 @@ if (!isset($config['cf_kakao_client_secret'])) {
 if (!isset($config['cf_member_img_size'])) {
     sql_query(
         "ALTER TABLE `{$g5['config_table']}`
-                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_icon_height`,
+                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_use_member_image`,
                 ADD `cf_member_img_width` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_size`,
                 ADD `cf_member_img_height` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_width`
     ",
@@ -882,29 +882,15 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                         <td colspan="3"><input type="text" name="cf_leave_day" value="<?php echo (int) $config['cf_leave_day'] ?>" id="cf_leave_day" class="frm_input" size="2"> 일 후 자동 삭제</td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="cf_use_member_icon">회원아이콘 사용</label></th>
+                        <th scope="row"><label for="cf_use_member_image">회원 이미지 사용</label></th>
                         <td>
-                            <?php echo help('게시물에 게시자 닉네임 대신 아이콘 사용') ?>
-                            <select name="cf_use_member_icon" id="cf_use_member_icon">
-                                <option value="0" <?php echo get_selected($config['cf_use_member_icon'], '0') ?>>미사용
-                                <option value="1" <?php echo get_selected($config['cf_use_member_icon'], '1') ?>>아이콘만 표시
-                                <option value="2" <?php echo get_selected($config['cf_use_member_icon'], '2') ?>>아이콘+이름 표시
+                            <select name="cf_use_member_image" id="cf_use_member_image">
+                                <option value="0" <?php echo get_selected($config['cf_use_member_image'], '0') ?>>사용안함</option>
+                                <option value="1" <?php echo get_selected($config['cf_use_member_image'], '1') ?>>사용</option>
                             </select>
                         </td>
-                        <th scope="row"><label for="cf_icon_level">회원 아이콘, 이미지 업로드 권한</label></th>
-                        <td><?php echo get_member_level_select('cf_icon_level', 1, 9, $config['cf_icon_level']) ?> 이상</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="cf_member_icon_size">회원아이콘 용량</label></th>
-                        <td><input type="text" name="cf_member_icon_size" value="<?php echo (int) $config['cf_member_icon_size'] ?>" id="cf_member_icon_size" class="frm_input" size="10"> 바이트 이하</td>
-                        <th scope="row">회원아이콘 사이즈</th>
-                        <td>
-                            <label for="cf_member_icon_width">가로</label>
-                            <input type="text" name="cf_member_icon_width" value="<?php echo (int) $config['cf_member_icon_width'] ?>" id="cf_member_icon_width" class="frm_input" size="2">
-                            <label for="cf_member_icon_height">세로</label>
-                            <input type="text" name="cf_member_icon_height" value="<?php echo (int) $config['cf_member_icon_height'] ?>" id="cf_member_icon_height" class="frm_input" size="2">
-                            픽셀 이하
-                        </td>
+                        <th scope="row"><label for="cf_image_level">회원 이미지 업로드 권한</label></th>
+                        <td><?php echo get_member_level_select('cf_image_level', 2, 9, $config['cf_image_level']) ?> 이상</td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="cf_member_img_size">회원이미지 용량</label></th>

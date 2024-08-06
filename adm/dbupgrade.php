@@ -41,7 +41,7 @@ if(!isset($config['cf_kakao_client_secret'])) {
 // 회원 이미지 관련 필드 추가
 if(!isset($config['cf_member_img_size'])) {
     sql_query("ALTER TABLE `{$g5['config_table']}`
-                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_icon_height`,
+                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_use_member_image`,
                 ADD `cf_member_img_width` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_size`,
                 ADD `cf_member_img_height` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_width`
     ", true);

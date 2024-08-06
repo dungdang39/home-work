@@ -369,10 +369,10 @@ function get_check_mod_rewrite(){
     return $mod_rewrite;
 }
 
-function get_mb_icon_name($mb_id){
+function get_mb_image_name($mb_id){
 
-    if( $icon_name = run_replace('get_mb_icon_name', '', $mb_id) ){
-        return $icon_name;
+    if( $image_name = run_replace('get_mb_image_name', '', $mb_id) ){
+        return $image_name;
     }
 
     return $mb_id;

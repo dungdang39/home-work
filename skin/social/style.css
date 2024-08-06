@@ -149,7 +149,7 @@
 #fregisterform .form_01 div {margin:0 0 20px}
 #fregisterform .captcha {display:block;margin:5px 0 0}
 #fregisterform .reg_mb_img_file img {max-width:100%;height:auto}
-#reg_mb_icon, #reg_mb_img {float:right}
+#reg_mb_img {float:right}
 
 .tooltip_icon {display:inline-block;vertical-align:baseline;color:#b3b5b8;border:0;font-size:1.4em;background:transparent;cursor:pointer}
 .tooltip_icon:hover {color:#448bf5}

@@ -262,7 +262,6 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
     {
         $member = $request->getAttribute('member');
 
-        $member['mb_icon_path'] = $this->image_service->getMemberImagePath($member['mb_id'], 'icon');
         $member['mb_image_path'] = $this->image_service->getMemberImagePath($member['mb_id'], 'image');
 
         $response_data = new GetMemberMeResponse($member);
@@ -297,8 +296,9 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
         $this->member_service->verifyMemberProfile($member, $login_member);
 
-        $member['mb_icon_path'] = $this->image_service->getMemberImagePath($mb_id, 'icon');
-        $member['mb_image_path'] = $this->image_service->getMemberImagePath($mb_id, 'image');
+        $image_path = $this->image_service->getMemberImagePath($mb_id);
+        $member['mb_icon_path'] = $image_path; // TODO: 회원 이미지 리사이즈 처리가 필요함
+        $member['mb_image_path'] = $image_path;
 
         $response_data = new GetMemberResponse($member);
 
@@ -351,27 +351,25 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
     }
 
     /**
-     * 회원 아이콘/이미지 수정
+     * 회원 이미지 수정
      * 
      * @OA\Post(
      *      path="/api/v1/member/images",
-     *      summary="회원 아이콘&이미지 수정",
+     *      summary="회원 이미지 수정",
      *      tags={"회원"},
      *      security={ {"Oauth2Password": {}} },
-     *      description="JWT 토큰을 통해 인증된 회원의 아이콘 & 이미지를 수정합니다.",
+     *      description="JWT 토큰을 통해 인증된 회원의 이미지를 수정합니다.",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\MediaType(
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
      *                  @OA\Property(property="mb_img", type="file", description="회원 이미지"),
-     *                  @OA\Property(property="mb_icon", type="file", description="회원 아이콘"),
      *                  @OA\Property(property="del_mb_img", type="int", description="회원 이미지 삭제여부"),
-     *                  @OA\Property(property="del_mb_icon", type="int", description="회원 아이콘 삭제여부"),
      *              )
      *          )
      *      ),
-     *     @OA\Response(response="200", description="회원 아이콘/이미지 수정 성공", @OA\JsonContent(ref="#/components/schemas/BaseResponse")),
+     *     @OA\Response(response="200", description="회원 이미지 수정 성공", @OA\JsonContent(ref="#/components/schemas/BaseResponse")),
      *     @OA\Response(response="401", ref="#/components/responses/401"),
      *     @OA\Response(response="403", ref="#/components/responses/403"),
      *     @OA\Response(response="404", ref="#/components/responses/404"),
@@ -389,15 +387,11 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
         try {
             if ($request_data['del_mb_img']) {
-                $this->image_service->deleteMemberImage($member['mb_id'], 'image');
+                $this->image_service->deleteMemberImage($member['mb_id']);
             }
-            if ($request_data['del_mb_icon']) {
-                $this->image_service->deleteMemberImage($member['mb_id'], 'icon');
-            }
-            $this->image_service->updateMemberImage($config, $member['mb_id'], 'image', $uploaded_files['mb_img']);
-            $this->image_service->updateMemberImage($config, $member['mb_id'], 'icon', $uploaded_files['mb_icon']);
+            $this->image_service->updateMemberImage($config, $member['mb_id'], $uploaded_files['mb_img']);
 
-            return api_response_json($response, array("message" => "회원 아이콘/이미지가 수정되었습니다."));
+            return api_response_json($response, array("message" => "회원 이미지가 수정되었습니다."));
         } catch (Exception $e) {
             if ($e->getCode() === 422) {
                 throw new HttpUnprocessableEntityException($request, $e->getMessage());

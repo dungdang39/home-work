@@ -69,10 +69,10 @@ class MemberConfigResponse
     public int $cf_req_signature = 0;
 
     /**
-     * 회원아이콘 업로드 권한 제한
+     * 회원 이미지 업로드 권한 제한
      * @OA\Property(example=2)
      */
-    public int $cf_icon_level = 0;
+    public int $cf_image_level = 0;
 
     /**
      * 회원 이미지 너비
@@ -91,24 +91,6 @@ class MemberConfigResponse
      * @OA\Property(example=50000)
      */
     public int $cf_member_img_size = 0;
-
-    /**
-     * 회원 아이콘 너비
-     * @OA\Property(example=22)
-     */
-    public int $cf_member_icon_width = 0;
-
-    /**
-     * 회원 아이콘 높이
-     * @OA\Property(example=22)
-     */
-    public int $cf_member_icon_height = 0;
-
-    /**
-     * 회원 아이콘 크기
-     * @OA\Property(example=5000)
-     */
-    public int $cf_member_icon_size = 0;
 
     /**
      * 회원 정보공개 제한 일
