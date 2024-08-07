@@ -57,3 +57,17 @@ if( ! function_exists('install_json_msg') ){
         return json_encode(array('error'=>$error_msg, 'success'=>$success_msg, 'exists'=>$exists_msg));
     }
 }
+
+if( ! function_exists('make_ajax_token') ){
+    /**
+     * Ajax 확인용 토큰 생성
+     * @return string
+     */
+    function make_ajax_token(): string
+    {
+        $tmp_str = isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '';
+        $ajax_token = md5($tmp_str . $_SERVER['REMOTE_ADDR'] . dirname(dirname(__FILE__) . '/'));
+
+        return $ajax_token;
+    }
+}

@@ -1,73 +1,104 @@
 <?php
-include_once('./_common.php');
 
-define('_INDEX_', true);
-if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+print_r("index.php");
+exit;
 
-if(defined('G5_THEME_PATH')) {
-    require_once(G5_THEME_PATH.'/index.php');
-    return;
+use API\Handlers\HttpErrorHandler;
+use API\Handlers\ShutdownHandler;
+use API\Middleware\JsonBodyParserMiddleware;
+use API\ResponseEmitter\ResponseEmitter;
+use DI\Container;
+use Slim\Factory\AppFactory;
+use Slim\Factory\ServerRequestCreatorFactory;
+
+require __DIR__ . '/vendor/autoload.php';
+
+//gnuboard 로딩
+$g5_path = g5_root_path();
+require_once(dirname(__DIR__, 1) . '/config.php');   // 설정 파일
+unset($g5_path);
+
+include_once(G5_LIB_PATH.'/hook.lib.php');    // hook 함수 파일
+include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
+
+$dbconfig_file = G5_DATA_PATH.'/'.G5_DBCONFIG_FILE;
+if (file_exists($dbconfig_file)) {
+    include_once($dbconfig_file);
+}
+//-------------------------
+
+// Set error display settings
+// - Should be set to false in production
+$displayErrorDetails = true;
+
+//@todo 임시 전역변수 정리후 삭제대상
+$config = get_gnuconfig();
+/**
+ * Instantiate App
+ */
+$container = new Container();
+AppFactory::setContainer($container);
+$app = AppFactory::create();
+
+// Create Request object from globals
+$serverRequestCreator = ServerRequestCreatorFactory::create();
+$request = $serverRequestCreator->createServerRequestFromGlobals();
+
+/**
+ * Add Middleware
+ */
+// The routing middleware should be added earlier than the ErrorMiddleware
+// Otherwise exceptions thrown from it will not be handled by the middleware
+$app->addRoutingMiddleware();
+
+// Add JSON Body Parser Middleware
+$app->add(new JsonBodyParserMiddleware());
+
+// Create Error Handler
+$callableResolver = $app->getCallableResolver();
+$responseFactory = $app->getResponseFactory();
+$errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
+
+// Create Shutdown Handler
+$shutdownHandler = new ShutdownHandler($request, $errorHandler, $displayErrorDetails);
+register_shutdown_function($shutdownHandler);
+
+// Add Error Middleware
+$errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
+$errorMiddleware->setDefaultErrorHandler($errorHandler);
+
+/**
+ * Add Routers
+ */
+// Set the base path for the API version
+$api_path = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+$api_version = explode("/", str_replace($api_path, '', $_SERVER['REQUEST_URI']))[1];
+$app->setBasePath($api_path . '/' . $api_version);
+
+// Include all Routers for the requested API version.
+$routerFiles = glob(__DIR__ . "/app/*/router/*.php");
+foreach ($routerFiles as $routerFile) {
+    include_once $routerFile;
 }
 
-if (G5_IS_MOBILE) {
-    include_once(G5_MOBILE_PATH.'/index.php');
-    return;
+/**
+ * Route Cache (Optional)
+ * To generate the route cache data, you need to set the file to one that does not exist in a writable directory.
+ * After the file is generated on first run, only read permissions for the file are required.
+ *
+ * You may need to generate this file in a development environment and committing it to your project before deploying
+ * if you don't have write permissions for the directory where the cache file resides on the server it is being deployed to
+ */
+/*
+$cache_dir = G5_DATA_PATH . "/cache/API";
+if (!is_dir($cache_dir)) {
+    @mkdir($cache_dir, G5_DIR_PERMISSION);
 }
+$routeCollector = $app->getRouteCollector();
+$routeCollector->setCacheFile("{$cache_dir}/router-cache.php");
+*/
 
-include_once(G5_PATH.'/head.php');
-?>
-
-<h2 class="sound_only">최신글</h2>
-
-<div class="latest_top_wr">
-    <?php
-    // 이 함수가 바로 최신글을 추출하는 역할을 합니다.
-    // 사용방법 : latest(스킨, 게시판아이디, 출력라인, 글자수);
-    // 테마의 스킨을 사용하려면 theme/basic 과 같이 지정
-    echo latest('pic_list', 'free', 4, 23);			// 최소설치시 자동생성되는 자유게시판
-	echo latest('pic_list', 'qa', 4, 23);			// 최소설치시 자동생성되는 질문답변게시판
-	echo latest('pic_list', 'notice', 4, 23);		// 최소설치시 자동생성되는 공지사항게시판
-    ?>
-</div>
-<div class="latest_wr">
-    <!-- 사진 최신글2 { -->
-    <?php
-    // 이 함수가 바로 최신글을 추출하는 역할을 합니다.
-    // 사용방법 : latest(스킨, 게시판아이디, 출력라인, 글자수);
-    // 테마의 스킨을 사용하려면 theme/basic 과 같이 지정
-    echo latest('pic_block', 'gallery', 4, 23);		// 최소설치시 자동생성되는 갤러리게시판
-    ?>
-    <!-- } 사진 최신글2 끝 -->
-</div>
-
-<div class="latest_wr">
-<!-- 최신글 시작 { -->
-    <?php
-    //  최신글
-    $sql = " select bo_table
-                from `{$g5['board_table']}` a left join `{$g5['group_table']}` b on (a.gr_id=b.gr_id)
-                where a.bo_device <> 'mobile' ";
-    if(!$is_admin)
-	$sql .= " and a.bo_use_cert = '' ";
-    $sql .= " and a.bo_table not in ('notice', 'gallery') ";     //공지사항과 갤러리 게시판은 제외
-    $sql .= " order by b.gr_order, a.bo_order ";
-    $result = sql_query($sql);
-    for ($i=0; $row=sql_fetch_array($result); $i++) {
-		$lt_style = '';
-    	if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
-    ?>
-    <div style="float:left;<?php echo $lt_style ?>" class="lt_wr">
-        <?php
-        // 이 함수가 바로 최신글을 추출하는 역할을 합니다.
-        // 사용방법 : latest(스킨, 게시판아이디, 출력라인, 글자수);
-        // 테마의 스킨을 사용하려면 theme/basic 과 같이 지정
-        echo latest('basic', $row['bo_table'], 6, 24);
-        ?>
-    </div>
-    <?php
-    }
-    ?>
-    <!-- } 최신글 끝 -->
-</div>
-<?php
-include_once(G5_PATH.'/tail.php');
+// Run App & Custom Emit Response
+$response = $app->handle($request);
+$responseEmitter = new ResponseEmitter();
+$responseEmitter->emit($response);

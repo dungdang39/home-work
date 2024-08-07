@@ -1,10 +1,11 @@
 <?php
 
-namespace API\Database;
+namespace Core\Database;
 
 use API\Exceptions\DbConnectException;
 use PDO;
 use PDOException;
+use Exception;
 
 /**
  * Class Db
@@ -19,43 +20,39 @@ class Db
      */
     private $pdo;
 
-    private function __construct()
-    {
+    public function __construct(
+        $driver = 'mysql',
+        $host = '',
+        $dbname = null,
+        $user = null,
+        $password = null
+    ) {
         $db_settings = [
-            'driver' => 'mysql', // @todo
-            'host' => G5_MYSQL_HOST,
-            'dbname' => G5_MYSQL_DB,
-            'user' => G5_MYSQL_USER,
-            'password' => G5_MYSQL_PASSWORD
+            'driver' => $driver,
+            'host' => $host ?? (defined(G5_MYSQL_HOST) ? G5_MYSQL_HOST : ''),
+            'dbname' => $dbname ?? (defined(G5_MYSQL_DB) ? G5_MYSQL_DB : ''),
+            'user' => $user ?? (defined(G5_MYSQL_USER) ? G5_MYSQL_USER : ''),
+            'password' => $password ?? (defined(G5_MYSQL_PASSWORD) ? G5_MYSQL_PASSWORD : ''),
         ];
+        $this->pdo = self::createPdoInstance($db_settings);
 
-        try {
-            $this->pdo = new PDO(
-                "{$db_settings['driver']}:host={$db_settings['host']};dbname={$db_settings['dbname']}",
-                $db_settings['user'],
-                $db_settings['password'],
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_EMULATE_PREPARES => 0, // PHP 8.4 부터는 bool 타입이나. 암시적 형변환되어 0이면 false로 인식됨.
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                ]
-            );
-
-            //mysql 0000 허용
-            if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' || $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mariadb') {
-                $this->pdo->exec("SET SESSION sql_mode = 'ALLOW_INVALID_DATES'");
-            }
-        } catch (PDOException $e) {
-            throw new DbConnectException("Database connection failed", -1);
+        //mysql 0000 허용
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' || $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mariadb') {
+            $this->pdo->exec("SET SESSION sql_mode = 'ALLOW_INVALID_DATES'");
         }
     }
 
     public static function getInstance()
     {
         if (self::$instance == null) {
-            self::$instance = new Db();
+            self::setInstance(new Db());
         }
         return self::$instance;
+    }
+
+    public static function setInstance($instance)
+    {
+        self::$instance = $instance;
     }
 
     /**
@@ -77,6 +74,7 @@ class Db
     {
         return $this->pdo;
     }
+
 
     public function __destruct()
     {
@@ -226,5 +224,59 @@ class Db
         error_log("Parameter info: \n" . $paramInfo);
     }
 
+    /**
+     * 데이터베이스 연결을 테스트.
+     * @param array $db_settings
+     * @return array
+     */
+    public static function testConnection($db_settings): array
+    {
+        try {
+            $pdo = self::createPdoInstance($db_settings);
+            $pdo->query('SELECT 1');
 
+            return ['success' => true, 'message' => 'Database connection is successful.'];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * 테이블이 존재하는지 확인.
+     * @param string $table
+     * @return bool
+     */
+    public static function isTableExists(string $table): bool
+    {
+        $db = self::getInstance();
+        $query = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = :table AND TABLE_SCHEMA = DATABASE()";
+        $params = ['table' => $table];
+
+        $stmt = $db->run($query, $params);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * PDO 객체 생성.
+     * @param array $db_settings
+     * @return PDO
+     * @throws DbConnectException
+     */
+    private static function createPdoInstance(array $db_settings)
+    {
+        try {
+            return new PDO(
+                "{$db_settings['driver']}:host={$db_settings['host']};dbname={$db_settings['dbname']}",
+                $db_settings['user'],
+                $db_settings['password'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_EMULATE_PREPARES => 0,  // PHP 8.4 부터는 bool 타입이나. 암시적 형변환되어 0이면 false로 인식됨.
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]
+            );
+        } catch (PDOException $e) {
+            throw new DbConnectException("Database connection failed: " . $e->getMessage(), -1);
+        }
+    }
 }

@@ -9,11 +9,14 @@
         "zircote/swagger-php": "^4.10",
         "doctrine/annotations": "^2.0",
         "php-di/php-di": "^6.4",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "league/plates": "^3.5"
     },
     "autoload": {
         "psr-4": {
-            "API\\": "api/"
+            "API\\": "api/",
+            "Core\\": "core/",
+            "Install\\": "install/"
         },
         "files": [
             "api/functions.php"

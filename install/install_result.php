@@ -1,8 +1,13 @@
 <?php
+
+use League\Plates\Engine;
+use Install\InstallService;
+
+require __DIR__ . '/../vendor/autoload.php';
+
 @set_time_limit(0);
-$gmnow = gmdate('D, d M Y H:i:s') . ' GMT';
 header('Expires: 0'); // rfc2616 - Section 14.21
-header('Last-Modified: ' . $gmnow);
+header('Last-Modified: ' .  gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-store, no-cache, must-revalidate'); // HTTP/1.1
 header('Cache-Control: pre-check=0, post-check=0, max-age=0'); // HTTP/1.1
 header('Pragma: no-cache'); // HTTP/1.0
@@ -11,132 +16,45 @@ header('Pragma: no-cache'); // HTTP/1.0
 
 $g5_path['path'] = '..';
 include_once('../config.php');
-include_once('../lib/common.lib.php');
-include_once('./install.function.php');    // 인스톨 과정 함수 모음
+include_once('./install.function.php');
 
-include_once('../lib/hook.lib.php');    // hook 함수 파일
-include_once('../lib/get_data.lib.php');
-include_once('../lib/uri.lib.php');    // URL 함수 파일
-include_once('../lib/cache.lib.php');
+$templates = new Engine('./template');
+$install_service = new InstallService($templates);
 
-$title = G5_VERSION." 설치 완료 3/3";
-include_once('./install.inc.php');
-
-$tmp_bo_table   = array ("notice", "qa", "free", "gallery");
-
-
-$mysql_host  = isset($_POST['mysql_host']) ? safe_install_string_check($_POST['mysql_host']) : '';
-$mysql_user  = isset($_POST['mysql_user']) ? safe_install_string_check($_POST['mysql_user']) : '';
-$mysql_pass  = isset($_POST['mysql_pass']) ? safe_install_string_check($_POST['mysql_pass']) : '';
-$mysql_db    = isset($_POST['mysql_db']) ? safe_install_string_check($_POST['mysql_db']) : '';
-$table_prefix= isset($_POST['table_prefix']) ? safe_install_string_check($_POST['table_prefix']) : '';
-$admin_id    = isset($_POST['admin_id']) ? $_POST['admin_id'] : '';
-$admin_pass  = isset($_POST['admin_pass']) ? $_POST['admin_pass'] : '';
-$admin_name  = isset($_POST['admin_name']) ? $_POST['admin_name'] : '';
-$admin_email = isset($_POST['admin_email']) ? $_POST['admin_email'] : '';
-
-if (preg_match("/[^0-9a-z_]+/i", $table_prefix) ) {
-    die('<div class="ins_inner"><p>TABLE명 접두사는 영문자, 숫자, _ 만 입력하세요.</p><div class="inner_btn"><a href="./install_config.php">뒤로가기</a></div></div>');
-}
-
-if (preg_match("/[^0-9a-z_]+/i", $admin_id)) {
-    die('<div class="ins_inner"><p>관리자 아이디는 영문자, 숫자, _ 만 입력하세요.</p><div class="inner_btn"><a href="./install_config.php">뒤로가기</a></div></div>');
-}
-
-$g5_install = isset($_POST['g5_install']) ? (int) $_POST['g5_install'] : 0;
-$g5_shop_prefix = isset($_POST['g5_shop_prefix']) ? safe_install_string_check($_POST['g5_shop_prefix']) : 'yc5_';
-$g5_shop_install = isset($_POST['g5_shop_install']) ? (int) $_POST['g5_shop_install'] : 0;
-
-$dblink = sql_connect($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
-if (!$dblink) {
-?>
-
-<div class="ins_inner">
-    <p>MySQL Host, User, Password 를 확인해 주십시오.</p>
-    <div class="inner_btn"><a href="./install_config.php">뒤로가기</a></div>
-</div>
-
-<?php
-    include_once('./install.inc2.php');
+// 설치 가능 여부 체크
+$error = $install_service->validateInstall();
+if ($error) {
+    echo $error;
     exit;
 }
 
-$g5['connect_db'] = $dblink;
-$select_db = sql_select_db($mysql_db, $dblink);
-if (!$select_db) {
-?>
+// 폼 데이터 체크
+$form = [];
+$form['mysql_host']  = isset($_POST['mysql_host']) ? safe_install_string_check($_POST['mysql_host']) : '';
+$form['mysql_user']  = isset($_POST['mysql_user']) ? safe_install_string_check($_POST['mysql_user']) : '';
+$form['mysql_pass']  = isset($_POST['mysql_pass']) ? safe_install_string_check($_POST['mysql_pass']) : '';
+$form['mysql_db']    = isset($_POST['mysql_db']) ? safe_install_string_check($_POST['mysql_db']) : '';
+$form['table_prefix']= isset($_POST['table_prefix']) ? safe_install_string_check($_POST['table_prefix']) : '';
+$form['shop_table_prefix']= isset($_POST['shop_table_prefix']) ? safe_install_string_check($_POST['shop_table_prefix']) : 'yc_';
+$form['reinstall'] = isset($_POST['reinstall']) ? (int) $_POST['reinstall'] : 0;
+$form['shop_install'] = isset($_POST['shop_install']) ? (int) $_POST['shop_install'] : 0;
+$form['admin_id']    = isset($_POST['admin_id']) ? $_POST['admin_id'] : '';
+$form['admin_pass']  = isset($_POST['admin_pass']) ? $_POST['admin_pass'] : '';
+$form['admin_name']  = isset($_POST['admin_name']) ? $_POST['admin_name'] : '';
+$form['admin_email'] = isset($_POST['admin_email']) ? $_POST['admin_email'] : '';
 
-<div class="ins_inner">
-    <p>MySQL DB 를 확인해 주십시오.</p>
-    <div class="inner_btn"><a href="./install_config.php">뒤로가기</a></div>
-</div>
+session_start();
+$_SESSION['install_form'] = $form;
 
-<?php
-    include_once('./install.inc2.php');
-    exit;
-}
+// 설치 페이지 출력
+$response_data = [
+    "version" => G5_VERSION,
+    "form" => $form,
+];
+echo $templates->render('install_result', $response_data);
+exit;
 
-$mysql_set_mode = 'false';
-sql_set_charset(G5_DB_CHARSET, $dblink);
-$result = sql_query(" SELECT @@sql_mode as mode ", true, $dblink);
-$row = sql_fetch_array($result);
-if($row['mode']) {
-    sql_query("SET SESSION sql_mode = ''", true, $dblink);
-    $mysql_set_mode = 'true';
-}
-unset($result);
-unset($row);
-?>
 
-<div class="ins_inner">
-    <h2><?php echo G5_VERSION ?> 설치가 시작되었습니다.</h2>
-
-    <ol>
-<?php
-$sql = "SHOW TABLES LIKE '{$table_prefix}config'";
-$is_install = sql_query($sql, false, $dblink)->num_rows > 0;
-
-// 그누보드5 재설치에 체크하였거나 그누보드5가 설치되어 있지 않다면
-if ($g5_install || $is_install === false) {
-    // 테이블 생성 ------------------------------------
-    $file = implode('', file('./gnuboard5.sql'));
-    eval("\$file = \"$file\";");
-
-    $file = preg_replace('/^--.*$/m', '', $file);
-    $file = preg_replace('/`g5_([^`]+`)/', '`'.$table_prefix.'$1', $file);
-    $f = explode(';', $file);
-    for ($i=0; $i<count($f); $i++) {
-        if (trim($f[$i]) == '') {
-            continue;
-        }
-
-        $sql = get_db_create_replace($f[$i]);
-        sql_query($sql, true, $dblink);
-    }
-}
-
-// 쇼핑몰 테이블 생성 -----------------------------
-if($g5_shop_install) {
-    $file = implode('', file('./gnuboard5shop.sql'));
-
-    $file = preg_replace('/^--.*$/m', '', $file);
-    $file = preg_replace('/`g5_shop_([^`]+`)/', '`'.$g5_shop_prefix.'$1', $file);
-    $f = explode(';', $file);
-    for ($i=0; $i<count($f); $i++) {
-        if (trim($f[$i]) == '') {
-            continue;
-        }
-
-        $sql = get_db_create_replace($f[$i]);
-        sql_query($sql, true, $dblink);
-    }
-}
-// 테이블 생성 ------------------------------------
-?>
-
-        <li>전체 테이블 생성 완료</li>
-
-<?php
 $read_point = 0;
 $write_point = 0;
 $comment_point = 0;
@@ -693,6 +611,3 @@ if($g5_shop_install) {
     </div>
 
 </div>
-
-<?php
-include_once ('./install.inc2.php');
