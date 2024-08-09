@@ -1,0 +1,20 @@
+{
+    "default": [
+        "cache",
+        "editor",
+        "file",
+        "log",
+        "member",
+        "member_image",
+        "session",
+        "content",
+        "faq",
+        "tmp"
+    ],
+    "shop": [
+        "banner",
+        "common",
+        "event",
+        "item"
+    ]
+}

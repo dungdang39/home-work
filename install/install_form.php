@@ -1,7 +1,7 @@
 <?php
 
 use League\Plates\Engine;
-use Install\InstallService;
+use Install\InstallValidateService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -19,17 +19,17 @@ include_once('../config.php');
 include_once('./install.function.php');
 
 $templates = new Engine('./template');
-$install_service = new InstallService($templates);
+$validate_service = new InstallValidateService($templates);
 
 // 설치 가능 여부 체크
-$error = $install_service->validateInstall();
+$error = $validate_service->validateInstall();
 if ($error) {
     echo $error;
     exit;
 }
 // 라이센스 동의 체크
 $agree = isset($_POST['agree']) ? $_POST['agree'] : '';
-if ($install_service->checkLicenseAgree($agree)) {
+if ($validate_service->checkLicenseAgree($agree)) {
     echo $templates->render("error/license_agree", ["version" => G5_VERSION]);
     exit;
 }

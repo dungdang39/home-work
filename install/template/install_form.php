@@ -119,7 +119,8 @@
             { field: f.mysql_user, message: 'MySQL User' },
             { field: f.mysql_pass, message: 'MySQL PASSWORD' },
             { field: f.mysql_db, message: 'MySQL DB' },
-            { field: f.table_prefix, message: 'TABLE명 접두사' }
+            { field: f.table_prefix, message: 'TABLE명 접두사' },
+            { field: f.shop_table_prefix, message: '쇼핑몰 TABLE명 접두사' }
         ];
 
         for (let i = 0; i < fieldsToValidate.length; i++) {

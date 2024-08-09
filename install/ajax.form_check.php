@@ -3,7 +3,7 @@
 use League\Plates\Engine;
 
 use Core\Database\Db;
-use Install\InstallService;
+use Install\InstallValidateService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -15,9 +15,9 @@ include_once('../lib/hook.lib.php');    // hook 함수 파일
 include_once('../lib/get_data.lib.php');    // 데이터 가져오는 함수 모음
 
 $templates = new Engine('./template');
-$install_service = new InstallService($templates);
+$validate_service = new InstallValidateService($templates);
 
-if ($install_service->isInstalled()) {
+if ($validate_service->isInstalled()) {
     die(install_json_msg('프로그램이 이미 설치되어 있습니다.'));
 }
 

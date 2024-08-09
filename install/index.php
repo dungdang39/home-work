@@ -1,7 +1,7 @@
 <?php
 
 use League\Plates\Engine;
-use Install\InstallService;
+use Install\InstallValidateService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -13,16 +13,16 @@ $g5_path['path'] = '..';
 include_once('../config.php');
 
 $templates = new Engine('./template');
-$install_service = new InstallService($templates);
+$validate_service = new InstallValidateService($templates);
 
 // 설치 가능 여부 체크
-$error = $install_service->validateInstall();
+$error = $validate_service->validateInstall();
 if ($error) {
     echo $error;
     exit;
 }
 // GD 라이브러리 체크
-if (!$install_service->isGdLibraryExists()) {
+if (!$validate_service->isGdLibraryExists()) {
     echo $templates->render("error/gd_library", ["version" => G5_VERSION]);
 }
 
