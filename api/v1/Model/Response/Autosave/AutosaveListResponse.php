@@ -2,6 +2,8 @@
 
 namespace API\v1\Model\Response\Autosave;
 
+use API\v1\Traits\SchemaHelperTrait;
+
 /**
  * @OA\Schema(
  *     schema="AutosaveListResponse"
@@ -9,21 +11,26 @@ namespace API\v1\Model\Response\Autosave;
  */
 class AutosaveListResponse
 {
+    use SchemaHelperTrait;
+
     /**
      * @var Autosave[]
      * @OA\Property(property="autosaves", type="array", @OA\Items(ref="#/components/schemas/Autosave"))
      */
-    public $autosaves;
+    public $autosaves = [];
 
     /**
-     * @var int
-     * @OA\Property(property="total_records", type="integer")
+     * @OA\Property
      */
-    public $total_records;
+    public int $total_records = 0;
 
     /**
-     * @var int
-     * @OA\Property(property="total_pages", type="integer")
+     * @OA\Property
      */
-    public $total_pages;
+    public int $total_pages = 0;
+
+    public function __construct(array $data)
+    {
+        $this->mapDataToProperties($this, $data);
+    }
 }

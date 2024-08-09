@@ -8,16 +8,23 @@ class MemoService
 {
 
 
+    private MemberService $member_service;
+
+    public function __construct(MemberService $member_service)
+    {
+        $this->member_service = $member_service;
+    }
+
     /**
      * 메모의 전체 카운트 수 조회
      * @param string $me_type
      * @param string $mb_id
      * @return int
      */
-    public function fetch_total_records($me_type, $mb_id)
+    public function fetchTotalCount($me_type, $mb_id)
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
-        if ($me_type == 'recv') {
+        if ($me_type === 'recv') {
             $where = "me_recv_mb_id = :mb_id AND me_type = :me_type AND me_read_datetime = :me_read_datetime";
         } else {
             $where = "me_send_mb_id = :mb_id AND me_type = :me_type AND me_read_datetime = :me_read_datetime";
@@ -30,7 +37,7 @@ class MemoService
             'me_type' => $me_type,
             'me_read_datetime' => '0000-00-00 00:00:00'
         ]);
-        return $stmt->fetchColumn();
+        return $stmt->fetchColumn() ?: 0;
     }
 
     /**
@@ -40,9 +47,9 @@ class MemoService
      * @param int $per_page
      * @return array
      */
-    public function fetch_memos(string $me_type, string $mb_id, int $page, int $per_page)
+    public function fetchMemos(string $me_type, string $mb_id, int $page, int $per_page)
     {
-        if ($me_type == 'recv') {
+        if ($me_type === 'recv') {
             $where = "me_recv_mb_id = :mb_id AND me_type = :me_type AND me_read_datetime = :me_read_datetime";
         } else {
             $where = "me_send_mb_id = :mb_id AND me_type = :me_type AND me_read_datetime = :me_read_datetime";
@@ -70,7 +77,7 @@ class MemoService
      * @param string $receiver_ids
      * @return array ['available_ids' => [], 'not_available_ids' => []]
      */
-    public function get_recive_members(string $receiver_ids)
+    public function getReciveMembers(string $receiver_ids)
     {
         $member_table = $GLOBALS['g5']['member_table'];
         $send_target_ids = explode(',', $receiver_ids);
@@ -95,33 +102,35 @@ class MemoService
     }
 
     /**
+     * 쪽지 전송
      * @param string $mb_id
      * @param string $receiver_ids
      * @param string $content
-     * @return bool|string[] ['error' => '쪽지를 전송할 회원이 없습니다.', code => 400]
+     * @return array int[] 전송된 쪽지의 테이블 번호
+     * @throws \Exception
      */
-    public function send_memo($mb_id, $receiver_ids, $content, $ip)
+    public function sendMemo($mb_id, $receiver_ids, $content, $ip)
     {
-        $result = $this->get_recive_members($receiver_ids);
-
-        $member_result = get_member($mb_id, 'mb_no');
+        $result = $this->getReciveMembers($receiver_ids);
+        $member_result = $this->member_service->fetchMemberById($mb_id);
         if (!isset($member_result['mb_no'])) {
-            return ['error' => '회원 정보가 없습니다.', 'code' => 400];
+            throw new \Exception('회원 정보가 없습니다.', 400);
         }
         $mb_no = $member_result['mb_no'];
 
         if (empty($result['available_ids'])) {
-            return ['error' => '쪽지를 전송할 회원이 없습니다.', 'code' => 400];
+            throw new \Exception('쪽지를 전송할 회원이 없습니다.', 400);
         }
 
         $receiver_id_list = $result['available_ids'];
-        if (count($result['not_available_ids']) !== 0 && (count($result['not_available_ids']) == count($receiver_id_list))) {
-            return ['error' => ' 존재(또는 정보공개)하지 않는 회원이거나 탈퇴/차단된 회원입니다."', 'code' => 400];
+        if (count($result['not_available_ids']) !== 0 && (count($result['not_available_ids']) === count($receiver_id_list))) {
+            throw new \Exception(' 존재(또는 정보공개)하지 않는 회원이거나 탈퇴/차단된 회원입니다."', 400);
         }
 
         $memo_table = $GLOBALS['g5']['memo_table'];
-
+        $send_memo_id = [];
         foreach ($result['available_ids'] as $receiver_id) {
+            // 받는 회원
             $last_insert_id = Db::getInstance()->insert($memo_table, [
                 'me_recv_mb_id' => $receiver_id,
                 'me_send_mb_id' => $mb_id,
@@ -133,6 +142,7 @@ class MemoService
             ]);
 
             if ($last_insert_id) {
+                // 보낸 회원기록
                 Db::getInstance()->insert($memo_table, [
                     'me_recv_mb_id' => $receiver_id,
                     'me_send_mb_id' => $mb_id,
@@ -142,10 +152,12 @@ class MemoService
                     'me_send_id' => $mb_no,
                     'me_send_ip' => $ip
                 ]);
+                
+                $send_memo_id[] = $last_insert_id;
             }
         }
 
-        return true;
+        return $send_memo_id;
     }
 
     /**
@@ -154,7 +166,7 @@ class MemoService
      * @param string $member_id
      * @return array
      */
-    public function fetch_memo($memo_id, $member_id)
+    public function fetchMemo($memo_id, $member_id)
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
         $query = "SELECT * FROM $memo_table WHERE me_id = :me_id";
@@ -171,7 +183,7 @@ class MemoService
      * @param int $memo_id
      * @return bool
      */
-    public function read_check($memo_id)
+    public function readCheck($memo_id)
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
         $row_count = Db::getInstance()->update($memo_table, ['me_id' => $memo_id], ['me_read_datetime' => G5_TIME_YMDHIS]);
@@ -210,7 +222,7 @@ class MemoService
             return ['error' => '해당 쪽지가 없습니다.', 'code' => 404];
         }
 
-        if ($memo['me_read_datetime'] == '0000-00-00 00:00:00') {
+        if ($memo['me_read_datetime'] === '0000-00-00 00:00:00') {
             return;
         }
 
@@ -249,7 +261,7 @@ class MemoService
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
         $result = Db::getInstance()->run("SELECT count(*) as cnt FROM $memo_table 
-                       WHERE me_recv_mb_id = :mb_id  
+                       WHERE me_recv_mb_id = :mb_id
                          AND me_type = 'recv'
                          AND me_read_datetime = '0000-00-00 00:00:00'",
             ['mb_id' => $mb_id])->fetch();

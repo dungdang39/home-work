@@ -2,6 +2,8 @@
 
 namespace API\v1\Model\Response\Autosave;
 
+use API\v1\Traits\SchemaHelperTrait;
+
 /**
  * @OA\Schema(
  *     schema="Autosave"
@@ -9,39 +11,42 @@ namespace API\v1\Model\Response\Autosave;
  */
 class Autosave
 {
-    /**
-     * @var int
-     * @OA\Property(property="as_id", type="integer")
-     */
-    public $as_id;
+
+    use SchemaHelperTrait;
 
     /**
-     * @var string
-     * @OA\Property(property="mb_id", type="string")
+     * @OA\Property
      */
-    public $mb_id;
+    public int $as_id = 0;
 
     /**
-     * @var int
-     * @OA\Property(property="as_uid", type="integer")
+     * @OA\Property
      */
-    public $as_uid;
+    public string $mb_id = '';
 
     /**
-     * @var string
-     * @OA\Property(property="as_subject", type="string"),
+     * @OA\Property
      */
-    public $as_subject;
+    public int $as_uid = 0;
 
     /**
-     * @var string
-     * @OA\Property(property="as_content", type="string")
+     * @OA\Property
      */
-    public $as_content;
+    public string $as_subject = '';
 
     /**
-     * @var string
-     * @OA\Property(property="as_datetime", type="string", format="date-time")
+     * @OA\Property
      */
-    public $as_datetime;
+    public string $as_content = '';
+
+    /**
+     * @OA\Property(format="date-time")
+     */
+    public string $as_datetime = '';
+
+    public function __construct(array $data)
+    {
+        $this->mapDataToProperties($this, $data);
+    }
+
 }

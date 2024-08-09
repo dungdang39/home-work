@@ -18,37 +18,43 @@ class Board
      * 게시판 아이디
      * @OA\Property(example="free")
      */
-    public string $bo_table;
+    public string $bo_table = '';
 
     /**
      * 그룹 아이디
      * @OA\Property(example="community")
      */
-    public string $gr_id;
+    public string $gr_id = '';
 
     /**
      * 게시판 제목
      * @OA\Property(example="자유게시판")
      */
-    public string $bo_subject;
+    public string $bo_subject = '';
 
     /**
      * 게시판 모바일 제목
      * @OA\Property(example="자유게시판 모바일")
      */
-    public string $bo_mobile_subject;
+    public string $bo_mobile_subject = '';
 
     /**
      * 접속 허용 디바이스
      * @OA\Property(example="both")
      */
-    public string $bo_device;
+    public string $bo_device = '';
 
+    /**
+     * 게시글 공지 번호
+     * @OA\Property
+     */
+    public string $bo_notice = '';
+    
     /**
      * 게시판 관리자
      * @OA\Property(example="admin")
      */
-    public string $bo_admin;
+    public string $bo_admin = '';
 
     /**
      * 목록 접근 권한 레벨
@@ -118,25 +124,25 @@ class Board
 
     /**
      * 읽기 포인트
-     * @OA\Property()
+     * @OA\Property
      */
     public int $bo_read_point = 0;
 
     /**
      * 쓰기 포인트
-     * @OA\Property()
+     * @OA\Property
      */
     public int $bo_write_point = 0;
 
     /**
      * 댓글 포인트
-     * @OA\Property()
+     * @OA\Property
      */
     public int $bo_comment_point = 0;
 
     /**
      * 다운로드 포인트
-     * @OA\Property()
+     * @OA\Property
      */
     public int $bo_download_point = 0;
 

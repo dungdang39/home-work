@@ -32,7 +32,7 @@ class WriteService
         $query = "SELECT COUNT(*) FROM {$this->table} WHERE {$sql_where}";
 
         $stmt = Db::getInstance()->run($query, $search_values);
-        return (int)$stmt->fetchColumn();
+        return $stmt->fetchColumn() ?: 0;
     }
 
     /**
@@ -90,7 +90,7 @@ class WriteService
 
     /**
      * 게시글 정보 조회
-     * @param string $wr_id 게시글 아이디
+     * @param int $wr_id 게시글 아이디
      * @return array|false
      */
     public function fetchWrite(int $wr_id)
@@ -321,35 +321,38 @@ class WriteService
      * @param object $data 게시글 데이터
      * @param array $member 회원 정보
      * @param array $parent_write 부모 게시글 정보
+     * @return false|string
+     * @throws Exception
      */
-    public function createWriteData(object $data, array $member = [], array $parent_write = []): int
+    public function createWriteData(object $data, array $member = [], array $parent_write = [])
     {
         $min_wr_num = $this->fetchMinimumWriteNumber() - 1;
         $data->wr_num = $parent_write ? $parent_write['wr_num'] : $min_wr_num;
         $data->wr_parent = $parent_write['wr_id'] ?? 0;
-        // TODO: inlcude url.lib.php 문제 해결 필요
+
+        // TODO: include url.lib.php 문제 해결 필요
         // exist_seo_title_recursive('bbs', generate_seo_title($data->wr_subject), $this->table);
-        $data->wr_seo_title = "";
-        $data->mb_id = $member['mb_id'] ?? '';
-        $data->wr_datetime = G5_TIME_YMDHIS;
-        $data->wr_last = G5_TIME_YMDHIS;
-        $data->wr_ip = $_SERVER['REMOTE_ADDR'];
+        $data->setWrSeoTitle('');
+        $data->setMbId($member['mb_id'] ?? '');
+        $data->setWrDatetime(G5_TIME_YMDHIS);
+        $data->setWrLast(G5_TIME_YMDHIS);
+        $data->setWrIp($_SERVER['REMOTE_ADDR']);
         if ($parent_write) {
             $data->wr_reply = $this->getReplyCharacter($parent_write);
         }
 
-        $insert_id = $this->insertWrite($data);
-        return $insert_id;
+        //inserted id
+        return $this->insertWrite($data->toArray());
     }
 
     /**
      * 게시글 작성 처리
-     * @param object $data 게시글 데이터
-     * @return int 추가된 게시글 아이디
+     * @param array $data 게시글 데이터
+     * @return false|string 추가된 게시글 아이디 / 실패시 false
      */
-    public function insertWrite(object $data): int
+    public function insertWrite(array $data)
     {
-        return Db::getInstance()->insert($this->table, (array)$data);
+        return Db::getInstance()->insert($this->table, $data);
     }
 
     /**
@@ -360,12 +363,13 @@ class WriteService
      */
     public function updateWriteData(array $write, object $data): void
     {
-        // TODO: inlcude url.lib.php 문제 해결 필요
+        // TODO include url.lib.php 문제 해결 필요
         // exist_seo_title_recursive('bbs', generate_seo_title($data->wr_subject), $this->table, $write['wr_id']);
-        $data->wr_seo_title = "";
-        $data->wr_last = G5_TIME_YMDHIS;
+        $data = (array)$data;
+        $data['wr_seo_title'] = '';
+        $data['wr_last'] = G5_TIME_YMDHIS;
 
-        $this->updateWrite($write['wr_id'], (array)$data);
+        $this->updateWrite($write['wr_id'], $data);
     }
 
     /**
@@ -477,7 +481,7 @@ class WriteService
 
         foreach ($terms as $i => $term) {
             if (!in_array('mb_id', $fields)) {
-                $this->popular_service->add_keyword($term);
+                $this->popular_service->addKeyword($term);
             }
 
             $field_clauses = [];
@@ -507,10 +511,10 @@ class WriteService
                         break;
                     default:
                         if (preg_match("/[a-zA-Z]/", $term)) {
-                            $field_clauses[] = "INSTR(LOWER($field), LOWER($param_key))";
-                        } else {
-                            $field_clauses[] = "INSTR($field, $param_key)";
+                            $field = strtolower($field);
+                            $param_key = strtolower($param_key);
                         }
+                        $field_clauses[] = "INSTR($field, $param_key)";
                         $params[$param_key] = $term;
                         break;
                 }
@@ -566,7 +570,7 @@ class WriteService
             if ($this->board['bo_sort_field']) {
                 $sst = $this->board['bo_sort_field'];
             } else {
-                $sst  = "wr_num, wr_reply";
+                $sst = "wr_num, wr_reply";
                 $sod = "";
             }
         } else {
@@ -579,18 +583,19 @@ class WriteService
         }
 
         if (!$sst) {
-            $sst  = "wr_num, wr_reply";
+            $sst = "wr_num, wr_reply";
         }
 
         return [$sst, $sod];
     }
 
+    
     /**
      * 검색 단위 > 이전위치 조회
      * @param array $search_params 검색조건
-     * @return int
+     * @return int|mixed
      */
-    public function getPrevSearchPart(array $search_params): int
+    public function getPrevSearchPart(array $search_params)
     {
         if (!$search_params['is_search']) {
             return 0;
@@ -604,11 +609,11 @@ class WriteService
     }
 
     /**
-     * 검색 단위 > 다음위치 조회
+     *  검색 단위 > 다음위치 조회
      * @param array $search_params 검색조건
-     * @return int
+     * @return int|mixed
      */
-    public function getNextSearchPart(array $search_params): int
+    public function getNextSearchPart(array $search_params)
     {
         if (!$search_params['is_search']) {
             return 0;
@@ -625,6 +630,7 @@ class WriteService
      * - Exception 관련 코드를 Permission으로 이동하고 싶었으나 코드 중복이 발생하여 이동하지 않음
      * @param array $write 게시글 정보
      * @return string
+     * @throws Exception 답변가능한 갯수를 넘어섰을 때 발생
      */
     public function getReplyCharacter(array $write)
     {

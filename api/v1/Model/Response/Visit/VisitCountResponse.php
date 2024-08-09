@@ -2,6 +2,8 @@
 
 namespace API\v1\Model\Response\Visit;
 
+use API\v1\Traits\SchemaHelperTrait;
+
 /**
  * @OA\Schema(
  *      type="object",
@@ -10,32 +12,31 @@ namespace API\v1\Model\Response\Visit;
  */
 class VisitCountResponse
 {
+    use SchemaHelperTrait;
+
     /**
-     * @OA\Property (type="integer", example="50")
+     * @OA\Property (example="50")
      */
-    public int $today;
-    
+    public int $today = 0;
+
     /**
-     * @OA\Property (type="integer", example="50")
+     * @OA\Property (example="50")
      */
-    public int $yesterday;
-    
+    public int $yesterday = 0;
+
     /**
-     * @OA\Property (type="integer", example="777")
+     * @OA\Property (example="777")
      */
-    public int $max;
-    
+    public int $max = 0;
+
     /**
-     * @OA\Property (type="integer", example="10000")
+     * @OA\Property (example="10000")
      */
-    public int $total;
-    
-    
+    public int $total = 0;
+
+
     public function __construct(array $data)
     {
-        $this->today = $data['today'];
-        $this->yesterday = $data['yesterday'];
-        $this->max = $data['max'];
-        $this->total = $data['total'];
+        $this->mapDataToProperties($this, $data);
     }
 }

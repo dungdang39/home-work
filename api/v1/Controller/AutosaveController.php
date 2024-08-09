@@ -21,7 +21,7 @@ class AutosaveController
      *     path="/api/v1/autosaves",
      *     summary="임시저장된 글 목록 조회",
      *     tags={"자동 임시저장"},
-     *      security={ {"Oauth2Password": {}} },
+     *     security={{"Oauth2Password": {}}},
      * @OA\Response (
      *     response="200",
      *     description="임시저장된 글 목록 조회 성공",
@@ -62,7 +62,7 @@ class AutosaveController
      *     path="/api/v1/autosaves/{as_id}",
      *     summary="임시저장된 글 조회",
      *     tags={"자동 임시저장"},
-     *      security={ {"Oauth2Password": {}} },
+     *      security={{"Oauth2Password": {}}},
      *     @OA\Parameter (
      *      name="as_id",
      *      in="path",
@@ -100,7 +100,7 @@ class AutosaveController
      *     path="/api/v1/autosaves/count",
      *     summary="임시저장된 글 갯수 조회",
      *     tags={"자동 임시저장"},
-     *      security={ {"Oauth2Password": {}} },
+     *     security={{"Oauth2Password": {}}},
      *     @OA\Response (
      *     response="200",
      *     description="임시저장된 글 갯수 조회 성공",
@@ -111,7 +111,7 @@ class AutosaveController
      * )
      *
      */
-    public function get_count(Request $request, Response $response)
+    public function getCount(Request $request, Response $response)
     {
         $member = $request->getAttribute('member');
         $count = $this->autosave_service->get_count($member['mb_id']);

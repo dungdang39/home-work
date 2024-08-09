@@ -14,7 +14,6 @@ class MemberImageService
 
     /**
      * 회원 이미지 경로 반환
-     * TODO: 확장자에 대한 처리를 고민해봐야함.
      * @param string $mb_id 회원 아이디
      * @return string
      */
@@ -26,10 +25,11 @@ class MemberImageService
 
     /**
      * 회원 이미지 업로드
+     * @param array $config
      * @param string $mb_id 회원 아이디
      * @param UploadedFileInterface $file 업로드 파일
      * @return void
-     * @throws Exception
+     * @throws \RandomException
      */
     public function updateMemberImage(array $config, string $mb_id, UploadedFileInterface $file = null)
     {
@@ -41,7 +41,7 @@ class MemberImageService
         $limit_width = $config['cf_member_img_width'];
         $limit_height = $config['cf_member_img_height'];
 
-        // 이미지파일 타입 검사
+        // 이미지파일 확장자 검사
         if (!in_array($file->getClientMediaType(), $this->allowed_media_types)) {
             throw new Exception("gif, jpeg, png 이미지 파일만 업로드 가능합니다.", 404);
         }
@@ -56,14 +56,14 @@ class MemberImageService
         $file_dir = G5_DATA_PATH . self::IMAGE_DIR . "/" . substr($mb_id, 0, 2);
         $ext = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
         $filename = $mb_id;
-        $file_fullname = $filename . "." . $ext;
+        $file_fullname = $filename . "." . 'gif'; // 그누보드 5 와 호환성 유지를 위해 gif 확장자 사용
         if (!is_dir($file_dir)) {
             @mkdir($file_dir, G5_DIR_PERMISSION);
             @chmod($file_dir, G5_DIR_PERMISSION);
         }
 
         if ($file->getError() === UPLOAD_ERR_OK) {
-            moveUploadedFile($file_dir, $file, $filename);
+            $file->moveTo($file_dir . '/' . $file_fullname);
         }
 
         // 이미지 가로 or 세로가 설정값보다 크면 썸네일 생성

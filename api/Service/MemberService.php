@@ -54,10 +54,12 @@ class MemberService
      */
     public function updateMemberProfile(string $mb_id, object $data): void
     {
-        if ($this->existsMemberByNick($data->mb_nick, $data->mb_id)) {
-            throw new Exception("이미 사용중인 닉네임 입니다.", 409);
+        if(isset($data->mb_nick)) {
+            if ($this->existsMemberByNick($data->mb_nick, $mb_id)) {
+                throw new Exception("이미 사용중인 닉네임 입니다.", 409);
+            }
         }
-        if ($this->existsMemberByEmail($data->mb_email, $data->mb_id)) {
+        if ($this->existsMemberByEmail($data->mb_email, $mb_id)) {
             throw new Exception("이미 사용중인 이메일 입니다.", 409);
         }
 
@@ -75,7 +77,7 @@ class MemberService
     {
         $update_data = [
             "mb_leave_date" => date("Ymd"),
-            "mb_memo" => date('Ymd', G5_SERVER_TIME) . " 탈퇴함\n" . sql_real_escape_string($member['mb_memo']),
+            "mb_memo" => date('Ymd', G5_SERVER_TIME) . " 탈퇴함\n" . addslashes($member['mb_memo']),
             "mb_certify" => '',
             "mb_adult" => 0,
             "mb_dupinfo" => ''
@@ -149,7 +151,9 @@ class MemberService
 
         if ($count > 1) {
             throw new Exception("동일한 메일주소가 2개 이상 존재합니다. 관리자에게 문의하여 주십시오.", 409);
-        } elseif ($count == 0) {
+        }
+
+        if ($count == 0) {
             throw new Exception("입력한 정보로 등록된 회원을 찾을 수 없습니다.", 404);
         }
 
@@ -181,11 +185,15 @@ class MemberService
      */
     public function fetchMemberById(string $mb_id)
     {
-        $query = "SELECT * FROM {$this->table} WHERE mb_id = :mb_id";
+        static $cache = [];
+        if (isset($cache[$mb_id])) {
+            return $cache[$mb_id];
+        }
 
+        $query = "SELECT * FROM `{$this->table}` WHERE mb_id = :mb_id";
         $stmt = Db::getInstance()->run($query, ["mb_id" => $mb_id]);
-
-        return $stmt->fetch();
+        $cache[$mb_id] = $stmt->fetch();
+        return $cache[$mb_id];
     }
 
     /**
@@ -233,7 +241,7 @@ class MemberService
     /**
      * 회원가입 처리
      * @param array $data 회원가입 데이터
-     * @return int 회원번호
+     * @return string|false 회원 테이블 mb_no 번호
      */
     public function insertMember(array $data): int
     {

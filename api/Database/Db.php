@@ -182,8 +182,7 @@ class Db
      */
     public function deleteById($table, $id_column, $id_value)
     {
-        $stmt = $this->run("DELETE FROM {$table} WHERE {$id_column} = ?", [$id_value]);
-        return $stmt->rowCount();
+        return $this->run("DELETE FROM {$table} WHERE {$id_column} = ?", [$id_value])->rowCount();
     }
 
     /**
@@ -195,8 +194,7 @@ class Db
      */
     public function deleteByIds($table, $id_column, $id_values)
     {
-        $stmt = $this->run("DELETE FROM {$table} WHERE {$id_column} IN ({$id_values})");
-        return $stmt->rowCount();
+        return $this->run("DELETE FROM {$table} WHERE {$id_column} IN ({$id_values})")->rowCount();
     }
 
     /**
@@ -206,8 +204,7 @@ class Db
      */
     public function deleteAll($table)
     {
-        $stmt = $this->run("DELETE FROM {$table}");
-        return $stmt->rowCount();
+        return $this->run("DELETE FROM {$table}")->rowCount();
     }
 
 

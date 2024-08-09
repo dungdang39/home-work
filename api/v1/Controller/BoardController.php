@@ -111,6 +111,7 @@ class BoardController
      *      @OA\Response(response="422", ref="#/components/responses/422"),
      *      @OA\Response(response="500", ref="#/components/responses/500"),
      * )
+     * @throws Exception
      */
     public function getWrites(Request $request, Response $response): Response
     {
@@ -181,6 +182,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}",
      *      summary="게시글 조회",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="게시판의 게시글 1건을 조회합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -208,8 +210,8 @@ class BoardController
             $thumb = [];
             $fetch_prev = $this->write_service->fetchPrevWrite($write, $params) ?: [];
             $fetch_next = $this->write_service->fetchNextWrite($write, $params) ?: [];
-            $prev = new NeighborWrite($board['bo_table'], $fetch_prev, $params);
-            $next = new NeighborWrite($board['bo_table'], $fetch_next, $params);
+            $prev = new NeighborWrite($board['bo_table'], $fetch_prev);
+            $next = new NeighborWrite($board['bo_table'], $fetch_next);
 
             $write_data = array_merge($write, array(
                 "comments" => $this->comment_service->getComments($write['wr_id']),
@@ -227,11 +229,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -240,6 +244,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes",
      *      summary="게시글 작성",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판에 새 글을 작성합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\RequestBody(
@@ -322,11 +327,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -335,6 +342,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}",
      *      summary="게시글 수정",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판의 글을 수정합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -352,6 +360,7 @@ class BoardController
      *      @OA\Response(response="422", ref="#/components/responses/422"),
      *      @OA\Response(response="500", ref="#/components/responses/500"),
      * )
+     * @throws Exception
      */
     public function updateWrite(Request $request, Response $response): Response
     {
@@ -379,6 +388,7 @@ class BoardController
             } else {
                 $wr_password = $request_body['wr_password'] ?? '';
                 $this->board_permission->updateWriteByNonMember($member, $write, $wr_password);
+                unset($request_data->wr_password);
             }
 
             // 게시글 수정
@@ -398,11 +408,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -411,14 +423,15 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/files",
      *      summary="게시글 파일 업로드",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="
-파일을 업로드합니다.
-- multipart/form-data로 전송해야 합니다.
-- 게시판에 설정된 파일 업로드 제한에 따라 파일을 업로드할 수 있습니다.
+    파일을 업로드합니다.
+    - multipart/form-data로 전송해야 합니다.
+    - 게시판에 설정된 파일 업로드 제한에 따라 파일을 업로드할 수 있습니다.
     - 업로드 파일 갯수
     - 파일 크기
     - 파일 설명
-",
+    ",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
      *      @OA\RequestBody(
@@ -468,11 +481,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -481,6 +496,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/files/{bf_no}",
      *      summary="게시글 파일 다운로드",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="게시글의 파일을 다운로드합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -536,6 +552,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}",
      *      summary="게시글 삭제",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판의 글을 삭제합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -605,9 +622,9 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            throw $e;
         }
     }
 
@@ -616,6 +633,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/comments",
      *      summary="댓글 작성",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판의 글에 댓글을 작성합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -678,11 +696,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -691,6 +711,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/comments/{comment_id}",
      *      summary="댓글 수정",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판의 글에 작성된 댓글을 수정합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -736,11 +757,13 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } elseif ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
         }
     }
 
@@ -749,6 +772,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/comments/{comment_id}",
      *      summary="댓글 삭제",
      *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
      *      description="지정된 게시판의 글에 작성된 댓글을 삭제합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -800,9 +824,9 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            throw $e;
         }
     }
 
@@ -811,7 +835,7 @@ class BoardController
      *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/{good_type}",
      *      summary="게시글 추천/비추천",
      *      tags={"게시판"},
-     *      security={ {"Oauth2Password": {}} },
+     *      security={{"Oauth2Password": {}}},
      *      description="게시글에 대한 추천/비추천을 처리합니다.",
      *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
      *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
@@ -851,9 +875,9 @@ class BoardController
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
-            } else {
-                throw $e;
             }
+
+            throw $e;
         }
     }
 }

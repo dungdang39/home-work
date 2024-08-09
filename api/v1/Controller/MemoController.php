@@ -3,6 +3,7 @@
 namespace API\v1\Controller;
 
 use API\Service\MemoService;
+use API\Service\PointService;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -10,9 +11,11 @@ use Slim\Psr7\Response;
 class MemoController
 {
     private MemoService $memo_service;
+    private PointService $point_service;
 
-    public function __construct(MemoService $memoService)
+    public function __construct(MemoService $memoService, PointService $point_service)
     {
+        $this->point_service = $point_service;
         $this->memo_service = $memoService;
     }
 
@@ -23,7 +26,7 @@ class MemoController
      *     path="/api/v1/member/memos",
      *     summary="쪽지 목록 조회",
      *     tags={"쪽지"},
-     *     security={ {"Oauth2Password": {}} },
+     *     security={{"Oauth2Password": {}}},
      *     @OA\Parameter (
      *     name="page",
      *     description="페이지 번호",
@@ -90,8 +93,8 @@ class MemoController
 
         //메모 리스트 가져오기
         //count
-        $total_records = $this->memo_service->fetch_total_records($memo_type, $mb_id);
-        $memo_data = $this->memo_service->fetch_memos($memo_type, $mb_id, $page, $per_page);
+        $total_records = $this->memo_service->fetchTotalCount($memo_type, $mb_id);
+        $memo_data = $this->memo_service->fetchMemos($memo_type, $mb_id, $page, $per_page);
 
         $response_data = [
             'memos' => [
@@ -110,7 +113,7 @@ class MemoController
      *     path="/api/v1/member/memos",
      *     summary="쪽지 전송",
      *     tags={"쪽지"},
-     *     security={ {"Oauth2Password": {}} },
+     *     security={{"Oauth2Password": {}}},
      *     @OA\RequestBody (
      *     required=true,
      *     description="쪽지 전송",
@@ -141,6 +144,7 @@ class MemoController
     public function send(Request $request, Response $response)
     {
         $member = $request->getAttribute('member');
+        $config = get_config();
         $mb_id = $member['mb_id'];
 
         $request_data = $request->getParsedBody();
@@ -154,14 +158,12 @@ class MemoController
         }
 
         $receiver_mb_id = $request_data['me_recv_mb_id'];
-        $mem_content = $request_data['me_memo'];
-
         $ip = $request->getServerParams()['REMOTE_ADDR']; // @todo 클라우드 플레어, LB 등을 고려한 ip 함수 추가 필요.
-        $result = $this->memo_service->send_memo($mb_id, $receiver_mb_id, $mem_content, $ip);
-        if (isset($result['error'])) {
-            return api_response_json($response, ['message' => $result['error']], 400);
+        $sending_memo_id = $this->memo_service->sendMemo($mb_id, $receiver_mb_id, $request_data['me_memo'], $ip);
+        // 쪽지 포인트 차감
+        foreach($sending_memo_id as $memo_id) {
+            $this->point_service->addPoint($mb_id, (int)$config['cf_memo_send_point'] * (-1), $receiver_mb_id.'('.$receiver_mb_id.')님께 쪽지 발송', '@memo', $receiver_mb_id, $memo_id);
         }
-
         $this->memo_service->update_not_read_memo_count($receiver_mb_id);
 
         return api_response_json($response, ['message' => '쪽지를 전송했습니다.']);
@@ -173,7 +175,7 @@ class MemoController
      *     path="/api/v1/member/memos/{me_id}",
      *     summary="쪽지 조회",
      *     tags={"쪽지"},
-     *     security={ {"Oauth2Password": {}} },
+     *     security={{"Oauth2Password": {}}},
      *     @OA\Parameter (
      *     name="me_id",
      *     in="path",
@@ -202,12 +204,12 @@ class MemoController
         }
 
 
-        $result = $this->memo_service->fetch_memo($memo_id, $mb_id);
+        $result = $this->memo_service->fetchMemo($memo_id, $mb_id);
         if (isset($result['error'])) {
             return api_response_json($response, ['message' => $result['error']], $result['code']);
         }
 
-        $this->memo_service->read_check($memo_id);
+        $this->memo_service->readCheck($memo_id);
 
         return api_response_json($response, $result);
     }
