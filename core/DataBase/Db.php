@@ -3,6 +3,7 @@
 namespace Core\Database;
 
 use API\Exceptions\DbConnectException;
+use Dotenv\Dotenv;
 use PDO;
 use PDOException;
 use Exception;
@@ -19,6 +20,7 @@ class Db
      * @var ?PDO PDO 객체
      */
     private $pdo;
+    private Dotenv $dotenv;
 
     public function __construct(
         $driver = 'mysql',
@@ -27,12 +29,16 @@ class Db
         $user = null,
         $password = null
     ) {
+        // Load environment variables
+        $this->dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
+        $this->dotenv->load();
+
         $db_settings = [
             'driver' => $driver,
-            'host' => $host ?? (defined(G5_MYSQL_HOST) ? G5_MYSQL_HOST : ''),
-            'dbname' => $dbname ?? (defined(G5_MYSQL_DB) ? G5_MYSQL_DB : ''),
-            'user' => $user ?? (defined(G5_MYSQL_USER) ? G5_MYSQL_USER : ''),
-            'password' => $password ?? (defined(G5_MYSQL_PASSWORD) ? G5_MYSQL_PASSWORD : ''),
+            'host' => $host ?? (isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : ''),
+            'dbname' => $dbname ?? (isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : ''),
+            'user' => $user ?? (isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : ''),
+            'password' => $password ?? (isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : ''),
         ];
         $this->pdo = self::createPdoInstance($db_settings);
 

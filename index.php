@@ -1,8 +1,5 @@
 <?php
 
-print_r("index.php");
-exit;
-
 use API\Handlers\HttpErrorHandler;
 use API\Handlers\ShutdownHandler;
 use API\Middleware\JsonBodyParserMiddleware;
@@ -10,29 +7,24 @@ use API\ResponseEmitter\ResponseEmitter;
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\Views\Twig;
+use Slim\Views\TwigMiddleware;
 
 require __DIR__ . '/vendor/autoload.php';
 
 //gnuboard 로딩
 $g5_path = g5_root_path();
-require_once(dirname(__DIR__, 1) . '/config.php');   // 설정 파일
-unset($g5_path);
+require_once(__DIR__ . '/config.php');   // 설정 파일
 
 include_once(G5_LIB_PATH.'/hook.lib.php');    // hook 함수 파일
 include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
 
-$dbconfig_file = G5_DATA_PATH.'/'.G5_DBCONFIG_FILE;
-if (file_exists($dbconfig_file)) {
-    include_once($dbconfig_file);
-}
 //-------------------------
 
 // Set error display settings
 // - Should be set to false in production
 $displayErrorDetails = true;
 
-//@todo 임시 전역변수 정리후 삭제대상
-$config = get_gnuconfig();
 /**
  * Instantiate App
  */
@@ -44,12 +36,18 @@ $app = AppFactory::create();
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
 
+// Create Twig
+$twig = Twig::create(__DIR__, ['cache' => false]);
+
 /**
  * Add Middleware
  */
 // The routing middleware should be added earlier than the ErrorMiddleware
 // Otherwise exceptions thrown from it will not be handled by the middleware
 $app->addRoutingMiddleware();
+
+// Add Twig-View Middleware
+$app->add(TwigMiddleware::create($app, $twig));
 
 // Add JSON Body Parser Middleware
 $app->add(new JsonBodyParserMiddleware());
@@ -71,12 +69,11 @@ $errorMiddleware->setDefaultErrorHandler($errorHandler);
  * Add Routers
  */
 // Set the base path for the API version
-$api_path = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
-$api_version = explode("/", str_replace($api_path, '', $_SERVER['REQUEST_URI']))[1];
-$app->setBasePath($api_path . '/' . $api_version);
+$path = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+$app->setBasePath("{$path}/");
 
 // Include all Routers for the requested API version.
-$routerFiles = glob(__DIR__ . "/app/*/router/*.php");
+$routerFiles = glob(__DIR__ . "/app/*/Router/*.php");
 foreach ($routerFiles as $routerFile) {
     include_once $routerFile;
 }

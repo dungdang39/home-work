@@ -10,11 +10,13 @@
         "doctrine/annotations": "^2.0",
         "php-di/php-di": "^6.4",
         "ext-pdo": "*",
-        "league/plates": "^3.5"
+        "league/plates": "^3.5",
+        "slim/twig-view": "^3.4"
     },
     "autoload": {
         "psr-4": {
             "API\\": "api/",
+            "App\\": "app/",
             "Core\\": "core/",
             "Install\\": "install/"
         },
