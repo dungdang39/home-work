@@ -1,6 +1,25 @@
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `g5_admin_menu`
+--
+
+DROP TABLE IF EXISTS `g5_admin_menu`;
+CREATE TABLE IF NOT EXISTS `g5_admin_menu` (
+  `am_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `am_parent_id` int(10) unsigned DEFAULT NULL,
+  `am_name` varchar(255) NOT NULL,
+  `am_route` varchar(255) DEFAULT NULL,
+  `am_order` int(10) unsigned NOT NULL DEFAULT 0,
+  `am_created_at` datetime DEFAULT NULL,
+  `am_updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`am_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `g5_auth`
 --
 

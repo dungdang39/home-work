@@ -30,8 +30,10 @@ class Db
         $password = null
     ) {
         // Load environment variables
-        $this->dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
-        $this->dotenv->load();
+        if (file_exists(dirname(__DIR__, 2) . '/.env')) {
+            $this->dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
+            $this->dotenv->load();
+        }
 
         $db_settings = [
             'driver' => $driver,

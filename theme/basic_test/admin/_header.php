@@ -1,7 +1,7 @@
 <h1>그누보드55</h1>
 <div id="hd_top">
     <button type="button" id="btn_gnb" class="btn_gnb_close ">메뉴</button>
-    <div id="logo"><a href="http://127.0.0.1/g5-update/adm/"><img src="http://127.0.0.1/g5-update/adm/img/logo.png" alt="그누보드55 관리자"></a></div>
+    <div id="logo"><a href="{{ url_for('dashboard') }}"><img src="http://127.0.0.1/g5-update/adm/img/logo.png" alt="그누보드55 관리자"></a></div>
 
     <div id="tnb">
         <ul>
@@ -17,3 +17,31 @@
         </ul>
     </div>
 </div>
+
+<script>
+    jQuery(function($) {
+        var menu_cookie_key = 'g5_admin_btn_gnb';
+
+        $(".tnb_mb_btn").click(function() {
+            $(".tnb_mb_area").toggle();
+        });
+
+        $("#btn_gnb").click(function() {
+
+            var $this = $(this);
+
+            try {
+                if (!$this.hasClass("btn_gnb_open")) {
+                    set_cookie(menu_cookie_key, 1, 60 * 60 * 24 * 365);
+                } else {
+                    delete_cookie(menu_cookie_key);
+                }
+            } catch (err) {}
+
+            $("#container").toggleClass("container-small");
+            $("#gnb").toggleClass("gnb_small");
+            $this.toggleClass("btn_gnb_open");
+
+        });
+    });
+</script>

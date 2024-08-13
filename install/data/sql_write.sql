@@ -1,4 +1,4 @@
-CREATE TABLE `__TABLE_NAME__` (
+CREATE TABLE IF NOT EXISTS `__TABLE_NAME__` (
   `wr_id` int(11) NOT NULL AUTO_INCREMENT,
   `wr_num` int(11) NOT NULL DEFAULT '0',
   `wr_reply` varchar(10) NOT NULL,

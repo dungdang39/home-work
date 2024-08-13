@@ -108,21 +108,37 @@ try {
         $member_fields['mb_ip'] = $_SERVER['REMOTE_ADDR'];
         Db::getInstance()->insert($member_table, $member_fields);
 
+        // 관리자 메뉴 설정
+        $admin_menu_table = $form['table_prefix'] . $default_values['admin_menu']['table'];
+        foreach ($default_values['admin_menu']['values'] as $admin_menu) {
+            $admin_menu_fields = $admin_menu['fields'];
+            $admin_menu_fields['am_created_at'] = G5_TIME_YMDHIS;
+            $insert_id = Db::getInstance()->insert($admin_menu_table, $admin_menu_fields);
+
+            foreach ($admin_menu['children'] as $child_fields) {
+                $child_fields['am_parent_id'] = $insert_id;
+                $child_fields['am_created_at'] = G5_TIME_YMDHIS;
+                Db::getInstance()->insert($admin_menu_table, $child_fields);
+            }
+        }
+
         // Q&A 설정
         $qa_config_table = $form['table_prefix'] . $default_values['qa_config']['table'];
         $qa_config_fields = $default_values['qa_config']['fields'];
         Db::getInstance()->insert($qa_config_table, $qa_config_fields);
 
         // 컨텐츠 설정
-        foreach ($default_values['content'] as $content) {
-            $content_table = $form['table_prefix'] . $content['table'];
+        $content_table = $form['table_prefix'] . $default_values['content']['table'];
+        $content_values = $default_values['content']['values'];
+        foreach ($content_values as $content) {
             $content_fields = $content['fields'];
             Db::getInstance()->insert($content_table, $content_fields);
         }
 
         // FAQ 설정
-        foreach ($default_values['faq_master'] as $faq_master) {
-            $faq_master_table = $form['table_prefix'] . $faq_master['table'];
+        $faq_master_table = $form['table_prefix'] . $default_values['faq_master']['table'];
+        $faq_master_values = $default_values['faq_master']['values'];
+        foreach ($faq_master_values as $faq_master) {
             $faq_master_fields = $faq_master['fields'];
             Db::getInstance()->insert($faq_master_table, $faq_master_fields);
         }
