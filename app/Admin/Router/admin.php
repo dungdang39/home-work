@@ -2,8 +2,10 @@
 
 namespace App\Login\Router;
 
+use App\Admin\ConfigController;
 use App\Admin\DashboardController;
 use App\Admin\LoginController;
+use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
 use Core\Middleware\ThemeMiddleware;
@@ -20,13 +22,19 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         ->setName('login');
 
     $group->group('', function (RouteCollectorProxy $group) {
-        // 대시보드
         $group->get('[/dashboard]', [DashboardController::class, 'index'])
             ->setName('dashboard');
+        $group->get('/config', [ConfigController::class, 'index'])
+            ->setName('config');
+        $group->get('/administrator', [DashboardController::class, 'index'])
+            ->setName('administrator');
+
+        // 기본회원 설정
+        $group->get('/member/config', [DashboardController::class, 'index'])
+            ->setName('member_config');
     })
+        ->add(AdminMenuAuthMiddleware::class)
         ->add(AdminMenuMiddleware::class);
-        // ->add()  // 로그인&권한 체크
-        // ->add(); // 관리자메뉴 및 권한 체크
 })
     ->add(ThemeMiddleware::class)
     ->add(ConfigMiddleware::class);

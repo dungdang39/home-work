@@ -54,6 +54,7 @@ class AdminMenuMiddleware
         if ($route_name === "dashboard") {
             $admin_menu[key($admin_menu)]['active'] = true;
         }
+        $request = $request->withAttribute('admin_menu', $admin_menu);
 
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('admin_menu', $admin_menu);
