@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Login\Model;
+namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dashboard;
+namespace App\Admin;
 
 use App\Member\MemberService;
 use Psr\Http\Message\ResponseInterface as Response;

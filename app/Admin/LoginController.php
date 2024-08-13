@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Login;
+namespace App\Admin;
 
-use App\Login\Model\LoginRequest;
+use App\Admin\Model\LoginRequest;
 use App\Member\MemberService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
