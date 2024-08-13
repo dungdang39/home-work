@@ -48,7 +48,6 @@ $mb_addr2       = isset($_POST['mb_addr2'])         ? trim($_POST['mb_addr2'])  
 $mb_addr3       = isset($_POST['mb_addr3'])         ? trim($_POST['mb_addr3'])       : "";
 $mb_addr_jibeon = isset($_POST['mb_addr_jibeon'])   ? trim($_POST['mb_addr_jibeon']) : "";
 $mb_signature   = isset($_POST['mb_signature'])     ? trim($_POST['mb_signature'])   : "";
-$mb_profile     = isset($_POST['mb_profile'])       ? trim($_POST['mb_profile'])     : "";
 $mb_recommend   = isset($_POST['mb_recommend'])     ? trim($_POST['mb_recommend'])   : "";
 $mb_mailling    = isset($_POST['mb_mailling'])      ? trim($_POST['mb_mailling'])    : "";
 $mb_sms         = isset($_POST['mb_sms'])           ? trim($_POST['mb_sms'])         : "";
@@ -230,7 +229,6 @@ if ($w == '') {
                      mb_addr3 = '{$mb_addr3}',
                      mb_addr_jibeon = '{$mb_addr_jibeon}',
                      mb_signature = '{$mb_signature}',
-                     mb_profile = '{$mb_profile}',
                      mb_today_login = '".G5_TIME_YMDHIS."',
                      mb_datetime = '".G5_TIME_YMDHIS."',
                      mb_ip = '{$_SERVER['REMOTE_ADDR']}',
@@ -361,7 +359,6 @@ if ($w == '') {
                     mb_addr3 = '{$mb_addr3}',
                     mb_addr_jibeon = '{$mb_addr_jibeon}',
                     mb_signature = '{$mb_signature}',
-                    mb_profile = '{$mb_profile}',
                     mb_1 = '{$mb_1}',
                     mb_2 = '{$mb_2}',
                     mb_3 = '{$mb_3}',
@@ -387,68 +384,13 @@ if ($w == '') {
     }
 }
 
-
-// 회원 아이콘
-$mb_dir = G5_DATA_PATH.'/member/'.substr($mb_id,0,2);
-
-// 아이콘 삭제
-if (isset($_POST['del_mb_icon'])) {
-    @unlink($mb_dir.'/'.get_mb_icon_name($mb_id).'.gif');
-}
-
+// 이미지 업로드
 $msg = "";
-
-// 아이콘 업로드
-$mb_icon = '';
 $image_regex = "/(\.(gif|jpe?g|png))$/i";
-$mb_icon_img = get_mb_icon_name($mb_id).'.gif';
-
-if (isset($_FILES['mb_icon']) && is_uploaded_file($_FILES['mb_icon']['tmp_name'])) {
-    if (preg_match($image_regex, $_FILES['mb_icon']['name'])) {
-        // 아이콘 용량이 설정값보다 이하만 업로드 가능
-        if ($_FILES['mb_icon']['size'] <= $config['cf_member_icon_size']) {
-            @mkdir($mb_dir, G5_DIR_PERMISSION);
-            @chmod($mb_dir, G5_DIR_PERMISSION);
-            $dest_path = $mb_dir.'/'.$mb_icon_img;
-            move_uploaded_file($_FILES['mb_icon']['tmp_name'], $dest_path);
-            chmod($dest_path, G5_FILE_PERMISSION);
-            if (file_exists($dest_path)) {
-                //=================================================================\
-                // 090714
-                // gif 파일에 악성코드를 심어 업로드 하는 경우를 방지
-                // 에러메세지는 출력하지 않는다.
-                //-----------------------------------------------------------------
-                $size = @getimagesize($dest_path);
-                if (!($size[2] === 1 || $size[2] === 2 || $size[2] === 3)) { // jpg, gif, png 파일이 아니면 올라간 이미지를 삭제한다.
-                    @unlink($dest_path);
-                } else if ($size[0] > $config['cf_member_icon_width'] || $size[1] > $config['cf_member_icon_height']) {
-                    $thumb = null;
-                    if($size[2] === 2 || $size[2] === 3) {
-                        //jpg 또는 png 파일 적용
-                        $thumb = thumbnail($mb_icon_img, $mb_dir, $mb_dir, $config['cf_member_icon_width'], $config['cf_member_icon_height'], true, true);
-                        if($thumb) {
-                            @unlink($dest_path);
-                            rename($mb_dir.'/'.$thumb, $dest_path);
-                        }
-                    }
-                    if( !$thumb ){
-                        // 아이콘의 폭 또는 높이가 설정값 보다 크다면 이미 업로드 된 아이콘 삭제
-                        @unlink($dest_path);
-                    }
-                }
-                //=================================================================\
-            }
-        } else {
-            $msg .= '회원아이콘을 '.number_format($config['cf_member_icon_size']).'바이트 이하로 업로드 해주십시오.';
-        }
-
-    } else {
-        $msg .= $_FILES['mb_icon']['name'].'은(는) 이미지 파일이 아닙니다.';
-    }
-}
+$mb_img = get_mb_image_name($mb_id).'.gif';
 
 // 회원 프로필 이미지
-if( $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['cf_member_img_height'] ){
+if( $config['cf_use_member_image'] && $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['cf_member_img_height'] ){
     $mb_tmp_dir = G5_DATA_PATH.'/member_image/';
     $mb_dir = $mb_tmp_dir.substr($mb_id,0,2);
     if( !is_dir($mb_tmp_dir) ){
@@ -456,9 +398,9 @@ if( $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['
         @chmod($mb_tmp_dir, G5_DIR_PERMISSION);
     }
 
-    // 아이콘 삭제
+    // 이미지 삭제
     if (isset($_POST['del_mb_img'])) {
-        @unlink($mb_dir.'/'.$mb_icon_img);
+        @unlink($mb_dir.'/'.$mb_img);
     }
 
     // 회원 프로필 이미지 업로드
@@ -468,11 +410,11 @@ if( $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['
         $msg = $msg ? $msg."\\r\\n" : '';
 
         if (preg_match($image_regex, $_FILES['mb_img']['name'])) {
-            // 아이콘 용량이 설정값보다 이하만 업로드 가능
+            // 이미지 용량이 설정값보다 이하만 업로드 가능
             if ($_FILES['mb_img']['size'] <= $config['cf_member_img_size']) {
                 @mkdir($mb_dir, G5_DIR_PERMISSION);
                 @chmod($mb_dir, G5_DIR_PERMISSION);
-                $dest_path = $mb_dir.'/'.$mb_icon_img;
+                $dest_path = $mb_dir.'/'.$mb_img;
                 move_uploaded_file($_FILES['mb_img']['tmp_name'], $dest_path);
                 chmod($dest_path, G5_FILE_PERMISSION);
                 if (file_exists($dest_path)) {
@@ -483,21 +425,21 @@ if( $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['
                         $thumb = null;
                         if($size[2] === 2 || $size[2] === 3) {
                             //jpg 또는 png 파일 적용
-                            $thumb = thumbnail($mb_icon_img, $mb_dir, $mb_dir, $config['cf_member_img_width'], $config['cf_member_img_height'], true, true);
+                            $thumb = thumbnail($mb_img, $mb_dir, $mb_dir, $config['cf_member_img_width'], $config['cf_member_img_height'], true, true);
                             if($thumb) {
                                 @unlink($dest_path);
                                 rename($mb_dir.'/'.$thumb, $dest_path);
                             }
                         }
                         if( !$thumb ){
-                            // 아이콘의 폭 또는 높이가 설정값 보다 크다면 이미 업로드 된 아이콘 삭제
+                            // 이미지의 폭 또는 높이가 설정값 보다 크다면 이미 업로드 된 이미지 삭제
                             @unlink($dest_path);
                         }
                     }
                     //=================================================================\
                 }
             } else {
-                $msg .= '회원이미지을 '.number_format($config['cf_member_img_size']).'바이트 이하로 업로드 해주십시오.';
+                $msg .= '회원 이미지는 '.number_format($config['cf_member_img_size']).'바이트 이하로 업로드 해주십시오.';
             }
 
         } else {

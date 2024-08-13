@@ -1421,24 +1421,20 @@ function get_sideview($mb_id, $name='', $email='', $homepage='')
     $menus = array();
 
     if ($mb_id) {
-        // $tmp_name = "<a href=\"".G5_BBS_URL."/profile.php?mb_id=".$mb_id."\" class=\"sv_member\" title=\"$name 자기소개\" rel="nofollow" target=\"_blank\" onclick=\"return false;\">$name</a>";
         $name_tag_open = '<a href="' . G5_BBS_URL . '/profile.php?mb_id=' . $mb_id . '" class="sv_member" title="' . $name . ' 자기소개" target="_blank" rel="nofollow" onclick="return false;">';
 
-        if ($config['cf_use_member_icon']) {
+        if ($config['cf_use_member_image']) {
             $mb_dir = substr($mb_id, 0, 2);
-            $icon_file = G5_DATA_PATH . '/member/' . $mb_dir . '/' . get_mb_icon_name($mb_id) . '.gif';
+            $image_file = G5_DATA_PATH . '/member_image/' . $mb_dir . '/' . get_mb_image_name($mb_id) . '.gif';
 
-            if (file_exists($icon_file)) {
-                $icon_filemtile = (defined('G5_USE_MEMBER_IMAGE_FILETIME') && G5_USE_MEMBER_IMAGE_FILETIME) ? '?' . filemtime($icon_file) : '';
-                $width = $config['cf_member_icon_width'];
-                $height = $config['cf_member_icon_height'];
-                $icon_file_url = G5_DATA_URL . '/member/' . $mb_dir . '/' . get_mb_icon_name($mb_id) . '.gif' . $icon_filemtile;
-                $name_tag['profile_image'] = '<span class="profile_img"><img src="' . $icon_file_url . '" width="' . $width . '" height="' . $height . '" alt=""></span>';
+            if (file_exists($image_file)) {
+                $image_filemtime = (defined('G5_USE_MEMBER_IMAGE_FILETIME') && G5_USE_MEMBER_IMAGE_FILETIME) ? '?' . filemtime($image_file) : '';
+                $width = 22;
+                $height = 22;
+                $image_file_url = G5_DATA_URL . '/member_image/' . $mb_dir . '/' . get_mb_image_name($mb_id) . '.gif' . $image_filemtime;
+                $name_tag['profile_image'] = '<span class="profile_img"><img src="' . $image_file_url . '" width="' . $width . '" height="' . $height . '" alt=""></span>';
 
-                // 회원아이콘+이름
-                if ($config['cf_use_member_icon'] == 2) {
-                    $name_tag['name'] = $name;
-                }
+                $name_tag['name'] = $name;
             } else {
                 if (defined('G5_THEME_NO_PROFILE_IMG')) {
                     $name_tag['profile_image'] = G5_THEME_NO_PROFILE_IMG;
@@ -1446,10 +1442,7 @@ function get_sideview($mb_id, $name='', $email='', $homepage='')
                     $name_tag['profile_image'] = G5_NO_PROFILE_IMG;
                 }
 
-                // 회원아이콘+이름
-                if ($config['cf_use_member_icon'] == 2) {
-                    $name_tag['name'] = $name;
-                }
+                $name_tag['name'] = $name;
             }
         } else {
             $name_tag['name'] = $name;
@@ -3476,7 +3469,7 @@ function member_delete($mb_id)
     }
 
     // 회원자료는 정보만 없앤 후 아이디는 보관하여 다른 사람이 사용하지 못하도록 함 : 061025
-    $sql = " update {$g5['member_table']} set mb_password = '', mb_level = 1, mb_email = '', mb_homepage = '', mb_tel = '', mb_hp = '', mb_zip1 = '', mb_zip2 = '', mb_addr1 = '', mb_addr2 = '', mb_addr3 = '', mb_point = 0, mb_profile = '', mb_birth = '', mb_sex = '', mb_signature = '', mb_memo = '".date('Ymd', G5_SERVER_TIME)." 삭제함\n".sql_real_escape_string($mb['mb_memo'])."', mb_certify = '', mb_adult = 0, mb_dupinfo = '' where mb_id = '{$mb_id}' ";
+    $sql = " update {$g5['member_table']} set mb_password = '', mb_level = 1, mb_email = '', mb_homepage = '', mb_tel = '', mb_hp = '', mb_zip1 = '', mb_zip2 = '', mb_addr1 = '', mb_addr2 = '', mb_addr3 = '', mb_point = 0, mb_birth = '', mb_sex = '', mb_signature = '', mb_memo = '".date('Ymd', G5_SERVER_TIME)." 삭제함\n".sql_real_escape_string($mb['mb_memo'])."', mb_certify = '', mb_adult = 0, mb_dupinfo = '' where mb_id = '{$mb_id}' ";
 
     sql_query($sql);
 
@@ -3505,9 +3498,6 @@ function member_delete($mb_id)
     if(function_exists('social_member_link_delete')){
         social_member_link_delete($mb_id);
     }
-
-    // 아이콘 삭제
-    @unlink(G5_DATA_PATH.'/member/'.substr($mb_id,0,2).'/'.$mb_id.'.gif');
 
     // 프로필 이미지 삭제
     @unlink(G5_DATA_PATH.'/member_image/'.substr($mb_id,0,2).'/'.$mb_id.'.gif');
@@ -3990,7 +3980,7 @@ function get_member_profile_img($mb_id='', $width='', $height='', $alt='profile_
         if( isset($member_cache[$mb_id]) ){
             $src = $member_cache[$mb_id];
         } else {
-            $member_img = G5_DATA_PATH.'/member_image/'.substr($mb_id,0,2).'/'.get_mb_icon_name($mb_id).'.gif';
+            $member_img = G5_DATA_PATH.'/member_image/'.substr($mb_id,0,2).'/'.get_mb_image_name($mb_id).'.gif';
             if (is_file($member_img)) {
                 if(defined('G5_USE_MEMBER_IMAGE_FILETIME') && G5_USE_MEMBER_IMAGE_FILETIME) {
                     $member_img .= '?'.filemtime($member_img);

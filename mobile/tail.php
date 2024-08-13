@@ -10,7 +10,6 @@ if(defined('G5_THEME_PATH')) {
 </div>
 
 
-<?php echo poll('basic'); // 설문조사 ?>
 <?php echo visit('basic'); // 방문자수 ?>
 
 

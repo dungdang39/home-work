@@ -1,0 +1,48 @@
+<?php $this->layout('_layout', ['title' => $version . " 설치 3/3"]) ?>
+
+<div class="ins_inner">
+    <h2><?=$this->e($version)?> 설치가 시작되었습니다.</h2>
+    <ol id="progress">
+    </ol>
+
+    <p id="complete">축하합니다. <?=$this->e($version)?> 설치가 완료되었습니다.</p>
+</div>
+
+<div class="ins_inner" id="notice">
+    <h2>환경설정 변경은 다음의 과정을 따르십시오.</h2>
+    <ol>
+        <li>메인화면으로 이동</li>
+        <li>관리자 로그인</li>
+        <li>관리자 모드 접속</li>
+        <li>환경설정 메뉴의 기본환경설정 페이지로 이동</li>
+    </ol>
+    <div class="inner_btn">
+        <a href="../index.php">새로운 그누보드로 이동</a>
+    </div>
+</div>
+<script>
+    const progressElement = document.getElementById('progress');
+    const completeElement = document.getElementById('complete');
+    const noticeElement = document.getElementById('notice');
+    const eventSource = new EventSource('process.php');
+
+    completeElement.style.display = 'none';
+    noticeElement.style.display = 'none';
+
+    eventSource.onmessage = function(event) {
+        if (event.lastEventId === 'end') {
+            completeElement.style.display = 'block';
+            noticeElement.style.display = 'block';
+            eventSource.close();
+        }
+
+        const li = document.createElement('li');
+        li.textContent = event.data;
+        progressElement.appendChild(li);
+    };
+
+    eventSource.onerror = function() {
+        console.log('EventSource failed');
+        eventSource.close();
+    };
+</script>

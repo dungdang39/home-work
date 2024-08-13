@@ -316,7 +316,7 @@ if (!isset($config['cf_kakao_client_secret'])) {
 if (!isset($config['cf_member_img_size'])) {
     sql_query(
         "ALTER TABLE `{$g5['config_table']}`
-                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_icon_height`,
+                ADD `cf_member_img_size` int(11) NOT NULL DEFAULT '0' AFTER `cf_use_member_image`,
                 ADD `cf_member_img_width` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_size`,
                 ADD `cf_member_img_height` int(11) NOT NULL DEFAULT '0' AFTER `cf_member_img_width`
     ",
@@ -433,7 +433,6 @@ $pg_anchor = '<ul class="anchor">
     <li><a href="#anc_cf_mail">기본메일환경</a></li>
     <li><a href="#anc_cf_article_mail">글작성메일</a></li>
     <li><a href="#anc_cf_join_mail">가입메일</a></li>
-    <li><a href="#anc_cf_vote_mail">투표메일</a></li>
     <li><a href="#anc_cf_sns">SNS</a></li>
     <li><a href="#anc_cf_lay">레이아웃 추가설정</a></li>
     <li><a href="#anc_cf_sms">SMS</a></li>
@@ -847,11 +846,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">홈페이지 입력</th>
-                        <td>
-                            <input type="checkbox" name="cf_use_homepage" value="1" id="cf_use_homepage" <?php echo $config['cf_use_homepage'] ? 'checked' : ''; ?>> <label for="cf_use_homepage">보이기</label>
-                            <input type="checkbox" name="cf_req_homepage" value="1" id="cf_req_homepage" <?php echo $config['cf_req_homepage'] ? 'checked' : ''; ?>> <label for="cf_req_homepage">필수입력</label>
-                        </td>
                         <th scope="row">주소 입력</th>
                         <td>
                             <input type="checkbox" name="cf_use_addr" value="1" id="cf_use_addr" <?php echo $config['cf_use_addr'] ? 'checked' : ''; ?>> <label for="cf_use_addr">보이기</label>
@@ -876,11 +870,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                             <input type="checkbox" name="cf_use_signature" value="1" id="cf_use_signature" <?php echo $config['cf_use_signature'] ? 'checked' : ''; ?>> <label for="cf_use_signature">보이기</label>
                             <input type="checkbox" name="cf_req_signature" value="1" id="cf_req_signature" <?php echo $config['cf_req_signature'] ? 'checked' : ''; ?>> <label for="cf_req_signature">필수입력</label>
                         </td>
-                        <th scope="row">자기소개 입력</th>
-                        <td>
-                            <input type="checkbox" name="cf_use_profile" value="1" id="cf_use_profile" <?php echo $config['cf_use_profile'] ? 'checked' : ''; ?>> <label for="cf_use_profile">보이기</label>
-                            <input type="checkbox" name="cf_req_profile" value="1" id="cf_req_profile" <?php echo $config['cf_req_profile'] ? 'checked' : ''; ?>> <label for="cf_req_profile">필수입력</label>
-                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="cf_register_level">회원가입시 권한</label></th>
@@ -893,29 +882,15 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
                         <td colspan="3"><input type="text" name="cf_leave_day" value="<?php echo (int) $config['cf_leave_day'] ?>" id="cf_leave_day" class="frm_input" size="2"> 일 후 자동 삭제</td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="cf_use_member_icon">회원아이콘 사용</label></th>
+                        <th scope="row"><label for="cf_use_member_image">회원 이미지 사용</label></th>
                         <td>
-                            <?php echo help('게시물에 게시자 닉네임 대신 아이콘 사용') ?>
-                            <select name="cf_use_member_icon" id="cf_use_member_icon">
-                                <option value="0" <?php echo get_selected($config['cf_use_member_icon'], '0') ?>>미사용
-                                <option value="1" <?php echo get_selected($config['cf_use_member_icon'], '1') ?>>아이콘만 표시
-                                <option value="2" <?php echo get_selected($config['cf_use_member_icon'], '2') ?>>아이콘+이름 표시
+                            <select name="cf_use_member_image" id="cf_use_member_image">
+                                <option value="0" <?php echo get_selected($config['cf_use_member_image'], '0') ?>>사용안함</option>
+                                <option value="1" <?php echo get_selected($config['cf_use_member_image'], '1') ?>>사용</option>
                             </select>
                         </td>
-                        <th scope="row"><label for="cf_icon_level">회원 아이콘, 이미지 업로드 권한</label></th>
-                        <td><?php echo get_member_level_select('cf_icon_level', 1, 9, $config['cf_icon_level']) ?> 이상</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="cf_member_icon_size">회원아이콘 용량</label></th>
-                        <td><input type="text" name="cf_member_icon_size" value="<?php echo (int) $config['cf_member_icon_size'] ?>" id="cf_member_icon_size" class="frm_input" size="10"> 바이트 이하</td>
-                        <th scope="row">회원아이콘 사이즈</th>
-                        <td>
-                            <label for="cf_member_icon_width">가로</label>
-                            <input type="text" name="cf_member_icon_width" value="<?php echo (int) $config['cf_member_icon_width'] ?>" id="cf_member_icon_width" class="frm_input" size="2">
-                            <label for="cf_member_icon_height">세로</label>
-                            <input type="text" name="cf_member_icon_height" value="<?php echo (int) $config['cf_member_icon_height'] ?>" id="cf_member_icon_height" class="frm_input" size="2">
-                            픽셀 이하
-                        </td>
+                        <th scope="row"><label for="cf_image_level">회원 이미지 업로드 권한</label></th>
+                        <td><?php echo get_member_level_select('cf_image_level', 2, 9, $config['cf_image_level']) ?> 이상</td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="cf_member_img_size">회원이미지 용량</label></th>
@@ -1211,32 +1186,6 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
             </table>
         </div>
     </section>
-
-
-    <section id="anc_cf_vote_mail">
-        <h2 class="h2_frm">투표 기타의견 작성 시 메일 설정</h2>
-        <?php echo $pg_anchor ?>
-
-        <div class="tbl_frm01 tbl_wrap">
-            <table>
-                <caption>투표 기타의견 작성 시 메일 설정</caption>
-                <colgroup>
-                    <col class="grid_4">
-                    <col>
-                </colgroup>
-                <tbody>
-                    <tr>
-                        <th scope="row"><label for="cf_email_po_super_admin">최고관리자 메일발송</label></th>
-                        <td>
-                            <?php echo help('최고관리자에게 메일을 발송합니다.') ?>
-                            <input type="checkbox" name="cf_email_po_super_admin" value="1" id="cf_email_po_super_admin" <?php echo $config['cf_email_po_super_admin'] ? 'checked' : ''; ?>> 사용
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
 
     <section id="anc_cf_sns">
         <h2 class="h2_frm">소셜네트워크서비스(SNS : Social Network Service)</h2>

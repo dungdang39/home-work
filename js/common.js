@@ -502,14 +502,6 @@ win_password_lost = function(href)
 }
 
 /**
- * 설문조사 결과
- **/
-var win_poll = function(href) {
-    var new_win = window.open(href, 'win_poll', 'width=616, height=500, scrollbars=1');
-    new_win.focus();
-}
-
-/**
  * 쿠폰
  **/
 var win_coupon = function(href) {
@@ -605,13 +597,6 @@ $(function(){
         win_password_lost(this.href);
         return false;
     });
-
-    /*
-    $(".win_poll").click(function() {
-        win_poll(this.href);
-        return false;
-    });
-    */
 
     $(".win_coupon").click(function() {
         win_coupon(this.href);

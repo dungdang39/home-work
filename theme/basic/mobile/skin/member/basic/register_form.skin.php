@@ -118,12 +118,10 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
                 <input type="email" name="mb_email" value="<?php echo isset($member['mb_email'])?$member['mb_email']:''; ?>" id="reg_mb_email" required class="frm_input email required" size="50" maxlength="100" placeholder="E-mail (필수)">
 			</li>
 
-	        <?php if ($config['cf_use_homepage']) { ?>
 	        <li>
-	            <label for="reg_mb_homepage" class="sound_only">홈페이지<?php if ($config['cf_req_homepage']){ ?> (필수)<?php } ?></label>
-	            <input type="text" name="mb_homepage" value="<?php echo get_text($member['mb_homepage']) ?>" id="reg_mb_homepage" class="frm_input full_input <?php echo $config['cf_req_homepage']?"required":""; ?>" maxlength="255" <?php echo $config['cf_req_homepage']?"required":""; ?> placeholder="홈페이지<?php if ($config['cf_req_homepage']){ ?> (필수)<?php } ?>">
+	            <label for="reg_mb_homepage" class="sound_only">홈페이지</label>
+	            <input type="text" name="mb_homepage" value="<?php echo get_text($member['mb_homepage']) ?>" id="reg_mb_homepage" class="frm_input full_input" maxlength="255" placeholder="홈페이지">
 	        </li>
-	        <?php } ?>
 	
 	        <?php if ($config['cf_use_tel']) { ?>
 	        <li>
@@ -175,32 +173,8 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
 	            <textarea name="mb_signature" id="reg_mb_signature" class="<?php echo $config['cf_req_signature']?"required":""; ?>" <?php echo $config['cf_req_signature']?"required":""; ?> placeholder="서명<?php if ($config['cf_req_signature']){ ?> (필수)<?php } ?>"><?php echo $member['mb_signature'] ?></textarea>
 	        </li>
 	        <?php } ?>
-	
-	        <?php if ($config['cf_use_profile']) { ?>
-	        <li>
-	            <label for="reg_mb_profile" class="sound_only">자기소개</label>
-	            <textarea name="mb_profile" id="reg_mb_profile" class="<?php echo $config['cf_req_profile']?"required":""; ?>" <?php echo $config['cf_req_profile']?"required":""; ?> placeholder="자기소개"><?php echo $member['mb_profile'] ?></textarea>
-	        </li>
-	        <?php } ?>
-
-	        <?php if ($config['cf_use_member_icon'] && $member['mb_level'] >= $config['cf_icon_level']) { ?>
-	        <li class="filebox">
-				<input type="text" class="fileName" readonly="readonly" placeholder="회원아이콘">
-	            <label for="reg_mb_icon" class="btn_file"><span class="sound_only">회원아이콘</span>이미지선택</label>
-	            <input type="file" name="mb_icon" id="reg_mb_icon" class="uploadBtn">
-	            <span class="frm_info">
-	                이미지 크기는 가로 <?php echo $config['cf_member_icon_width'] ?>픽셀, 세로 <?php echo $config['cf_member_icon_height'] ?>픽셀 이하로 해주세요.<br>
-	                gif, jpg, png파일만 가능하며 용량 <?php echo number_format($config['cf_member_icon_size']) ?>바이트 이하만 등록됩니다.
-	            </span>
-	            <?php if ($w == 'u' && file_exists($mb_icon_path)) { ?>
-	            <img src="<?php echo $mb_icon_url ?>" alt="회원아이콘">
-	            <input type="checkbox" name="del_mb_icon" value="1" id="del_mb_icon">
-	            <label for="del_mb_icon">삭제</label>
-	            <?php } ?>
-	        </li>
-	        <?php } ?>
         
-	        <?php if ($member['mb_level'] >= $config['cf_icon_level'] && $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['cf_member_img_height']) {  ?>
+	        <?php if ($member['mb_level'] >= $config['cf_image_level'] && $config['cf_use_member_image'] && $config['cf_member_img_size'] && $config['cf_member_img_width'] && $config['cf_member_img_height']) {  ?>
 	        <li class="reg_mb_img_file filebox">
 	        	<input type="text" class="fileName" readonly="readonly" placeholder="회원이미지">
 	            <label for="reg_mb_img" class="btn_file"><span class="sound_only">회원이미지</span>이미지선택</label>
@@ -210,7 +184,7 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
 	                gif, jpg, png파일만 가능하며 용량 <?php echo number_format($config['cf_member_img_size']) ?>바이트 이하만 등록됩니다.
 	            </span>
 	            <?php if ($w == 'u' && file_exists($mb_img_path)) {  ?>
-	            <img src="<?php echo $mb_img_url ?>" alt="회원아이콘">
+	            <img src="<?php echo $mb_img_url ?>" alt="회원 이미지">
 	            <input type="checkbox" name="del_mb_img" value="1" id="del_mb_img">
 	            <label for="del_mb_img">삭제</label>
 	            <?php }  ?>
@@ -460,16 +434,6 @@ if ($config['cf_cert_use'] && ($config['cf_cert_simple'] || $config['cf_cert_ipi
             return false;
         }
         <?php } ?>
-
-        if (typeof f.mb_icon != "undefined") {
-            if (f.mb_icon.value) {
-                if (!f.mb_icon.value.toLowerCase().match(/.(gif|jpe?g|png)$/i)) {
-                    alert("회원아이콘이 이미지 파일이 아닙니다.");
-                    f.mb_icon.focus();
-                    return false;
-                }
-            }
-        }
 
         if (typeof f.mb_img != "undefined") {
             if (f.mb_img.value) {

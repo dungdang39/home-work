@@ -208,25 +208,6 @@ function get_board_file_db($bo_table, $wr_id, $fields='*', $add_where='', $is_ca
     return $cache[$key];
 }
 
-function get_poll_db($po_id, $is_cache=false){
-    global $g5;
-
-    static $cache = array();
-
-    $po_id = (int) $po_id;
-    $key = md5($po_id);
-
-    if( $is_cache && isset($cache[$key]) ){
-        return $cache[$key];
-    }
-
-    $sql = " select * from {$g5['poll_table']} where po_id = '{$po_id}' ";
-
-    $cache[$key] = sql_fetch($sql);
-
-    return $cache[$key];
-}
-
 function get_point_db($po_id, $is_cache=false){
     global $g5;
 
@@ -388,10 +369,10 @@ function get_check_mod_rewrite(){
     return $mod_rewrite;
 }
 
-function get_mb_icon_name($mb_id){
+function get_mb_image_name($mb_id){
 
-    if( $icon_name = run_replace('get_mb_icon_name', '', $mb_id) ){
-        return $icon_name;
+    if( $image_name = run_replace('get_mb_image_name', '', $mb_id) ){
+        return $image_name;
     }
 
     return $mb_id;
