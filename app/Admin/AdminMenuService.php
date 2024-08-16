@@ -11,7 +11,7 @@ use Core\Database\Db;
  */
 class AdminMenuService
 {
-    private string $table;
+    public string $table;
 
     public function __construct()
     {

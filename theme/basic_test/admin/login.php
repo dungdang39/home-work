@@ -7,7 +7,6 @@
     <form id="form_login" action="{{ url_for('login') }}" method="POST">
         <input type="text" name="mb_id" placeholder="Username">
         <input type="password" name="mb_password" placeholder="Password">
-        <input type="text" name="asdf" placeholder="asdf">
         <button type="submit">Login</button>
 
         <div>

@@ -27,14 +27,14 @@ class AdminMenuMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         $routeContext = RouteContext::fromRequest($request);
-        $route_name = $routeContext->getRoute()->getName();
+        $route_group = $this->get_route_group($request);
 
         $fetch_menus = $this->menu_service->fetchAll();
 
         $admin_menu = [];
         foreach ($fetch_menus as $menu) {
             // 메뉴 활성화 여부
-            $menu['active'] = ($menu['am_route'] === $route_name);
+            $menu['active'] = ($menu['am_route'] === $route_group);
 
             // url 변환
             $menu['url'] = $this->generateUrl($routeContext, $menu['am_route']);
@@ -51,10 +51,11 @@ class AdminMenuMiddleware
         }
 
         // 대시보드는 관리자메뉴에 없으므로 별도로 활성화 처리
-        if ($route_name === "dashboard") {
+        if ($route_group === "dashboard") {
             $admin_menu[key($admin_menu)]['active'] = true;
         }
         $request = $request->withAttribute('admin_menu', $admin_menu);
+        $request = $request->withAttribute('route_group', $route_group);
 
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('admin_menu', $admin_menu);
@@ -75,12 +76,28 @@ class AdminMenuMiddleware
         }
 
         try {
-            return $routeContext->getRouteParser()->urlFor($routeName);
+            return $routeContext->getRouteParser()->urlFor($routeName . ".index");
         } catch (Exception $e) {
             return null;
         }
     }
+
+    /**
+     * 라우트 그룹 반환
+     * @param Request $request
+     * @return string
+     */
+    private function get_route_group(Request $request): string
+    {
+        $routeContext = RouteContext::fromRequest($request);
+        $route_name = $routeContext->getRoute()->getName();
+        $route_group_array = explode('.', $route_name);
+
+        return $route_group_array[0];
+    }
 }
+
+
 
 /**
  * Base URL 반환

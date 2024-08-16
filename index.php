@@ -65,6 +65,9 @@ register_shutdown_function($shutdownHandler);
 $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
+// ssession
+session_start();
+
 /**
  * Add Routers
  */

@@ -83,7 +83,6 @@ class LoginController
             }
             */
 
-            session_start();
             // 회원아이디 세션 생성
             set_session('ss_mb_id', $member['mb_id']);
             // FLASH XSS 공격에 대응하기 위하여 회원의 고유키를 생성해 놓는다. 관리자에서 검사함
@@ -160,6 +159,31 @@ class LoginController
         if (!empty($query_params)) {
             $redirect_url .= '?' . http_build_query($query_params);
         }
-        return $response->withHeader('Location', $redirect_url )->withStatus(302);
+        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+    }
+
+    public function Logout(Request $request, Response $response): Response
+    {
+        /*
+        if (function_exists('social_provider_logout')) {
+            social_provider_logout();
+        }
+        */
+
+        // 세션 초기화
+        session_unset();
+        session_destroy();
+
+        // 쿠키 초기화
+        setcookie('ck_mb_id', '', 0);
+        setcookie('ck_auto', '', 0);
+
+        // 로그인 페이지로 리다이렉트
+        $routeContext = RouteContext::fromRequest($request);
+        $redirect_url = $routeContext->getRouteParser()->urlFor('login.index');
+
+        run_event('admin_logout', $redirect_url);
+
+        return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 }
