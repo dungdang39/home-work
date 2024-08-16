@@ -96,32 +96,3 @@ class AdminMenuMiddleware
         return $route_group_array[0];
     }
 }
-
-
-
-/**
- * Base URL 반환
- * @param Request $request
- * @return string
- * @todo 추후 사용할 수 있음, 위치 이동
- */
-function base_url(Request $request): string
-{
-    $scheme = $request->getUri()->getScheme();
-    $host = $request->getUri()->getHost();
-    $port = $request->getUri()->getPort();
-    $user = $request->getUri()->getUserInfo();
-
-    return "{$scheme}://{$host}{$port}{$user}";
-}
-
-/**
- * 현재 URL 반환
- * @param Request $request
- * @return string
- * @todo 추후 사용할 수 있음, 위치 이동
- */
-function current_url(Request $request): string
-{
-    return base_url($request) . $request->getUri()->getPath();
-}

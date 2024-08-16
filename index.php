@@ -4,11 +4,14 @@ use API\Handlers\HttpErrorHandler;
 use API\Handlers\ShutdownHandler;
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
+use Core\Extension\CsrfExtension;
 use DI\Container;
+use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Twig\Extra\Html\HtmlExtension;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -25,12 +28,24 @@ include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo
 // - Should be set to false in production
 $displayErrorDetails = true;
 
+// Start PHP session
+session_start();
+
 /**
  * Instantiate App
  */
+// Create Container
 $container = new Container();
 AppFactory::setContainer($container);
+
+// Create App
 $app = AppFactory::create();
+$responseFactory = $app->getResponseFactory();
+
+// Register Middleware On Container
+$container->set('csrf', function () use ($responseFactory) {
+    return new Guard($responseFactory);
+});
 
 // Create Request object from globals
 $serverRequestCreator = ServerRequestCreatorFactory::create();
@@ -38,6 +53,8 @@ $request = $serverRequestCreator->createServerRequestFromGlobals();
 
 // Create Twig
 $twig = Twig::create(__DIR__, ['cache' => false]);
+$twig->addExtension(new HtmlExtension());
+$twig->addExtension(new CsrfExtension($container->get('csrf')));
 
 /**
  * Add Middleware
@@ -45,6 +62,9 @@ $twig = Twig::create(__DIR__, ['cache' => false]);
 // The routing middleware should be added earlier than the ErrorMiddleware
 // Otherwise exceptions thrown from it will not be handled by the middleware
 $app->addRoutingMiddleware();
+
+// Add CSRF Protection Middleware
+$app->add('csrf');
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
@@ -64,9 +84,6 @@ register_shutdown_function($shutdownHandler);
 // Add Error Middleware
 $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
-
-// ssession
-session_start();
 
 /**
  * Add Routers

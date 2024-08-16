@@ -29,4 +29,9 @@ class ConfigService
 
         return $stmt->fetch();
     }
+
+    public function update(array $data): int
+    {
+        return Db::getInstance()->update($this->table, [], $data);
+    }
 }

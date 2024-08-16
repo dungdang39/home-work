@@ -24,6 +24,6 @@ class DashboardController
 
         // @todo 로그인 체크
 
-        return $view->render($response, $theme_path . '/admin/dashboard.php');
+        return $view->render($response, $theme_path . '/admin/dashboard.html');
     }
 }

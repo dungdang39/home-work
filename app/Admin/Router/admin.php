@@ -2,14 +2,14 @@
 
 namespace App\Login\Router;
 
-use App\Admin\ConfigController;
+use App\Admin\Controller\ConfigController;
 use App\Admin\DashboardController;
 use App\Admin\LoginController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
 use Core\Middleware\LoginAuthMiddleware;
-use Core\Middleware\ThemeMiddleware;
+use Core\Middleware\TemplateMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -46,5 +46,5 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         ->add(AdminMenuMiddleware::class)
         ->add(LoginAuthMiddleware::class);
 })
-    ->add(ThemeMiddleware::class)
+    ->add(TemplateMiddleware::class)
     ->add(ConfigMiddleware::class);
