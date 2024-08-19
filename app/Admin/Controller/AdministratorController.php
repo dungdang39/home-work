@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin;
+namespace App\Admin\Controller;
 
 use App\Member\MemberService;
 use Psr\Http\Message\ResponseInterface as Response;

@@ -2,8 +2,8 @@
 
 namespace Core\Middleware;
 
-use App\Admin\AdminMenuService;
-use App\Admin\AdminMenuAuthService;
+use App\Admin\Service\AdminMenuService;
+use App\Admin\Service\AdminMenuAuthService;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;

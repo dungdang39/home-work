@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Admin;
+namespace App\Admin\Controller;
 
-use FastRoute\Route;
+use App\Admin\Service\ContentService;
+use App\Admin\Service\MenuService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;

@@ -2,11 +2,12 @@
 
 namespace App\Login\Router;
 
-use App\Admin\AdministratorController;
+use App\Admin\Controller\AdministratorController;
 use App\Admin\Controller\ConfigController;
-use App\Admin\DashboardController;
-use App\Admin\LoginController;
-use App\Admin\MenuController;
+use App\Admin\Controller\LoginController;
+use App\Admin\Controller\DashboardController;
+use App\Admin\Controller\MenuController;
+use App\Admin\Controller\ThemeController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
@@ -53,6 +54,36 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->post('', [MenuController::class, 'insert'])->setName('menu.insert');
             $group->put('/{me_id}', [MenuController::class, 'update'])->setName('menu.update');
             $group->delete('', [MenuController::class, 'delete'])->setName('menu.delete');
+        })->add(AdminMenuAuthMiddleware::class);
+
+        // 디자인/UI
+        $group->group('/design', function (RouteCollectorProxy $group) {
+            // 테마
+            $group->group('/theme', function (RouteCollectorProxy $group) {
+                $group->get('', [ThemeController::class, 'index'])->setName('theme.index');
+                $group->get('/{theme}', [ThemeController::class, 'view'])->setName('theme.view');
+                $group->put('/{theme}', [ThemeController::class, 'update'])->setName('theme.update');
+            });
+
+            // 배너
+            $group->group('/banner', function (RouteCollectorProxy $group) {
+                $group->get('', [DashboardController::class, 'index'])->setName('banner.index');
+                $group->get('/create', [DashboardController::class, 'create'])->setName('banner.create');
+                $group->post('', [DashboardController::class, 'insert'])->setName('banner.insert');
+                $group->get('/{bn_id}', [DashboardController::class, 'view'])->setName('banner.view');
+                $group->post('/{bn_id}', [DashboardController::class, 'update'])->setName('banner.update');
+                $group->delete('/{bn_id}', [DashboardController::class, 'delete'])->setName('banner.delete');
+            });
+
+            // 레이어팝업
+            $group->group('/popup', function (RouteCollectorProxy $group) {
+                $group->get('', [DashboardController::class, 'index'])->setName('popup.index');
+                $group->get('/create', [DashboardController::class, 'create'])->setName('popup.create');
+                $group->post('', [DashboardController::class, 'insert'])->setName('popup.insert');
+                $group->get('/{nw_id}', [DashboardController::class, 'view'])->setName('popup.view');
+                $group->post('/{nw_id}', [DashboardController::class, 'update'])->setName('popup.update');
+                $group->delete('/{nw_id}', [DashboardController::class, 'delete'])->setName('popup.delete');
+            });
         })->add(AdminMenuAuthMiddleware::class);
 
         // 기본회원 설정

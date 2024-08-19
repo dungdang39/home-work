@@ -45,7 +45,7 @@ class TemplateMiddleware
      * @param Request $request
      * @return string
      */
-    public function base_url(Request $request): string
+    private function base_url(Request $request): string
     {
         $routeContext = RouteContext::fromRequest($request);
         return $this->default_url($request) . rtrim($routeContext->getBasePath(), '/');

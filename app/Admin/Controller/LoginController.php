@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin;
+namespace App\Admin\Controller;
 
 use App\Admin\Model\LoginRequest;
 use App\Member\MemberService;

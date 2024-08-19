@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin;
+namespace App\Admin\Service;
 
 use Core\Database\Db;
 
