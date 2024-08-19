@@ -198,6 +198,19 @@ class MemberService
     }
 
     /**
+     * 회원정보 조회 (회원 레벨)
+     * @param int $mb_level 회원레벨
+     * @return array|false
+     */
+    public function fetchMemberByLevel(int $mb_level)
+    {
+        $query = "SELECT * FROM `{$this->table}` WHERE mb_level = :mb_level";
+        $stmt = Db::getInstance()->run($query, ["mb_level" => $mb_level]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * 닉네임 중복여부 확인
      * @param string $mb_nick 닉네임
      * @param string $mb_id 회원아이디

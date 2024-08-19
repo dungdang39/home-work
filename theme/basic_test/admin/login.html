@@ -5,6 +5,9 @@
 </head>
 <body>
     <form id="form_login" action="{{ url_for('login') }}" method="POST">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
         <input type="text" name="mb_id" placeholder="Username">
         <input type="password" name="mb_password" placeholder="Password">
         <button type="submit">Login</button>

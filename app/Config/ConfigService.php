@@ -11,7 +11,8 @@ class ConfigService
 
     public function __construct()
     {
-        $this->table = 'g5_config';
+        // @TODO: 테이블명을 변경해야함.
+        $this->table = 'new_config';
     }
 
     public function getConfig()
@@ -32,6 +33,6 @@ class ConfigService
 
     public function update(array $data): int
     {
-        return Db::getInstance()->update($this->table, [], $data);
+        return Db::getInstance()->update($this->table, $data);
     }
 }
