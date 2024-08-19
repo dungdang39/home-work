@@ -121,13 +121,13 @@ class Db
     }
 
     /**
-     * 업데이트 쿼리 SQL 쿼리순으로 테이블 where value
+     * 업데이트 쿼리
      * @param string $table
-     * @param array $where [column => value]
      * @param array $updateData [column => value]
+     * @param array $where [column => value]
      * @return int
      */
-    public function update($table, $where, $updateData)
+    public function update($table, $updateData, $where = [])
     {
         $values = [];
 
@@ -147,8 +147,9 @@ class Db
             $values[] = $value;
             $i++;
         }
+        $whereCondition = $whereCondition ? "WHERE {$whereCondition}" : '';
 
-        $query = "UPDATE `$table` SET $fields WHERE {$whereCondition}";
+        $query = "UPDATE `$table` SET $fields {$whereCondition}";
         return $this->run($query, $values)->rowCount();
     }
 
