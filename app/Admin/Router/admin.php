@@ -2,9 +2,11 @@
 
 namespace App\Login\Router;
 
+use App\Admin\AdministratorController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\DashboardController;
 use App\Admin\LoginController;
+use App\Admin\MenuController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
@@ -38,16 +40,25 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
         // 운영진 설정
         $group->group('/administrator', function (RouteCollectorProxy $group) {
-            $group->get('', [DashboardController::class, 'index'])->setName('administrator.index');
-            $group->post('', [DashboardController::class, 'update'])->setName('administrator.update');
-            $group->delete('', [DashboardController::class, 'delete'])->setName('administrator.delete');
+            $group->get('', [AdministratorController::class, 'index'])->setName('administrator.index');
+            $group->post('', [AdministratorController::class, 'insert'])->setName('administrator.insert');
+            $group->put('/{mb_id}', [AdministratorController::class, 'update'])->setName('administrator.update');
+            $group->delete('', [AdministratorController::class, 'delete'])->setName('administrator.delete');
         })->add(SuperAdminAuthMiddleware::class);
+
+        // 메뉴 설정
+        $group->group('/menu', function (RouteCollectorProxy $group) {
+            $group->get('', [MenuController::class, 'index'])->setName('menu.index');
+            $group->get('/{type}', [MenuController::class, 'getUrls'])->setName('menu.urls');
+            $group->post('', [MenuController::class, 'insert'])->setName('menu.insert');
+            $group->put('/{me_id}', [MenuController::class, 'update'])->setName('menu.update');
+            $group->delete('', [MenuController::class, 'delete'])->setName('menu.delete');
+        })->add(AdminMenuAuthMiddleware::class);
 
         // 기본회원 설정
         $group->group('/member', function (RouteCollectorProxy $group) {
             $group->get('/config', [DashboardController::class, 'index'])->setName('member.config.index');
         })->add(AdminMenuAuthMiddleware::class);
-            
     })
         ->add(AdminMenuMiddleware::class)
         ->add(LoginAuthMiddleware::class);
