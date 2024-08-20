@@ -63,7 +63,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('', [ThemeController::class, 'index'])->setName('theme.index');
                 $group->get('/{theme}', [ThemeController::class, 'view'])->setName('theme.view');
                 $group->put('/{theme}', [ThemeController::class, 'update'])->setName('theme.update');
-            });
+            })->add(SuperAdminAuthMiddleware::class);
 
             // 배너
             $group->group('/banner', function (RouteCollectorProxy $group) {
@@ -73,7 +73,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{bn_id}', [DashboardController::class, 'view'])->setName('banner.view');
                 $group->post('/{bn_id}', [DashboardController::class, 'update'])->setName('banner.update');
                 $group->delete('/{bn_id}', [DashboardController::class, 'delete'])->setName('banner.delete');
-            });
+            })->add(AdminMenuAuthMiddleware::class);
 
             // 레이어팝업
             $group->group('/popup', function (RouteCollectorProxy $group) {
@@ -83,8 +83,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{nw_id}', [DashboardController::class, 'view'])->setName('popup.view');
                 $group->post('/{nw_id}', [DashboardController::class, 'update'])->setName('popup.update');
                 $group->delete('/{nw_id}', [DashboardController::class, 'delete'])->setName('popup.delete');
-            });
-        })->add(AdminMenuAuthMiddleware::class);
+            })->add(AdminMenuAuthMiddleware::class);
+        });
 
         // 기본회원 설정
         $group->group('/member', function (RouteCollectorProxy $group) {

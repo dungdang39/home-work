@@ -20,10 +20,7 @@ class DashboardController
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $theme_path = $request->getAttribute('theme_path');
 
-        // @todo 로그인 체크
-
-        return $view->render($response, $theme_path . '/admin/dashboard.php');
+        return $view->render($response, '/admin/dashboard.php');
     }
 }

@@ -23,12 +23,11 @@ class LoginController
     public function adminLoginPage(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $theme_path = $request->getAttribute('theme_path');
 
         // 이미 로그인 중이라면 리다이렉트
         // @todo 로그인 체크
 
-        return $view->render($response, $theme_path . '/admin/login.html');
+        return $view->render($response, '/admin/login.html');
     }
 
     public function Login(Request $request, Response $response): Response

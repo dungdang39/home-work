@@ -29,7 +29,6 @@ class ConfigController
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $theme_path = $request->getAttribute('theme_path');
         $config = $request->getAttribute('config');
 
         $admins = [];
@@ -38,12 +37,11 @@ class ConfigController
             $admins[] = $admin['mb_id'];
         }
 
-        $template = $theme_path . '/admin/config_form.html';
         $response_data = [
             "config" => $config,
             "admins" => $admins
         ];
-        return $view->render($response, $template, $response_data);
+        return $view->render($response, '/admin/config_form.html', $response_data);
     }
 
     /**

@@ -28,6 +28,7 @@
     <script src="{{ base_url }}/js/common.js?ver=2304171"></script>
     <script src="{{ base_url }}/js/wrest.js?ver=2304171"></script>
     <script src="{{ base_url }}/js/placeholders.min.js?ver=2304171"></script>
+    {% block head %}{% endblock head %}
 </head>
 
 <body>
@@ -37,13 +38,13 @@
 
     <header id="hd">
         {% block header %}
-            {{ include('/theme/basic_test/admin/_header.html') }}
+            {{ include('/admin/_header.html') }}
         {% endblock header %}
     </header>
 
     <nav id="gnb" class="gnb_large ">
         {% block snb %}
-            {{ include('/theme/basic_test/admin/_snb.html') }}
+            {{ include('/admin/_snb.html') }}
         {% endblock snb %}
     </nav>
 
@@ -53,7 +54,7 @@
 
     <footer id="ft">
         {% block footer %}
-            {{ include('/theme/basic_test/admin/_footer.html') }}
+            {{ include('/admin/_footer.html') }}
         {% endblock footer %}
     </footer>
 </body>

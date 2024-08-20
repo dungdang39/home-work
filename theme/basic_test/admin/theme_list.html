@@ -1,27 +1,133 @@
-{% extends theme_path ~ "/admin/_layout.html" %}
+{% extends "/admin/_layout.html" %}
+{% from "/admin/theme_macro.html" import theme_view %}
+
+{% block head %}
+<script src="{{ base_url }}/js/theme.js"></script>
+{% endblock head %}
 
 {% block content %}
-<h1 id="container_title">테마설정</h1>
+<h1 id="container_title">디자인/UI > 테마 설정</h1>
 <div class="container_wr">
-    <script src="http://127.0.0.1/g5-update/adm/theme.js"></script>
-    <div class="local_wr">
-        <span class="btn_ov01"><span class="ov_txt">설치된 테마</span><span class="ov_num"> 1</span></span>
+    <section id="anchor_theme">
+        <h2 class="h2_frm">테마 선택</h2>
+        <ul class="anchor">
+            <li><a href="#anchor_theme">테마</a></li>
+            <li><a href="#anchor_logo">로고</a></li>
+            <li><a href="#anchor_layout">레이아웃</a></li>
+        </ul>
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>테마 선택</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <ul id="theme_list">
+                    {% for theme in themes %}
+                        <li>
+                            <div class="tmli_if">
+                                <img src="{{ base_url ~ theme.screenshot }}" alt="{{ theme.name }}">
+                                <div class="tmli_tit">
+                                    <p>{{ theme.name }}</p>
+                                </div>
+                            </div>
+                            {% if theme.theme == current_theme %}
+                            <span class="theme_sl theme_sl_use">사용중</span>
+                            <button type="button" class="theme_sl theme_deactive" data-theme="basic" data-name="베이직">사용안함</button>
+                            {% else %}
+                            <button type="button" class="theme_sl theme_active" data-theme="{{ theme.theme }}" data-name="{{ theme.name }}">테마적용</button>
+                            {% endif %}
 
-    </div>
+                            <button type="button" class="tmli_dt theme_preview" data-theme="{{ theme.theme }}">상세보기</button>
 
-    <ul id="theme_list">
-        <li>
-            <div class="tmli_if">
-                <img src="http://127.0.0.1/g5-update/theme/basic/screenshot.png" alt="베이직">
-                <div class="tmli_tit">
-                    <p>베이직</p>
-                </div>
-            </div>
-            <span class="theme_sl theme_sl_use">사용중</span><button type="button" class="theme_sl theme_deactive"
-                data-theme="basic" data-name="베이직">사용안함</button> <a href="./theme_preview.php?theme=basic"
-                class="theme_pr" target="theme_preview">미리보기</a>
-            <button type="button" class="tmli_dt theme_preview" data-theme="basic">상세보기</button>
-        </li>
-    </ul>
+                            {{ theme_view(theme) }}
+                        </li>
+                    {% else %}
+                        <li class="no_theme">설치된 테마가 없습니다.</li>
+                    {% endfor %}
+                    </ul>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="anchor_logo">
+        <h2 class="h2_frm">로고</h2>
+        <ul class="anchor">
+            <li><a href="#anchor_theme">테마</a></li>
+            <li><a href="#anchor_logo">로고</a></li>
+            <li><a href="#anchor_layout">레이아웃</a></li>
+        </ul>
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>로고 선택</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row"><label for="top_logo">상단 로고 이미지</label></th>
+                        <td>
+                            <input type="file" name="top_logo" id="top_logo" class="frm_file">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bottom_logo">하단 로고 이미지</label></th>
+                        <td>
+                            <input type="file" name="bottom_logo" id="bottom_logo" class="frm_file">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="anchor_layout">
+        <h2 class="h2_frm">레이아웃</h2>
+        <ul class="anchor">
+            <li><a href="#anchor_theme">테마</a></li>
+            <li><a href="#anchor_logo">로고</a></li>
+            <li><a href="#anchor_layout">레이아웃</a></li>
+        </ul>
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>레이아웃 선택</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row"><label for="index_url">첫 화면 경로</label></th>
+                        <td><input type="text" name="index_url" id="index_url" class="frm_input" size="200"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="community">커뮤니티</label></th>
+                        <td><input type="file" name="community" id="community"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="member">회원</label></th>
+                        <td><input type="file" name="member" id="member"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="shopping_mall">쇼핑몰</label></th>
+                        <td><input type="file" name="shopping_mall" id="shopping_mall"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="content">컨텐츠</label></th>
+                        <td><input type="file" name="content" id="content"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
 {% endblock content %}

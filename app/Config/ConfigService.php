@@ -2,6 +2,7 @@
 
 namespace app\Config;
 
+use App\Admin\Service\ThemeService;
 use Core\Database\Db;
 
 class ConfigService
@@ -22,6 +23,11 @@ class ConfigService
         }
 
         return $this->config;
+    }
+
+    public function getTheme(): string
+    {
+        return $this->getConfig()['cf_theme'] ?: ThemeService::DEFAULT_THEME;
     }
 
     public function fetchConfig()

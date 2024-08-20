@@ -28,14 +28,13 @@ class MenuController
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $theme_path = $request->getAttribute('theme_path');
 
         $menus = $this->service->getMenu();
 
         $response_data = [
             'menus' => $menus,
         ];
-        return $view->render($response, $theme_path . '/admin/menu_form.html', $response_data);
+        return $view->render($response, '/admin/menu_form.html', $response_data);
     }
 
     public function getUrls(Request $request, Response $response, array $args): Response

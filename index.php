@@ -4,6 +4,8 @@ use API\Handlers\HttpErrorHandler;
 use API\Handlers\ShutdownHandler;
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
+use App\Admin\Service\ThemeService;
+use App\Config\ConfigService;
 use Core\Extension\CsrfExtension;
 use DI\Container;
 use Slim\Csrf\Guard;
@@ -51,8 +53,19 @@ $container->set('csrf', function () use ($responseFactory) {
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
 
-// Create Twig
-$twig = Twig::create(__DIR__, ['cache' => false]);
+// Create Twig & Setting theme path
+$config_service = new ConfigService();
+$theme_service = new ThemeService();
+
+$theme_base_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
+$theme_service->setBaseDir($theme_base_dir);
+
+$theme = $config_service->getTheme();
+if (!$theme_service->existsTheme($theme)) {
+    $theme = ThemeService::DEFAULT_THEME;
+}
+
+$twig = Twig::create($theme_base_dir . '/' . $theme, ['cache' => false]);
 $twig->addExtension(new HtmlExtension());
 $twig->addExtension(new CsrfExtension($container->get('csrf')));
 
