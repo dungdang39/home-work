@@ -1,0 +1,68 @@
+{% extends "/admin/_layout.html" %}
+
+{% block content %}
+<input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+<input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+<h1 id="container_title">디자인/UI > 배너관리</h1>
+<div class="container_wr">
+    <div class="local_ov01 local_ov">
+        <form name="flist" class="local_sch01 local_sch">
+            <input type="hidden" name="page" value="1">
+
+            <label for="bn_position" class="sound_only">검색</label>
+            <select name="bn_position" id="bn_position">
+                <option value="" selected="selected">위치 전체</option>
+                <option value="메인">메인</option>
+                <option value="왼쪽">왼쪽</option>
+            </select>
+
+            <input type="submit" value="검색" class="btn_submit">
+        </form>
+    </div>
+
+    <div class="btn_fixed_top">
+        <a href="#" class="btn_01 btn">전시순서 저장</a>
+        <a href="{{ url_for('banner.create') }}" class="btn_01 btn">배너추가</a>
+    </div>
+    
+    {% for position, banners in grouped_banners %}
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>{{ position }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col" rowspan="2" id="th_id">{{ position }}</th>
+                    <th scope="col" rowspan="2" colspan="7"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for banner in banners %}
+                <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                    <td headers="th_dvc" width="200px;">
+                        <img src="{{ base_url ~ '/data/banner/' ~ banner.bn_image }}" width="200" alt="{{ banner.bn_alt }}" titke="{{ banner.bn_title }}">
+                    </td>
+                    <td headers="th_loc" width="200px;">
+                        조회수 : {{ banner.bn_hit }}
+                        <br>배너 타이틀 : {{ banner.bn_title }}
+                    </td>
+                    <td headers="th_st" class="td_datetime">
+                        출력위치 : {{ banner.bn_position }}
+                        <br>시작/종료일시 : {{ banner.bn_start_datetime }} ~ {{ banner.bn_end_datetime }} </td>
+                    <td headers="th_odr" class="td_num">
+                        새창 : {{ banner.bn_target }}
+                        <br> URL :{{ banner.bn_url }}
+                    </td>
+                    <td headers="th_mng" class="td_mng td_mns_m">
+                        <a href="{{ url_for('banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">삭제</a>
+                        <a href="#" class="btn btn_02">즉시종료</a>
+                        <a href="{{ url_for('banner.view', {'bn_id': banner.bn_id}) }}" class="btn btn_03">수정</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}

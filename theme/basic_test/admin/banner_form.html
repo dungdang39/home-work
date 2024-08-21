@@ -1,0 +1,180 @@
+{% extends "/admin/_layout.html" %}
+
+{% block content %}
+{% set form_action = banner ? url_for('banner.update', {'bn_id': banner.bn_id}) : url_for('banner.insert') %}
+{% set action = banner ? '수정' : '추가' %}
+
+<h1 id="container_title">디자인/UI > 배너{{ action }}</h1>
+<div class="container_wr">
+    <form name="fbanner" action="{{ form_action }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>배너관리</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row"><label for="bn_title">배너 타이틀</label></th>
+                        <td>
+                            <span class="frm_info"></span>
+                            <input type="text" name="bn_title" size="80" value="{{ banner.bn_title }}" id="bn_title" class="frm_input">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">이미지</th>
+                        <td>
+                            <input type="file" name="bn_image">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">모바일 이미지</th>
+                        <td>
+                            <input type="file" name="bn_mobile_image">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_alt">이미지 대체텍스트</label></th>
+                        <td>
+                            <span class="frm_info">
+                                img 태그의 alt 속성에 해당되는 내용입니다.
+                                <br>배너에 마우스를 오버하면 이미지의 설명이 나옵니다.
+                            </span>
+                            <input type="text" name="bn_alt" value="{{ banner.bn_alt }}" id="bn_alt" class="frm_input" size="80">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_url">연결 URL</label></th>
+                        <td>
+                            <span class="frm_info">
+                                배너클릭시 이동하는 주소입니다.
+                            </span>
+                            <input type="text" name="bn_url" size="80" value="{{ banner.bn_url ?: 'http://' }}" id="bn_url" class="frm_input">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_position">출력위치</label></th>
+                        <td>
+                            <span class="frm_info">
+                                선택항목 확인 필요
+                            </span>
+                            <select name="bn_position" id="bn_position">
+                                <option value="left">왼쪽</option>
+                                <option value="main">메인</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_new_win">새창</label></th>
+                        <td>
+                            <span class="frm_info">
+                                배너 클릭시 새창으로 열지를 설정합니다.
+                            </span>
+                            <label for="bn_target_blank" class="rules_label">사용</label>
+                            <input name="bn_target" id="bn_target_blank" type="radio" value="_blank" {{ banner.bn_target == '_blank' or not banner.bn_target ? 'checked' : '' }}>
+                            <label for="bn_target_self" class="rules_label">사용안함</label>
+                            <input name="bn_target" id="bn_target_self" type="radio" value="_self" {{ banner.bn_target == '_self' ? 'checked' : '' }}>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_start_datetime">시작일시</label></th>
+                        <td>
+                            <span class="frm_info">
+                                배너 게시 시작일시를 설정합니다.
+                            </span>
+                            <input type="text" name="bn_start_datetime" value="{{ banner.bn_start_datetime }}" id="bn_start_datetime" class="frm_input" size="21" maxlength="19">
+                            <input type="checkbox" name="set_start_datetime" id="set_start_datetime">
+                            <label for="set_start_datetime">오늘</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_end_datetime">종료일시</label></th>
+                        <td>
+                            <span class="frm_info">
+                                배너 게시 종료일시를 설정합니다.
+                            </span>
+                            <input type="text" name="bn_end_datetime" value="{{ banner.bn_end_datetime }}" id="bn_end_datetime" class="frm_input" size="21" maxlength="19">
+                            <input type="checkbox" name="set_end_datetime" id="set_end_datetime">
+                            <label for="set_end_datetime">오늘부터 +31일</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_order">전시 순서</label></th>
+                        <td>
+                            <span class="frm_info">
+                                배너를 출력할 때 순서를 정합니다. 숫자가 작을수록 먼저 출력됩니다.
+                                <br>출력순서가 중복될 경우, 먼저 등록된 배너가 우선 출력됩니다.
+                            </span>
+                            <input type="number" name="bn_order" value="{{ banner.bn_order }}" size="10" id="bn_order" class="frm_input">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="bn_new_win">상태</label></th>
+                        <td>
+                            <span class="frm_info">
+                            </span>
+                            <label for="bn_status_1" class="rules_label">사용</label>
+                            <input name="bn_status" id="bn_status_1" type="radio" value="1" {{ banner.bn_status == '1' or not banner.bn_status ? 'checked' : '' }}>
+                            <label for="bn_status_0" class="rules_label">사용안함</label>
+                            <input name="bn_status" id="bn_status_0" type="radio" value="0" {{ banner.bn_status == '0' ? 'checked' : '' }}>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_fixed_top">
+            <a href="{{ url_for('banner.index') }}" class="btn_02 btn">목록</a>
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const setStartTime = document.getElementById('set_start_datetime');
+        const bnStartDatetime = document.getElementById('bn_start_datetime');
+        
+        setStartTime.addEventListener('change', function () {
+            if (this.checked) {
+                const today = new Date();
+                const formattedDate = formatDate(today, "00:00:00");
+                bnStartDatetime.value = formattedDate;
+            } else {
+                bnStartDatetime.value = bnStartDatetime.defaultValue;
+            }
+        });
+    
+        const setEndTime = document.getElementById('set_end_datetime');
+        const bnEndDatetime = document.getElementById('bn_end_datetime');
+    
+        setEndTime.addEventListener('change', function () {
+            if (this.checked) {
+                const futureDate = new Date();
+                futureDate.setDate(futureDate.getDate() + 31);
+                const formattedDate = formatDate(futureDate, "23:59:59");
+                bnEndDatetime.value = formattedDate;
+            } else {
+                bnEndDatetime.value = bnEndDatetime.defaultValue;
+            }
+        });
+
+        /**
+        * 날짜를 지정된 시간과 함께 형식화하는 함수
+        * @param {Date} date - Date 객체
+        * @param {string} time - 고정된 시간 (예: "00:00:00" 또는 "23:59:59")
+        * @returns {string} - 형식화된 날짜 문자열
+        */
+        function formatDate(date, time) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day} ${time}`;
+        }
+    });
+</script>
+{% endblock content %}

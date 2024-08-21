@@ -15,7 +15,7 @@ class AdminMenuAuthService
 
     public function __construct(AdminMenuService $menu_service)
     {
-        $this->table = 'g5_admin_menu_auth';
+        $this->table = 'new_admin_menu_auth';
         $this->menu_service = $menu_service;
     }
 

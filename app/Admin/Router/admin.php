@@ -8,6 +8,7 @@ use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
 use App\Admin\Controller\MenuController;
 use App\Admin\Controller\ThemeController;
+use App\Banner\Controller\BannerController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
@@ -18,6 +19,8 @@ use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
 /**
+ * 관리자 페이지 라우터를 정의합니다.
+ * - Slim Framework에서 파일전송은 post 방식으로만 가능합니다.
  * @var App $app
  */
 $app->group('admin', function (RouteCollectorProxy $group) {
@@ -66,12 +69,12 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 배너
             $group->group('/banner', function (RouteCollectorProxy $group) {
-                $group->get('', [DashboardController::class, 'index'])->setName('banner.index');
-                $group->get('/create', [DashboardController::class, 'create'])->setName('banner.create');
-                $group->post('', [DashboardController::class, 'insert'])->setName('banner.insert');
-                $group->get('/{bn_id}', [DashboardController::class, 'view'])->setName('banner.view');
-                $group->post('/{bn_id}', [DashboardController::class, 'update'])->setName('banner.update');
-                $group->delete('/{bn_id}', [DashboardController::class, 'delete'])->setName('banner.delete');
+                $group->get('', [BannerController::class, 'index'])->setName('banner.index');
+                $group->get('/create', [BannerController::class, 'create'])->setName('banner.create');
+                $group->post('', [BannerController::class, 'insert'])->setName('banner.insert');
+                $group->get('/{bn_id}', [BannerController::class, 'view'])->setName('banner.view');
+                $group->post('/{bn_id}', [BannerController::class, 'update'])->setName('banner.update');
+                $group->delete('/{bn_id}', [BannerController::class, 'delete'])->setName('banner.delete');
             })->add(AdminMenuAuthMiddleware::class);
 
             // 레이어팝업

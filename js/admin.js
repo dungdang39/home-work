@@ -51,14 +51,29 @@ function is_checked(elements_name) {
     return checked;
 }
 
-function delete_confirm(msg = "한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")
+function delete_confirm(element)
 {
-    if (confirm(msg)) {
-        return true;
-    } else {
+    message = "한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?";
+    if (!confirm(message)) {
         return false;
     }
-}
 
-$(function () {
-});
+    $.ajax({
+        type: "DELETE",
+        url: element.href,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("csrf_name", $("input[name='csrf_name']").val());
+            xhr.setRequestHeader("csrf_value", $("input[name='csrf_value']").val());
+        },
+        cache: false,
+        async: false,
+        success: function (data) {
+            if (data.message) {
+                alert(data.message);
+            }
+            if (data.result === 'success') {
+                document.location.reload();
+            }
+        }
+    });
+}

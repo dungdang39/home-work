@@ -15,7 +15,7 @@ class AdminMenuService
 
     public function __construct()
     {
-        $this->table = 'g5_admin_menu';
+        $this->table = 'new_admin_menu';
     }
 
     // ========================================

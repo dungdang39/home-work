@@ -1,35 +1,65 @@
 -- --------------------------------------------------------
 
 --
--- Table structure for table `g5_admin_menu`
+-- Table structure for table `new_admin_menu`
 --
 
-DROP TABLE IF EXISTS `g5_admin_menu`;
-CREATE TABLE IF NOT EXISTS `g5_admin_menu` (
-  `am_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `am_parent_id` int(10) unsigned DEFAULT NULL,
+DROP TABLE IF EXISTS `new_admin_menu`;
+CREATE TABLE IF NOT EXISTS `new_admin_menu` (
+  `am_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `am_parent_id` int(11) unsigned DEFAULT NULL,
   `am_name` varchar(255) NOT NULL,
   `am_route` varchar(255) DEFAULT NULL,
   `am_order` int(10) unsigned NOT NULL DEFAULT 0,
   `am_created_at` datetime DEFAULT NULL,
   `am_updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`am_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `g5_auth`
+-- Table structure for table `new_admin_menu_auth`
 --
 
-DROP TABLE IF EXISTS `g5_auth`;
-CREATE TABLE IF NOT EXISTS `g5_auth` (
-  `mb_id` varchar(20) NOT NULL default '',
-  `au_menu` varchar(50) NOT NULL default '',
-  `au_auth` set('r','w','d') NOT NULL default '',
-  PRIMARY KEY  (`mb_id`,`au_menu`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `new_admin_menu_auth`;
+CREATE TABLE `new_admin_menu_auth` (
+  `mb_id` varchar(60) NOT NULL,
+  `admin_menu_id` int(11) NOT NULL,
+  `read` tinyint(4) NOT NULL DEFAULT 0,
+  `write` tinyint(4) NOT NULL DEFAULT 0,
+  `delete` tinyint(4) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`mb_id`,`admin_menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_banner`
+--
+
+CREATE TABLE `new_banner` (
+  `bn_id` int(11) NOT NULL AUTO_INCREMENT,
+  `bn_title` varchar(255) NOT NULL DEFAULT '',
+  `bn_image` varchar(255) NOT NULL DEFAULT '',
+  `bn_mobile_image` varchar(255) NOT NULL DEFAULT '',
+  `bn_alt` varchar(255) NOT NULL DEFAULT '',
+  `bn_url` varchar(255) NOT NULL DEFAULT '',
+  `bn_position` varchar(50) NOT NULL DEFAULT '',
+  `bn_target` varchar(50) NOT NULL DEFAULT '',
+  `bn_start_datetime` datetime DEFAULT NULL,
+  `bn_end_datetime` datetime DEFAULT NULL,
+  `bn_order` int(11) NOT NULL DEFAULT 0,
+  `bn_status` tinyint(4) NOT NULL DEFAULT 0,
+  `bn_hit` int(11) NOT NULL DEFAULT 0,
+  `bn_created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `bn_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`bn_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 -- --------------------------------------------------------
@@ -88,6 +118,9 @@ CREATE TABLE `new_config` (
   `cf_theme` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`cf_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 
 -- --------------------------------------------------------
 
