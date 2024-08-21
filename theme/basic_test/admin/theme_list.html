@@ -1,11 +1,14 @@
 {% extends "/admin/_layout.html" %}
-{% from "/admin/theme_macro.html" import theme_view %}
 
 {% block head %}
 <script src="{{ base_url }}/js/theme.js"></script>
 {% endblock head %}
 
 {% block content %}
+<style>
+    #theme_detail { display: none; }
+</style>
+
 <h1 id="container_title">디자인/UI > 테마 설정</h1>
 <div class="container_wr">
     <section id="anchor_theme">
@@ -16,6 +19,8 @@
             <li><a href="#anchor_layout">레이아웃</a></li>
         </ul>
         <div class="tbl_frm01 tbl_wrap">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
             <table>
                 <caption>테마 선택</caption>
                 <colgroup>
@@ -36,14 +41,27 @@
                             </div>
                             {% if theme.theme == current_theme %}
                             <span class="theme_sl theme_sl_use">사용중</span>
-                            <button type="button" class="theme_sl theme_deactive" data-theme="basic" data-name="베이직">사용안함</button>
+                            <button type="button" class="theme_sl theme_deactive"
+                                data-theme="{{ theme.theme }}"
+                                data-name="{{ theme.name }}"
+                                data-uri="{{ url_for('theme.update', {'theme': theme.theme }) }}">사용안함</button>
                             {% else %}
-                            <button type="button" class="theme_sl theme_active" data-theme="{{ theme.theme }}" data-name="{{ theme.name }}">테마적용</button>
+                            <button type="button" class="theme_sl theme_active"
+                                data-theme="{{ theme.theme }}"
+                                data-name="{{ theme.name }}"
+                                data-uri="{{ url_for('theme.update', {'theme': theme.theme }) }}">테마적용</button>
                             {% endif %}
 
-                            <button type="button" class="tmli_dt theme_preview" data-theme="{{ theme.theme }}">상세보기</button>
-
-                            {{ theme_view(theme) }}
+                            <button type="button" class="tmli_dt theme_preview"
+                                data-theme-name="{{ theme.name }}"
+                                data-theme-uri="{{ theme.uri }}"
+                                data-theme-maker="{{ theme.maker }}"
+                                data-theme-maker-uri="{{ theme.maker_uri }}"
+                                data-theme-version="{{ theme.version }}"
+                                data-theme-detail="{{ theme.detail }}"
+                                data-theme-license="{{ theme.license }}"
+                                data-theme-license-uri="{{ theme.license_uri }}"
+                                data-theme-screenshot="{{ base_url ~ theme.screenshot }}">상세보기</button>
                         </li>
                     {% else %}
                         <li class="no_theme">설치된 테마가 없습니다.</li>
@@ -51,6 +69,31 @@
                     </ul>
                 </tbody>
             </table>
+        </div>
+
+        <div id="theme_detail">
+            <h2 id="theme_name"></h2>
+            <div class="theme_dt_img"><img src="" id="theme_screenshot" alt=""></div>
+            <div class="theme_dt_if">
+                <p id="theme_description"></p>
+                <table>
+                    <tr>
+                        <th scope="row">Version</th>
+                        <td id="theme_version"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Maker</th>
+                        <td id="theme_maker"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">License</th>
+                        <td id="theme_license"></td>
+                    </tr>
+                </table>
+                <div class="theme_dt_btn">
+                    <button type="button" class="close_btn">닫기</button>
+                </div>
+            </div>
         </div>
     </section>
 

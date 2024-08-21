@@ -61,8 +61,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             // 테마
             $group->group('/theme', function (RouteCollectorProxy $group) {
                 $group->get('', [ThemeController::class, 'index'])->setName('theme.index');
-                $group->get('/{theme}', [ThemeController::class, 'view'])->setName('theme.view');
-                $group->put('/{theme}', [ThemeController::class, 'update'])->setName('theme.update');
+                $group->post('/{theme}', [ThemeController::class, 'update'])->setName('theme.update');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 배너

@@ -1,29 +1,26 @@
-$(function() {
-    $(".theme_active").on("click", function() {
-        var theme = $(this).data("theme");
-        var name  = $(this).data("name");
+$(function () {
+    $(".theme_active").on("click", function () {
+        var name = $(this).data("name");
+        var uri = $(this).data("uri");
 
-        if(!confirm(name+" 테마를 적용하시겠습니까?"))
+        if (!confirm(name + " 테마를 적용하시겠습니까?")) {
             return false;
-
-        var set_default_skin = 0;
-        if($(this).data("set_default_skin") == true) {
-            if(confirm("기본환경설정, 1:1문의, 쇼핑몰 스킨을 테마에서 설정된 스킨으로 변경하시겠습니까?\n\n변경을 선택하시면 테마에서 지정된 스킨으로 회원스킨 등이 변경됩니다."))
-                set_default_skin = 1;
         }
 
         $.ajax({
             type: "POST",
-            url: "./theme_update.php",
+            url: uri,
             data: {
-                "theme": theme,
-                "set_default_skin": set_default_skin
+                "csrf_name": $("input[name='csrf_name']").val(),
+                "csrf_value": $("input[name='csrf_value']").val(),
+                "type": "update"
             },
             cache: false,
             async: false,
-            success: function(data) {
-                if(data) {
-                    alert(data);
+            success: function (data) {
+                alert(data.message);
+
+                if (data.result === "error") {
                     return false;
                 }
 
@@ -32,25 +29,28 @@ $(function() {
         });
     });
 
-    $(".theme_deactive").on("click", function() {
-        var theme = $(this).data("theme");
-        var name  = $(this).data("name");
+    $(".theme_deactive").on("click", function () {
+        var name = $(this).data("name");
+        var uri = $(this).data("uri");
 
-        if(!confirm(name+" 테마 사용설정을 해제하시겠습니까?\n\n테마 설정을 해제하셔도 게시판 등의 스킨은 변경되지 않으므로 개별 변경작업이 필요합니다."))
+        if (!confirm(name + " 테마 사용설정을 해제하시겠습니까?\n\n테마 설정을 해제하셔도 게시판 등의 스킨은 변경되지 않으므로 개별 변경작업이 필요합니다.")) {
             return false;
+        }
 
         $.ajax({
             type: "POST",
-            url: "./theme_update.php",
+            url: uri,
             data: {
-                "theme": theme,
+                "csrf_name": $("input[name='csrf_name']").val(),
+                "csrf_value": $("input[name='csrf_value']").val(),
                 "type": "reset"
             },
             cache: false,
             async: false,
-            success: function(data) {
-                if(data) {
-                    alert(data);
+            success: function (data) {
+                alert(data.message);
+
+                if (data.result === "error") {
                     return false;
                 }
 
@@ -59,26 +59,51 @@ $(function() {
         });
     });
 
-    $(".close_btn").on("click", function() {
-        $(this).parents("#theme_detail").hide();
-    });
+    $(".theme_preview").on("click", function () {
+        // 버튼에 저장된 데이터 속성 값들을 가져옴
+        const themeName = this.dataset.themeName;
+        const themeUri = this.dataset.themeUri;
+        const themeMaker = this.dataset.themeMaker;
+        const themeMakerUri = this.dataset.themeMakerUri;
+        const themeVersion = this.dataset.themeVersion;
+        const themeDetail = this.dataset.themeDetail;
+        const themeLicense = this.dataset.themeLicense;
+        const themeLicenseUri = this.dataset.themeLicenseUri;
+        const themeScreenshot = this.dataset.themeScreenshot;
 
-    $(".theme_preview").on("click", function() {
-        var theme = $(this).data("theme");
+        // 레이어 팝업 내부에 데이터 세팅
+        document.getElementById('theme_screenshot').src = themeScreenshot;
+        document.getElementById('theme_version').innerText = themeVersion;
+        document.getElementById('theme_description').innerText = themeDetail;
+
+        // 테마 이름 설정
+        const themeNameElement = document.getElementById('theme_name');
+        if (themeUri) {
+            themeNameElement.innerHTML = `<a href="${themeUri}" target="_blank">${themeName}</a>`;
+        } else {
+            themeNameElement.innerText = themeName;
+        }
+
+        // Maker 정보 설정
+        const themeMakerElement = document.getElementById('theme_maker');
+        if (themeMakerUri) {
+            themeMakerElement.innerHTML = `<a href="${themeMakerUri}" target="_blank">${themeMaker}</a>`;
+        } else {
+            themeMakerElement.innerText = themeMaker;
+        }
+
+        // License 정보 설정
+        const themeLicenseElement = document.getElementById('theme_license');
+        if (themeLicenseUri) {
+            themeLicenseElement.innerHTML = `<a href="${themeLicenseUri}" target="_blank">${themeLicense}</a>`;
+        } else {
+            themeLicenseElement.innerText = themeLicense;
+        }
 
         $("#theme_detail").show();
+    });
 
-        // $.ajax({
-        //     type: "POST",
-        //     url: "./theme_detail.php",
-        //     data: {
-        //         "theme": theme
-        //     },
-        //     cache: false,
-        //     async: false,
-        //     success: function(data) {
-        //         $("#theme_list").after(data);
-        //     }
-        // });
+    $(".close_btn").on("click", function () {
+        $(this).parents("#theme_detail").hide();
     });
 });
