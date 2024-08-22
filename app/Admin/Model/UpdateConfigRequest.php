@@ -76,6 +76,7 @@ class UpdateConfigRequest
 
     /**
      * 태그를 허용하는 속성을 제외한 모든 속성 필터링
+     * * @todo trait로 분리 예정
      * @return void
      */
     private function filterProperties(): void

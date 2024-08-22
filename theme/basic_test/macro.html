@@ -3,3 +3,9 @@
         selected
     {% endif %}
 {% endmacro selected %}
+
+{% macro checked(option_value, selected_value) %}
+    {% if option_value == selected_value %}
+        checked
+    {% endif %}
+{% endmacro checked %}

@@ -9,6 +9,7 @@ use App\Admin\Controller\DashboardController;
 use App\Admin\Controller\MenuController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
+use App\Member\Controller\MemberConfigController;
 use App\Popup\Controller\PopupController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
@@ -89,10 +90,15 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             })->add(AdminMenuAuthMiddleware::class);
         });
 
-        // 기본회원 설정
+        // 회원        
         $group->group('/member', function (RouteCollectorProxy $group) {
-            $group->get('/config', [DashboardController::class, 'index'])->setName('member.config.index');
-        })->add(AdminMenuAuthMiddleware::class);
+            // 기본환경 설정
+            $group->group('/config', function (RouteCollectorProxy $group) {
+                $group->get('', [MemberConfigController::class, 'index'])->setName('member-config.index');
+                $group->post('', [MemberConfigController::class, 'update'])->setName('member-config.update');
+            })->add(AdminMenuAuthMiddleware::class);
+
+        });
     })
         ->add(AdminMenuMiddleware::class)
         ->add(LoginAuthMiddleware::class);

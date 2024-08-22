@@ -123,6 +123,57 @@ CREATE TABLE `new_config` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_member_config`
+--
+
+DROP TABLE IF EXISTS `new_member_config`;
+CREATE TABLE `new_member_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `use_address` tinyint(1) DEFAULT NULL,
+  `required_address` tinyint(1) DEFAULT NULL,
+  `use_signature` tinyint(1) DEFAULT NULL,
+  `required_signature` tinyint(1) DEFAULT NULL,
+  `use_telephone` tinyint(1) DEFAULT NULL,
+  `required_telephone` tinyint(1) DEFAULT NULL,
+  `use_phone` tinyint(1) DEFAULT NULL,
+  `required_phone` tinyint(1) DEFAULT NULL,
+  `signup_level` int(11) DEFAULT NULL,
+  `signup_point` int(11) DEFAULT NULL,
+  `use_member_image` tinyint(1) DEFAULT NULL,
+  `upload_permission_level` int(11) DEFAULT NULL,
+  `member_image_size` int(11) DEFAULT NULL,
+  `member_image_width` int(11) DEFAULT NULL,
+  `member_image_height` int(11) DEFAULT NULL,
+  `use_recommend` tinyint(1) DEFAULT NULL,
+  `recommend_point` int(11) DEFAULT NULL,
+  `prohibit_word` text DEFAULT NULL,
+  `prohibit_domain` text DEFAULT NULL,
+  `signup_terms` text DEFAULT NULL,
+  `privacy_policy` text DEFAULT NULL,
+  `retention_period` int(11) DEFAULT NULL,
+  `use_email_certify` tinyint(1) DEFAULT NULL,
+  `use_authentication` tinyint(1) DEFAULT NULL,
+  `is_auth_production` tinyint(1) DEFAULT NULL,
+  `authentication_required` tinyint(1) DEFAULT NULL,
+  `auth_service` varchar(255) DEFAULT NULL,
+  `cert_service` tinyint(1) DEFAULT NULL,
+  `cert_kg_mid` varchar(255) DEFAULT NULL,
+  `cert_kg_cd` varchar(255) DEFAULT NULL,
+  `cert_kcp_cd` varchar(255) DEFAULT NULL,
+  `cert_limit` int(11) DEFAULT NULL,
+  `use_point` tinyint(1) DEFAULT NULL,
+  `point_term` int(11) DEFAULT NULL,
+  `login_point` int(11) DEFAULT NULL,
+  `memo_send_point` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_popup`
 --
 
