@@ -70,9 +70,6 @@ class BannerController
     public function view(Request $request, Response $response, array $args): Response
     {
         $banner = $this->service->getBanner($args['bn_id']);
-        if (empty($banner)) {
-            throw new \Exception('배너 정보를 찾을 수 없습니다.');
-        }
 
         $response_data = [
             "banner" => $banner,
@@ -87,10 +84,6 @@ class BannerController
     public function update(Request $request, Response $response, array $args): Response
     {
         $banner = $this->service->getBanner($args['bn_id']);
-        if (empty($banner)) {
-            throw new \Exception('배너 정보를 찾을 수 없습니다.');
-        }
-
         $request_body = $request->getParsedBody();
         $request_file = $request->getUploadedFiles();
         $data = new BannerUpdateRequest($request_body, $request_file);
@@ -109,21 +102,23 @@ class BannerController
      */
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $banner = $this->service->getBanner($args['bn_id']);
-        if (empty($banner)) {
+        try {
+            $banner = $this->service->getBanner($args['bn_id']);
+
+            // @todo 파일 삭제처리 필요
+            $this->service->delete($banner['bn_id']);
+
+            return api_response_json($response, [
+                'result' => 'success',
+                'message' => '배너가 삭제되었습니다.',
+            ], 200);
+
+        } catch (\Exception $e) {
             return api_response_json($response, [
                 'result' => 'error',
-                'message' => '배너 정보를 찾을 수 없습니다.',
+                'message' => $e->getMessage(),
             ], 200);
         }
-
-        // @todo 파일 삭제처리 필요
-        $this->service->delete($args['bn_id']);
-
-        return api_response_json($response, [
-            'result' => 'success',
-            'message' => '배너가 삭제되었습니다.',
-        ], 200);
     }
 
     /**

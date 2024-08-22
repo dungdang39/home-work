@@ -42,7 +42,13 @@ class BannerService
      */
     public function getBanner(int $bn_id): array
     {
-        return $this->fetchBanner($bn_id);
+        $banner = $this->fetchBanner($bn_id);
+
+        if (empty($banner)) {
+            throw new \Exception('배너 정보를 찾을 수 없습니다.');
+        }
+
+        return $banner;
     }
 
     /**
@@ -116,7 +122,7 @@ class BannerService
             $sql_where .= " AND bn_position = :bn_position";
         }
 
-        $query = "SELECT * FROM {$this->table} WHERE {$sql_where}";
+        $query = "SELECT * FROM {$this->table} WHERE {$sql_where} ORDER BY bn_order, bn_created_at DESC";
 
         // $params = array_merge($params, $page_params);
 
