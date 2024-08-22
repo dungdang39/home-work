@@ -9,6 +9,7 @@ use App\Admin\Controller\DashboardController;
 use App\Admin\Controller\MenuController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
+use App\Popup\Controller\PopupController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
@@ -79,12 +80,12 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 레이어팝업
             $group->group('/popup', function (RouteCollectorProxy $group) {
-                $group->get('', [DashboardController::class, 'index'])->setName('popup.index');
-                $group->get('/create', [DashboardController::class, 'create'])->setName('popup.create');
-                $group->post('', [DashboardController::class, 'insert'])->setName('popup.insert');
-                $group->get('/{nw_id}', [DashboardController::class, 'view'])->setName('popup.view');
-                $group->post('/{nw_id}', [DashboardController::class, 'update'])->setName('popup.update');
-                $group->delete('/{nw_id}', [DashboardController::class, 'delete'])->setName('popup.delete');
+                $group->get('', [PopupController::class, 'index'])->setName('popup.index');
+                $group->get('/create', [PopupController::class, 'create'])->setName('popup.create');
+                $group->post('', [PopupController::class, 'insert'])->setName('popup.insert');
+                $group->get('/{pu_id}', [PopupController::class, 'view'])->setName('popup.view');
+                $group->post('/{pu_id}', [PopupController::class, 'update'])->setName('popup.update');
+                $group->delete('/{pu_id}', [PopupController::class, 'delete'])->setName('popup.delete');
             })->add(AdminMenuAuthMiddleware::class);
         });
 

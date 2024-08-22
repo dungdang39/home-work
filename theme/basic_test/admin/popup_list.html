@@ -1,0 +1,64 @@
+{% extends "/admin/_layout.html" %}
+
+{% block content %}
+<input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+<input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+<h1 id="container_title">팝업레이어 관리</h1>
+<div class="container_wr">
+
+    <div class="btn_fixed_top ">
+        <a href="{{ url_for('popup.create') }}" class="btn btn_01">새창관리추가</a>
+    </div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>팝업레이어 관리 목록</caption>
+            <thead>
+                <tr>
+                    <th scope="col">구분</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">시작일시</th>
+                    <th scope="col">종료일시</th>
+                    <th scope="col">시간</th>
+                    <th scope="col">Left</th>
+                    <th scope="col">Top</th>
+                    <th scope="col">Width</th>
+                    <th scope="col">Height</th>
+                    <th scope="col">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for popup in popups %}
+                <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                    <td class="td_device">{{ popup.pu_division }}</td>
+                    <td class="td_left">{{ popup.pu_subject }}</td>
+                    <td class="td_datetime">{{ popup.pu_begin_time }}</td>
+                    <td class="td_datetime">{{ popup.pu_end_time }}</td>
+                    <td class="td_num">{{ popup.pu_disable_hours }}시간</td>
+                    <td class="td_num">{{ popup.pu_left }}px</td>
+                    <td class="td_num">{{ popup.pu_top }}px</td>
+                    <td class="td_num">{{ popup.pu_height }}px</td>
+                    <td class="td_num">{{ popup.pu_width }}px</td>
+                    <td class="td_mng td_mng_xl">
+                        <a href="{{ url_for('popup.delete', {'pu_id': popup.pu_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">
+                            <span class="sound_only">{{ popup.pu_subject }}</span>
+                            삭제
+                        </a>
+                        <button type="button" class="btn btn_02">즉시종료</button>
+                        <a href="{{ url_for('popup.view', {'pu_id': popup.pu_id}) }}" class="btn btn_03">
+                            <span class="sound_only">{{ popup.pu_subject }}</span>
+                            수정
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="11" class="empty_table">등록된 팝업레이어가 없습니다.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

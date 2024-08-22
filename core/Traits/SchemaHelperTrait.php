@@ -10,6 +10,15 @@ use Exception;
 trait SchemaHelperTrait
 {
     /**
+     * 객체를 배열로 변환
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
+
+    /**
      * 주어진 데이터를 클래스 속성에 매핑
      * 
      * @param object $object 데이터를 매핑할 클래스 객체

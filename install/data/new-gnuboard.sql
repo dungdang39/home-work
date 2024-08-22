@@ -120,6 +120,31 @@ CREATE TABLE `new_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_popup`
+--
+
+DROP TABLE IF EXISTS `new_popup`;
+CREATE TABLE IF NOT EXISTS `new_popup` (
+  `pu_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pu_division` varchar(10) NOT NULL DEFAULT 'both',
+  `pu_begin_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `pu_end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `pu_disable_hours` int(11) NOT NULL DEFAULT '0',
+  `pu_left` int(11) NOT NULL DEFAULT '0',
+  `pu_top` int(11) NOT NULL DEFAULT '0',
+  `pu_height` int(11) NOT NULL DEFAULT '0',
+  `pu_width` int(11) NOT NULL DEFAULT '0',
+  `pu_auto_height` tinyint(4) NOT NULL DEFAULT '0',
+  `pu_subject` text NOT NULL,
+  `pu_content` text NOT NULL,
+  `pu_mobile_content` text NOT NULL,
+  PRIMARY KEY (`pu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 
 -- --------------------------------------------------------
