@@ -8,12 +8,32 @@ use Exception;
 class MemberService
 {
     private string $table;
-    // private ConfigService $config_service;
+    private MemberConfigService $mconfig_service;
 
-    public function __construct()
+    public function __construct(MemberConfigService $mconfig_service)
     {
-        $this->table = 'g5_member';
-        // $this->config_service = $config_service;
+        $this->table = 'new_member';
+        $this->mconfig_service = $mconfig_service;
+    }
+
+    // ========================================
+    // Public Methods
+    // ========================================
+
+    /**
+     * 회원 목록정보 조회
+     * @param array $params 조회조건
+     * @return array
+     */
+    public function getMembers(array $params): array
+    {
+        $members = $this->fetchMembers($params);
+
+        if (!$members) {
+            return [];
+        }
+
+        return $members;
     }
 
     /**
@@ -22,10 +42,9 @@ class MemberService
      * @return int 회원번호
      * @throws Exception 회원가입 실패시 Exception 발생
      */
-    /*
     public function createMember(object $data): int
     {
-        $config = $this->config_service->getConfig();
+        $config = $this->mconfig_service->getMemberConfig();
 
         if ($this->fetchMemberById($data->mb_id)) {
             throw new Exception("이미 사용중인 회원아이디 입니다.", 409);
@@ -42,9 +61,8 @@ class MemberService
             }
         }
 
-        return $this->insertMember((array)$data);
+        return $this->insert((array)$data);
     }
-    */
 
     /**
      * 회원정보 갱신 처리
@@ -55,7 +73,7 @@ class MemberService
      */
     public function updateMemberProfile(string $mb_id, object $data): void
     {
-        if(isset($data->mb_nick)) {
+        if (isset($data->mb_nick)) {
             if ($this->existsMemberByNick($data->mb_nick, $mb_id)) {
                 throw new Exception("이미 사용중인 닉네임 입니다.", 409);
             }
@@ -166,6 +184,33 @@ class MemberService
     // ========================================
 
     /**
+     * 회원 목록 조회
+     * @param array $params 조회조건
+     * @return array|false
+     */
+    public function fetchMembers(array $params): array
+    {
+        $sql_where = "1";
+        $values = [
+            "offset" => $params['offset'],
+            "limit" => $params['limit'],
+        ];
+
+        // if (!empty($params['pu_device'])) {
+        //     $sql_where .= " AND pu_device = :pu_device";
+        //     $values['pu_device'] = $params['pu_device'];
+        // }
+
+        $query = "SELECT *
+                    FROM {$this->table}
+                    WHERE {$sql_where}
+                    ORDER BY mb_created_at DESC
+                    LIMIT :offset, :limit";
+
+        return Db::getInstance()->run($query, $values)->fetchAll();
+    }
+
+    /**
      * 이메일로 회원정보 목록 조회
      * @param string $mb_email 이메일
      * @return array|false
@@ -257,11 +302,9 @@ class MemberService
      * @param array $data 회원가입 데이터
      * @return string|false 회원 테이블 mb_no 번호
      */
-    public function insertMember(array $data): int
+    public function insert(array $data): int
     {
-        $insert_id = Db::getInstance()->insert($this->table, $data);
-
-        return $insert_id;
+        return Db::getInstance()->insert($this->table, $data);
     }
 
     /**

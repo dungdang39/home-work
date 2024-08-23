@@ -220,7 +220,7 @@ function is_prohibited_email_domain(string $email, array $config): bool
     if (trim($domain) === '') {
         return false;
     }
-    $prohibited_domains = explode("\n", trim($config['cf_prohibit_email']));
+    $prohibited_domains = explode("\n", trim($config['prohibit_domain']));
     $prohibited_domains = array_map('trim', $prohibited_domains);
     $prohibited_domains = array_map('strtolower', $prohibited_domains);
     $email_domain = strtolower($domain);
@@ -238,7 +238,7 @@ function is_prohibited_email_domain(string $email, array $config): bool
 function is_prohibited_word(string $word, array $config): bool
 {
     $pattern = "/[\,]?" . preg_quote($word) . "/i";
-    return preg_match($pattern, $config['cf_prohibit_id']);
+    return preg_match($pattern, $config['prohibit_word']);
 }
 
 // ========================================

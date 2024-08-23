@@ -16,8 +16,8 @@ class IndexController
     {
         $view = Twig::fromRequest($request);
 
-        return $view->render($response, 'theme/basic_test/index.php', [
-            'name' => 'saf',
+        return $view->render($response, 'index.php', [
+            'name' => 'gnuboard',
         ]);
     }
 }

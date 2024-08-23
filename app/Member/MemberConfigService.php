@@ -19,7 +19,7 @@ class MemberConfigService
     // Database Queries
     // ========================================
 
-    public function fetchMemberConfig()
+    public function fetch()
     {
         $stmt = Db::getInstance()->run("SELECT * FROM {$this->table}");
 
@@ -47,7 +47,7 @@ class MemberConfigService
     public function getMemberConfig()
     {
         if (empty($this->member_config)) {
-            $member_config = $this->fetchMemberConfig();
+            $member_config = $this->fetch();
             if ($member_config) {
                 $this->member_config = $member_config;
             }

@@ -10,6 +10,7 @@ use App\Admin\Controller\MenuController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
 use App\Member\Controller\MemberConfigController;
+use App\Member\Controller\MemberController;
 use App\Popup\Controller\PopupController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
@@ -98,6 +99,15 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [MemberConfigController::class, 'update'])->setName('member-config.update');
             })->add(AdminMenuAuthMiddleware::class);
 
+            // 회원관리
+            $group->group('', function (RouteCollectorProxy $group) {
+                $group->get('', [MemberController::class, 'index'])->setName('member.index');
+                $group->get('/create', [MemberController::class, 'create'])->setName('member.create');
+                $group->post('', [MemberController::class, 'insert'])->setName('member.insert');
+                $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('member.view');
+                $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
+                $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
+            })->add(AdminMenuAuthMiddleware::class);
         });
     })
         ->add(AdminMenuMiddleware::class)

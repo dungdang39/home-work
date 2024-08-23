@@ -123,6 +123,74 @@ CREATE TABLE `new_config` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_member`
+--
+
+DROP TABLE IF EXISTS `new_member`;
+CREATE TABLE `new_member` (
+  `mb_no` int(11) NOT NULL AUTO_INCREMENT,
+  `mb_id` varchar(100) NOT NULL,
+  `mb_password` varchar(255) NOT NULL,
+  `mb_name` varchar(100) NOT NULL,
+  `mb_nick` varchar(100) NOT NULL,
+  `mb_nick_date` date DEFAULT NULL,
+  `mb_email` varchar(255) NOT NULL,
+  `mb_homepage` varchar(255) DEFAULT NULL,
+  `mb_level` tinyint(4) NOT NULL DEFAULT 0,
+  `mb_sex` ENUM('M', 'F') NOT NULL,
+  `mb_birth` date DEFAULT NULL,
+  `mb_tel` varchar(20) DEFAULT NULL,
+  `mb_hp` varchar(20) DEFAULT NULL,
+  `mb_certify` varchar(20) DEFAULT NULL,
+  `mb_adult` tinyint(1) NOT NULL DEFAULT 0,
+  `mb_dupinfo` varchar(255) DEFAULT NULL,
+  `mb_zip` varchar(6) DEFAULT NULL,
+  `mb_addr1` varchar(255) DEFAULT NULL,
+  `mb_addr2` varchar(255) DEFAULT NULL,
+  `mb_addr3` varchar(255) DEFAULT NULL,
+  `mb_addr_jibeon` varchar(255) DEFAULT NULL,
+  `mb_signature` text DEFAULT NULL,
+  `mb_recommend` varchar(100) DEFAULT NULL,
+  `mb_point` int(11) NOT NULL DEFAULT 0,
+  `mb_last_login_at` datetime DEFAULT NULL,
+  `mb_last_login_ip` varchar(45) DEFAULT NULL,
+  `mb_signup_ip` varchar(45) DEFAULT NULL,
+  `mb_leave_date` datetime DEFAULT NULL,
+  `mb_intercept_date` datetime DEFAULT NULL,
+  `mb_email_verified_at` datetime DEFAULT NULL,
+  `mb_email_verified_code` varchar(255) DEFAULT NULL,
+  `mb_memo` text DEFAULT NULL,
+  `mb_lost_certify` varchar(255) DEFAULT NULL,
+  `mb_mailling` tinyint(1) NOT NULL DEFAULT 0,
+  `mb_sms` tinyint(1) NOT NULL DEFAULT 0,
+  `mb_open` tinyint(1) NOT NULL DEFAULT 0,
+  `mb_open_date` date DEFAULT NULL,
+  `mb_memo_call` varchar(255) DEFAULT NULL,
+  `mb_memo_cnt` int(11) NOT NULL DEFAULT 0,
+  `mb_scrap_cnt` int(11) NOT NULL DEFAULT 0,
+  `mb_1` varchar(255) DEFAULT NULL,
+  `mb_2` varchar(255) DEFAULT NULL,
+  `mb_3` varchar(255) DEFAULT NULL,
+  `mb_4` varchar(255) DEFAULT NULL,
+  `mb_5` varchar(255) DEFAULT NULL,
+  `mb_6` varchar(255) DEFAULT NULL,
+  `mb_7` varchar(255) DEFAULT NULL,
+  `mb_8` varchar(255) DEFAULT NULL,
+  `mb_9` varchar(255) DEFAULT NULL,
+  `mb_10` varchar(255) DEFAULT NULL,
+  `mb_created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `mb_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`mb_no`),
+  UNIQUE KEY `mb_id` (`mb_id`),
+  KEY `mb_today_login` (`mb_today_login`),
+  KEY `mb_created_at` (`mb_created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_member_config`
 --
 

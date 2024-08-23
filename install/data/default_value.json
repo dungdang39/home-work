@@ -386,14 +386,19 @@
                         "am_order": 2
                     },
                     {
+                        "am_name": "API연동설정",
+                        "am_route": "api",
+                        "am_order": 3
+                    },
+                    {
                         "am_name": "캐시파일 일괄 삭제",
                         "am_route": "remove-cache",
-                        "am_order": 3
+                        "am_order": 4
                     },
                     {
                         "am_name": "플러그인 관리",
                         "am_route": "plugin",
-                        "am_order": 4
+                        "am_order": 5
                     }
                 ]
             },
