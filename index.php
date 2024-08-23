@@ -8,6 +8,9 @@ use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
 use Core\Extension\CsrfExtension;
 use DI\Container;
+use Dotenv\Dotenv;
+use Dotenv\Repository\RepositoryBuilder;
+use Dotenv\Repository\Adapter\EnvConstAdapter;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
@@ -32,6 +35,16 @@ $displayErrorDetails = true;
 
 // Start PHP session
 session_start();
+
+// Load environment variables from .env file
+// 환경변수 노출 위험으로 인해 $_ENV 전역변수만 사용하도록 설정
+if (file_exists(__DIR__ . '/.env')) {
+    $repository_builder = RepositoryBuilder::createWithNoAdapters();
+    $repository_builder = $repository_builder->addAdapter(EnvConstAdapter::class);
+    $repository = $repository_builder->immutable()->make();
+    $dotenv = Dotenv::create($repository, __DIR__);
+    $dotenv->load();
+}
 
 /**
  * Instantiate App

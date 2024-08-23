@@ -3,7 +3,6 @@
 namespace Core\Database;
 
 use API\Exceptions\DbConnectException;
-use Dotenv\Dotenv;
 use PDO;
 use PDOException;
 use Exception;
@@ -20,7 +19,6 @@ class Db
      * @var ?PDO PDO 객체
      */
     private $pdo;
-    private Dotenv $dotenv;
 
     public function __construct(
         $driver = 'mysql',
@@ -29,12 +27,6 @@ class Db
         $user = null,
         $password = null
     ) {
-        // Load environment variables
-        if (file_exists(dirname(__DIR__, 2) . '/.env')) {
-            $this->dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
-            $this->dotenv->load();
-        }
-
         $db_settings = [
             'driver' => $driver,
             'host' => $host ?? (isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : ''),
