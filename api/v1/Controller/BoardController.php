@@ -12,6 +12,8 @@ use API\Service\BoardGoodService;
 use API\Service\BoardNewService;
 use API\Service\CommentService;
 use API\Service\BoardPermission;
+use API\Service\ConfigService;
+use API\Service\MemberImageService;
 use API\Service\PointService;
 use API\Service\ScrapService;
 use API\Service\WriteService;
@@ -25,6 +27,8 @@ use API\v1\Model\Request\Board\UploadFileRequest;
 use API\v1\Model\Response\Board\Board;
 use API\v1\Model\Response\Board\CreateWriteResponse;
 use API\v1\Model\Response\Board\GetWritesResponse;
+use API\v1\Model\Response\Write\CommentResponse;
+use API\v1\Model\Response\Write\GetCommentsResponse;
 use API\v1\Model\Response\Write\GoodWriteResponse;
 use API\v1\Model\Response\Write\NeighborWrite;
 use API\v1\Model\Response\Write\Thumbnail;
@@ -32,6 +36,7 @@ use API\v1\Model\Response\Write\Write;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Exception;
+use Slim\Psr7\Stream;
 
 class BoardController
 {
@@ -45,6 +50,8 @@ class BoardController
     private ScrapService $scrap_service;
     private WriteService $write_service;
 
+    private MemberImageService $image_service;
+
     public function __construct(
         BoardService $board_service,
         BoardGoodService $board_good_service,
@@ -54,7 +61,8 @@ class BoardController
         CommentService $comment_service,
         PointService $point_service,
         ScrapService $scrap_service,
-        WriteService $write_service
+        WriteService $write_service,
+        MemberImageService $image_service
     ) {
         $this->board_service = $board_service;
         $this->board_good_service = $board_good_service;
@@ -65,6 +73,7 @@ class BoardController
         $this->point_service = $point_service;
         $this->scrap_service = $scrap_service;
         $this->write_service = $write_service;
+        $this->image_service = $image_service;
     }
 
     /**
@@ -134,11 +143,9 @@ class BoardController
             $total_page = ceil($total_records / $page_params->per_page);
 
             /**
-             * TODO: 공지글을 출력결과 수에 포함시킬 것인지 별도로 출력할 것인지 결정 필요
-             * - 그누보드5는 공지글을 출력결과 수에 포함시킴 
-             * - 아래는 별도로 출력하도록 개발됨
+             * - 공지사항을 별도로 출력합니다.
              * TODO: 목록에 필요한 데이터를 반환하도록 변경이 필요함
-             * - comments => 댓글갯수, images/normal_files => 파일갯수
+             * - images/normal_files => 파일갯수
              */
             // 공지글 목록 조회
             $notice_writes = [];
@@ -147,9 +154,11 @@ class BoardController
                 $notice_writes = array_map(fn ($notice_write) => new Write($notice_write), $fetch_notice_writes);
             }
             // 게시글 목록 조회
-            $fetch_writes = $this->write_service->fetchWrites((array)$search_params, (array)$page_params);
-            $writes = array_map(fn ($write) => new Write($write), $fetch_writes);
+            $search_params = (array)$search_params;
+            $get_writes = $this->write_service->getWrites($board, $search_params, (array)$page_params);
+            $writes = array_map(fn ($write) => new Write($write), $get_writes);
 
+            // 게시글 목록 응답 데이터
             $response_data = new GetWritesResponse([
                 "total_records" => $total_records,
                 "total_pages" => $total_page,
@@ -159,11 +168,11 @@ class BoardController
                 "board" => new Board($board),
                 "notice_writes" => $notice_writes,
                 "writes" => $writes,
-                "prev_spt" => $this->write_service->getPrevSearchPart((array)$search_params),
-                "next_spt" => $this->write_service->getNextSearchPart((array)$search_params),
+                "prev_spt" => $this->write_service->getPrevSearchPart($search_params),
+                "next_spt" => $this->write_service->getNextSearchPart($search_params),
             ]);
 
-            return api_response_json($response, (array)$response_data);
+            return api_response_json($response, $response_data);
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
@@ -214,18 +223,202 @@ class BoardController
             $next = new NeighborWrite($board['bo_table'], $fetch_next);
 
             $write_data = array_merge($write, array(
-                "comments" => $this->comment_service->getComments($write['wr_id']),
+                "mb_icon_path" => $this->image_service->getMemberImagePath($write['mb_id'], 'icon'),
+                "mb_image_path" => $this->image_service->getMemberImagePath($write['mb_id'], 'image'),
                 "images" => $this->file_service->getFilesByType((int)$write['wr_id'], 'image'),
                 "normal_files" => $this->file_service->getFilesByType((int)$write['wr_id'], 'file'),
                 "thumbnail" => new Thumbnail($thumb),
-                "prev" => (array)$prev,
-                "next" => (array)$next
+                "prev" => $prev,
+                "next" => $next
             ));
 
             $this->point_service->addPoint($member['mb_id'], $board['bo_read_point'], "{$board['bo_subject']} {$write['wr_id']} 글읽기", $board['bo_table'], $write['wr_id'], '읽기');
 
             $write = new Write($write_data);
             return api_response_json($response, $write);
+        } catch (Exception $e) {
+            if ($e->getCode() === 403) {
+                throw new HttpForbiddenException($request, $e->getMessage());
+            }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/boards/{bo_table}/writes/{wr_id}",
+     *      summary="게시글 조회 (비회원 비밀글)",
+     *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
+     *      description="게시판의 게시글 1건을 조회합니다.",
+     *           @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
+     *       @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *          @OA\Property(property="wr_password", type="string", description="게시글 비밀번호"),
+     *         ),
+     *     ),
+     *      @OA\Response(response="200", description="게시판 비밀글 조회 성공", @OA\JsonContent(ref="#/components/schemas/Write")),
+     *      @OA\Response(response="401", ref="#/components/responses/401"),
+     *      @OA\Response(response="403", ref="#/components/responses/403"),
+     *      @OA\Response(response="404", ref="#/components/responses/404"),
+     *      @OA\Response(response="422", ref="#/components/responses/422"),
+     *      @OA\Response(response="500", ref="#/components/responses/500"),
+     * )
+     */
+    public function getSecretWrite(Request $request, Response $response): Response
+    {
+        $board = $request->getAttribute('board');
+        $write = $request->getAttribute('write');
+        $member = $request->getAttribute('member');
+        $params = $request->getParsedBody();
+
+        // 권한 체크
+        try {
+            $password = $params['wr_password'] ?? '';
+            $this->board_permission->readWrite($member, $write, $password);
+
+            // TODO: include 제거로 인한 썸네일 처리 오류 해결.
+            // get_list_thumbnail($board['bo_table'], $write['wr_id'], $board['bo_gallery_width'], $board['bo_gallery_height'], false, true);
+            $thumb = [];
+            $fetch_prev = $this->write_service->fetchPrevWrite($write, $params) ?: [];
+            $fetch_next = $this->write_service->fetchNextWrite($write, $params) ?: [];
+            $prev = new NeighborWrite($board['bo_table'], $fetch_prev);
+            $next = new NeighborWrite($board['bo_table'], $fetch_next);
+
+            $write_data = array_merge($write, array(
+                "mb_icon_path" => $this->image_service->getMemberImagePath($write['mb_id'], 'icon'),
+                "mb_image_path" => $this->image_service->getMemberImagePath($write['mb_id'], 'image'),
+                "images" => $this->file_service->getFilesByType((int)$write['wr_id'], 'image'),
+                "normal_files" => $this->file_service->getFilesByType((int)$write['wr_id'], 'file'),
+                "thumbnail" => new Thumbnail($thumb),
+                "prev" => $prev,
+                "next" => $next
+            ));
+
+            $this->point_service->addPoint($member['mb_id'], $board['bo_read_point'], "{$board['bo_subject']} {$write['wr_id']} 글읽기", $board['bo_table'], $write['wr_id'], '읽기');
+
+            $write = new Write($write_data);
+            return api_response_json($response, $write);
+        } catch (Exception $e) {
+            if ($e->getCode() === 403) {
+                throw new HttpForbiddenException($request, $e->getMessage());
+            }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/comments",
+     *      summary="댓글 조회",
+     *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
+     *      description="게시글 1건의 댓글을 조회합니다.",
+     *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
+     *      @OA\PathParameter(name="wr_id", description="글 번호", @OA\Schema(type="integer")),
+     *      @OA\Parameter(ref="#/components/parameters/page"),
+     *      @OA\Parameter(ref="#/components/parameters/per_page"),
+     *      @OA\Response(response="200", description="게시판 글 조회 성공", @OA\JsonContent(ref="#/components/schemas/Comment")),
+     *      @OA\Response(response="401", ref="#/components/responses/401"),
+     *      @OA\Response(response="403", ref="#/components/responses/403"),
+     *      @OA\Response(response="404", ref="#/components/responses/404"),
+     *      @OA\Response(response="422", ref="#/components/responses/422"),
+     * )
+     */
+    public function getComments(Request $request, Response $response)
+    {
+        $board = $request->getAttribute('board');
+        $write = $request->getAttribute('write');
+        $member = $request->getAttribute('member');
+        $config = $request->getAttribute('config');
+        $query_params = $request->getQueryParams();
+
+        try {
+            // 권한 체크
+            $this->board_permission->readWrites($member);
+
+            // 검색 조건 및 페이징 처리
+            $page_rows = (int)($query_params['per_page'] ?? $board['bo_page_rows']);
+            $page_rows = $page_rows >= 100 ? 100 : $page_rows;
+            $mobile_page_rows = (int)($board['bo_mobile_page_rows'] ?? 0);
+            $page_params = new PageParameters($query_params, $config, $page_rows, $mobile_page_rows);
+            $page = $page_params->page;
+            $per_page = $page_params->per_page;
+
+            $comments = $this->comment_service->getComments($write['wr_id'], $member['mb_id'], $page, $per_page);
+            $total_count = $this->comment_service->fetchTotalRecords($write['wr_id']) ?: 1;
+
+            $response_data = new GetCommentsResponse([
+                'current_page' => $page,
+                'total_pages' => ceil($total_count / $per_page),
+                'total_records' => $total_count,
+                'comments' => $comments,
+            ]);
+
+            return api_response_json($response, $response_data);
+        } catch (Exception $e) {
+            if ($e->getCode() === 403) {
+                throw new HttpForbiddenException($request, $e->getMessage());
+            }
+
+            if ($e->getCode() === 422) {
+                throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/boards/{bo_table}/writes/{wr_id}/comments/{comment_id}",
+     *      summary="비밀 댓글 1건 조회",
+     *      tags={"게시판"},
+     *      security={{"Oauth2Password": {}}},
+     *      description="게시글의 댓글 1건을 조회합니다.",
+     *      @OA\PathParameter(name="bo_table", description="게시판 코드", @OA\Schema(type="string")),
+     *      @OA\PathParameter(name="wr_id", description="게시글 번호", @OA\Schema(type="integer")),
+     *      @OA\PathParameter(name="comment_id", description="댓글 번호", @OA\Schema(type="integer")),
+     *      @OA\RequestBody(
+     *       required=false,
+     *       @OA\JsonContent(
+     *       @OA\Property(property="wr_password", type="string", description="게시글 비밀번호"),
+     *       )
+     *      ),
+     *      @OA\Response(response="200", description="댓글 조회 성공", @OA\JsonContent(ref="#/components/schemas/CommentResponse")),
+     *      @OA\Response(response="401", ref="#/components/responses/401"),
+     *      @OA\Response(response="403", ref="#/components/responses/403"),
+     *      @OA\Response(response="404", ref="#/components/responses/404"),
+     *      @OA\Response(response="422", ref="#/components/responses/422"),
+     * )
+     */
+    public function getComment(Request $request, Response $response)
+    {
+        $member = $request->getAttribute('member');
+        $comment_id = (int)$request->getAttribute('comment_id');
+        $password = $request->getParsedBody()['wr_password'] ?? null;
+        $comment = $request->getAttribute('comment');
+        try {
+            // 권한 체크
+            $this->board_permission->readComment($member, $comment, $password);
+            $comments = $this->comment_service->getComment($comment_id, $member['mb_id'], $password);
+            $response_data = new CommentResponse([
+                'comments' => $comments,
+            ]);
+
+            return api_response_json($response, $response_data);
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
@@ -323,7 +516,7 @@ class BoardController
             run_event('api_create_write_after', $board, $wr_id);
 
             $response_data = new CreateWriteResponse("success", $wr_id);
-            return api_response_json($response, (array)$response_data);
+            return api_response_json($response, $response_data);
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
@@ -536,13 +729,14 @@ class BoardController
         $file_name = $file['bf_source'];
         $encoded_file_name = rawurlencode($file_name);
 
-        $response = $response->withHeader('Content-Description', 'File Transfer');
+        $response = $response->withHeader('Content-Description', 'web site');
         $response = $response->withHeader('Content-Type', 'application/octet-stream');
         $response = $response->withHeader('Content-Disposition', 'attachment; filename=' . $encoded_file_name);
+        $response = $response->withHeader('Content-Transfer-Encoding', 'binary');
         $response = $response->withHeader('Content-Length', $file_size);
         $response = $response->withHeader('Expires', '0');
-
-        $response->getBody()->write(file_get_contents($file_path));
+        $file = fopen($file_path, 'rb');
+        $response = $response->withBody(new Stream($file));
 
         return $response;
     }
@@ -685,7 +879,8 @@ class BoardController
             $this->board_new_service->insert($board['bo_table'], $comment_id, $write['wr_id'], $member['mb_id']);
             $this->board_service->increaseCommentCount();
 
-            $this->point_service->addPoint($member['mb_id'], $board['bo_comment_point'], "{$board['bo_subject']} {$write['wr_id']}-{$comment_id} 댓글쓰기", $board['bo_table'], $comment_id, '댓글');
+            $this->point_service->addPoint($member['mb_id'], $board['bo_comment_point'], "{$board['bo_subject']} {$write['wr_id']}-{$comment_id} 댓글쓰기", $board['bo_table'],
+                $comment_id, '댓글');
 
             // TODO: 메일발송 (write_comment_update.php - line 210 ~ 261)
             // TODO: SNS 등록 (write_comment_update.php - line 263 ~ 270)

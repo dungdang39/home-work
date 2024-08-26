@@ -3,7 +3,6 @@
 namespace API\Handlers;
 
 use API\Exceptions\HttpInternalServerErrorException;
-use API\Handlers\HttpErrorHandler;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\ResponseEmitter;
 
@@ -27,11 +26,12 @@ class ShutdownHandler
     /**
      * ShutdownHandler constructor.
      *
-     * @param Request           $request
-     * @param HttpErrorHandler  $errorHandler
-     * @param bool              $displayErrorDetails
+     * @param Request $request
+     * @param HttpErrorHandler $errorHandler
+     * @param bool $displayErrorDetails
      */
-    public function __construct(Request $request, HttpErrorHandler $errorHandler, bool $displayErrorDetails) {
+    public function __construct(Request $request, HttpErrorHandler $errorHandler, bool $displayErrorDetails)
+    {
         $this->request = $request;
         $this->errorHandler = $errorHandler;
         $this->displayErrorDetails = $displayErrorDetails;
@@ -40,7 +40,7 @@ class ShutdownHandler
     public function __invoke()
     {
         $error = error_get_last();
-        if ($error) {
+        if ($error && $error['type'] !== E_DEPRECATED) {
             $errorFile = $error['file'];
             $errorLine = $error['line'];
             $errorMessage = $error['message'];
@@ -50,8 +50,7 @@ class ShutdownHandler
             if ($this->displayErrorDetails) {
                 switch ($errorType) {
                     case E_USER_ERROR:
-                        $message = "FATAL ERROR: {$errorMessage}. ";
-                        $message .= " on line {$errorLine} in file {$errorFile}.";
+                        $message = "FATAL ERROR: {$errorMessage} on line {$errorLine} in file {$errorFile}.";
                         break;
 
                     case E_USER_WARNING:
@@ -63,17 +62,16 @@ class ShutdownHandler
                         break;
 
                     default:
-                        $message = "ERROR: {$errorMessage}";
-                        $message .= " on line {$errorLine} in file {$errorFile}.";
+                        $message = "ERROR: {$errorMessage} on line {$errorLine} in file {$errorFile}.";
                         break;
                 }
             }
 
             $exception = new HttpInternalServerErrorException($this->request, $message);
             $response = $this->errorHandler->__invoke($this->request, $exception, $this->displayErrorDetails, false, false);
-            
+
             if (ob_get_length()) {
-              ob_clean();
+                ob_clean();
             }
 
             $responseEmitter = new ResponseEmitter();

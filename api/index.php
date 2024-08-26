@@ -17,18 +17,20 @@ use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-
 //gnuboard 로딩
-$g5_path = g5_root_path();
+$is_root = false;
+$g5_path = g5_root_path($is_root, 1);
+
 require_once(dirname(__DIR__, 1) . '/config.php');   // 설정 파일
 unset($g5_path);
 
 include_once(G5_LIB_PATH.'/hook.lib.php');    // hook 함수 파일
 include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
 
-$dbconfig_file = G5_DATA_PATH.'/'.G5_DBCONFIG_FILE;
-if (file_exists($dbconfig_file)) {
-    include_once($dbconfig_file);
+if (!include(G5_DATA_PATH . '/' . G5_DBCONFIG_FILE)) {
+    header('Content-Type: application/json');
+    echo json_encode('그누보드가 설치되어있지 않습니다.');
+    exit;
 }
 //-------------------------
 // Create refresh token table
@@ -43,7 +45,7 @@ if (G5_DEBUG) {
 }
 
 //@todo 임시 전역변수 정리후 삭제대상
-$config = get_gnuconfig();
+$config = getConfig();
 /**
  * Instantiate App
  */

@@ -13,14 +13,23 @@ class MemberImageService
     private array $allowed_media_types = ['image/gif', 'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/x-png', 'image/png'];
 
     /**
-     * 회원 이미지 경로 반환
+     * 회원 이미지 파일을 체크 후 경로 반환
      * @param string $mb_id 회원 아이디
-     * @return string
+     * @param string $type 이미지 타입 (icon, image)
+     * @return string 파일이 없으면 ''
      */
     public function getMemberImagePath(string $mb_id)
     {
+        if(!$mb_id) {
+            return '';
+        }
+        $dir = ($type === 'icon') ? self::ICON_DIR : self::IMAGE_DIR;
         $mb_dir = substr($mb_id, 0, 2);
-        return G5_DATA_URL . self::IMAGE_DIR . '/' . $mb_dir . '/' . $mb_id . '.gif';
+        $path = G5_DATA_PATH . "{$dir}/{$mb_dir}/{$mb_id}.gif";
+        if(file_exists($path)) {
+            return G5_DATA_URL . "{$dir}/{$mb_dir}/{$mb_id}.gif";
+        }
+        return '';
     }
 
     /**
@@ -30,6 +39,7 @@ class MemberImageService
      * @param UploadedFileInterface $file 업로드 파일
      * @return void
      * @throws \RandomException
+     * @throw \Exception
      */
     public function updateMemberImage(array $config, string $mb_id, UploadedFileInterface $file = null)
     {
@@ -43,13 +53,13 @@ class MemberImageService
 
         // 이미지파일 확장자 검사
         if (!in_array($file->getClientMediaType(), $this->allowed_media_types)) {
-            throw new Exception("gif, jpeg, png 이미지 파일만 업로드 가능합니다.", 404);
+            throw new Exception("gif, jpeg, png 이미지 파일만 업로드 가능합니다.", 400);
         }
 
         // 이미지 크기 검사 (byte)
         if ($file->getSize() > $limit_size) {
             $limit = number_format($limit_size);
-            throw new Exception("회원 이미지는 {$limit}바이트까지 업로드 가능합니다.", 404);
+            throw new Exception("회원{$type_string}은(는) {$limit}바이트까지 업로드 가능합니다.", 400);
         }
 
         // 이미지 경로 생성

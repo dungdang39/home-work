@@ -5,16 +5,15 @@ namespace API\Service;
 use API\Database\Db;
 use Exception;
 
+
 class MemberService
 {
     private string $table;
-    private ConfigService $config_service;
 
-    public function __construct(ConfigService $config_service)
+    public function __construct()
     {
         global $g5;
         $this->table = $g5['member_table'];
-        $this->config_service = $config_service;
     }
 
     /**
@@ -25,7 +24,7 @@ class MemberService
      */
     public function createMember(object $data): int
     {
-        $config = $this->config_service->getConfig();
+        $config = ConfigService::getConfig();
 
         if ($this->fetchMemberById($data->mb_id)) {
             throw new Exception("이미 사용중인 회원아이디 입니다.", 409);
@@ -54,6 +53,7 @@ class MemberService
      */
     public function updateMemberProfile(string $mb_id, object $data): void
     {
+        // 닉네임 변경 허용이 안되면 mb_nick 프로퍼티가 없다.
         if(isset($data->mb_nick)) {
             if ($this->existsMemberByNick($data->mb_nick, $mb_id)) {
                 throw new Exception("이미 사용중인 닉네임 입니다.", 409);
@@ -258,7 +258,7 @@ class MemberService
      */
     public function updateMember(string $mb_id, array $data): int
     {
-        $update_count = Db::getInstance()->update($this->table, ["mb_id" => $mb_id], $data);
+        $update_count = Db::getInstance()->update($this->table, $data, ["mb_id" => $mb_id]);
 
         return $update_count;
     }

@@ -17,7 +17,7 @@ class PointService
     ) {
         global $g5;
 
-        $this->config = $config_service->getConfig();
+        $this->config = $config_service::getConfig();
         $this->member_service = $member_service;
 
         $this->setTable($g5['point_table']);
@@ -69,6 +69,9 @@ class PointService
             || $point === 0
             || $mb_id === ''
         ) {
+            return false;
+        }
+        if (!$mb_id) {
             return false;
         }
         $member = $this->member_service->fetchMemberById($mb_id);

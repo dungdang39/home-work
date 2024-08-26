@@ -17,12 +17,13 @@ use Psr\Http\Message\UploadedFileInterface;
  *
  * @param Response $response
  * @param array|object $data
- * @param int $status
+ * @param int $status HTTP 상태 코드
  * @return Response
  */
 function api_response_json(Response $response, $data, int $status = 200)
 {
-    $json = json_encode($data, JSON_UNESCAPED_UNICODE);
+    // api 에서는 json 인코딩시 php 의 백슬래시 추가를 막습니다.
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $response->getBody()->write($json);
     return $response->withStatus($status)->withAddedHeader('Content-Type', 'application/json');
 }
@@ -32,11 +33,9 @@ function api_response_json(Response $response, $data, int $status = 200)
  */
 function create_refresh_token_table()
 {
-    global $g5;
-
-    if (isset($g5['member_refresh_token_table'])) {
-        if (!table_exist_check($g5['member_refresh_token_table'])) {
-            $sql = "CREATE TABLE IF NOT EXISTS `{$g5['member_refresh_token_table']}` (
+    $refresh_token_table_name = $GLOBALS['g5']['member_refresh_token_table'] ?? G5_TABLE_PREFIX . 'member_refresh_token';
+    if (!table_exist_check($refresh_token_table_name)) {
+        $sql = "CREATE TABLE IF NOT EXISTS `$refresh_token_table_name` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `mb_id` varchar(20) NOT NULL,
                     `refresh_token` text NOT NULL,
@@ -47,8 +46,7 @@ function create_refresh_token_table()
                     KEY `ix_member_refresh_token_mb_id` (`mb_id`),
                     KEY `ix_member_refresh_token_id` (`id`)
                     ) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
-            Db::getInstance()->run($sql);
-        }
+        Db::getInstance()->run($sql);
     }
 }
 
@@ -68,42 +66,52 @@ function table_exist_check($table_name)
 
 /**
  * 그누보드 루트 경로 및 URL 반환 함수
+ * @param bool $is_root 이 함수를 호출하는 파일이 최상위 경로인지 여부
+ * @param int $depth is_root 가 false 일때 해당 파일에서 최상위 경로까지의 디렉토리 깊이
  * @return array
  */
-function g5_root_path()
+function g5_root_path($is_root = true, $depth = 1)
 {
     $chroot = substr($_SERVER['SCRIPT_FILENAME'], 0, strpos($_SERVER['SCRIPT_FILENAME'], __DIR__));
-    $path = str_replace('\\', '/', $chroot . __DIR__);
-    
-    //root 경로 정규화
-    // 윈도우 , 리눅스 경로 호환 슬레시로 변경 , // -> / 로 변경
+    //root 경로 슬래시 변경
+    if ($is_root) {
+        $path = str_replace('\\', '/', $chroot . __DIR__);
+    } else {
+        $path = str_replace('\\', '/', dirname(__DIR__, $depth));
+    }
+    // 윈도우 , 리눅스 경로 호환 슬래시로 변경 , // -> / 로 변경
     $server_script_name = preg_replace('/\/+/', '/', str_replace('\\', '/', $_SERVER['SCRIPT_NAME']));
     $server_script_filename = preg_replace('/\/+/', '/', str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']));
     // ~ 제거 - 리눅스에서 유저에 ~가 들어가는 경우
     $tilde_remove = preg_replace('/^\/~[^\/]+(.*)$/', '$1', $server_script_name);
     $document_root = str_replace($tilde_remove, '', $server_script_filename);
     $pattern = '/.*?' . preg_quote($document_root, '/') . '/i';
-    $root = preg_replace($pattern, '', $path);
-    
+    $url_root = preg_replace($pattern, '', $path);
+
     $http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    
+
     //host 경로 정규화
     $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'];
     if (isset($_SERVER['HTTP_HOST']) && strpos($host, ':') !== false) {
         $host = preg_replace('/:[0-9]+$/', '', $host);
     }
     $host = preg_replace('/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*]/', '', $host);
-    
+
     // 웹서버의 사용자 경로
     $user = str_replace(preg_replace($pattern, '', $server_script_filename), '', $server_script_name);
 
     $server_port = $_SERVER['SERVER_PORT'];
     $port = ($server_port == 80 || $server_port == 443) ? '' : ':' . $server_port;
-    
-    $gnuboard_root_path = dirname(__DIR__, 1);
+
+    if ($is_root) {
+        $gnuboard_root_path = __DIR__;
+    } else {
+        $gnuboard_root_path = dirname(__DIR__, $depth);
+    }
+
     return [
         'path' => $gnuboard_root_path,
-        'url' => "{$http}{$host}{$port}{$user}{$root}" // server url
+        'url' => "{$http}{$host}{$port}{$user}{$url_root}" // server url
     ];
 }
 
@@ -241,9 +249,9 @@ function is_prohibited_word(string $word, array $config): bool
     return preg_match($pattern, $config['prohibit_word']);
 }
 
-// ========================================
+// ==========================
 // 메일 발송 관련 함수들
-// ========================================
+// ==========================
 
 /**
  * 임시비밀번호 메일 발송
@@ -382,9 +390,9 @@ function sanitize_input(string $input, int $max_length, bool $strip_tags = false
 /**
  * config 정보 가져오기
  */
-function get_gnuconfig()
+function getConfig()
 {
-    return (new \API\Service\ConfigService())->getConfig();
+    return \API\Service\ConfigService::getConfig();
 }
 
 /**

@@ -6,6 +6,9 @@ use API\Service\BoardService;
 use API\Service\GroupService;
 use Exception;
 
+/**
+ * 게시판 전반의 권한 확인에 쓰입니다.
+ */
 class BoardPermission
 {
     public array $config;
@@ -20,6 +23,7 @@ class BoardPermission
     private WriteService $write_service;
 
     private const ERROR_NO_ACCESS_GUEST = '비회원은 이 게시판에 접근할 권한이 없습니다.';
+    private const ERROR_NO_ACCESS_PASSWORD = '비밀번호가 일치하지 않습니다.';
     private const ERROR_NO_ACCESS_GROUP = '게시판에 접근할 권한이 없습니다.';
     private const ERROR_NO_ACCESS_CERT = '이 게시판은 본인인증을 진행하신 회원만 접근 가능합니다.';
     private const ERROR_NO_ACCESS_CERT_CHANGED = '본인인증 정보가 변경되었습니다. 다시 인증을 진행해주세요.';
@@ -82,23 +86,24 @@ class BoardPermission
         $this->write_service = $write_service;
     }
 
-    function setConfig(array $config): void
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }
 
-    function setGroup(array $group): void
+    public function setGroup(array $group): void
     {
         $this->group = $group;
     }
 
-    function setBoard(array $board): void
+    public function setBoard(array $board): void
     {
         $this->board = $board;
     }
 
     /**
      * 글 목록 조회 권한 체크
+     * @throws Exception 권한 에러
      */
     public function readWrites(array $member): void
     {
@@ -109,14 +114,15 @@ class BoardPermission
 
     /**
      * 글 읽기 권한 체크
+     * @throws Exception
      */
-    public function readWrite(array $member, array $write): void
+    public function readWrite(array $member, array $write, string $password = null): void
     {
         $level = (int)$this->board['bo_read_level'];
         $this->checkAccessBoardGroup($member['mb_id']);
         $this->checkMemberLevel($member, $level, self::ERROR_NO_READ_WRITE);
         $this->checkAccessCert($member);
-        $this->checkReadSecretWrite($member, $write);
+        $this->checkReadSecretWrite($member, $write, $password);
         $this->checkMemberPoint('read', $member, $write);
     }
 
@@ -190,7 +196,11 @@ class BoardPermission
     }
 
     /**
-     * 파일 업로드 권한 체크
+     *  파일 업로드 권한 체크
+     * @param array $member
+     * @param array $write
+     * @return void
+     * @throws Exception
      */
     public function uploadFiles(array $member, array $write): void
     {
@@ -206,7 +216,11 @@ class BoardPermission
     }
 
     /**
-     * 파일 다운로드 권한 체크
+     *  파일 다운로드 권한 체크
+     * @param array $member
+     * @param array $write
+     * @return void
+     * @throws Exception
      */
     public function downloadFiles(array $member, array $write): void
     {
@@ -227,6 +241,7 @@ class BoardPermission
      * @param array $write 글 정보
      * @param string $type good|nogood
      * @return void
+     * @throws Exception
      */
     public function goodWrite(string $mb_id, array $write, string $type)
     {
@@ -359,6 +374,7 @@ class BoardPermission
 
     /**
      * 글 수정/삭제 시 관리자/작성자 체크
+     * @throws Exception
      */
     private function verifyWriteOwnerAndLevel(array $member, array $write, string $type): void
     {
@@ -390,6 +406,7 @@ class BoardPermission
 
     /**
      * 글 수정/삭제 시 관리자/작성자 체크
+     * @throws Exception
      */
     private function verifyCommentOwnerAndLevel(array $member, array $comment, string $type): void
     {
@@ -428,6 +445,7 @@ class BoardPermission
 
     /**
      * 답변한 게시글이 공지글인지 체크
+     * @throws Exception
      */
     private function checkReplyNotice(int $parent_id): void
     {
@@ -439,10 +457,11 @@ class BoardPermission
 
     /**
      * 답변글 작성시 원글이 비밀글인지 체크
+     * @throws Exception
      */
     private function checkReplySecret(array $member, array $write): void
     {
-        if (strstr($write['wr_option'], 'secret')) {
+        if (str_contains($write['wr_option'], 'secret')) {
             if ($this->isBoardManager($member['mb_id'])) {
                 return;
             }
@@ -468,7 +487,7 @@ class BoardPermission
     }
 
     /**
-     * 
+     *
      * 글읽기 포인트 체크
      * - 그누보드5에선 세션을 사용했지만 세션을 사용하지 않으므로 테이블의 내역을 체크한다.
      */
@@ -546,6 +565,7 @@ class BoardPermission
 
     /**
      * 본인인증 체크
+     * @throws Exception
      */
     private function checkAccessCert(array $member): void
     {
@@ -571,16 +591,30 @@ class BoardPermission
 
     /**
      * 비밀글 읽기 권한 체크
+     * @throws Exception
      */
-    private function checkReadSecretWrite(array $member, array $write): void
+    private function checkReadSecretWrite(array $member, array $write, $password = null): void
     {
-        if (!strstr($write['wr_option'], "secret")) {
+        if (!str_contains($write['wr_option'], "secret")) {
             return;
         }
 
         $mb_id = $member['mb_id'];
 
-        if ($this->isBoardManager($mb_id) || $this->isOwner($write, $mb_id)) {
+        if ($this->isBoardManager($mb_id)) {
+            return;
+        }
+
+        // 비회원 비밀글 읽기 권한 체크
+        if (!$mb_id && $password != null && trim($write['wr_password'])) {
+            $result = check_password($password, $write['wr_password']);
+            if (!$result) {
+                $this->throwException(self::ERROR_NO_ACCESS_PASSWORD);
+            }
+            return;
+        }
+
+        if ($this->isOwner($write, $mb_id)) {
             return;
         }
 
@@ -596,6 +630,42 @@ class BoardPermission
     }
 
     /**
+     * 댓글 읽기 권한 확인
+     * @param $mb_id
+     * @param array $comment
+     * @param ?string $password 비밀번호를 알고있을경우
+     * @return bool
+     */
+    public function canReadSecretComment($mb_id, array $comment, $password = null): bool
+    {
+        if (is_super_admin($this->config, $mb_id)) {
+            return true;
+        }
+        if (!str_contains($comment['wr_option'], "secret")) {
+            return true;
+        }
+
+        if ($this->isBoardManager($mb_id)) {
+            return true;
+        }
+
+        // 비회원 비밀글 읽기 권한 체크
+        if (!$mb_id && $password != null && trim($comment['wr_password'])) {
+            $result = check_password($password, $comment['wr_password']);
+            if (!$result) {
+                return false;
+            }
+            return true;
+        }
+
+        if ($this->isOwner($comment, $mb_id)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 답변글이 있는지 체크
      */
     private function hasWriteReply(array $write, string $message): void
@@ -603,6 +673,22 @@ class BoardPermission
         $replies = $this->write_service->fetchReplyByWrite($write);
         if (count($replies) > 0) {
             $this->throwException($message);
+        }
+    }
+
+    /**
+     * 댓글 읽기 권한 체크
+     * @throws Exception
+     */
+    public function readComment(array $member, array $comment, string $password = null): void
+    {
+        $level = (int)$this->board['bo_read_level'];
+        $this->checkAccessBoardGroup($member['mb_id']);
+        $this->checkMemberLevel($member, $level, self::ERROR_NO_READ_WRITE);
+        $this->checkAccessCert($member);
+        $can_read = $this->canReadSecretComment($member['mb_id'], $comment, $password);
+        if (!$can_read) {
+            $this->throwException(self::ERROR_NO_READ_SECRET);
         }
     }
 
@@ -620,6 +706,7 @@ class BoardPermission
 
     /**
      * 게시글에 접근 가능한 회원레벨 체크
+     * @throws Exception
      */
     private function checkMemberLevel(array $member, int $level, string $message): void
     {
@@ -664,7 +751,7 @@ class BoardPermission
     /**
      * 글 작성자 체크
      */
-    private function isOwner(array $write, string $mb_id): bool
+    public function isOwner(array $write, string $mb_id): bool
     {
         if (empty($mb_id) || !isset($write['mb_id']) || empty($write['mb_id'])) {
             return false;
@@ -684,6 +771,7 @@ class BoardPermission
 
     /**
      * 예외를 던지기 위한 메서드
+     * @throws Exception
      */
     private function throwException(string $message): void
     {

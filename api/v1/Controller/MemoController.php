@@ -68,7 +68,7 @@ class MemoController
         $memo_type = $query_params['me_type'] ?? null;
         $member = $request->getAttribute('member');
         $mb_id = $member['mb_id'];
-        
+
         if ($page < 1) {
             $page = 1;
         }
@@ -161,8 +161,9 @@ class MemoController
         $ip = $request->getServerParams()['REMOTE_ADDR']; // @todo 클라우드 플레어, LB 등을 고려한 ip 함수 추가 필요.
         $sending_memo_id = $this->memo_service->sendMemo($mb_id, $receiver_mb_id, $request_data['me_memo'], $ip);
         // 쪽지 포인트 차감
-        foreach($sending_memo_id as $memo_id) {
-            $this->point_service->addPoint($mb_id, (int)$config['cf_memo_send_point'] * (-1), $receiver_mb_id.'('.$receiver_mb_id.')님께 쪽지 발송', '@memo', $receiver_mb_id, $memo_id);
+        foreach ($sending_memo_id as $memo_id) {
+            $this->point_service->addPoint($mb_id, (int)$config['cf_memo_send_point'] * (-1), $receiver_mb_id . '(' . $receiver_mb_id . ')님께 쪽지 발송', '@memo', $receiver_mb_id,
+                $memo_id);
         }
         $this->memo_service->update_not_read_memo_count($receiver_mb_id);
 
@@ -191,7 +192,7 @@ class MemoController
      *     @OA\Response(response="400", ref="#/components/responses/400"),
      *     @OA\Response(response="403", ref="#/components/responses/403"),
      *     @OA\Response(response="422", ref="#/components/responses/422")
-     * )    
+     * )
      */
     public function show(Request $request, Response $response, $args)
     {

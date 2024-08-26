@@ -2,6 +2,7 @@
 
 namespace API\v1\Controller;
 
+use API\Exceptions\HttpBadRequestException;
 use API\Exceptions\HttpNotFoundException;
 use API\Exceptions\HttpConflictException;
 use API\Exceptions\HttpForbiddenException;
@@ -16,9 +17,10 @@ use API\v1\Model\Request\Member\UpdateMemberRequest;
 use API\v1\Model\Response\Member\CreateMemberResponse;
 use API\v1\Model\Response\Member\GetMemberResponse;
 use API\v1\Model\Response\Member\GetMemberMeResponse;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Exception;
+
 
 require_once G5_LIB_PATH . '/mailer.lib.php';
 
@@ -166,7 +168,7 @@ class MemberController
         }
 
         $response_data = new CreateMemberResponse("회원가입이 완료되었습니다.", $data);
-        return api_response_json($response, (array)$response_data);
+        return api_response_json($response, $response_data);
     }
 
     /**
@@ -359,8 +361,8 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
     }
 
     /**
-     * 회원 이미지 수정
-     * 
+     * 회원 아이콘/이미지 수정
+     *
      * @OA\Post(
      *      path="/api/v1/member/images",
      *      summary="회원 이미지 수정",
@@ -397,12 +399,21 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
             if ($request_data['del_mb_img']) {
                 $this->image_service->deleteMemberImage($member['mb_id']);
             }
-            $this->image_service->updateMemberImage($config, $member['mb_id'], $uploaded_files['mb_img']);
+            if (isset($uploaded_files['mb_img'])) {
+                $this->image_service->updateMemberImage($config, $member['mb_id'], 'image', $uploaded_files['mb_img']);
+            }
+            if (isset($uploaded_files['mb_icon'])) {
+                $this->image_service->updateMemberImage($config, $member['mb_id'], 'icon', $uploaded_files['mb_icon']);
+            }
 
             return api_response_json($response, array("message" => "회원 이미지가 수정되었습니다."));
         } catch (Exception $e) {
             if ($e->getCode() === 422) {
                 throw new HttpUnprocessableEntityException($request, $e->getMessage());
+            }
+
+            if ($e->getCode() === 400) {
+                throw new HttpBadRequestException($request, $e->getMessage());
             }
 
             throw $e;

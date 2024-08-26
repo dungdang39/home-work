@@ -4,10 +4,9 @@ namespace API\Service;
 
 use API\Database\Db;
 
+
 class MemoService
 {
-
-
     private MemberService $member_service;
 
     public function __construct(MemberService $member_service)
@@ -152,7 +151,7 @@ class MemoService
                     'me_send_id' => $mb_no,
                     'me_send_ip' => $ip
                 ]);
-                
+
                 $send_memo_id[] = $last_insert_id;
             }
         }
@@ -186,7 +185,7 @@ class MemoService
     public function readCheck($memo_id)
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
-        $row_count = Db::getInstance()->update($memo_table, ['me_id' => $memo_id], ['me_read_datetime' => G5_TIME_YMDHIS]);
+        $row_count = Db::getInstance()->update($memo_table, ['me_read_datetime' => G5_TIME_YMDHIS], ['me_id' => $memo_id]);
         return $row_count > 0;
     }
 
@@ -228,13 +227,14 @@ class MemoService
 
         //reset mb_memo_call
         $member_table = $GLOBALS['g5']['member_table'];
-        Db::getInstance()->update($member_table,
+        Db::getInstance()->update(
+            $member_table,
+            [
+                'mb_memo_call' => ''
+            ],
             [
                 'mb_id' => $memo['me_recv_mb_id'],
                 'mb_memo_call' => $memo['me_send_mb_id']
-            ],
-            [
-                'mb_memo_call' => ''
             ]
         );
 
@@ -249,7 +249,7 @@ class MemoService
     {
         $not_read_memo_count = $this->not_read_memo_count($receiver_mb_id);
         $member_table = $GLOBALS['g5']['member_table'];
-        return Db::getInstance()->update($member_table, ['mb_id' => $receiver_mb_id], ['mb_memo_cnt' => $not_read_memo_count]);
+        return Db::getInstance()->update($member_table, ['mb_memo_cnt' => $not_read_memo_count], ['mb_id' => $receiver_mb_id]);
     }
 
     /**
@@ -260,11 +260,13 @@ class MemoService
     public function not_read_memo_count($mb_id)
     {
         $memo_table = $GLOBALS['g5']['memo_table'];
-        $result = Db::getInstance()->run("SELECT count(*) as cnt FROM $memo_table 
+        $result = Db::getInstance()->run(
+            "SELECT count(*) as cnt FROM $memo_table 
                        WHERE me_recv_mb_id = :mb_id
                          AND me_type = 'recv'
                          AND me_read_datetime = '0000-00-00 00:00:00'",
-            ['mb_id' => $mb_id])->fetch();
+            ['mb_id' => $mb_id]
+        )->fetch();
         return $result['cnt'] ?? 0;
     }
 

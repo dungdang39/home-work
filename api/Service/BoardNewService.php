@@ -4,13 +4,14 @@ namespace API\Service;
 
 use API\Database\Db;
 
+
 class BoardNewService
 {
     public string $table;
     public string $board_table;
     public string $group_table;
 
-    function __construct()
+    public function __construct()
     {
         global $g5;
         $this->table = $g5['board_new_table'];

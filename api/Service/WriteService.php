@@ -3,6 +3,7 @@
 namespace API\Service;
 
 use API\Database\Db;
+use API\v1\Model\Response\Write\Thumbnail;
 use Exception;
 
 class WriteService
@@ -11,9 +12,16 @@ class WriteService
     public string $table;
 
     private PopularSearch $popular_service;
+    private MemberImageService $image_service;
+    private BoardFileService $file_service;
 
-    public function __construct(PopularSearch $popular_service)
-    {
+    public function __construct(
+        PopularSearch $popular_service,
+        MemberImageService $image_service,
+        BoardFileService $file_service
+    ) {
+        $this->file_service = $file_service;
+        $this->image_service = $image_service;
         $this->popular_service = $popular_service;
     }
 
@@ -83,9 +91,53 @@ class WriteService
         $search_values[':offset'] = $page_params['offset'];
         $search_values[':per_page'] = $page_params['per_page'];
 
-        $stmt = Db::getInstance()->run($query, $search_values);
+        return Db::getInstance()->run($query, $search_values)->fetchAll();
+    }
 
-        return $stmt->fetchAll();
+    /**
+     * 가져온 게시글 목록 데이터 가공
+     * @param array $board
+     * @param $search_params
+     * @param $page_params
+     * @return array
+     */
+    public function getWrites(array $board, $search_params, $page_params)
+    {
+        $use_show_content = (int)$board['bo_use_list_content'] === 1;
+        $use_show_file = (int)$board['bo_use_list_file'] === 1;
+        $data = $this->fetchWrites($search_params, $page_params);
+        foreach ($data as &$write) {
+            $write["mb_icon_path"] = $this->image_service->getMemberImagePath($write['mb_id'], 'icon');
+            $write["mb_image_path"] = $this->image_service->getMemberImagePath($write['mb_id'], 'image');
+            if ($use_show_file) {
+                $write["images"] = $this->file_service->getFilesByType((int)$write['wr_id'], 'image');
+                $write["normal_files"] = $this->file_service->getFilesByType((int)$write['wr_id'], 'file');
+            }
+            // @todo 썸네일
+            $write['thumbnail'] = new Thumbnail([]);
+            //게시판설정에서 내용보기 체크시
+            $write['wr_password'] = '';
+            if ($use_show_content) {
+                if (strpos($write['wr_option'], 'secret') !== false) {
+                    $empty_write = array_map(function () {
+                        return '';
+                    }, $write);
+                    $write = array_merge($empty_write, [
+                        'wr_id' => $write['wr_id'],
+                        'wr_num' => $write['wr_num'],
+                        'wr_parent' => $write['wr_parent'],
+                        'wr_reply' => $write['wr_reply'],
+                        'wr_option' => $write['wr_option'],
+                        'ca_name' => $write['ca_name'],
+                        'wr_content' => '비밀글입니다.'
+                    ]);
+                }
+            } else {
+                $write['wr_content'] = '';
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -96,9 +148,7 @@ class WriteService
     public function fetchWrite(int $wr_id)
     {
         $query = "SELECT * FROM {$this->table} WHERE wr_id = :wr_id";
-        $stmt = Db::getInstance()->run($query, ['wr_id' => $wr_id]);
-
-        return $stmt->fetch();
+        return Db::getInstance()->run($query, ['wr_id' => $wr_id])->fetch();
     }
 
     /**
@@ -380,7 +430,7 @@ class WriteService
      */
     public function updateWrite(int $wr_id, array $data): void
     {
-        Db::getInstance()->update($this->table, ['wr_id' => $wr_id], $data);
+        Db::getInstance()->update($this->table, $data, ['wr_id' => $wr_id]);
     }
 
     /**
@@ -392,8 +442,8 @@ class WriteService
     {
         Db::getInstance()->update(
             $this->table,
-            ['wr_id' => $wr_id],
-            ['wr_parent' => $parent_id]
+            ['wr_parent' => $parent_id],
+            ['wr_id' => $wr_id]
         );
     }
 
@@ -407,8 +457,8 @@ class WriteService
     {
         Db::getInstance()->update(
             $this->table,
-            ['wr_parent' => $wr_id],
             ['ca_name' => $ca_name],
+            ['wr_parent' => $wr_id],
         );
     }
 
@@ -589,7 +639,7 @@ class WriteService
         return [$sst, $sod];
     }
 
-    
+
     /**
      * 검색 단위 > 이전위치 조회
      * @param array $search_params 검색조건

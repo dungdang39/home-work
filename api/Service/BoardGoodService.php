@@ -4,11 +4,12 @@ namespace API\Service;
 
 use API\Database\Db;
 
+
 class BoardGoodService
 {
     public string $table;
 
-    function __construct()
+    public function __construct()
     {
         $this->setTable();
     }
