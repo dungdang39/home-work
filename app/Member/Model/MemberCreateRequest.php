@@ -7,7 +7,7 @@ use App\Member\MemberConfigService;
 use Core\Traits\SchemaHelperTrait;
 use Slim\Psr7\UploadedFile;
 
-class MemberRequest
+class MemberCreateRequest
 {
     use SchemaHelperTrait;
 
@@ -30,6 +30,7 @@ class MemberRequest
     public ?string $mb_addr2;
     public ?string $mb_addr3;
     public ?string $mb_signature;
+    public ?string $mb_certify;
     
     // 관리 정보
     public ?string $mb_memo;
@@ -119,7 +120,7 @@ class MemberRequest
         // 이미지 검사
         */
 
-    public function load(array $data): MemberRequest
+    public function load(array $data): MemberCreateRequest
     {
         $this->mapDataToProperties($this, $data);
 

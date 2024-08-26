@@ -37,52 +37,68 @@ class MemberService
     }
 
     /**
+     * 회원 정보 조회
+     * @param string $mb_id 회원아이디
+     * @return array
+     */
+    public function getMember(string $mb_id): array
+    {
+        $member = $this->fetchMemberById($mb_id);
+
+        if (!$member) {
+            throw new Exception("회원정보가 존재하지 않습니다.", 404);
+        }
+
+        return $member;
+    }
+
+    /**
      * 회원가입 처리
-     * @param object $data 회원가입 데이터
+     * @param array $data 회원가입 데이터
      * @return int 회원번호
      * @throws Exception 회원가입 실패시 Exception 발생
      */
-    public function createMember(object $data): int
+    public function createMember(array $data): int
     {
         $config = $this->mconfig_service->getMemberConfig();
 
-        if ($this->fetchMemberById($data->mb_id)) {
+        if ($this->fetchMemberById($data['mb_id'])) {
             throw new Exception("이미 사용중인 회원아이디 입니다.", 409);
         }
-        if ($this->existsMemberByNick($data->mb_nick, $data->mb_id)) {
+        if ($this->existsMemberByNick($data['mb_nick'], $data['mb_id'])) {
             throw new Exception("이미 사용중인 닉네임 입니다.", 409);
         }
-        if ($this->existsMemberByEmail($data->mb_email, $data->mb_id)) {
+        if ($this->existsMemberByEmail($data['mb_email'], $data['mb_id'])) {
             throw new Exception("이미 사용중인 이메일 입니다.", 409);
         }
-        if ($config['cf_use_recommend'] && $data->mb_recommend) {
-            if (!$this->fetchMemberById($data->mb_recommend)) {
+        if ($config['use_recommend'] && $data['mb_recommend']) {
+            if (!$this->fetchMemberById($data['mb_recommend'])) {
                 throw new Exception("추천인이 존재하지 않습니다.", 404);
             }
         }
 
-        return $this->insert((array)$data);
+        return $this->insert($data);
     }
 
     /**
      * 회원정보 갱신 처리
      * @param string $mb_id 회원아이디
-     * @param object $data 갱신 데이터
+     * @param array $data 갱신 데이터
      * @return void
      * @throws Exception 갱신 실패시 Exception 발생
      */
-    public function updateMemberProfile(string $mb_id, object $data): void
+    public function updateMember(string $mb_id, array $data): void
     {
         if (isset($data->mb_nick)) {
-            if ($this->existsMemberByNick($data->mb_nick, $mb_id)) {
+            if ($this->existsMemberByNick($data['mb_nick'], $mb_id)) {
                 throw new Exception("이미 사용중인 닉네임 입니다.", 409);
             }
         }
-        if ($this->existsMemberByEmail($data->mb_email, $mb_id)) {
+        if ($this->existsMemberByEmail($data['mb_email'], $mb_id)) {
             throw new Exception("이미 사용중인 이메일 입니다.", 409);
         }
 
-        $this->updateMember($mb_id, (array)$data);
+        $this->update($mb_id, $data);
     }
 
     /**
@@ -313,9 +329,9 @@ class MemberService
      * @param array $data 수정할 데이터
      * @return int 수정된 행 갯수
      */
-    public function updateMember(string $mb_id, array $data): int
+    public function update(string $mb_id, array $data): int
     {
-        $update_count = Db::getInstance()->update($this->table, ["mb_id" => $mb_id], $data);
+        $update_count = Db::getInstance()->update($this->table, $data, ["mb_id" => $mb_id]);
 
         return $update_count;
     }

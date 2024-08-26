@@ -99,6 +99,16 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [MemberConfigController::class, 'update'])->setName('member-config.update');
             })->add(AdminMenuAuthMiddleware::class);
 
+            // 회원 포인트관리
+            $group->group('/point', function (RouteCollectorProxy $group) {
+                $group->get('[/{mb_id}]', [MemberController::class, 'index'])->setName('point.index');
+                // $group->get('/create', [MemberController::class, 'create'])->setName('member.create');
+                // $group->post('', [MemberController::class, 'insert'])->setName('member.insert');
+                // $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('member.view');
+                // $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
+                // $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
+            })->add(AdminMenuAuthMiddleware::class);
+
             // 회원관리
             $group->group('', function (RouteCollectorProxy $group) {
                 $group->get('', [MemberController::class, 'index'])->setName('member.index');
@@ -108,6 +118,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
             })->add(AdminMenuAuthMiddleware::class);
+
+            
         });
     })
         ->add(AdminMenuMiddleware::class)

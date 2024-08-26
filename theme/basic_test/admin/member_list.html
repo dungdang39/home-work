@@ -4,7 +4,7 @@
 <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
 <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
 
-<h1 id="container_title">회원관리</h1>
+<h1 id="container_title">회원 > 회원관리</h1>
 <div class="container_wr">
     <div class="local_ov01 local_ov">
         <a href="/g5-update/adm/member_list.php" class="ov_listall">전체목록</a>
@@ -12,11 +12,13 @@
             <span class="ov_txt">총회원수 </span>
             <span class="ov_num"> 30명 </span>
         </span>
-        <a href="?sst=mb_intercept_date&amp;sod=desc&amp;sfl=&amp;stx=" class="btn_ov01" data-tooltip-text="차단된 순으로 정렬합니다. 전체 데이터를 출력합니다.">
+        <a href="?sst=mb_intercept_date&amp;sod=desc&amp;sfl=&amp;stx=" class="btn_ov01"
+            data-tooltip-text="차단된 순으로 정렬합니다. 전체 데이터를 출력합니다.">
             <span class="ov_txt">차단 </span>
             <span class="ov_num">0명</span>
         </a>
-        <a href="?sst=mb_leave_date&amp;sod=desc&amp;sfl=&amp;stx=" class="btn_ov01" data-tooltip-text="탈퇴된 순으로 정렬합니다. 전체 데이터를 출력합니다.">
+        <a href="?sst=mb_leave_date&amp;sod=desc&amp;sfl=&amp;stx=" class="btn_ov01"
+            data-tooltip-text="탈퇴된 순으로 정렬합니다. 전체 데이터를 출력합니다.">
             <span class="ov_txt">탈퇴 </span>
             <span class="ov_num">1명</span>
         </a>
@@ -50,7 +52,8 @@
         </p>
     </div>
 
-    <form name="fmemberlist" id="fmemberlist" action="./member_list_update.php" onsubmit="return fmemberlist_submit(this);" method="post">
+    <form name="fmemberlist" id="fmemberlist" action="./member_list_update.php"
+        onsubmit="return fmemberlist_submit(this);" method="post">
         <input type="hidden" name="sst" value="mb_datetime">
         <input type="hidden" name="sod" value="desc">
         <input type="hidden" name="sfl" value="">
@@ -67,38 +70,67 @@
                             <label for="chkall" class="sound_only">회원 전체</label>
                             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
                         </th>
-                        <th scope="col" id="mb_list_id" colspan="2"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_id&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">아이디</a></th>
-                        <th scope="col" rowspan="2" id="mb_list_cert"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_certify&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">본인확인</a></th>
-                        <th scope="col" id="mb_list_mailc"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_email_certify&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">메일인증</a></th>
-                        <th scope="col" id="mb_list_open"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_open&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">정보공개</a></th>
-                        <th scope="col" id="mb_list_mailr"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_mailling&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">메일수신</a></th>
+                        <th scope="col" id="mb_list_id" colspan="2"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_id&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">아이디</a>
+                        </th>
+                        <th scope="col" rowspan="2" id="mb_list_cert"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_certify&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">본인확인</a>
+                        </th>
+                        <th scope="col" id="mb_list_mailc"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_email_certify&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">메일인증</a>
+                        </th>
+                        <th scope="col" id="mb_list_open"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_open&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">정보공개</a>
+                        </th>
+                        <th scope="col" id="mb_list_mailr"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_mailling&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">메일수신</a>
+                        </th>
                         <th scope="col" id="mb_list_auth">상태</th>
                         <th scope="col" id="mb_list_mobile">휴대폰</th>
-                        <th scope="col" id="mb_list_lastcall"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_today_login&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">최종접속</a></th>
+                        <th scope="col" id="mb_list_lastcall"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_today_login&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">최종접속</a>
+                        </th>
                         <th scope="col" id="mb_list_grp">접근그룹</th>
                         <th scope="col" rowspan="2" id="mb_list_mng">관리</th>
                     </tr>
                     <tr>
-                        <th scope="col" id="mb_list_name"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_name&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">이름</a></th>
-                        <th scope="col" id="mb_list_nick"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_nick&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">닉네임</a></th>
-                        <th scope="col" id="mb_list_sms"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_sms&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">SMS수신</a></th>
-                        <th scope="col" id="mb_list_adultc"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_adult&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">성인인증</a></th>
-                        <th scope="col" id="mb_list_auth"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_intercept_date&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">접근차단</a></th>
-                        <th scope="col" id="mb_list_deny"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_level&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">권한</a></th>
+                        <th scope="col" id="mb_list_name"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_name&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">이름</a>
+                        </th>
+                        <th scope="col" id="mb_list_nick"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_nick&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">닉네임</a>
+                        </th>
+                        <th scope="col" id="mb_list_sms"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_sms&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">SMS수신</a>
+                        </th>
+                        <th scope="col" id="mb_list_adultc"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_adult&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">성인인증</a>
+                        </th>
+                        <th scope="col" id="mb_list_auth"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_intercept_date&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">접근차단</a>
+                        </th>
+                        <th scope="col" id="mb_list_deny"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_level&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">권한</a>
+                        </th>
                         <th scope="col" id="mb_list_tel">전화번호</th>
-                        <th scope="col" id="mb_list_join"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_datetime&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">가입일</a></th>
-                        <th scope="col" id="mb_list_point"><a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_point&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca="> 포인트</a></th>
+                        <th scope="col" id="mb_list_join"><a
+                                href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_datetime&amp;sod=asc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">가입일</a>
+                        </th>
+                        <th scope="col" id="mb_list_point">
+                            <a href="http://127.0.0.1/g5-update/adm/member_list.php?sst=mb_point&amp;sod=desc&amp;sfl=&amp;stx=&amp;page=2&amp;sca=">포인트</a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg0">
+                    {% for member in members %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
                         <td headers="mb_list_chk" class="td_chk" rowspan="2">
                             <input type="hidden" name="mb_id[6]" value="admin" id="mb_id_6">
                             <label for="chk_6" class="sound_only">최고관리자 최고관리자님</label>
                             <input type="checkbox" name="chk[]" value="6" id="chk_6">
                         </td>
                         <td headers="mb_list_id" colspan="2" class="td_name sv_use">
-                            admin <div class="member_social_provider sns-wrap-over sns-wrap-32"><span class="sns-icon sns-kakao" title="카카오"><span class="ico"></span><span class="txt">카카오</span></span></div>
+                            {{ member.mb_id }}
                         </td>
                         <td headers="mb_list_cert" rowspan="2" class="td_mbcert">
                             <input type="radio" name="mb_certify[6]" value="simple" id="mb_certify_sa_6">
@@ -122,14 +154,70 @@
                         <td headers="mb_list_mobile" class="td_tel"></td>
                         <td headers="mb_list_lastcall" class="td_date">24-08-23</td>
                         <td headers="mb_list_grp" class="td_numsmall"></td>
-                        <td headers="mb_list_mng" rowspan="2" class="td_mng td_mng_s"><a href="./member_form.php?sst=&amp;sod=&amp;sfl=&amp;stx=&amp;page=2&amp;w=u&amp;mb_id=admin" class="btn btn_03">수정</a><a href="./boardgroupmember_form.php?mb_id=admin" class="btn btn_02">그룹</a></td>
+                        <td headers="mb_list_mng" rowspan="2" class="td_mng td_mng_s">
+                            <a href="{{ url_for('member.view', {mb_id: member.mb_id}) }}" class="btn btn_03">수정</a>
+                            <a href="./boardgroupmember_form.php?mb_id=admin" class="btn btn_02">그룹</a>
+                        </td>
                     </tr>
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                        <td headers="mb_list_name" class="td_mbname">{{ member.mb_name }}</td>
+                        <td headers="mb_list_nick" class="td_name sv_use">
+                            <div>
+                                <span class="sv_wrap">
+                                    <a href="http://127.0.0.1/g5-update/bbs/profile.php?mb_id=admin"
+                                        class="sv_member" title="{{ member.mb_nick }} 자기소개" target="_blank" rel="nofollow"
+                                        onclick="return false;">
+                                        <span class="profile_img">
+                                            <img src="http://127.0.0.1/g5-update/data/member/ad/admin.gif?1722411276" width="22" height="22" alt="">
+                                        </span> {{ member.mb_nick }}
+                                    </a>
+                                </span>
+                            </div>
+                        </td>
+
+                        <td headers="mb_list_sms">
+                            <label for="mb_sms_6" class="sound_only">SMS수신</label>
+                            <input type="checkbox" name="mb_sms[6]" value="1" id="mb_sms_6">
+                        </td>
+                        <td headers="mb_list_adultc">
+                            <label for="mb_adult_6" class="sound_only">성인인증</label>
+                            <input type="checkbox" name="mb_adult[6]" value="1" id="mb_adult_6">
+                        </td>
+                        <td headers="mb_list_deny">
+                            <input type="checkbox" name="mb_intercept_date[6]" value="20240826" id="mb_intercept_date_6"
+                                title="차단하기">
+                            <label for="mb_intercept_date_6" class="sound_only">접근차단</label>
+                        </td>
+                        <td headers="mb_list_auth" class="td_mbstat">
+
+                            <select id="mb_level[6]" name="mb_level[6]">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10" selected="selected">10</option>
+                            </select>
+                        </td>
+                        <td headers="mb_list_tel" class="td_tel"></td>
+                        <td headers="mb_list_join" class="td_date">22-12-21</td>
+                        <td headers="mb_list_point" class="td_num"><a
+                                href="point_list.php?sfl=mb_id&amp;stx=admin">8,906</a></td>
+
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="btn_fixed_top">
-            <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
-            <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
+            <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value"
+                class="btn btn_02">
+            <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
+                class="btn btn_02">
             <a href="{{ url_for('member.create') }}" id="member_add" class="btn btn_01">회원추가</a>
         </div>
     </form>
@@ -137,7 +225,8 @@
     <nav class="pg_wrap">
         <span class="pg">
             <a href="?sst=&amp;sod=&amp;sfl=&amp;stx=&amp;page=1" class="pg_page pg_start">처음</a>
-            <a href="?sst=&amp;sod=&amp;sfl=&amp;stx=&amp;page=1" class="pg_page">1<span class="sound_only">페이지</span></a>
+            <a href="?sst=&amp;sod=&amp;sfl=&amp;stx=&amp;page=1" class="pg_page">1<span
+                    class="sound_only">페이지</span></a>
             <span class="sound_only">열린</span>
             <strong class="pg_current">2</strong>
             <span class="sound_only">페이지</span>
