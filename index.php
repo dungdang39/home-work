@@ -22,10 +22,11 @@ require __DIR__ . '/vendor/autoload.php';
 
 //gnuboard 로딩
 $g5_path = g5_root_path();
+$g5_path['path'] = __DIR__;
 require_once(__DIR__ . '/config.php');   // 설정 파일
 
 include_once(G5_LIB_PATH.'/hook.lib.php');    // hook 함수 파일
-include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
+include_once(G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
 
 //-------------------------
 

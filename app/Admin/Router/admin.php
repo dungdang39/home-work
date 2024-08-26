@@ -12,6 +12,8 @@ use App\Banner\Controller\BannerController;
 use App\Member\Controller\MemberConfigController;
 use App\Member\Controller\MemberController;
 use App\Popup\Controller\PopupController;
+use App\Qa\Controller\QaConfigController;
+use App\Qa\Controller\QaController;
 use Core\Middleware\AdminMenuAuthMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
@@ -117,10 +119,27 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('member.view');
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
-            })->add(AdminMenuAuthMiddleware::class);
-
-            
+            })->add(AdminMenuAuthMiddleware::class);            
         });
+
+        // 1:1문의
+        $group->group('/qa', function (RouteCollectorProxy $group) {
+            // 설정
+            $group->group('/config', function (RouteCollectorProxy $group) {
+                $group->get('', [QaConfigController::class, 'index'])->setName('qa-config.index');
+                $group->post('', [QaConfigController::class, 'update'])->setName('qa-config.update');
+            });
+
+            $group->group('', function (RouteCollectorProxy $group) {
+                $group->get('', [QaController::class, 'index'])->setName('qa.index');
+                $group->get('/create', [QaController::class, 'create'])->setName('qa.create');
+                $group->post('', [QaController::class, 'insert'])->setName('qa.insert');
+                $group->get('/{qa_id}', [QaController::class, 'view'])->setName('qa.view');
+                $group->post('/{qa_id}', [QaController::class, 'update'])->setName('qa.update');
+                $group->delete('/{qa_id}', [QaController::class, 'delete'])->setName('qa.delete');
+            });
+            
+        })->add(AdminMenuAuthMiddleware::class);
     })
         ->add(AdminMenuMiddleware::class)
         ->add(LoginAuthMiddleware::class);
