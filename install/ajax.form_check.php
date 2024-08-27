@@ -4,6 +4,8 @@ use League\Plates\Engine;
 
 use Core\Database\Db;
 use Install\InstallValidateService;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -14,8 +16,9 @@ include_once('../lib/common.lib.php');    // 공통 라이브러리
 include_once('../lib/hook.lib.php');    // hook 함수 파일
 include_once('../lib/get_data.lib.php');    // 데이터 가져오는 함수 모음
 
-$templates = new Engine('./template');
-$validate_service = new InstallValidateService($templates);
+$loader = new FilesystemLoader(dirname(__DIR__, 1) . "/install/template/");
+$twig = new Environment($loader);
+$validate_service = new InstallValidateService($twig);
 
 if ($validate_service->isInstalled()) {
     die(install_json_msg('프로그램이 이미 설치되어 있습니다.'));

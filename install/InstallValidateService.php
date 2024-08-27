@@ -2,7 +2,7 @@
 
 namespace Install;
 
-use League\Plates\Engine;
+use Twig\Environment;
 
 /**
  * 설치전 검사 서비스 클래스
@@ -18,7 +18,7 @@ class InstallValidateService
     private string $data_path;
     private string $version;
 
-    public function __construct(Engine $templates)
+    public function __construct(Environment $templates)
     {
         $this->templates = $templates;
         $this->data_dir = G5_DATA_DIR;
@@ -38,20 +38,20 @@ class InstallValidateService
             "data_dir" => $this->data_dir,
         ];
         if ($this->isInstalled()) {
-            return $this->templates->render("error/installed", $error_data);
+            return $this->templates->render("error/installed.html", $error_data);
         }
         if (!$this->isDataDirExists()) {
-            return $this->templates->render("error/data_directory", $error_data);
+            return $this->templates->render("error/data_directory.html", $error_data);
         }
         if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             $sapi_type = php_sapi_name();
             if (substr($sapi_type, 0, 3) == 'cgi') {
                 if (!$this->isDataDirWritableFromCgi()) {
-                    return $this->templates->render("error/permission_705", $error_data);
+                    return $this->templates->render("error/permission_705.html", $error_data);
                 }
             } else {
                 if (!$this->isDataDirWritable()) {
-                    return $this->templates->render("error/permission_707", $error_data);
+                    return $this->templates->render("error/permission_707.html", $error_data);
                 }
             }
         }

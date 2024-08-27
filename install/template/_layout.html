@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ko">
-
 <head>
     <meta charset="utf-8">
-    <title><?=$this->e($title)?></title>
-    <link rel="stylesheet" href="css/install.css">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{{ base_url }}/install/css/install.css?ver=240827">
+    {% block head %}{% endblock head %}
 </head>
 
 <body>
@@ -14,7 +14,7 @@
         <span id="bar_txt">INSTALLATION</span>
     </div>
 
-    <?=$this->section('content')?>
+    {% block content %}{% endblock content %}
 
     <div id="ins_ft">
         <strong>GNUBOARD</strong>

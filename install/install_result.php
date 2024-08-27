@@ -2,6 +2,8 @@
 
 use League\Plates\Engine;
 use Install\InstallValidateService;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -18,7 +20,10 @@ $g5_path['path'] = '..';
 include_once('../config.php');
 include_once('./install.function.php');
 
-$templates = new Engine('./template');
+$loader = new FilesystemLoader(dirname(__DIR__, 1) . "/install/template/");
+$twig = new Environment($loader);
+$root_path = g5_root_path(false, 1);
+$twig->addGlobal('base_url', $root_path['url']);
 $validate_service = new InstallValidateService($templates);
 
 // 설치 가능 여부 체크

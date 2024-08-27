@@ -1,7 +1,8 @@
 <?php
 
-use League\Plates\Engine;
 use Install\InstallValidateService;
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -12,8 +13,11 @@ require __DIR__ . '/../vendor/autoload.php';
 $g5_path['path'] = '..';
 include_once('../config.php');
 
-$templates = new Engine('./template');
-$validate_service = new InstallValidateService($templates);
+$loader = new FilesystemLoader(dirname(__DIR__, 1) . "/install/template/");
+$twig = new Environment($loader);
+$root_path = g5_root_path(false, 1);
+$twig->addGlobal('base_url', $root_path['url']);
+$validate_service = new InstallValidateService($twig);
 
 // 설치 가능 여부 체크
 $error = $validate_service->validateInstall();
@@ -23,7 +27,7 @@ if ($error) {
 }
 // GD 라이브러리 체크
 if (!$validate_service->isGdLibraryExists()) {
-    echo $templates->render("error/gd_library", ["version" => G5_VERSION]);
+    echo $twig->render("error/gd_library.html", ["version" => G5_VERSION]);
 }
 
 // 라이센스 동의 폼 출력
@@ -32,4 +36,4 @@ $response_data = [
     "version" => G5_VERSION,
     "license" => $license,
 ];
-echo $templates->render('index', $response_data);
+echo $twig->render('index.html', $response_data);

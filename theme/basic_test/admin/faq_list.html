@@ -1,0 +1,54 @@
+{% extends "/admin/_layout.html" %}
+
+{% block content %}
+<h1 id="container_title">FAQ관리</h1>
+<div class="container_wr">
+    <div class="local_ov01 local_ov">
+        <span class="btn_ov01"><span class="ov_txt"> 전체 FAQ </span><span class="ov_num"> 1건</span></span>
+    </div>
+
+    <div class="local_desc01 local_desc">
+        <ol>
+            <li>FAQ는 무제한으로 등록할 수 있습니다</li>
+            <li><strong>FAQ추가</strong>를 눌러 FAQ Master를 생성합니다. (하나의 FAQ 타이틀 생성 : 자주하시는 질문, 이용안내..등 )</li>
+            <li>생성한 FAQ Master 의 <strong>제목</strong>을 눌러 세부 내용을 관리할 수 있습니다.</li>
+        </ol>
+    </div>
+
+    <div class="btn_fixed_top">
+        <a href="./faqmasterform.php" class="btn_01 btn">FAQ추가</a>
+    </div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>FAQ관리 목록</caption>
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">FAQ수</th>
+                    <th scope="col">순서</th>
+                    <th scope="col">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg0">
+                    <td class="td_num">1</td>
+                    <td class="td_left"><a href="./faqlist.php?fm_id=1&amp;fm_subject=2133123">2133123</a></td>
+                    <td class="td_num">1</td>
+                    <td class="td_num">1</td>
+                    <td class="td_mng td_mng_l">
+                        <a href="./faqmasterform.php?w=u&amp;fm_id=1" class="btn btn_03"><span
+                                class="sound_only">2133123 </span>수정</a>
+                        <a href="http://127.0.0.1/g5-update/bbs/faq.php?fm_id=1" class="btn btn_02"><span
+                                class="sound_only">2133123 </span>보기</a>
+                        <a href="./faqmasterformupdate.php?w=d&amp;fm_id=1" onclick="return delete_confirm(this);"
+                            class="btn btn_02"><span class="sound_only">2133123 </span>삭제</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content $}

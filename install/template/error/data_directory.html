@@ -1,5 +1,7 @@
-<?php $this->layout('_layout', ['title' => $version . " 설치 오류"]) ?>
+{% extends "/_layout.html" %}
+{% block title %}{{ version }} 설치 오류{% endblock %}
 
+{% block content %}
 <div class="ins_inner">
     <p>
         루트 디렉토리에 아래로 <?=$this->e($data_dir)?> 디렉토리를 생성하여 주십시오.<br />
@@ -9,3 +11,4 @@
         위 명령 실행후 브라우저를 새로고침 하십시오.
     </p>
 </div>
+{% endblock content %}

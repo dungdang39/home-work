@@ -1,0 +1,14 @@
+{% extends "/_layout.html" %}
+{% block title %}{{ version }} 설치 오류{% endblock %}
+
+{% block content %}
+
+<div class="ins_inner">
+    <p>
+        {{ data_dir }} 디렉토리의 퍼미션을 705로 변경하여 주십시오.<br /><br />
+        $> chmod 705 {{ data_dir }} 또는 chmod uo+rx {{ data_dir }}<br /><br />
+        위 명령 실행후 브라우저를 새로고침 하십시오.
+    </p>
+</div>
+
+{% endblock content %}

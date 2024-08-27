@@ -2,7 +2,7 @@
 /* SIR 지운아빠 */
 
 /* 공통 */
-body {margin:0;padding:0;background:url('img/pat01.png') #edf0f4;font-size:0.75em;font-family:dotum,helvetica}
+body {margin:0;padding:0;background:url('../img/pat01.png') #edf0f4;font-size:0.75em;font-family:dotum,helvetica}
 input, img, select, button {font-size:1em;vertical-align:middle}
 label {vertical-align:middle}
 

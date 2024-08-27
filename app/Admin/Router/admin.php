@@ -99,17 +99,15 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('/config', function (RouteCollectorProxy $group) {
                 $group->get('', [MemberConfigController::class, 'index'])->setName('member-config.index');
                 $group->post('', [MemberConfigController::class, 'update'])->setName('member-config.update');
-            })->add(AdminMenuAuthMiddleware::class);
+            });
 
             // 회원 포인트관리
             $group->group('/point', function (RouteCollectorProxy $group) {
-                $group->get('[/{mb_id}]', [MemberController::class, 'index'])->setName('point.index');
-                // $group->get('/create', [MemberController::class, 'create'])->setName('member.create');
-                // $group->post('', [MemberController::class, 'insert'])->setName('member.insert');
-                // $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('member.view');
-                // $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
-                // $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
-            })->add(AdminMenuAuthMiddleware::class);
+                $group->get('[/{po_id}]', [MemberController::class, 'index'])->setName('point.index');
+                $group->post('', [MemberController::class, 'insert'])->setName('point.insert');
+                $group->post('/{po_id}', [MemberController::class, 'update'])->setName('point.update');
+                $group->delete('/{po_id}', [MemberController::class, 'delete'])->setName('point.delete');
+            });
 
             // 회원관리
             $group->group('', function (RouteCollectorProxy $group) {
@@ -119,10 +117,10 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('member.view');
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('member.update');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('member.delete');
-            })->add(AdminMenuAuthMiddleware::class);            
-        });
+            });
+        })->add(AdminMenuAuthMiddleware::class);
 
-        // 1:1문의
+        // 회원 > 1:1문의
         $group->group('/qa', function (RouteCollectorProxy $group) {
             // 설정
             $group->group('/config', function (RouteCollectorProxy $group) {
@@ -130,6 +128,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [QaConfigController::class, 'update'])->setName('qa-config.update');
             });
 
+            // 1:1문의 내용 (미구현)
             $group->group('', function (RouteCollectorProxy $group) {
                 $group->get('', [QaController::class, 'index'])->setName('qa.index');
                 $group->get('/create', [QaController::class, 'create'])->setName('qa.create');
@@ -139,6 +138,26 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->delete('/{qa_id}', [QaController::class, 'delete'])->setName('qa.delete');
             });
             
+        })->add(AdminMenuAuthMiddleware::class);
+
+        // 컨텐츠 > 컨텐츠 관리
+        $group->group('/content', function (RouteCollectorProxy $group) {
+            $group->get('', [QaController::class, 'index'])->setName('content.index');
+            $group->get('/create', [QaController::class, 'create'])->setName('content.create');
+            $group->post('', [QaController::class, 'insert'])->setName('content.insert');
+            $group->get('/{co_id}', [QaController::class, 'view'])->setName('content.view');
+            $group->post('/{co_id}', [QaController::class, 'update'])->setName('content.update');
+            $group->delete('/{co_id}', [QaController::class, 'delete'])->setName('content.delete');
+        })->add(AdminMenuAuthMiddleware::class);
+
+        // 컨텐츠 > FAQ 관리
+        $group->group('/faq', function (RouteCollectorProxy $group) {
+            $group->get('', [QaController::class, 'index'])->setName('faq.index');
+            $group->get('/create', [QaController::class, 'create'])->setName('faq.create');
+            $group->post('', [QaController::class, 'insert'])->setName('faq.insert');
+            $group->get('/{fa_id}', [QaController::class, 'view'])->setName('faq.view');
+            $group->post('/{fa_id}', [QaController::class, 'update'])->setName('faq.update');
+            $group->delete('/{fa_id}', [QaController::class, 'delete'])->setName('faq.delete');
         })->add(AdminMenuAuthMiddleware::class);
     })
         ->add(AdminMenuMiddleware::class)
