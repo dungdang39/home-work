@@ -6,11 +6,10 @@ use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
+use Core\Environment;
 use Core\Extension\CsrfExtension;
 use DI\Container;
-use Dotenv\Dotenv;
-use Dotenv\Repository\RepositoryBuilder;
-use Dotenv\Repository\Adapter\EnvConstAdapter;
+use Dotenv\Exception\InvalidPathException;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
@@ -37,14 +36,9 @@ $displayErrorDetails = true;
 // Start PHP session
 session_start();
 
-// Load environment variables from .env file
-// 환경변수 노출 위험으로 인해 $_ENV 전역변수만 사용하도록 설정
-if (file_exists(__DIR__ . '/.env')) {
-    $repository_builder = RepositoryBuilder::createWithNoAdapters();
-    $repository_builder = $repository_builder->addAdapter(EnvConstAdapter::class);
-    $repository = $repository_builder->immutable()->make();
-    $dotenv = Dotenv::create($repository, __DIR__);
-    $dotenv->load();
+if (!file_exists(__DIR__ . '/.env')) {
+    header('Location: install/index.php');
+    exit;
 }
 
 /**
@@ -67,19 +61,29 @@ $container->set('csrf', function () use ($responseFactory) {
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
 
-// Create Twig & Setting theme path
-$config_service = new ConfigService();
-$theme_service = new ThemeService();
+// Twig & 테마경로 설정
+try {
+    // .env 파일에서 환경 변수 로드
+    Environment::load(__DIR__, ["only_env" => true]);
 
-$theme_base_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
-$theme_service->setBaseDir($theme_base_dir);
+    $theme_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
+    ThemeService::setBaseDir($theme_dir);
 
-$theme = $config_service->getTheme();
-if (!$theme_service->existsTheme($theme)) {
-    $theme = ThemeService::DEFAULT_THEME;
+    $config_service = new ConfigService();
+    $theme_service = new ThemeService();
+    $theme = $config_service->getTheme();
+    if (!$theme_service->existsTheme($theme)) {
+        $theme = ThemeService::DEFAULT_THEME;
+    }
+
+    $template_dir = $theme_dir . '/' . $theme;
+    $template_dir = str_replace('\\', '/', $template_dir);
+
+} catch (InvalidPathException $e) {
+    
 }
 
-$twig = Twig::create($theme_base_dir . '/' . $theme, ['cache' => false]);
+$twig = Twig::create($template_dir, ['cache' => false]);
 $twig->addExtension(new HtmlExtension());
 $twig->addExtension(new CsrfExtension($container->get('csrf')));
 
@@ -119,7 +123,7 @@ $errorMiddleware->setDefaultErrorHandler($errorHandler);
 $path = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
 $app->setBasePath("{$path}/");
 
-// Include all Routers for the requested API version.
+// Include all Routers in the app
 $routerFiles = glob(__DIR__ . "/app/*/Router/*.php");
 foreach ($routerFiles as $routerFile) {
     include_once $routerFile;

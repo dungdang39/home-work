@@ -2,11 +2,11 @@
 
 namespace Core\Middleware;
 
-use API\Exceptions\HttpNotFoundException;
 use App\Config\ConfigService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Exception;
 
 /**
  * Config Middleware
@@ -25,7 +25,7 @@ class ConfigMiddleware
         $config = $this->config_service->getConfig();
 
         if (!$config) {
-            throw new HttpNotFoundException($request, 'Config not found.');
+            throw new Exception('Config not found.');
         }
 
         $request = $request->withAttribute('config', $config);

@@ -11,7 +11,7 @@ class DbConnectResolver
     public static function resolve(array $connect_params = []): DbConnect
     {
         if (empty($params)) {
-            $connection = $_ENV['DB_CONNECTION'];
+            $connection = $_ENV['DB_CONNECTION'] ?? '';
             $connect_params = [
                 'host' => $_ENV['DB_HOST'] ?? '',
                 'dbname' => $_ENV['DB_DATABASE'] ?? '',

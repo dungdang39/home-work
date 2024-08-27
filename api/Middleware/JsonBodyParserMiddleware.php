@@ -33,7 +33,7 @@ class JsonBodyParserMiddleware implements MiddlewareInterface
             if (json_last_error() === JSON_ERROR_NONE) {
                 $request = $request->withParsedBody($contents);
             } else {
-                throw new  HttpBadRequestException($request, 'Invalid JSON');
+                throw new HttpBadRequestException($request, 'Invalid JSON');
             }
         }
 

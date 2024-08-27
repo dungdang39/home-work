@@ -19,15 +19,18 @@ class ConfigService
     public function getConfig()
     {
         if (empty($this->config)) {
-            $this->config = $this->fetchConfig();
+            $this->config = $this->fetchConfig() ?: [];
         }
-
         return $this->config;
     }
 
     public function getTheme(): string
     {
-        return $this->getConfig()['cf_theme'] ?: ThemeService::DEFAULT_THEME;
+        $config = $this->getConfig();
+        if (empty($config)) {
+            return ThemeService::DEFAULT_THEME;
+        }
+        return $config['cf_theme'];
     }
 
     public function fetchConfig()
@@ -40,5 +43,13 @@ class ConfigService
     public function update(array $data): int
     {
         return Db::getInstance()->update($this->table, $data);
+    }
+
+    /**
+     * 설정 캐시를 초기화합니다.
+     */
+    public function clearCache(): void
+    {
+        $this->config = [];
     }
 }
