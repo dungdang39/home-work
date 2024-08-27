@@ -2,9 +2,7 @@
 
 namespace Core\Database;
 
-use API\Exceptions\DbConnectException;
 use PDO;
-use PDOException;
 use Exception;
 
 /**
@@ -21,25 +19,8 @@ class Db
     private $pdo;
 
     public function __construct(
-        $driver = 'mysql',
-        $host = '',
-        $dbname = null,
-        $user = null,
-        $password = null
     ) {
-        $db_settings = [
-            'driver' => $driver,
-            'host' => $host ?? (isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : ''),
-            'dbname' => $dbname ?? (isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : ''),
-            'user' => $user ?? (isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : ''),
-            'password' => $password ?? (isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : ''),
-        ];
-        $this->pdo = self::createPdoInstance($db_settings);
-
-        //mysql 0000 허용
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' || $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mariadb') {
-            $this->pdo->exec("SET SESSION sql_mode = 'ALLOW_INVALID_DATES'");
-        }
+        $this->pdo = DbConnectResolver::resolve()->createConnection();
     }
 
     public static function getInstance()
@@ -209,7 +190,6 @@ class Db
         return $stmt->rowCount();
     }
 
-
     /**
      * 마지막 실행된 쿼리를 로그파일에 기록.
      * @param $stmt
@@ -223,23 +203,6 @@ class Db
         $paramInfo = ob_get_clean();
         //@todo app에서 관리하는 로깅으로 변경필요.
         error_log("Parameter info: \n" . $paramInfo);
-    }
-
-    /**
-     * 데이터베이스 연결을 테스트.
-     * @param array $db_settings
-     * @return array
-     */
-    public static function testConnection($db_settings): array
-    {
-        try {
-            $pdo = self::createPdoInstance($db_settings);
-            $pdo->query('SELECT 1');
-
-            return ['success' => true, 'message' => 'Database connection is successful.'];
-        } catch (Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
-        }
     }
 
     /**
@@ -258,26 +221,19 @@ class Db
     }
 
     /**
-     * PDO 객체 생성.
+     * 데이터베이스 연결을 테스트.
      * @param array $db_settings
-     * @return PDO
-     * @throws DbConnectException
+     * @return array
      */
-    private static function createPdoInstance(array $db_settings)
+    public static function testConnection(array $db_settings): array
     {
         try {
-            return new PDO(
-                "{$db_settings['driver']}:host={$db_settings['host']};dbname={$db_settings['dbname']}",
-                $db_settings['user'],
-                $db_settings['password'],
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_EMULATE_PREPARES => 0,  // PHP 8.4 부터는 bool 타입이나. 암시적 형변환되어 0이면 false로 인식됨.
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                ]
-            );
-        } catch (PDOException $e) {
-            throw new DbConnectException("Database connection failed: " . $e->getMessage(), -1);
+            $pdo = DbConnectResolver::resolve($db_settings)->createConnection();
+            $pdo->query('SELECT 1');
+
+            return ['success' => true, 'message' => 'Database connection is successful.'];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 }
