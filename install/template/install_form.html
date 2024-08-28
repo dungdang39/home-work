@@ -1,9 +1,8 @@
 {% extends "/_layout.html" %}
-{% block title %}{{ version }} 초기환경설정 2/3{% endblock %}
+{% block title %}{{ app_name }} 초기환경설정 2/3{% endblock %}
 
 {% block content %}
-
-<form id="frm_install" method="post" action="./install_result.php" autocomplete="off" onsubmit="return frm_install_submit(this)">
+<form id="frm_install" method="post" action="./install_result.php" autocomplete="off" onsubmit="return validate_form(this)">
 
     <div class="ins_inner">
         <table class="ins_frm">
@@ -19,36 +18,36 @@
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_user">User</label></th>
-                    <td><input name="mysql_user" type="text" id="mysql_user" required value="kjh"></td>
+                    <td><input name="mysql_user" type="text" id="mysql_user" required value=""></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_pass">Password</label></th>
-                    <td><input name="mysql_pass" type="text" id="mysql_pass" value="1234"></td>
+                    <td><input name="mysql_pass" type="text" id="mysql_pass" value=""></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_db">DB</label></th>
-                    <td><input name="mysql_db" type="text" id="mysql_db" required value="gnuboard7"></td>
+                    <td><input name="mysql_db" type="text" id="mysql_db" required value=""></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="table_prefix">TABLE명 접두사</label></th>
+                    <th scope="row"><label for="table_prefix">TABLE 접두사</label></th>
                     <td>
-                        <input name="table_prefix" type="text" value="g5_" id="table_prefix">
+                        <input name="table_prefix" type="text" value="new_" id="table_prefix">
                         <span>TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="shop_table_prefix">쇼핑몰TABLE명 접두사</label></th>
+                    <th scope="row"><label for="shop_table_prefix">영카트 TABLE 접두사</label></th>
                     <td>
-                        <input name="shop_table_prefix" type="text" value="g5_shop_" id="shop_table_prefix">
+                        <input name="shop_table_prefix" type="text" value="new_shop_" id="shop_table_prefix">
                         <span>쇼핑몰TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="reinstall">{{ version }} 재설치</label></th>
+                    <th scope="row"><label for="reinstall">{{ app_name ~ version }} 재설치</label></th>
                     <td><input name="reinstall" type="checkbox" value="1" id="reinstall"> 재설치</td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="shop_install">쇼핑몰설치</label></th>
+                    <th scope="row"><label for="shop_install">영카트 설치</label></th>
                     <td><input name="shop_install" type="checkbox" value="1" id="shop_install"> 설치</td>
                 </tr>
             </tbody>
@@ -94,7 +93,7 @@
 
 <script src="{{ base_url }}/js/jquery-1.8.3.min.js"></script>
 <script>
-    function frm_install_submit(f) {
+    function validate_form(f) {
         const requiredFields = [
             { field: f.mysql_host, message: 'MySQL Host 를 입력하십시오.' },
             { field: f.mysql_user, message: 'MySQL User 를 입력하십시오.' },

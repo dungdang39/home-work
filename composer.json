@@ -10,7 +10,6 @@
         "doctrine/annotations": "^2.0",
         "php-di/php-di": "^6.4",
         "ext-pdo": "*",
-        "league/plates": "^3.5",
         "slim/twig-view": "^3.4",
         "twig/html-extra": "^3.11",
         "slim/csrf": "^1.5"

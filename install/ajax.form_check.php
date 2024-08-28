@@ -1,7 +1,5 @@
 <?php
 
-use League\Plates\Engine;
-
 use Core\Database\Db;
 use Install\InstallValidateService;
 use Twig\Environment;

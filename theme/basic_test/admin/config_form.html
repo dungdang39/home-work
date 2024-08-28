@@ -32,26 +32,34 @@
                         <tr>
                             <th scope="row"><label for="cf_site_title">사이트 제목<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <span class="frm_info">브라우저 탭에 표시되는 이름입니다.</span>                           
+                                <span class="frm_info"> 
+                                    브라우저 탭 / 메일 발송 등에 표시되는 이름입니다.
+                                </span>
                                 <input type="text" name="cf_site_title" value="{{ config.cf_site_title }}" id="cf_site_title" class="required frm_input" size="40" required>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_site_description">사이트 설명</label></th>
-                            <td colspan="3">
+                            <td>
+                                <span class="frm_info"> 
+                                    사이트 설명을 간략하게 입력해 주세요. 검색 엔진에 제공하는 정보입니다.
+                                </span>
                                 <textarea name="cf_site_description" id="cf_site_description">{{ config.cf_site_description }}</textarea>
                             </td>
-                        </tr>
-                        <tr>
                             <th scope="row"><label for="cf_site_keyword">사이트 키워드</label></th>
-                            <td colspan="3">
-                                <span class="frm_info">쉼표나 탭으로 구분하여 입력하세요. 검색 엔진에 제공하는 메타 태그입니다.</span>
-                                <textarea name="cf_site_keyword" id="cf_site_keyword">{{ config.cf_site_keyword }}</textarea>
+                            <td>
+                                <span class="frm_info">
+                                    쉼표나 탭으로 구분하여 입력하세요. 검색 엔진에 제공하는 정보입니다.
+                                </span>
+                                <textarea name="cf_site_keyword" id="cf_site_keyword" >{{ config.cf_site_keyword }}</textarea>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_admin">최고관리자<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
+                                <span class="frm_info">
+                                    레벨10 회원을 최고관리자로 지정할 수 있습니다. 사이트의 모든 권한을 갖게 됩니다.
+                                </span>
                                 <select name="cf_admin" id="cf_admin" required>
                                     <option value="">선택안함</option>
                                 {% for admin in admins %}
@@ -65,13 +73,19 @@
                         <tr>
                             <th scope="row"><label for="cf_privacy_officer_name">개인정보관리책임자명<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <input type="text" name="cf_privacy_officer_name" value="{{ config.cf_privacy_officer_name }}" id="cf_privacy_officer_name" required="" class="required frm_input" size="40">
+                                <span class="frm_info">
+                                    사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자명입니다.
+                                </span>
+                                <input type="text" name="cf_privacy_officer_name" value="{{ config.cf_privacy_officer_name }}" id="cf_privacy_officer_name" required class="required frm_input" size="40">
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_privacy_officer_email">개인정보관리책임자명 메일 주소<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <input type="text" name="cf_privacy_officer_email" value="{{ config.cf_privacy_officer_email }}" id="cf_privacy_officer_email" required="" class="required email frm_input" size="40">
+                                <span class="frm_info">
+                                    사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자 이메일입니다.
+                                </span>
+                                <input type="text" name="cf_privacy_officer_email" value="{{ config.cf_privacy_officer_email }}" id="cf_privacy_officer_email" required class="required email frm_input" size="40">
                             </td>
                         </tr>
                         <!--
@@ -166,24 +180,20 @@
                             <th scope="row"><label for="cf_biz_zip_code">사업장 우편번호</label></th>
                             <td>
                                 <input type="text" name="cf_biz_zip_code" id="cf_biz_zip_code" class="frm_input" value="{{ config.cf_biz_zip_code }}">
-                                <button type="button" class="btn_frmline" onclick="win_zip('fconfigform', 'cf_biz_zip_code', 'cf_biz_address', 'cf_biz_address_detail', 'address_etc', '');">주소찾기</button><br>
+                                <button type="button" class="btn_frmline" onclick="win_zip('fconfigform', 'cf_biz_zip_code', 'cf_biz_address', 'cf_biz_address_detail', 'cf_biz_address_etc', '');">주소찾기</button><br>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_address">사업장 기본주소</label></th>
-                            <td><input type="text" name="cf_biz_address" id="cf_biz_address" class="frm_input" value="{{ config.cf_biz_address }}"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="address_etc">사업장 기타주소</label></th>
-                            <td><input type="text" name="address_etc" id="address_etc" class="frm_input" value="{{ config.address_etc }}"></td>
+                            <td><input type="text" name="cf_biz_address" id="cf_biz_address" class="frm_input" value="{{ config.cf_biz_address }}" placeholder="기본주소"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_address_detail">사업장 상세주소</label></th>
-                            <td><input type="text" name="cf_biz_address_detail" id="cf_biz_address_detail" class="frm_input" value="{{ config.cf_biz_address_detail }}"></td>
+                            <td><input type="text" name="cf_biz_address_detail" id="cf_biz_address_detail" class="frm_input" value="{{ config.cf_biz_address_detail }}" placeholder="상세주소"></td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="cf_reference_item">참고항목</label></th>
-                            <td><input type="text" name="cf_reference_item" id="cf_reference_item" class="frm_input" value="{{ config.cf_reference_item }}"></td>
+                            <th scope="row"><label for="cf_biz_address_etc">참고항목</label></th>
+                            <td><input type="text" name="cf_biz_address_etc" id="cf_biz_address_etc" class="frm_input" value="{{ config.cf_biz_address_etc }}" readonly></td>
                         </tr>
                     </tbody>
                 </table>

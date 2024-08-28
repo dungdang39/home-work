@@ -29,7 +29,7 @@ class UpdateConfigRequest
     public string $cf_biz_zip_code = '';
     public string $cf_biz_address = '';
     public ?string $cf_biz_address_detail = null;
-    public ?string $cf_reference_item = null;
+    public ?string $cf_biz_address_etc = null;
     public string $cf_possible_ip = '';
     public string $cf_intercept_ip = '';
     public string $cf_add_script = '';

@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `new_config` (
   `cf_biz_zip_code` varchar(10) NOT NULL DEFAULT '',
   `cf_biz_address` varchar(255) NOT NULL DEFAULT '',
   `cf_biz_address_detail` varchar(255) DEFAULT NULL,
-  `cf_reference_item` varchar(255) DEFAULT NULL,
+  `cf_biz_address_etc` varchar(255) DEFAULT NULL,
   `cf_possible_ip` text NOT NULL,
   `cf_intercept_ip` text NOT NULL,
   `cf_add_script` text NOT NULL,

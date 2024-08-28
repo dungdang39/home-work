@@ -64,7 +64,7 @@ class ThemeService
                 }
 
                 return (
-                    is_file($theme_dir . '/index.php')
+                    is_file($theme_dir . '/index.html')
                     && is_file($theme_dir . '/readme.txt')
                 );
             }

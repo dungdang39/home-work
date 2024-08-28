@@ -2,6 +2,7 @@
 
 namespace Core\Database;
 
+use Core\AppConfig;
 use PDO;
 use Exception;
 
@@ -74,7 +75,7 @@ class Db
     {
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
-        if (G5_DEBUG) {
+        if (AppConfig::getInstance()->get('DEBUG')) {
             $this->logging_last_stmt($stmt);
         }
         return $stmt;

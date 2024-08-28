@@ -1,14 +1,14 @@
 {% extends "/_layout.html" %}
-{% block title %}{{ version }} 설치 3/3{% endblock %}
+{% block title %}{{ app_name }} 설치 3/3{% endblock %}
 
 {% block content %}
 
 <div class="ins_inner">
-    <h2>{{ version }} 설치가 시작되었습니다.</h2>
+    <h2>{{ app_name ~ version }} 설치가 시작되었습니다.</h2>
     <ol id="progress">
     </ol>
 
-    <p id="complete">축하합니다. {{ version }} 설치가 완료되었습니다.</p>
+    <p id="complete">축하합니다. {{ app_name ~ version }} 설치가 완료되었습니다.</p>
 </div>
 
 <div class="ins_inner" id="notice">

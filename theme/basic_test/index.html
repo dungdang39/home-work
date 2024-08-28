@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to Slim!</title>
+</head>
+<body>
+    <h1>{{ name }}</h1>
+    <button id="btn">관리자 로그인페이지로 이동</button>
+</body>
+<script>
+    document.getElementById('btn').addEventListener('click', function() {
+        location.href = './admin/login';
+    });
+</script>
+</html>

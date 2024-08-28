@@ -2,6 +2,7 @@
 
 namespace Install;
 
+use Core\AppConfig;
 use Twig\Environment;
 
 /**
@@ -10,20 +11,18 @@ use Twig\Environment;
 class InstallValidateService
 {
     public const ENV_FILE = '.env';
-    public const LICENSE_FILE = 'LICENSE.txt';
-    public const TEMPLATE_DIR = './template';
 
-    private $templates;
+    private Environment $templates;
+    private string $base_path;
     private string $data_dir;
     private string $data_path;
-    private string $version;
 
     public function __construct(Environment $templates)
     {
         $this->templates = $templates;
-        $this->data_dir = G5_DATA_DIR;
-        $this->data_path = G5_DATA_PATH;
-        $this->version = G5_VERSION;
+        $this->base_path = AppConfig::getInstance()->get('BASE_PATH');
+        $this->data_dir = AppConfig::getInstance()->get('DATA_DIR');
+        $this->data_path = $this->base_path . "/" . $this->data_dir;
     }
 
     /**
@@ -33,7 +32,6 @@ class InstallValidateService
     public function validateInstall(): string
     {
         $error_data = [
-            "version" => $this->version,
             "env_file" => "/" . self::ENV_FILE,
             "data_dir" => $this->data_dir,
         ];
@@ -66,7 +64,7 @@ class InstallValidateService
      */
     public function isInstalled(): bool
     {
-        return file_exists(G5_PATH . '/' . self::ENV_FILE);
+        return file_exists($this->base_path . "/" . self::ENV_FILE);
     }
 
     /**
@@ -122,7 +120,7 @@ class InstallValidateService
      */
     public function checkLicenseAgree(?string $agree = ""): bool
     {
-        return (!isset($agree) || $agree != '동의함');
+        return (isset($agree) && $agree === '동의함');
     }
 
     /**
