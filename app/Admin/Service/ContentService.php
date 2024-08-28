@@ -10,7 +10,7 @@ class ContentService
 
     public function __construct()
     {
-        $this->table = 'new_content';
+        $this->table = $_ENV['DB_PREFIX'] . 'content';
     }
 
     /**

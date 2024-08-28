@@ -15,7 +15,7 @@ class AdminMenuService
 
     public function __construct()
     {
-        $this->table = 'new_admin_menu';
+        $this->table = $_ENV['DB_PREFIX'] . 'admin_menu';
     }
 
     // ========================================

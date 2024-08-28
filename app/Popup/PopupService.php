@@ -10,8 +10,7 @@ class PopupService
 
     public function __construct()
     {
-        // @TODO: 테이블명을 변경해야함.
-        $this->table = 'new_popup';
+        $this->table = $_ENV['DB_PREFIX'] . 'popup';
     }
 
     /**

@@ -10,7 +10,7 @@ class MenuService
 
     public function __construct()
     {
-        $this->table = 'new_menu';
+        $this->table = $_ENV['DB_PREFIX'] . 'menu';
     }
 
     /**

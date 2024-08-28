@@ -16,8 +16,7 @@ class BannerService
 
     public function __construct(UriHelper $uri_helper)
     {
-        // @TODO: 테이블명을 변경해야함.
-        $this->table = 'new_banner';
+        $this->table = $_ENV['DB_PREFIX'] . 'banner';
         $this->uri_helper = $uri_helper;
     }
 

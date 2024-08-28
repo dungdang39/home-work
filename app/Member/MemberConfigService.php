@@ -11,8 +11,7 @@ class MemberConfigService
 
     public function __construct()
     {
-        // @TODO: 테이블명을 변경해야함.
-        $this->table = 'new_member_config';
+        $this->table = $_ENV['DB_PREFIX'] . 'member_config';
     }
 
     // ========================================

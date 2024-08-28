@@ -10,9 +10,10 @@ class MemberService
     private string $table;
     private MemberConfigService $mconfig_service;
 
-    public function __construct(MemberConfigService $mconfig_service)
-    {
-        $this->table = 'new_member';
+    public function __construct(
+        MemberConfigService $mconfig_service
+    ) {
+        $this->table = $_ENV['DB_PREFIX'] . 'member';
         $this->mconfig_service = $mconfig_service;
     }
 

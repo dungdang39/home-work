@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS `new_admin_menu` (
   `am_name` varchar(255) NOT NULL,
   `am_route` varchar(255) DEFAULT NULL,
   `am_order` int(10) unsigned NOT NULL DEFAULT 0,
-  `am_created_at` datetime DEFAULT NULL,
-  `am_updated_at` datetime DEFAULT NULL,
+  `am_created_at` datetime DEFAULT current_timestamp(),
+  `am_updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`am_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS `new_admin_menu_auth` (
   `read` tinyint(4) NOT NULL DEFAULT 0,
   `write` tinyint(4) NOT NULL DEFAULT 0,
   `delete` tinyint(4) NOT NULL DEFAULT 0,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`mb_id`,`admin_menu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS `new_banner` (
   `bn_order` int(11) NOT NULL DEFAULT 0,
   `bn_status` tinyint(4) NOT NULL DEFAULT 0,
   `bn_hit` int(11) NOT NULL DEFAULT 0,
-  `bn_created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `bn_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `bn_created_at` datetime DEFAULT current_timestamp(),
+  `bn_updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
    PRIMARY KEY (`bn_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -204,8 +204,8 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_8` varchar(255) DEFAULT NULL,
   `mb_9` varchar(255) DEFAULT NULL,
   `mb_10` varchar(255) DEFAULT NULL,
-  `mb_created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `mb_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `mb_created_at` datetime DEFAULT current_timestamp(),
+  `mb_updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`mb_no`),
   UNIQUE KEY `mb_id` (`mb_id`),
   KEY `mb_last_login_at` (`mb_last_login_at`),
@@ -259,8 +259,8 @@ CREATE TABLE IF NOT EXISTS `new_member_config` (
   `point_term` int(11) DEFAULT NULL,
   `login_point` int(11) DEFAULT NULL,
   `memo_send_point` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -281,8 +281,8 @@ CREATE TABLE IF NOT EXISTS `new_menu` (
   `me_order` int(11) NOT NULL DEFAULT 0,
   `me_use` tinyint(4) NOT NULL DEFAULT 0,
   `me_mobile_use` tinyint(4) NOT NULL DEFAULT 0,
-  `am_created_at` datetime DEFAULT NULL,
-  `am_updated_at` datetime DEFAULT NULL,
+  `am_created_at` datetime DEFAULT current_timestamp(),
+  `am_updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`me_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -307,6 +307,8 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
   `pu_subject` text NOT NULL,
   `pu_content` text NOT NULL,
   `pu_mobile_content` text NOT NULL,
+  `pu_created_at` datetime DEFAULT current_timestamp(),
+  `pu_updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`pu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

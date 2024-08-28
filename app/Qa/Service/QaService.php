@@ -12,8 +12,7 @@ class QaService
 
     public function __construct()
     {
-        // @TODO: 테이블명을 변경해야함.
-        $this->table = 'new_config';
+        $this->table = $_ENV['DB_PREFIX'] . 'config';
     }
 
     public function getConfig()
