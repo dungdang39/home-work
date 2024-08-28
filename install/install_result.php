@@ -1,6 +1,5 @@
 <?php
 
-use League\Plates\Engine;
 use Install\InstallValidateService;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -24,7 +23,7 @@ $loader = new FilesystemLoader(dirname(__DIR__, 1) . "/install/template/");
 $twig = new Environment($loader);
 $root_path = g5_root_path(false, 1);
 $twig->addGlobal('base_url', $root_path['url']);
-$validate_service = new InstallValidateService($templates);
+$validate_service = new InstallValidateService($twig);
 
 // 설치 가능 여부 체크
 $error = $validate_service->validateInstall();
@@ -56,4 +55,4 @@ $response_data = [
     "version" => G5_VERSION,
     "form" => $form,
 ];
-echo $templates->render('install_result', $response_data);
+echo $twig->render('install_result.html', $response_data);

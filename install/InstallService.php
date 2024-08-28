@@ -26,7 +26,7 @@ class InstallService
         eval("\$file = \"$file\";");
 
         $file = preg_replace('/^--.*$/m', '', $file);
-        $file = preg_replace('/`g5_([^`]+`)/', '`' . $prefix . '$1', $file);
+        $file = preg_replace('/`new_([^`]+`)/', '`' . $prefix . '$1', $file);
         $f = explode(';', $file);
         for ($i = 0; $i < count($f); $i++) {
             if (trim($f[$i]) == '') {

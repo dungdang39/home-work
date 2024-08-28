@@ -28,10 +28,12 @@ try {
     $form = $_SESSION['install_form'];
     unset($_SESSION['install_form']);
 
+    $prefix = $form['table_prefix'];
+
     if (empty($form)) {
         throw new Exception("설치 정보가 없습니다.");
     }
-    if (preg_match("/[^0-9a-z_]+/i", $form['table_prefix'])) {
+    if (preg_match("/[^0-9a-z_]+/i", $prefix)) {
         throw new Exception("TABLE명 접두사는 영문자, 숫자, _ 만 입력하세요.");
     }
     if (preg_match("/[^0-9a-z_]+/i", $form['admin_id'])) {
@@ -39,13 +41,14 @@ try {
     }
 
     // 데이터베이스 연결
-    Db::setInstance(new Db(
-        'mysql',
-        $form['mysql_host'],
-        $form['mysql_db'],
-        $form['mysql_user'],
-        $form['mysql_pass']
-    ));
+    $database_setting = [
+        'driver' => 'mysql',
+        'host' => $form['mysql_host'],
+        'dbname' => $form['mysql_db'],
+        'user' => $form['mysql_user'],
+        'password' => $form['mysql_pass']
+    ];
+    Db::setInstance(new Db($database_setting));
     $install_service = new InstallService(Db::getInstance());
 
     // json파일의 기본 데이터 불러오기
@@ -63,115 +66,94 @@ try {
     // unset($result);
     // unset($row);
 
-    $is_exists_table = Db::isTableExists($form['table_prefix'] . 'config');
+    $is_exists_table = Db::getInstance()->isTableExists($prefix . $default_values['config']['table']);
 
     // 테이블 생성
     if ($form['reinstall'] || $is_exists_table === false) {
-        $install_service->createTable($form['table_prefix'], './data/new-gnuboard.sql');
+        $install_service->createTable($prefix, './data/new-gnuboard.sql');
     }
     if ($form['shop_install']) {
-        $install_service->createTable($form['table_prefix'], './data/gnuboard5shop.sql');
+        $install_service->createTable($prefix, './data/gnuboard5shop.sql');
     }
 
     send_message("create_table", "전체 테이블 생성 완료");
 
     // DB 초기 데이터 설정
     if ($form['reinstall'] || $is_exists_table === false) {
-        // 기본 이미지 확장자를 설정하고
-        $image_extension = "gif|jpg|jpeg|png";
-        // 서버에서 webp 를 지원하면 확장자를 추가한다.
-        if (function_exists("imagewebp")) {
-            $image_extension .= "|webp";
-        }
+        // 기본환경설정
+        $config = $default_values['config'];
+        $config['fields']['cf_site_title'] = G5_VERSION;
+        $config['fields']['cf_admin'] = $form['admin_id'];
+        $config['fields']['cf_privacy_officer_name'] = G5_VERSION;
+        $config['fields']['cf_privacy_officer_email'] = $form['admin_email'];
+        Db::getInstance()->insert($prefix . $config['table'], $config['fields']);
+        
+        // 최고관리자
+        $member = $default_values['member'];
+        $member['fields']['mb_id'] = $form['admin_id'];
+        $member['fields']['mb_password'] = get_encrypt_string($form['admin_pass']);
+        $member['fields']['mb_name'] = $form['admin_name'];
+        $member['fields']['mb_nick'] = $form['admin_name'];
+        $member['fields']['mb_email'] = $form['admin_email'];
+        $member['fields']['mb_email_verified_at'] = date('Y-m-d H:i:s');
+        $member['fields']['mb_signup_ip'] = $_SERVER['REMOTE_ADDR'];
+        Db::getInstance()->insert($prefix . $member['table'], $member['fields']);
 
-        // config 테이블 설정
-        $config_table = $form['table_prefix'] . $default_values['config']['table'];
-        $config_fields = $default_values['config']['fields'];
-        $config_fields['cf_title'] = G5_VERSION;
-        $config_fields['cf_admin'] = $form['admin_id'];
-        $config_fields['cf_admin_email'] = $form['admin_email'];
-        $config_fields['cf_admin_email_name'] = G5_VERSION;
-        $config_fields['cf_image_extension'] = $image_extension;
-        Db::getInstance()->insert($config_table, $config_fields);
-
-        // 최고관리자 설정
-        $member_table = $form['table_prefix'] . $default_values['member']['table'];
-        $member_fields = $default_values['member']['fields'];
-        $member_fields['mb_id'] = $form['admin_id'];
-        $member_fields['mb_password'] = get_encrypt_string($form['admin_pass']);
-        $member_fields['mb_name'] = $form['admin_name'];
-        $member_fields['mb_nick'] = $form['admin_name'];
-        $member_fields['mb_email'] = $form['admin_email'];
-        $member_fields['mb_nick_date'] = G5_TIME_YMDHIS;
-        $member_fields['mb_email_certify'] = G5_TIME_YMDHIS;;
-        $member_fields['mb_datetime'] = G5_TIME_YMDHIS;
-        $member_fields['mb_ip'] = $_SERVER['REMOTE_ADDR'];
-        Db::getInstance()->insert($member_table, $member_fields);
-
-        // 관리자 메뉴 설정
-        $admin_menu_table = $form['table_prefix'] . $default_values['admin_menu']['table'];
-        foreach ($default_values['admin_menu']['values'] as $admin_menu) {
-            $admin_menu_fields = $admin_menu['fields'];
-            $admin_menu_fields['am_created_at'] = G5_TIME_YMDHIS;
-            $insert_id = Db::getInstance()->insert($admin_menu_table, $admin_menu_fields);
+        // 관리자 메뉴
+        $admin_menus = $default_values['admin_menu'];
+        $admin_menu_table = $prefix . $admin_menus['table'];
+        foreach ($admin_menus['values'] as $admin_menu) {
+            $insert_id = Db::getInstance()->insert($admin_menu_table, $admin_menu['fields']);
 
             foreach ($admin_menu['children'] as $child_fields) {
                 $child_fields['am_parent_id'] = $insert_id;
-                $child_fields['am_created_at'] = G5_TIME_YMDHIS;
                 Db::getInstance()->insert($admin_menu_table, $child_fields);
             }
         }
 
-        // Q&A 설정
-        $qa_config_table = $form['table_prefix'] . $default_values['qa_config']['table'];
-        $qa_config_fields = $default_values['qa_config']['fields'];
-        Db::getInstance()->insert($qa_config_table, $qa_config_fields);
+        // Q&A 기본설정
+        $qa_config = $default_values['qa_config'];
+        Db::getInstance()->insert($prefix . $qa_config['table'], $qa_config['fields']);
 
         // 컨텐츠 설정
-        $content_table = $form['table_prefix'] . $default_values['content']['table'];
-        $content_values = $default_values['content']['values'];
-        foreach ($content_values as $content) {
-            $content_fields = $content['fields'];
-            Db::getInstance()->insert($content_table, $content_fields);
+        $contents = $default_values['content'];
+        foreach ($contents['values'] as $content) {
+            Db::getInstance()->insert($prefix . $contents['table'], $content['fields']);
         }
-
+        /*
         // FAQ 설정
-        $faq_master_table = $form['table_prefix'] . $default_values['faq_master']['table'];
-        $faq_master_values = $default_values['faq_master']['values'];
-        foreach ($faq_master_values as $faq_master) {
-            $faq_master_fields = $faq_master['fields'];
-            Db::getInstance()->insert($faq_master_table, $faq_master_fields);
+        $faq_category = $default_values['faq_category'];
+        foreach ($faq_category['values'] as $category) {
+            Db::getInstance()->insert($prefix . $faq_category['table'], $category['fields']);
         }
 
         // 게시판 그룹 설정
-        $group_table = $form['table_prefix'] . $default_values['group']['table'];
-        $group_fields = $default_values['group']['fields'];
-        Db::getInstance()->insert($group_table, $group_fields);
+        $group = $default_values['group'];
+        Db::getInstance()->insert($prefix . $group['table'], $group['fields']);
 
         // 게시판 설정
-        $board_config_table = $form['table_prefix'] . $default_values['board']['table'];
-        $board_config_fields = $default_values['board']['fields'];
+        $board = $default_values['board'];
         foreach ($default_values['board_list'] as $board) {
             $bo_skin = ($board['bo_table'] === 'gallery') ? 'gallery' : 'basic';
             $is_point_setting = in_array($board['bo_table'], array('gallery', 'qa'));
 
-            $board_config_fields['bo_table'] = $board['bo_table'];
-            $board_config_fields['gr_id'] = $group_fields['gr_id'];
-            $board_config_fields['bo_subject'] = $board['bo_subject'];
-            $board_config_fields['bo_read_point'] = $is_point_setting ? -1 : 0;
-            $board_config_fields['bo_write_point'] = $is_point_setting ? 5 : 0;
-            $board_config_fields['bo_comment_point'] = $is_point_setting ? 1 : 0;
-            $board_config_fields['bo_download_point'] = $is_point_setting ? -20 : 0;
-            $board_config_fields['bo_skin'] = $bo_skin;
-            $board_config_fields['bo_mobile_skin'] = $bo_skin;
-            Db::getInstance()->insert($board_config_table, $board_config_fields);
+            $board['fields']['bo_table'] = $board['bo_table'];
+            $board['fields']['gr_id'] = $group_fields['gr_id'];
+            $board['fields']['bo_subject'] = $board['bo_subject'];
+            $board['fields']['bo_read_point'] = $is_point_setting ? -1 : 0;
+            $board['fields']['bo_write_point'] = $is_point_setting ? 5 : 0;
+            $board['fields']['bo_comment_point'] = $is_point_setting ? 1 : 0;
+            $board['fields']['bo_download_point'] = $is_point_setting ? -20 : 0;
+            $board['fields']['bo_skin'] = $bo_skin;
+            $board['fields']['bo_mobile_skin'] = $bo_skin;
+            Db::getInstance()->insert($prefix . $board['table'], $board['fields']);
 
             // 게시판 테이블 생성
             $file = file("./data/sql_write.sql");
             $file = get_db_create_replace($file);
             $sql = implode("\n", $file);
 
-            $create_table = $form['table_prefix'] . 'write_' . $board['bo_table'];
+            $create_table = $prefix . 'write_' . $board['bo_table'];
 
             // sql_board.sql 파일의 테이블명을 변환
             $source = array("/__TABLE_NAME__/", "/;/");
@@ -179,14 +161,16 @@ try {
             $sql = preg_replace($source, $target, $sql);
             Db::getInstance()->run($sql);
         }
-
+        */
     }
 
     // 영카트 기본설정
     if ($form['shop_install']) {
-        $shop_default_table = $form['shop_table_prefix'] . $default_values['shop_default']['table'];
-        $shop_default_fields = $default_values['shop_default']['fields'];
-        Db::getInstance()->insert($shop_default_table, $shop_default_fields);
+        $shop_default = $default_values['shop_default'];
+        Db::getInstance()->insert(
+            $form['shop_table_prefix'] . $shop_default['table'],
+            $shop_default['fields']
+        );
     }
 
     send_message("create_data", "DB 데이터 설정 완료");

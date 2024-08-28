@@ -41,28 +41,21 @@ if (!($mysql_host && $mysql_user && $mysql_pass && $mysql_db && $table_prefix &&
 }
 
 // 데이터베이스 연결 테스트
-$db_data = [
+$database_setting = [
     'driver' => 'mysql',
     'host' => $mysql_host,
     'dbname' => $mysql_db,
     'user' => $mysql_user,
     'password' => $mysql_pass
 ];
-$result = Db::testConnection($db_data);
+$result = Db::testConnection($database_setting);
 if (!$result['success']) {
     die(install_json_msg('MySQL 연결에 실패하였습니다. ' . $result['message']));
 }
-
-Db::setInstance(new Db(
-    $db_data['driver'],
-    $db_data['host'],
-    $db_data['dbname'],
-    $db_data['user'],
-    $db_data['password']
-));
+Db::setInstance(new Db($database_setting));
 
 // 테이블 존재 여부 체크
-if (Db::isTableExists($table_prefix . 'config')) {
+if (Db::getInstance()->isTableExists($table_prefix . 'config')) {
     die(install_json_msg('이미 설치된 데이터베이스가 존재합니다. 계속하시겠습니까?', 'exists'));
 }
 

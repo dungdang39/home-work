@@ -18,20 +18,22 @@ class Db
      */
     private $pdo;
 
-    public function __construct(
-    ) {
-        $this->pdo = DbConnectResolver::resolve()->createConnection();
+    public function __construct(array $db_settings = []) {
+        $this->pdo = DbConnectResolver::resolve($db_settings)->createConnection();
     }
 
-    public static function getInstance()
+    /**
+     * @return Db 인스턴스
+     */
+    public static function getInstance(): Db
     {
-        if (self::$instance == null) {
-            self::setInstance(new Db());
+        if (self::$instance === null) {
+            self::$instance = new Db();
         }
         return self::$instance;
     }
 
-    public static function setInstance($instance)
+    public static function setInstance($instance): void
     {
         self::$instance = $instance;
     }
@@ -210,13 +212,12 @@ class Db
      * @param string $table
      * @return bool
      */
-    public static function isTableExists(string $table): bool
+    public function isTableExists(string $table): bool
     {
-        $db = self::getInstance();
         $query = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = :table AND TABLE_SCHEMA = DATABASE()";
         $params = ['table' => $table];
 
-        $stmt = $db->run($query, $params);
+        $stmt = $this->run($query, $params);
         return $stmt->rowCount() > 0;
     }
 

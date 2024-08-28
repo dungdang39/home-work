@@ -6,7 +6,7 @@ use PDO;
 
 interface DbConnect
 {
-    public function __construct(array $params);
+    public function __construct(string $host, string $dbname, string $user, string $password);
 
     public function createConnection(): PDO;
 }
