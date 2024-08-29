@@ -93,6 +93,7 @@ $twig->addExtension(new CsrfExtension($container->get('csrf')));
 // The routing middleware should be added earlier than the ErrorMiddleware
 // Otherwise exceptions thrown from it will not be handled by the middleware
 $app->addRoutingMiddleware();
+$app->addBodyParsingMiddleware();
 
 // Add CSRF Protection Middleware
 $app->add('csrf');
@@ -102,6 +103,7 @@ $app->add(TwigMiddleware::create($app, $twig));
 
 // Add JSON Body Parser Middleware
 $app->add(new JsonBodyParserMiddleware());
+
 
 // Create Error Handler
 $callableResolver = $app->getCallableResolver();

@@ -193,4 +193,24 @@ class MemberController
             ], $e->getCode());
         }
     }
+
+    /**
+     * 회원정보 조회
+     */
+    public function getMemberInfo(Request $request, Response $response, array $args): Response
+    {
+        try {
+            $member = $this->service->getMember($args['mb_id']);
+
+            return api_response_json($response, [
+                'result' => 'success',
+                'member' => $member,
+            ], 200);
+        } catch (\Exception $e) {
+            return api_response_json($response, [
+                'result' => 'error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+    }
 }

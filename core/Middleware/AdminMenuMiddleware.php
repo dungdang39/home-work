@@ -27,14 +27,14 @@ class AdminMenuMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         $route_context = RouteContext::fromRequest($request);
-        $admin_route = $this->get_admin_route_name($route_context);
+        $current_admin_route = $this->get_current_admin_route($route_context);
 
         $fetch_menus = $this->menu_service->fetchAll();
 
         $admin_menu = [];
         foreach ($fetch_menus as $menu) {
             // 메뉴 활성화 여부
-            $menu['active'] = ($menu['am_route'] === $admin_route);
+            $menu['active'] = ($menu['am_route'] === $current_admin_route);
             // url 변환
             $menu['url'] = $this->generateUrl($route_context, $menu['am_route']);
             // 메뉴 분류
@@ -49,11 +49,11 @@ class AdminMenuMiddleware
         }
 
         // 대시보드는 관리자메뉴에 없으므로 별도로 활성화 처리
-        if ($admin_route === "dashboard") {
+        if ($current_admin_route === "admin.dashboard") {
             $admin_menu[key($admin_menu)]['active'] = true;
         }
         $request = $request->withAttribute('admin_menu', $admin_menu);
-        $request = $request->withAttribute('admin_route', $admin_route);
+        $request = $request->withAttribute('current_admin_route', $current_admin_route);
 
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('admin_menu', $admin_menu);
@@ -89,7 +89,7 @@ class AdminMenuMiddleware
      * @param RouteContext $route_context
      * @return string
      */
-    private function get_admin_route_name(RouteContext $route_context): string
+    private function get_current_admin_route(RouteContext $route_context): string
     {
         try {
             $route_fullname = $route_context->getRoute()->getName();

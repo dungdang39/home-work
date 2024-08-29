@@ -2,7 +2,7 @@
 
 namespace App\Login\Router;
 
-use App\Admin\Controller\AdministratorController;
+use App\Admin\Controller\AdminMenuPermissionController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
@@ -49,10 +49,11 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
         // 운영진 설정
         $group->group('/administrator', function (RouteCollectorProxy $group) {
-            $group->get('', [AdministratorController::class, 'index'])->setName('admin.administrator');
-            $group->post('', [AdministratorController::class, 'insert'])->setName('admin.administrator.insert');
-            $group->put('/{mb_id}', [AdministratorController::class, 'update'])->setName('admin.administrator.update');
-            $group->delete('', [AdministratorController::class, 'delete'])->setName('admin.administrator.delete');
+            $group->get('', [AdminMenuPermissionController::class, 'index'])->setName('admin.administrator');
+            $group->post('', [AdminMenuPermissionController::class, 'insert'])->setName('admin.administrator.insert');
+            $group->put('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'update'])->setName('admin.administrator.update');
+            $group->delete('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'delete'])->setName('admin.administrator.delete');
+            $group->delete('/list', [AdminMenuPermissionController::class, 'delete_list'])->setName('admin.administrator.delete-list');
         })->add(SuperAdminAuthMiddleware::class);
 
         // 메뉴 설정
@@ -117,6 +118,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('admin.member.view');
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('admin.member.update');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.delete');
+                $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.info');
             });
         })->add(AdminMenuPermissionMiddleware::class);
 

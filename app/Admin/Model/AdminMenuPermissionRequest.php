@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Admin\Model;
+
+use Core\Traits\SchemaHelperTrait;
+
+class AdminMenuPermissionRequest
+{
+    use SchemaHelperTrait;
+
+    public string $mb_id;
+    public int $admin_menu_id;
+    public ?int $read = 0;
+    public ?int $write = 0;
+    public ?int $delete = 0;
+
+    public function __construct(array $data)
+    {
+        $this->mapDataToProperties($this, $data);
+        $this->validate();
+    }
+
+    public static function load(array $data): self
+    {
+        return new self($data);
+    }
+
+    private function validate()
+    {
+        if (empty($this->mb_id)) {
+            $this->throwException('아이디를 입력해주세요.');
+        }
+        if (empty($this->admin_menu_id)) {
+            $this->throwException('메뉴를 선택해주세요.');
+        }
+    }
+}

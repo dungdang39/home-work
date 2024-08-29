@@ -1,98 +1,102 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import selected, checked %}
 
 {% block content %}
-
 <h1 id="container_title">기본환경 > 운영진설정</h1>
 <div class="container_wr">
-    <div class="local_ov01 local_ov">
-        <a href="/g5-update/adm/auth_list.php" class="ov_listall btn_ov02">전체목록</a>
-        <span class="btn_ov01">
-            <span class="ov_txt">설정된 관리권한</span>
-            <span class="ov_num">1건</span>
-        </span>
+
+    <div class="local_desc01 local_desc">
+        <strong>개발해야할 기능</strong>
+        <p>1. 목록 > 검색 개선 및 일괄삭제</p>
+        <p>2. 운영진 추가 > 검색 (레이어팝업)</p>
     </div>
 
-    <form name="fsearch" id="fsearch" class="local_sch01 local_sch" method="get">
-        <input type="hidden" name="sfl" value="a.mb_id" id="sfl">
-
-        <label for="stx" class="sound_only">회원아이디<strong class="sound_only"> 필수</strong></label>
-        <input type="text" name="stx" value="" id="stx" required="" class="required frm_input">
+    <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
+        <label for="stx" class="sound_only">
+            회원아이디<strong class="sound_only"> 필수</strong>
+        </label>
+        <input type="text" id="search_text" name="search_text" class="frm_input required" value="{{ params.search_text }}" required>
         <input type="submit" value="검색" id="fsearch_submit" class="btn_submit">
-
+        <select name="limit" id="limit">
+            <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
+            <option value="30" {{ selected(30, pagination.limit) }}>30개씩 보기</option>
+        </select>
     </form>
 
-    <form name="fauthlist" id="fauthlist" method="post" action="./auth_list_delete.php"
+    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.administrator.delete-list') }}"
         onsubmit="return fauthlist_submit(this);">
-        <input type="hidden" name="sst" value="a.mb_id, au_menu">
-        <input type="hidden" name="sod" value="">
-        <input type="hidden" name="sfl" value="">
-        <input type="hidden" name="stx" value="">
-        <input type="hidden" name="page" value="1">
-        <input type="hidden" name="token" value="">
+        <input type="hidden" name="page" value="{{ pagination.page }}">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
 
         <div class="tbl_head01 tbl_wrap">
             <table>
-                <caption>관리권한설정 목록</caption>
+                <caption>운영진 권한 목록</caption>
                 <thead>
                     <tr>
                         <th scope="col">
                             <label for="chkall" class="sound_only">현재 페이지 회원 전체</label>
                             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
                         </th>
-                        <th scope="col"><a
-                                href="http://127.0.0.1/g5-update/adm/auth_list.php?sst=a.mb_id&amp;sod=asc&amp;sfl=&amp;stx=&amp;sca=&amp;page=1">회원아이디</a>
+                        <th scope="col">
+                            <a href="#">회원아이디</a>
                         </th>
-                        <th scope="col"><a
-                                href="http://127.0.0.1/g5-update/adm/auth_list.php?sst=mb_nick&amp;sod=asc&amp;sfl=&amp;stx=&amp;sca=&amp;page=1">닉네임</a>
+                        <th scope="col">
+                            <a href="#">이름</a>
                         </th>
-                        <th scope="col">메뉴</th>
+                        <th scope="col">
+                            <a href="#">닉네임</a>
+                        </th>
+                        <th scope="col">관리자메뉴</th>
                         <th scope="col">권한</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg0">
+                {% for permission in permissions %}
+                    {% set index = loop.index0 %}
+                    <tr class="bg{{ cycle(['0', '1'], index) }}">
                         <td class="td_chk">
-                            <input type="hidden" name="au_menu[0]" value="100200">
-                            <input type="hidden" name="mb_id[0]" value="test">
-                            <label for="chk_0" class="sound_only">test님 권한</label>
-                            <input type="checkbox" name="chk[]" value="0" id="chk_0">
+                            <input type="hidden" name="admin_menu_id[{{ index }}]" value="{{ permission.admin_menu_id }}">
+                            <input type="hidden" name="mb_id[{{ index }}]" value="{{ permission.mb_id }}">
+                            <label for="chk_{{ index }}" class="sound_only">{{ permission.mb_nick }}님 권한</label>
+                            <input type="checkbox" name="chk[]" value="{{ index }}" id="chk_{{ index }}">
                         </td>
-                        <td class="td_mbid"><a href="?sfl=a.mb_id&amp;stx=test">test</a></td>
-                        <td class="td_auth_mbnick"><span class="sv_wrap"><a
-                                    href="http://127.0.0.1/g5-update/bbs/profile.php?mb_id=test" class="sv_member"
-                                    title="test 자기소개" target="_blank" rel="nofollow" onclick="return false;"><span
-                                        class="profile_img"><img src="http://127.0.0.1/g5-update/img/no_profile.gif"
-                                            alt="no_profile" width="22" height="22"></span> test</a><span class="sv"><a
-                                        href="http://127.0.0.1/g5-update/bbs/memo_form.php?me_recv_mb_id=test"
-                                        rel="nofollow" onclick="win_memo(this.href); return false;">쪽지보내기</a>
-                                    <a href="http://127.0.0.1/g5-update/bbs/formmail.php?mb_id=test&amp;name=test&amp;email=0KKZnciXcJugws6lZ5TUoQ--"
-                                        onclick="win_email(this.href); return false;" rel="nofollow">메일보내기</a>
-                                    <a href="http://127.0.0.1/g5-update/bbs/profile.php?mb_id=test"
-                                        onclick="win_profile(this.href); return false;" rel="nofollow">자기소개</a>
-                                    <a href="http://127.0.0.1/g5-update/bbs/new.php?mb_id=test" class="link_new_page"
-                                        onclick="check_goto_new(this.href, event);" rel="nofollow">전체게시물</a>
-                                    <a href="http://127.0.0.1/g5-update/adm/member_form.php?w=u&amp;mb_id=test"
-                                        target="_blank" rel="nofollow">회원정보변경</a>
-                                    <a href="http://127.0.0.1/g5-update/adm/point_list.php?sfl=mb_id&amp;stx=test"
-                                        target="_blank" rel="nofollow">포인트내역</a></span><noscript class="sv_nojs"><span
-                                        class="sv"><a
-                                            href="http://127.0.0.1/g5-update/bbs/memo_form.php?me_recv_mb_id=test"
-                                            rel="nofollow" onclick="win_memo(this.href); return false;">쪽지보내기</a>
-                                        <a href="http://127.0.0.1/g5-update/bbs/formmail.php?mb_id=test&amp;name=test&amp;email=0KKZnciXcJugws6lZ5TUoQ--"
-                                            onclick="win_email(this.href); return false;" rel="nofollow">메일보내기</a>
-                                        <a href="http://127.0.0.1/g5-update/bbs/profile.php?mb_id=test"
-                                            onclick="win_profile(this.href); return false;" rel="nofollow">자기소개</a>
-                                        <a href="http://127.0.0.1/g5-update/bbs/new.php?mb_id=test"
-                                            class="link_new_page" onclick="check_goto_new(this.href, event);"
-                                            rel="nofollow">전체게시물</a>
-                                        <a href="http://127.0.0.1/g5-update/adm/member_form.php?w=u&amp;mb_id=test"
-                                            target="_blank" rel="nofollow">회원정보변경</a>
-                                        <a href="http://127.0.0.1/g5-update/adm/point_list.php?sfl=mb_id&amp;stx=test"
-                                            target="_blank" rel="nofollow">포인트내역</a></span></noscript></span></td>
-                        <td class="td_menu">
-                            100200 관리권한설정 </td>
-                        <td class="td_auth">r</td>
+                        <td class="td_auth"><a href="?sfl=a.mb_id&amp;stx=test">{{ permission.mb_id }}</a></td>
+                        <td>{{ permission.mb_name }}</td>
+                        <td class="td_auth_mbnick">
+                            <span class="sv_wrap">
+                                <a href="#" class="sv_member" title="test 자기소개" target="_blank" rel="nofollow">
+                                    <span class="profile_img">
+                                        <img src="{{ base_url }}/img/no_profile.gif" alt="no_profile" width="22" height="22">
+                                    </span>
+                                    {{ permission.mb_nick }}
+                                </a>
+                            </span>
+                        </td>
+                        <td>
+                            {{ permission.am_name }}
+                            {% if not permission.am_parent_id %} 전체{% endif %}
+                        </td>
+                        <td style="width:400px;">
+                            <input type="checkbox" name="read[{{ index }}]" value="1" {{ checked(1, permission.read) }}>
+                            <label for="read">조회</label>
+                            <input type="checkbox" name="write[{{ index }}]" value="1" {{ checked(1, permission.write) }}>
+                            <label for="write">추가/수정</label>
+                            <input type="checkbox" name="delete[{{ index }}]" value="1" {{ checked(1, permission.delete) }}>
+                            <label for="delete">삭제</label>
+
+                            <button type="button" class="btn_save btn_submit btn"
+                                data-index="{{ index }}"
+                                data-url="{{ url_for('admin.administrator.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                저장
+                            </button>
+                            <button type="button" class="btn_delete btn_02 btn"
+                                data-url="{{ url_for('admin.administrator.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                삭제
+                            </button>  
+                        </td>
                     </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -101,28 +105,19 @@
             <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
                 class="btn btn_02">
         </div>
-
     </form>
 
+    <section id="add_admin">
+        <h2 class="h2_frm">운영진추가</h2>
 
-    <form name="fauthlist2" id="fauthlist2" action="./auth_update.php" method="post" autocomplete="off"
-        onsubmit="return fauth_add_submit(this);">
-        <input type="hidden" name="sfl" value="">
-        <input type="hidden" name="stx" value="">
-        <input type="hidden" name="sst" value="a.mb_id, au_menu">
-        <input type="hidden" name="sod" value="">
-        <input type="hidden" name="page" value="1">
-        <input type="hidden" name="token" value="">
+        <div class="local_desc01 local_desc">
+            <p>도움말</p>
+        </div>
 
-        <section id="add_admin">
-            <h2 class="h2_frm">관리권한 추가</h2>
-
-            <div class="local_desc01 local_desc">
-                <p>
-                    다음 양식에서 회원에게 관리권한을 부여하실 수 있습니다.<br>
-                    권한 <strong>r</strong>은 읽기권한, <strong>w</strong>는 쓰기권한, <strong>d</strong>는 삭제권한입니다.
-                </p>
-            </div>
+        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.administrator.insert') }}" method="post"
+            autocomplete="off" onsubmit="return validate_permission_form(this);">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
 
             <div class="tbl_frm01 tbl_wrap">
                 <table>
@@ -131,139 +126,175 @@
                         <col>
                     </colgroup>
                     <tbody>
-                        <tr>
-                            <th scope="row"><label for="mb_id">회원아이디<strong class="sound_only">필수</strong></label></th>
+                        <tr id="select_admin">
+                            <th scope="row"><label for="search_mb_id">운영진추가<strong class="sound_only">필수</strong></label></th>
                             <td>
-                                <strong id="msg_mb_id" class="msg_sound_only"></strong>
-                                <input type="text" name="mb_id" value="" id="mb_id" required=""
-                                    class="required frm_input">
+                                <input type="text" name="search_mb_id" id="search_mb_id" class="required frm_input" required>
+                                <button type="button" id="btn_search_id" class="btn_sch2">검색</button>
+                                <button type="button" id="btn_add_admin" class="btn_submit btn">추가</button>
                             </td>
                         </tr>
-                        <tr>
-                            <th scope="row"><label for="au_menu">접근가능메뉴<strong class="sound_only">필수</strong></label>
-                            </th>
+
+                        <tr id="select_permission" style="display:none;">
+                            <th scope="row">운영진추가</th>
                             <td>
-                                <select id="au_menu" name="au_menu" required="" class="required">
+                                <span id="admin_info"></span>
+                                <input type="hidden" name="mb_id" id="mb_id" value="">
+
+                                <select id="admin_menu_id" name="admin_menu_id" class="required" required>
                                     <option value="">선택하세요</option>
-                                    <option value="100100">100100 기본환경설정</option>
-                                    <option value="100200">100200 관리권한설정</option>
-                                    <option value="100280">100280 테마설정</option>
-                                    <option value="100290">100290 메뉴설정</option>
-                                    <option value="100300">100300 메일 테스트</option>
-                                    <option value="100310">100310 팝업레이어관리</option>
-                                    <option value="100800">100800 세션파일 일괄삭제</option>
-                                    <option value="100900">100900 캐시파일 일괄삭제</option>
-                                    <option value="100910">100910 캡챠파일 일괄삭제</option>
-                                    <option value="100920">100920 썸네일파일 일괄삭제</option>
-                                    <option value="100500">100500 phpinfo()</option>
-                                    <option value="100510">100510 Browscap 업데이트</option>
-                                    <option value="100520">100520 접속로그 변환</option>
-                                    <option value="100410">100410 DB업그레이드</option>
-                                    <option value="100400">100400 부가서비스</option>
-                                    <option value="200100">200100 회원관리</option>
-                                    <option value="200300">200300 회원메일발송</option>
-                                    <option value="200800">200800 접속자집계</option>
-                                    <option value="200810">200810 접속자검색</option>
-                                    <option value="200820">200820 접속자로그삭제</option>
-                                    <option value="200200">200200 포인트관리</option>
-                                    <option value="200900">200900 투표관리</option>
-                                    <option value="300100">300100 게시판관리</option>
-                                    <option value="300200">300200 게시판그룹관리</option>
-                                    <option value="300300">300300 인기검색어관리</option>
-                                    <option value="300400">300400 인기검색어순위</option>
-                                    <option value="300500">300500 1:1문의설정</option>
-                                    <option value="300600">300600 내용관리</option>
-                                    <option value="300700">300700 FAQ관리</option>
-                                    <option value="300820">300820 글,댓글 현황</option>
-                                    <option value="400010">400010 쇼핑몰현황</option>
-                                    <option value="400100">400100 쇼핑몰설정</option>
-                                    <option value="400400">400400 주문내역</option>
-                                    <option value="400440">400440 개인결제관리</option>
-                                    <option value="400200">400200 분류관리</option>
-                                    <option value="400300">400300 상품관리</option>
-                                    <option value="400660">400660 상품문의</option>
-                                    <option value="400650">400650 사용후기</option>
-                                    <option value="400620">400620 상품재고관리</option>
-                                    <option value="400610">400610 상품유형관리</option>
-                                    <option value="400500">400500 상품옵션재고관리</option>
-                                    <option value="400800">400800 쿠폰관리</option>
-                                    <option value="400810">400810 쿠폰존관리</option>
-                                    <option value="400750">400750 추가배송비관리</option>
-                                    <option value="400410">400410 미완료주문</option>
-                                    <option value="500110">500110 매출현황</option>
-                                    <option value="500100">500100 상품판매순위</option>
-                                    <option value="500120">500120 주문내역출력</option>
-                                    <option value="500400">500400 재입고SMS알림</option>
-                                    <option value="500300">500300 이벤트관리</option>
-                                    <option value="500310">500310 이벤트일괄처리</option>
-                                    <option value="500500">500500 배너관리</option>
-                                    <option value="500140">500140 보관함현황</option>
-                                    <option value="500210">500210 가격비교사이트</option>
-                                    <option value="900100">900100 SMS 기본설정</option>
-                                    <option value="900200">900200 회원정보업데이트</option>
-                                    <option value="900300">900300 문자 보내기</option>
-                                    <option value="900400">900400 전송내역-건별</option>
-                                    <option value="900410">900410 전송내역-번호별</option>
-                                    <option value="900500">900500 이모티콘 그룹</option>
-                                    <option value="900600">900600 이모티콘 관리</option>
-                                    <option value="900700">900700 휴대폰번호 그룹</option>
-                                    <option value="900800">900800 휴대폰번호 관리</option>
-                                    <option value="900900">900900 휴대폰번호 파일</option>
+                                    {% for menu in admin_menu %}
+                                    <optgroup label="{{ menu.am_name }}">
+                                        <option value="{{ menu.am_id }}">{{ menu.am_name }} 전체</option>
+                                        {% for child in menu.children %}
+                                        <option value="{{ child.am_id }}">{{ child.am_name }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endfor %}
                                 </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">권한지정</th>
-                            <td>
-                                <input type="checkbox" name="r" value="r" id="r" checked="">
-                                <label for="r">r (읽기)</label>
-                                <input type="checkbox" name="w" value="w" id="w">
-                                <label for="w">w (쓰기)</label>
-                                <input type="checkbox" name="d" value="d" id="d">
-                                <label for="d">d (삭제)</label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">자동등록방지</th>
-                            <td>
-                                <fieldset id="captcha" class="captcha recaptcha">
-                                    <script src="https://www.google.com/recaptcha/api.js?hl=ko"></script>
-                                    <script src="http://127.0.0.1/g5-update/plugin/recaptcha/recaptcha.js"></script>
-                                    <div class="g-recaptcha" data-sitekey="6LdkMMskAAAAAPLvq0iVZL3sKqO_DNcY_xoJoofG">
-                                        <div style="width: 304px; height: 78px;">
-                                            <div><iframe title="reCAPTCHA" width="304" height="78" role="presentation"
-                                                    name="a-t1xjjzw8frne" frameborder="0" scrolling="no"
-                                                    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
-                                                    src="https://www.google.com/recaptcha/api2/anchor?ar=1&amp;k=6LdkMMskAAAAAPLvq0iVZL3sKqO_DNcY_xoJoofG&amp;co=aHR0cDovLzEyNy4wLjAuMTo4MA..&amp;hl=ko&amp;v=hfUfsXWZFeg83qqxrK27GB8P&amp;size=normal&amp;cb=cv0790yokbao"></iframe>
-                                            </div><textarea id="g-recaptcha-response" name="g-recaptcha-response"
-                                                class="g-recaptcha-response"
-                                                style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea>
-                                        </div><iframe style="display: none;"></iframe>
-                                    </div>
-                                </fieldset>
+
+                                <input type="checkbox" id="read" name="read" value="1">
+                                <label for="read">조회</label>
+                                <input type="checkbox" id="write" name="write" value="1">
+                                <label for="write">추가/수정</label>
+                                <input type="checkbox" id="delete" name="delete" value="1">
+                                <label for="delete">삭제</label>
+
+                                <input type="submit" value="저장" class="btn_submit btn">
+                                <button type="button" id="btn_cancel" class="btn_02 btn">취소</button>  
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="btn_confirm01 btn_confirm">
-                <input type="submit" value="추가" class="btn_submit btn">
-            </div>
-        </section>
-
-    </form>
+        </form>
+    </section>
 </div>
 
 <script>
-    function fauth_add_submit(f) {
+    $btn_search_id = $("#btn_search_id");
+    $btn_add_admin = $("#btn_add_admin");
+    $btn_cancel = $("#btn_cancel");
 
-        if (!chk_captcha()) return false;
+    $area_admin = $("#select_admin");
+    $area_permission = $("#select_permission");
+    $area_admin_info = $("#admin_info");
 
-        return true;
+    $input_mb_id = $("#mb_id");
+    $input_search_mb_id = $("#search_mb_id");
+    $select_menu = $("#au_menu");
+    $check_read = $("#read");
+    $check_write = $("#write");
+    $check_delete = $("#delete");
+
+    $(function () {
+        // 운영진 추가 버튼 클릭
+        $btn_add_admin.click(function () {
+            let member_id = $input_search_mb_id.val();
+            if (member_id == "") {
+                alert("운영진을 추가할 회원아이디를 입력해주세요.");
+                return;
+            }
+
+            let route = "{{ url_for('admin.member.info', {mb_id: '__REPLACE_ID__'}) }}";
+            let url = route.replace('__REPLACE_ID__', member_id);
+
+            $.ajax({
+                url: url,
+                type: "get",
+                success: function (data) {
+                    $input_mb_id.val(data.member.mb_id);
+                    $area_admin_info.text(data.member.mb_id + " (" + data.member.mb_nick + ") ");
+
+                    $area_admin.hide();
+                    $area_permission.show();
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseJSON.message);
+                }
+            });
+        });
+
+        // 취소버튼 클릭
+        $btn_cancel.click(function () {
+            $area_admin.show();
+            $area_permission.hide();
+
+            $input_mb_id.val("");
+            $area_admin_info.text("");
+            $select_menu.val("");
+            $check_read.prop("checked", false);
+            $check_write.prop("checked", false);
+            $check_delete.prop("checked", false);
+        });
+
+         // 저장 버튼 클릭 이벤트 핸들러
+         $('.btn_save').click(function (e) {
+            // 필요한 데이터 수집
+            let url = $(this).data('url');
+            let index = $(this).data('index');
+            let send_data = {
+                "read": $("input[name='read[" + index + "]']").is(":checked") ? 1 : 0,
+                "write": $("input[name='write[" + index + "]']").is(":checked") ? 1 : 0,
+                "delete": $("input[name='delete[" + index + "]']").is(":checked") ? 1 : 0
+            };
+
+            $.ajax({
+                url: url,
+                type: "PUT",
+                data: send_data,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("csrf_name", $("input[name='csrf_name']").val());
+                    xhr.setRequestHeader("csrf_value", $("input[name='csrf_value']").val());
+                },
+                success: function (response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    alert('오류가 발생했습니다: ' + xhr.responseText);
+                }
+            });
+        });
+
+        // 삭제 버튼 클릭 이벤트 핸들러
+        $('.btn_delete').click(function (e) {
+            let url = $(this).data('url');
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("csrf_name", $("input[name='csrf_name']").val());
+                    xhr.setRequestHeader("csrf_value", $("input[name='csrf_value']").val());
+                },
+                success: function (response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    alert('오류가 발생했습니다: ' + xhr.responseText);
+                }
+            });
+        });
+    })
+
+    function validate_permission_form() {
+        if ($select_menu.val() == "") {
+            alert("메뉴를 선택해주세요.");
+            return false;
+        }
+        if ($check_read.is(":checked") == false 
+            && $check_write.is(":checked") == false
+            && $check_delete.is(":checked") == false) {
+            alert("권한을 선택해주세요.");
+            return false;
+        }
     }
 
     function fauthlist_submit(f) {
+        alert("선택삭제 기능 확인 중");
+        return false;
         if (!is_checked("chk[]")) {
             alert(document.pressed + " 하실 항목을 하나 이상 선택하세요.");
             return false;

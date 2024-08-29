@@ -7,7 +7,7 @@ use Exception;
 
 class MemberService
 {
-    private string $table;
+    public string $table;
     private MemberConfigService $mconfig_service;
 
     public function __construct(

@@ -45,6 +45,11 @@ class PageParameters
         $this->setOffset();
     }
 
+    public static function load(array $data, int $limit = 15, int $mobile_limit = 10): self
+    {
+        return new self($data, $limit, $mobile_limit);
+    }
+
     /**
      * limit 값 설정
      * @param int $limit 기본 페이지당 결과 수

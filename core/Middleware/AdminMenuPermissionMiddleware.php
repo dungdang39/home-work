@@ -33,9 +33,9 @@ class AdminMenuPermissionMiddleware
             return $response;
         }
 
-        $admin_route = $request->getAttribute('admin_route');
+        $current_admin_route = $request->getAttribute('current_admin_route');
         $method = $request->getMethod();
-        $permission = $this->service->existsAdminMenuPermission($mb_id, $admin_route, $method);
+        $permission = $this->service->existsAdminMenuPermission($mb_id, $current_admin_route, $method);
 
         if (!$permission) {
             throw new Exception('접근 권한이 없습니다.');
