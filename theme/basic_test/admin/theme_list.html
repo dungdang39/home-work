@@ -44,12 +44,12 @@
                             <button type="button" class="theme_sl theme_deactive"
                                 data-theme="{{ theme.theme }}"
                                 data-name="{{ theme.name }}"
-                                data-uri="{{ url_for('theme.update', {'theme': theme.theme }) }}">사용안함</button>
+                                data-uri="{{ url_for('admin.theme.update', {'theme': theme.theme }) }}">사용안함</button>
                             {% else %}
                             <button type="button" class="theme_sl theme_active"
                                 data-theme="{{ theme.theme }}"
                                 data-name="{{ theme.name }}"
-                                data-uri="{{ url_for('theme.update', {'theme': theme.theme }) }}">테마적용</button>
+                                data-uri="{{ url_for('admin.theme.update', {'theme': theme.theme }) }}">테마적용</button>
                             {% endif %}
 
                             <button type="button" class="tmli_dt theme_preview"

@@ -58,7 +58,7 @@ class ConfigController
             // run_event('admin_config_form_update');
     
             $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('config.index');
+            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.config');
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
         } catch (\Exception $e) {
             throw $e;

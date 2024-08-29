@@ -2,7 +2,7 @@
 {% from "macro.html" import selected %}
 
 {% block content %}
-{% set form_action = popup ? url_for('popup.update', {'pu_id': popup.pu_id}) : url_for('popup.insert') %}
+{% set form_action = popup ? url_for('admin.popup.update', {'pu_id': popup.pu_id}) : url_for('admin.popup.insert') %}
 {% set action = popup ? '수정' : '추가' %}
 
 <h1 id="container_title">팝업레이어 입력</h1>
@@ -110,7 +110,7 @@
         </div>
 
         <div class="btn_fixed_top">
-            <a href="{{ url_for('popup.index') }}" class=" btn btn_02">목록</a>
+            <a href="{{ url_for('admin.popup') }}" class=" btn btn_02">목록</a>
             <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
         </div>
     </form>

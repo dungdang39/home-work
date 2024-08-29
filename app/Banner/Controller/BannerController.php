@@ -60,7 +60,7 @@ class BannerController
         $this->service->insert($data->toArray());
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('banner.index');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.banner');
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 
@@ -93,7 +93,7 @@ class BannerController
         $this->service->update($args['bn_id'], $data->toArray());
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('banner.view', ['bn_id' => $args['bn_id']]);
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.banner.view', ['bn_id' => $args['bn_id']]);
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 
@@ -130,7 +130,7 @@ class BannerController
         $this->service->updateOrder($request_body);
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('banner.index');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.banner');
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 }

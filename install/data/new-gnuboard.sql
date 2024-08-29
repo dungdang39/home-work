@@ -20,16 +20,16 @@ CREATE TABLE IF NOT EXISTS `new_admin_menu` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `new_admin_menu_auth`
+-- Table structure for table `new_admin_menu_permission`
 --
 
-DROP TABLE IF EXISTS `new_admin_menu_auth`;
-CREATE TABLE IF NOT EXISTS `new_admin_menu_auth` (
+DROP TABLE IF EXISTS `new_admin_menu_permission`;
+CREATE TABLE IF NOT EXISTS `new_admin_menu_permission` (
   `mb_id` varchar(60) NOT NULL,
   `admin_menu_id` int(11) NOT NULL,
-  `read` tinyint(4) NOT NULL DEFAULT 0,
-  `write` tinyint(4) NOT NULL DEFAULT 0,
-  `delete` tinyint(4) NOT NULL DEFAULT 0,
+  `read` tinyint(1) NOT NULL DEFAULT 0,
+  `write` tinyint(1) NOT NULL DEFAULT 0,
+  `delete` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`mb_id`,`admin_menu_id`)

@@ -61,7 +61,7 @@ class PopupController
         $this->service->insert($data->toArray());
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('popup.index');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.popup');
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 
@@ -91,7 +91,7 @@ class PopupController
         $this->service->update($popup['pu_id'], $data->toArray());
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('popup.view', ['pu_id' => $popup['pu_id']]);
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.popup.view', ['pu_id' => $popup['pu_id']]);
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 

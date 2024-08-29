@@ -57,7 +57,7 @@ class MenuController
                 $contents = $this->content_service->fetchContents();
                 foreach ($contents as $content) {
                     $data[] = array(
-                        'url' => $route->urlFor('content.index', ['co_id' => $content['co_id']]),
+                        'url' => $route->urlFor('admin.content', ['co_id' => $content['co_id']]),
                         'id' => $content['co_id'],
                         'subject' => $content['co_subject'],
                     );

@@ -153,7 +153,7 @@ class LoginController
         }
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('dashboard');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.dashboard');
         $query_params = $request->getQueryParams();
         if (!empty($query_params)) {
             $redirect_url .= '?' . http_build_query($query_params);
@@ -179,7 +179,7 @@ class LoginController
 
         // 로그인 페이지로 리다이렉트
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('login.index');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.login');
 
         run_event('admin_logout', $redirect_url);
 

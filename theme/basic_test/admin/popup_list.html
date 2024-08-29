@@ -8,7 +8,7 @@
 <div class="container_wr">
 
     <div class="btn_fixed_top ">
-        <a href="{{ url_for('popup.create') }}" class="btn btn_01">새창관리추가</a>
+        <a href="{{ url_for('admin.popup.create') }}" class="btn btn_01">새창관리추가</a>
     </div>
 
     <div class="tbl_head01 tbl_wrap">
@@ -41,12 +41,12 @@
                     <td class="td_num">{{ popup.pu_height }}px</td>
                     <td class="td_num">{{ popup.pu_width }}px</td>
                     <td class="td_mng td_mng_xl">
-                        <a href="{{ url_for('popup.delete', {'pu_id': popup.pu_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">
+                        <a href="{{ url_for('admin.popup.delete', {'pu_id': popup.pu_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">
                             <span class="sound_only">{{ popup.pu_subject }}</span>
                             삭제
                         </a>
                         <button type="button" class="btn btn_02">즉시종료</button>
-                        <a href="{{ url_for('popup.view', {'pu_id': popup.pu_id}) }}" class="btn btn_03">
+                        <a href="{{ url_for('admin.popup.view', {'pu_id': popup.pu_id}) }}" class="btn btn_03">
                             <span class="sound_only">{{ popup.pu_subject }}</span>
                             수정
                         </a>

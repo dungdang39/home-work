@@ -2,8 +2,7 @@
 
 namespace Core\Middleware;
 
-use App\Admin\Service\AdminMenuService;
-use App\Admin\Service\AdminMenuAuthService;
+use App\Admin\Service\AdminMenuPermissionService;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -12,14 +11,14 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 /**
  * 관리자 메뉴 권한 체크 미들웨어
  */
-class AdminMenuAuthMiddleware
+class AdminMenuPermissionMiddleware
 {
-    private AdminMenuAuthService $auth_service;
+    private AdminMenuPermissionService $service;
 
     public function __construct(
-        AdminMenuAuthService $auth_service
+        AdminMenuPermissionService $service
     ) {
-        $this->auth_service = $auth_service;
+        $this->service = $service;
     }
 
     public function __invoke(Request $request, RequestHandler $handler): Response
@@ -34,9 +33,9 @@ class AdminMenuAuthMiddleware
             return $response;
         }
 
-        $route_group = $request->getAttribute('route_group');
+        $admin_route = $request->getAttribute('admin_route');
         $method = $request->getMethod();
-        $permission = $this->auth_service->existsAdminMenuAuth($mb_id, $route_group, $method);
+        $permission = $this->service->existsAdminMenuPermission($mb_id, $admin_route, $method);
 
         if (!$permission) {
             throw new Exception('접근 권한이 없습니다.');

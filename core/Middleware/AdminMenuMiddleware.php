@@ -26,19 +26,17 @@ class AdminMenuMiddleware
 
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
-        $routeContext = RouteContext::fromRequest($request);
-        $route_group = $this->get_route_group($request);
+        $route_context = RouteContext::fromRequest($request);
+        $admin_route = $this->get_admin_route_name($route_context);
 
         $fetch_menus = $this->menu_service->fetchAll();
 
         $admin_menu = [];
         foreach ($fetch_menus as $menu) {
             // 메뉴 활성화 여부
-            $menu['active'] = ($menu['am_route'] === $route_group);
-
+            $menu['active'] = ($menu['am_route'] === $admin_route);
             // url 변환
-            $menu['url'] = $this->generateUrl($routeContext, $menu['am_route']);
-
+            $menu['url'] = $this->generateUrl($route_context, $menu['am_route']);
             // 메뉴 분류
             if ($menu['am_parent_id'] === null) {
                 $admin_menu[$menu['am_id']] = $menu;
@@ -51,11 +49,11 @@ class AdminMenuMiddleware
         }
 
         // 대시보드는 관리자메뉴에 없으므로 별도로 활성화 처리
-        if ($route_group === "dashboard") {
+        if ($admin_route === "dashboard") {
             $admin_menu[key($admin_menu)]['active'] = true;
         }
         $request = $request->withAttribute('admin_menu', $admin_menu);
-        $request = $request->withAttribute('route_group', $route_group);
+        $request = $request->withAttribute('admin_route', $admin_route);
 
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('admin_menu', $admin_menu);
@@ -69,30 +67,36 @@ class AdminMenuMiddleware
      * @param string|null $routeName
      * @return string|null
      */
-    private function generateUrl(RouteContext $routeContext, ?string $routeName): ?string
+    private function generateUrl(RouteContext $route_context, ?string $route_name): ?string
     {
-        if ($routeName === null) {
+        if ($route_name === null) {
             return null;
         }
 
         try {
-            return $routeContext->getRouteParser()->urlFor($routeName . ".index");
+            return $route_context->getRouteParser()->urlFor($route_name);
         } catch (Exception $e) {
             return null;
         }
     }
 
     /**
-     * 라우트 그룹 반환
-     * @param Request $request
+     * 관리자 라우트 추출
+     * 
+     * 관리자 메뉴의 route는 admin.{name}.{action} 형식이므로
+     * admin.{name}을 추출하여 반환
+     * 
+     * @param RouteContext $route_context
      * @return string
      */
-    private function get_route_group(Request $request): string
+    private function get_admin_route_name(RouteContext $route_context): string
     {
-        $routeContext = RouteContext::fromRequest($request);
-        $route_name = $routeContext->getRoute()->getName();
-        $route_group_array = explode('.', $route_name);
-
-        return $route_group_array[0];
+        try {
+            $route_fullname = $route_context->getRoute()->getName();
+            $array = explode('.', $route_fullname);
+            return $array[0] . '.' . $array[1];
+        } catch (Exception $e) {
+            return '';
+        }
     }
 }

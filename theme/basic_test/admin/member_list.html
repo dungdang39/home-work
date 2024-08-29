@@ -155,7 +155,7 @@
                         <td headers="mb_list_lastcall" class="td_date">24-08-23</td>
                         <td headers="mb_list_grp" class="td_numsmall"></td>
                         <td headers="mb_list_mng" rowspan="2" class="td_mng td_mng_s">
-                            <a href="{{ url_for('member.view', {mb_id: member.mb_id}) }}" class="btn btn_03">수정</a>
+                            <a href="{{ url_for('admin.member.view', {mb_id: member.mb_id}) }}" class="btn btn_03">수정</a>
                             <a href="./boardgroupmember_form.php?mb_id=admin" class="btn btn_02">그룹</a>
                         </td>
                     </tr>
@@ -218,7 +218,7 @@
                 class="btn btn_02">
             <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
                 class="btn btn_02">
-            <a href="{{ url_for('member.create') }}" id="member_add" class="btn btn_01">회원추가</a>
+            <a href="{{ url_for('admin.member.create') }}" id="member_add" class="btn btn_01">회원추가</a>
         </div>
     </form>
 

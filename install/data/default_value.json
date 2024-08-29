@@ -296,33 +296,33 @@
             {
                 "fields": {
                     "am_name": "기본환경",
-                    "am_route": "config",
+                    "am_route": "admin.config",
                     "am_order": 0
                 },
                 "children": [
                     {
                         "am_name": "기본환경설정",
-                        "am_route": "config",
+                        "am_route": "admin.config",
                         "am_order": 0
                     },
                     {
                         "am_name": "운영진설정",
-                        "am_route": "administrator",
+                        "am_route": "admin.administrator",
                         "am_order": 1
                     },
                     {
                         "am_name": "API연동설정",
-                        "am_route": "api",
+                        "am_route": "admin.api",
                         "am_order": 2
                     },
                     {
                         "am_name": "캐시파일 일괄 삭제",
-                        "am_route": "remove-cache",
+                        "am_route": "admin.remove-cache",
                         "am_order": 3
                     },
                     {
                         "am_name": "플러그인 관리",
-                        "am_route": "plugin",
+                        "am_route": "admin.plugin",
                         "am_order": 4
                     }
                 ]
@@ -330,13 +330,13 @@
             {
                 "fields": {
                     "am_name": "메뉴",
-                    "am_route": "menu",
+                    "am_route": "admin.menu",
                     "am_order": 1
                 },
                 "children": [
                     {
                         "am_name": "메뉴 관리",
-                        "am_route": "menu",
+                        "am_route": "admin.menu",
                         "am_order": 0
                     }
                 ]
@@ -344,28 +344,28 @@
             {
                 "fields": {
                     "am_name": "디자인/UI",
-                    "am_route": "theme",
+                    "am_route": "admin.theme",
                     "am_order": 2
                 },
                 "children": [
                     {
                         "am_name": "테마 설정",
-                        "am_route": "theme",
+                        "am_route": "admin.theme",
                         "am_order": 0
                     },
                     {
                         "am_name": "배너 관리",
-                        "am_route": "banner",
+                        "am_route": "admin.banner",
                         "am_order": 1
                     },
                     {
                         "am_name": "팝업레이어 관리",
-                        "am_route": "popup",
+                        "am_route": "admin.popup",
                         "am_order": 2
                     },
                     {
                         "am_name": "메인화면 설정",
-                        "am_route": "mainpage",
+                        "am_route": "admin.mainpage",
                         "am_order": 3
                     }
                 ]
@@ -373,28 +373,28 @@
             {
                 "fields": {
                     "am_name": "회원",
-                    "am_route": "member-config",
+                    "am_route": "admin.member-config",
                     "am_order": 3
                 },
                 "children": [
                     {
                         "am_name": "기본회원설정",
-                        "am_route": "member-config",
+                        "am_route": "admin.member-config",
                         "am_order": 0
                     },
                     {
                         "am_name": "회원 관리",
-                        "am_route": "member",
+                        "am_route": "admin.member",
                         "am_order": 1
                     },
                     {
                         "am_name": "1:1문의",
-                        "am_route": "qa-config",
+                        "am_route": "admin.qa-config",
                         "am_order": 2
                     },
                     {
                         "am_name": "포인트 관리",
-                        "am_route": "point",
+                        "am_route": "admin.point",
                         "am_order": 3
                     },
                     {
@@ -480,18 +480,18 @@
             {
                 "fields": {
                     "am_name": "컨텐츠",
-                    "am_route": "content",
+                    "am_route": "admin.content",
                     "am_order": 6
                 },
                 "children": [
                     {
                         "am_name": "컨텐츠 관리",
-                        "am_route": "content",
+                        "am_route": "admin.content",
                         "am_order": 1
                     },
                     {
                         "am_name": "FAQ",
-                        "am_route": "faq",
+                        "am_route": "admin.faq",
                         "am_order": 2
                     }
                 ]

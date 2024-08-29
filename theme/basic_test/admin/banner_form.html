@@ -1,7 +1,7 @@
 {% extends "/admin/_layout.html" %}
 
 {% block content %}
-{% set form_action = banner ? url_for('banner.update', {'bn_id': banner.bn_id}) : url_for('banner.insert') %}
+{% set form_action = banner ? url_for('admin.banner.update', {'bn_id': banner.bn_id}) : url_for('admin.banner.insert') %}
 {% set action = banner ? '수정' : '추가' %}
 
 <h1 id="container_title">디자인/UI > 배너{{ action }}</h1>
@@ -128,7 +128,7 @@
         </div>
 
         <div class="btn_fixed_top">
-            <a href="{{ url_for('banner.index') }}" class="btn_02 btn">목록</a>
+            <a href="{{ url_for('admin.banner') }}" class="btn_02 btn">목록</a>
             <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
         </div>
     </form>
