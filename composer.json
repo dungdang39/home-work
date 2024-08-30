@@ -12,7 +12,8 @@
         "ext-pdo": "*",
         "slim/twig-view": "^3.4",
         "twig/html-extra": "^3.11",
-        "slim/csrf": "^1.5"
+        "slim/csrf": "^1.5",
+        "hybridauth/hybridauth": "^3.11"
     },
     "autoload": {
         "psr-4": {

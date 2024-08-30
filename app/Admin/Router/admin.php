@@ -7,6 +7,7 @@ use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
 use App\Admin\Controller\MenuController;
+use App\Admin\Controller\SocialController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
 use App\Member\Controller\MemberConfigController;
@@ -57,6 +58,16 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->put('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'update'])->setName('admin.setting.permission.update');
                 $group->delete('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
                 $group->delete('/list', [AdminMenuPermissionController::class, 'delete_list'])->setName('admin.setting.permission.delete-list');
+            })->add(SuperAdminAuthMiddleware::class);
+
+            // API연동 설정
+            $group->group('/api', function (RouteCollectorProxy $group) {
+                $group->group('/social', function (RouteCollectorProxy $group) {
+                    $group->get('', [SocialController::class, 'index'])->setName('admin.setting.api.social');
+                    $group->post('', [SocialController::class, 'insert'])->setName('admin.setting.api.social.insert');
+                    $group->post('/update', [SocialController::class, 'update'])->setName('admin.setting.api.social.update');
+                    $group->post('/delete', [SocialController::class, 'delete'])->setName('admin.setting.api.social.delete');
+                });
             })->add(SuperAdminAuthMiddleware::class);
         });
         

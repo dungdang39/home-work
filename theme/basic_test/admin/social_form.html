@@ -1,0 +1,159 @@
+{% extends "/admin/_layout.html" %}
+{% from "macro.html" import checked %}
+
+{% block content %}
+<h1 id="container_title">기본환경 > API연동설정 > 소셜로그인</h1>
+<div class="container_wr">
+
+    <!-- 소셜 로그인 설정 섹션 -->
+    <section id="anchor_social">
+        <h2 class="h2_frm">소셜로그인 설정</h2>
+
+        <form name="form_social" id="form_social" method="post"
+                action="{{ url_for('admin.setting.api.social.update') }}"
+                onsubmit="return validate_social_form(this);">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>소셜로그인 설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    {% for provider in providers %}
+                        <tr>
+                            <th scope="row">{{ provider.provider_name }} 로그인</th>
+                            <td colspan="3">
+                                <input type="checkbox" name="providers[{{ provider.provider_key }}][is_enabled]" value="1" {{ checked(1, provider.is_enabled) }}> 사용
+                                <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ provider.provider_name }}', '{{ provider.provider_key }}')">삭제</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{{ provider.provider_name }} Client ID</th>
+                            <td>
+                                <input type="text" name="providers[{{ provider.provider_key }}][client_id]" value="{{ provider.client_id }}" class="frm_input" size="40">
+                            </td>
+                            <th scope="row">{{ provider.provider_name }} Client Secret</th>
+                            <td>
+                                <input type="password" name="providers[{{ provider.provider_key }}][client_secret]" value="{{ provider.client_secret }}" class="frm_input" size="40">
+                            </td>
+                        </tr>
+                        {% for config in provider.configs %}
+                            {% if loop.first or loop.index0 is divisible by(2) %}
+                            <tr>
+                            {% endif %}
+                                <th scope="row">{{ config.config_name }}</th>
+                                <td>
+                                    <input type="text" name="providers[{{ provider.provider_key }}][configs][{{ config.config_name }}]" value="{{ config.config_value }}" class="frm_input" size="40">
+                                </td>
+                            {% if loop.last or loop.index is divisible by(2) %}
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn_confirm">
+                <button type="submit" class="btn_submit">저장</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 새로운 소셜 로그인 추가 섹션 -->
+    <section id="add_new_provider">
+        <h2 class="h2_frm">새로운 소셜로그인 추가</h2>
+
+        <form name="form_add_social" id="form_add_social" method="post"
+                action="{{ url_for('admin.setting.api.social.insert') }}"
+                onsubmit="return validate_add_form(this);">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>새로운 소셜로그인 추가</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">서비스 이름</th>
+                            <td>
+                                <input type="text" name="provider_name" class="frm_input" size="40" placeholder="예: 네이버">
+                            </td>
+                            <th scope="row">서비스 키</th>
+                            <td>
+                                <input type="text" name="provider_key" class="frm_input" size="40" placeholder="예: naver">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Client ID</th>
+                            <td>
+                                <input type="text" name="client_id" class="frm_input" size="40">
+                            </td>
+                            <th scope="row">Client Secret</th>
+                            <td>
+                                <input type="password" name="client_secret" class="frm_input" size="40">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn_confirm">
+                <button type="submit" class="btn_submit">추가</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+function validate_social_form(form) {
+    // 필요한 유효성 검사를 이곳에서 수행할 수 있습니다.
+    return true; // 유효성 검사를 통과한 경우에만 true 반환
+}
+
+function validate_add_form(form) {
+    // 필요한 유효성 검사를 이곳에서 수행할 수 있습니다.
+    return true; // 유효성 검사를 통과한 경우에만 true 반환
+}
+
+function confirmDelete(providerName, providerKey) {
+    if (confirm(providerName + " 소셜 로그인을 정말 삭제하시겠습니까? \n\n삭제 후 복구할 수 없으며 소셜 로그인을 사용할 수 없게 됩니다.")) {
+        // 삭제를 위한 요청을 서버로 전송
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = "{{ url_for('admin.setting.api.social.delete') }}";
+        
+        // CSRF 토큰 추가
+        const csrfNameInput = document.createElement('input');
+        csrfNameInput.type = 'hidden';
+        csrfNameInput.name = "{{ csrf.keys.name }}";
+        csrfNameInput.value = "{{ csrf.name }}";
+        form.appendChild(csrfNameInput);
+
+        const csrfValueInput = document.createElement('input');
+        csrfValueInput.type = 'hidden';
+        csrfValueInput.name = "{{ csrf.keys.value }}";
+        csrfValueInput.value = "{{ csrf.value }}";
+        form.appendChild(csrfValueInput);
+
+        // provider_key 추가
+        const providerKeyInput = document.createElement('input');
+        providerKeyInput.type = 'hidden';
+        providerKeyInput.name = 'provider_key';
+        providerKeyInput.value = providerKey;
+        form.appendChild(providerKeyInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock content %}

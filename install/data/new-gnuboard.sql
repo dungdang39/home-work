@@ -335,3 +335,41 @@ CREATE TABLE IF NOT EXISTS `new_qa_config` (
   `qa_insert_content` text NOT NULL DEFAULT '',
   PRIMARY KEY (`qa_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_social_provider`
+--
+DROP TABLE IF EXISTS `new_social_provider`;
+CREATE TABLE IF NOT EXISTS `new_social_provider` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `provider_name` varchar(100) NOT NULL COMMENT '서비스 이름 (예: 네이버, 페이스북)',
+  `provider_key` varchar(50) NOT NULL COMMENT '서비스 키 (예: naver, facebook)',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'Client ID',
+  `client_secret` varchar(255) DEFAULT NULL COMMENT 'Client Secret',
+  `redirect_url` varchar(255) DEFAULT NULL COMMENT 'Redirect URL',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '소셜 로그인 활성화 여부',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `provider_key` (`provider_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_social_provider_config`
+--
+DROP TABLE IF EXISTS `new_social_provider_config`;
+CREATE TABLE IF NOT EXISTS `new_social_provider_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `provider_key` varchar(50) NOT NULL COMMENT '참조용 서비스 키 (예: naver, facebook)',
+  `config_name` varchar(100) NOT NULL COMMENT '추가 설정 이름 (예: apikey)',
+  `config_value` varchar(255) DEFAULT NULL COMMENT '추가 설정 값',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `provider_key` (`provider_key`,`config_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
