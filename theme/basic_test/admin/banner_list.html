@@ -23,7 +23,7 @@
 
     <div class="btn_fixed_top">
         <a href="#" class="btn_01 btn">전시순서 저장</a>
-        <a href="{{ url_for('admin.banner.create') }}" class="btn_01 btn">배너추가</a>
+        <a href="{{ url_for('admin.design.banner.create') }}" class="btn_01 btn">배너추가</a>
     </div>
     
     {% for position, banners in grouped_banners %}
@@ -54,9 +54,9 @@
                         <br> URL :{{ banner.bn_url }}
                     </td>
                     <td headers="th_mng" class="td_mng td_mns_m">
-                        <a href="{{ url_for('admin.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">삭제</a>
+                        <a href="{{ url_for('admin.design.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">삭제</a>
                         <a href="#" class="btn btn_02">즉시종료</a>
-                        <a href="{{ url_for('admin.banner.view', {'bn_id': banner.bn_id}) }}" class="btn btn_03">수정</a>
+                        <a href="{{ url_for('admin.design.banner.view', {'bn_id': banner.bn_id}) }}" class="btn btn_03">수정</a>
                     </td>
                 </tr>
                 {% endfor %}

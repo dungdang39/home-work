@@ -80,7 +80,7 @@ class MemberController
             $this->service->createMember($data->toArray());
     
             $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member');
+            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.manage');
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
         } catch (\Exception $e) {
             return api_response_json($response, [
@@ -148,7 +148,7 @@ class MemberController
             $this->service->updateMember($member['mb_id'], $data->toArray());
     
             $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.view', ['mb_id' => $member['mb_id']]);
+            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.manage.view', ['mb_id' => $member['mb_id']]);
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
 
         } catch (\Exception $e) {

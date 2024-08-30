@@ -6,7 +6,7 @@
 {% endblock head %}
 
 {% block content %}
-{% set form_action = member ? url_for('admin.member.update', {'mb_id': member.mb_id}) : url_for('admin.member.insert') %}
+{% set form_action = member ? url_for('admin.member.manage.update', {'mb_id': member.mb_id}) : url_for('admin.member.manage.insert') %}
 {% set action = member ? '수정' : '추가' %}
 
 <h1 id="container_title">회원 > 회원관리 > 회원 {{ action }}</h1>
@@ -62,7 +62,7 @@
                                 </select>
                             </td>
                             <th scope="row">포인트</th>
-                            <td><a href="{{ url_for('admin.point', {mb_id: member.mb_id}) }}" target="_blank">{{ member.mb_point }}</a> 점</td>
+                            <td><a href="{{ url_for('admin.member.point', {mb_id: member.mb_id}) }}" target="_blank">{{ member.mb_point }}</a> 점</td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_img">회원이미지</label></th>
@@ -315,7 +315,7 @@
         </section>
 
         <div class="btn_fixed_top">
-            <a href="{{ url_for('admin.member') }}" class="btn btn_02">목록</a>
+            <a href="{{ url_for('admin.member.manage') }}" class="btn btn_02">목록</a>
             <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
         </div>
     </form>

@@ -94,7 +94,7 @@ class AdminMenuMiddleware
         try {
             $route_fullname = $route_context->getRoute()->getName();
             $array = explode('.', $route_fullname);
-            return $array[0] . '.' . $array[1];
+            return  "{$array[0]}.{$array[1]}" . (isset($array[2]) ? ".{$array[2]}" : '');
         } catch (Exception $e) {
             return '';
         }

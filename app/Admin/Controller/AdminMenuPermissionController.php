@@ -64,7 +64,7 @@ class AdminMenuPermissionController
         $this->service->insert($data->toArray());
 
         $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.administrator');
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.setting.permission');
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 

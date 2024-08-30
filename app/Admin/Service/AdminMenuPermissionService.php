@@ -125,7 +125,7 @@ class AdminMenuPermissionService
                     LEFT JOIN {$this->member_service->table} b on a.mb_id = b.mb_id
                     LEFT JOIN {$this->admin_menu_service->table} c on a.admin_menu_id = c.am_id
                     {$where}
-                    ORDER BY a.mb_id ASC
+                    ORDER BY a.mb_id ASC, c.am_id ASC
                     LIMIT :offset, :limit";
 
         $stmt = Db::getInstance()->run($query, $values);

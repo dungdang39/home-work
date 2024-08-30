@@ -314,7 +314,7 @@
     
     function cancel_confirm() {
         if (confirm("메뉴설정을 취소하시겠습니까?")) {
-            location.href = "{{ url_for('admin.menu') }}";
+            location.href = "{{ url_for('admin.menu.manage') }}";
         }
     }
 </script>

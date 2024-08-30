@@ -23,7 +23,7 @@
         </select>
     </form>
 
-    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.administrator.delete-list') }}"
+    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.setting.permission.delete-list') }}"
         onsubmit="return fauthlist_submit(this);">
         <input type="hidden" name="page" value="{{ pagination.page }}">
         <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
@@ -87,11 +87,11 @@
 
                             <button type="button" class="btn_save btn_submit btn"
                                 data-index="{{ index }}"
-                                data-url="{{ url_for('admin.administrator.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                data-url="{{ url_for('admin.setting.permission.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
                                 저장
                             </button>
                             <button type="button" class="btn_delete btn_02 btn"
-                                data-url="{{ url_for('admin.administrator.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                data-url="{{ url_for('admin.setting.permission.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
                                 삭제
                             </button>  
                         </td>
@@ -114,7 +114,7 @@
             <p>도움말</p>
         </div>
 
-        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.administrator.insert') }}" method="post"
+        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.setting.permission.insert') }}" method="post"
             autocomplete="off" onsubmit="return validate_permission_form(this);">
             <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
             <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
@@ -196,7 +196,7 @@
                 return;
             }
 
-            let route = "{{ url_for('admin.member.info', {mb_id: '__REPLACE_ID__'}) }}";
+            let route = "{{ url_for('admin.member.manage.info', {mb_id: '__REPLACE_ID__'}) }}";
             let url = route.replace('__REPLACE_ID__', member_id);
 
             $.ajax({
