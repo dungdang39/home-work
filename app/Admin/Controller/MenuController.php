@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controller;
 
-use App\Admin\Service\ContentService;
+use App\Content\ContentService;
 use App\Admin\Service\MenuService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;

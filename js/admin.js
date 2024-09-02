@@ -62,8 +62,13 @@ function delete_confirm(element)
         type: "DELETE",
         url: element.href,
         beforeSend: function (xhr) {
-            xhr.setRequestHeader("csrf_name", $("input[name='csrf_name']").val());
-            xhr.setRequestHeader("csrf_value", $("input[name='csrf_value']").val());
+            for (let key in csrf) {
+                if (!csrf[key]) {
+                    alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                    return false;
+                }
+                xhr.setRequestHeader(key, csrf[key]);
+            }
         },
         cache: false,
         async: false,

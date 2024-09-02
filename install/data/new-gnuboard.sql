@@ -129,20 +129,20 @@ CREATE TABLE IF NOT EXISTS `new_config` (
 
 DROP TABLE IF EXISTS `new_content`;
 CREATE TABLE IF NOT EXISTS `new_content` (
-  `co_id` varchar(20) NOT NULL DEFAULT '',
-  `co_html` tinyint(4) NOT NULL DEFAULT 0,
-  `co_subject` varchar(255) NOT NULL DEFAULT '',
-  `co_content` longtext NOT NULL,
-  `co_seo_title` varchar(255) NOT NULL DEFAULT '',
-  `co_mobile_content` longtext NOT NULL,
-  `co_skin` varchar(255) NOT NULL DEFAULT '',
-  `co_mobile_skin` varchar(255) NOT NULL DEFAULT '',
-  `co_tag_filter_use` tinyint(4) NOT NULL DEFAULT 0,
-  `co_hit` int(11) NOT NULL DEFAULT 0,
-  `co_include_head` varchar(255) NOT NULL,
-  `co_include_tail` varchar(255) NOT NULL,
-  PRIMARY KEY (`co_id`),
-  KEY `co_seo_title` (`co_seo_title`)
+  `code` varchar(50) NOT NULL DEFAULT '',
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `content` longtext NOT NULL DEFAULT '',
+  `seo_title` varchar(255) NOT NULL DEFAULT '',
+  `mobile_content` longtext NOT NULL DEFAULT '',
+  `hit` int(11) NOT NULL DEFAULT 0,
+  `head_include_file` varchar(255) NOT NULL DEFAULT '',
+  `foot_include_file` varchar(255) NOT NULL DEFAULT '',
+  `head_image` varchar(255) NOT NULL DEFAULT '',
+  `foot_image` varchar(255) NOT NULL DEFAULT '',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`code`),
+  KEY `seo_title` (`seo_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

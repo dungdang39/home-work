@@ -2,6 +2,7 @@
 
 namespace App\Login\Router;
 
+
 use App\Admin\Controller\AdminMenuPermissionController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
@@ -10,6 +11,8 @@ use App\Admin\Controller\MenuController;
 use App\Admin\Controller\SocialController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
+use App\Content\ContentController;
+use App\Faq\FaqController;
 use App\Member\Controller\MemberConfigController;
 use App\Member\Controller\MemberController;
 use App\Popup\Controller\PopupController;
@@ -173,23 +176,23 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         // 컨텐츠
         $group->group('/content', function (RouteCollectorProxy $group) {
             // 컨텐츠 관리
-            $group->group('/content', function (RouteCollectorProxy $group) {
-                $group->get('', [QaController::class, 'index'])->setName('admin.content.manage');
-                $group->get('/create', [QaController::class, 'create'])->setName('admin.content.manage.create');
-                $group->post('', [QaController::class, 'insert'])->setName('admin.content.manage.insert');
-                $group->get('/{co_id}', [QaController::class, 'view'])->setName('admin.content.manage.view');
-                $group->post('/{co_id}', [QaController::class, 'update'])->setName('admin.content.manage.update');
-                $group->delete('/{co_id}', [QaController::class, 'delete'])->setName('admin.content.manage.delete');
+            $group->group('/manage', function (RouteCollectorProxy $group) {
+                $group->get('', [ContentController::class, 'index'])->setName('admin.content.manage');
+                $group->get('/create', [ContentController::class, 'create'])->setName('admin.content.manage.create');
+                $group->post('', [ContentController::class, 'insert'])->setName('admin.content.manage.insert');
+                $group->get('/{code}', [ContentController::class, 'view'])->setName('admin.content.manage.view');
+                $group->post('/{code}', [ContentController::class, 'update'])->setName('admin.content.manage.update');
+                $group->delete('/{code}', [ContentController::class, 'delete'])->setName('admin.content.manage.delete');
             })->add(AdminMenuPermissionMiddleware::class);
 
             // FAQ 관리
             $group->group('/faq', function (RouteCollectorProxy $group) {
-                $group->get('', [QaController::class, 'index'])->setName('admin.faq');
-                $group->get('/create', [QaController::class, 'create'])->setName('admin.faq.create');
-                $group->post('', [QaController::class, 'insert'])->setName('admin.faq.insert');
-                $group->get('/{fa_id}', [QaController::class, 'view'])->setName('admin.faq.view');
-                $group->post('/{fa_id}', [QaController::class, 'update'])->setName('admin.faq.update');
-                $group->delete('/{fa_id}', [QaController::class, 'delete'])->setName('admin.faq.delete');
+                $group->get('', [FaqController::class, 'index'])->setName('admin.content.faq');
+                $group->get('/create', [FaqController::class, 'create'])->setName('admin.content.faq.create');
+                $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
+                $group->get('/{fa_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
+                $group->post('/{fa_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
+                $group->delete('/{fa_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
             })->add(AdminMenuPermissionMiddleware::class);
         });
     })
