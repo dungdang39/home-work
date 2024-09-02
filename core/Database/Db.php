@@ -46,7 +46,7 @@ class Db
      */
     public static function makeWhereInPlaceHolder(array $values)
     {
-        return str_repeat('?,', count($values) - 1) . '?';
+        return str_repeat('?, ', count($values) - 1) . '?';
     }
 
 

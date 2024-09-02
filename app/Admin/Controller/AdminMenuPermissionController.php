@@ -46,7 +46,7 @@ class AdminMenuPermissionController
             "pagination" => $page_params,
 
         ];
-        return $view->render($response, '/admin/administrator_form.html', $response_data);
+        return $view->render($response, '/admin/permission_form.html', $response_data);
     }
 
     /**

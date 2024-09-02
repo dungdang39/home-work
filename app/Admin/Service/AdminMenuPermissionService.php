@@ -60,40 +60,51 @@ class AdminMenuPermissionService
 
     /**
      * 관리자 메뉴 권한 존재 여부
-     * @param string $route 라우트
      * @param string $mb_id 회원 ID
+     * @param string $route_name 라우트
      * @param string $method HTTP 메소드
      * @return bool
      */
     public function existsAdminMenuPermission(string $mb_id, string $route_name, string $method): bool
     {
+        $wheres = [];
         $values = [];
-        $values["mb_id"] = $mb_id;
-        $values["route"] = $route_name;
 
-        $where_route = "";
-        $route = explode('.', $route_name);
-        if (count($route) === 3) {
-            $values['parent_route'] = $route[0] . '.' . $route[1];
-            $where_route = "am_route = :parent_route OR am_route = :route";
-        } else {
-            $where_route = "am_route = :route";
-        }
-
-        $query = "SELECT * FROM `{$this->table}`
-                    WHERE mb_id = :mb_id
-                    AND admin_menu_id in (
-                        SELECT am_id FROM `{$this->admin_menu_service->table}`
-                        WHERE {$where_route}
-                    )";
+        $wheres[] = "mb_id = ?";
+        $values[] = $mb_id;
 
         if ($method === 'GET') {
-            $query .= " AND `read` = 1";
+            $wheres[] = " `read` = 1";
         } elseif (in_array($method, ['POST', 'PUT', 'PATCH'])) {
-            $query = " AND `write` = 1";
+            $wheres[] = " `write` = 1";
         } elseif ($method === 'DELETE') {
-            $query = " AND `delete` = 1";
+            $wheres[] = " `delete` = 1";
         }
+
+        // route_name 분해하여 상위 라우트들을 생성
+        $route_parts = explode('.', $route_name);
+        $count = count($route_parts);
+        $route_patterns = [];
+
+        // 각 단계별로 상위 라우트를 생성하여 배열에 추가
+        for ($i = 1; $i <= $count; $i++) {
+            $route_patterns[] = implode('.', array_slice($route_parts, 0, $i));
+        }
+
+        // WHERE 절에 각 라우트 패턴을 조건으로 추가
+        $route_placeholders = Db::makeWhereInPlaceHolder($route_patterns);
+        
+        // 모든 route_patterns를 values에 추가
+        $values = array_merge($values, $route_patterns);
+
+        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT * FROM `{$this->table}`
+                    {$where}
+                    AND admin_menu_id IN (
+                        SELECT am_id FROM `{$this->admin_menu_service->table}`
+                        WHERE am_route IN ($route_placeholders)
+                    )";
 
         $stmt = Db::getInstance()->run($query, $values);
 

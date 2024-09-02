@@ -101,14 +101,7 @@ try {
         // 관리자 메뉴
         $admin_menus = $default_values['admin_menu'];
         $admin_menu_table = $prefix . $admin_menus['table'];
-        foreach ($admin_menus['values'] as $admin_menu) {
-            $insert_id = Db::getInstance()->insert($admin_menu_table, $admin_menu['fields']);
-
-            foreach ($admin_menu['children'] as $child_fields) {
-                $child_fields['am_parent_id'] = $insert_id;
-                Db::getInstance()->insert($admin_menu_table, $child_fields);
-            }
-        }
+        insertAdminMenu($admin_menu_table, $admin_menus['values']);
 
         // Q&A 기본설정
         $qa_config = $default_values['qa_config'];
@@ -231,4 +224,20 @@ function send_message($id, $message)
     echo "data: $message\n\n";
     ob_flush();
     flush();
+}
+
+function insertAdminMenu($table, $menu, $parent_id = null) {
+    $db = Db::getInstance();
+
+    foreach ($menu as $item) {
+        $children = array_pop($item['children']);
+        if (isset($parent_id)) {
+            $item['am_parent_id'] = $parent_id;
+        }
+        $insert_id = $db->insert($table, $item);
+    
+        if (isset($children) && !empty($children)) {
+            insertAdminMenu($table, $children, $insert_id);
+        }
+    }
 }

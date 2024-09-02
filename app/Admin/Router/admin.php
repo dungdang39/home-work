@@ -62,6 +62,9 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // API연동 설정
             $group->group('/api', function (RouteCollectorProxy $group) {
+                $group->redirect('', 'api/social')->setName('admin.setting.api');
+
+                // 소셜 로그인
                 $group->group('/social', function (RouteCollectorProxy $group) {
                     $group->get('', [SocialController::class, 'index'])->setName('admin.setting.api.social');
                     $group->post('', [SocialController::class, 'insert'])->setName('admin.setting.api.social.insert');
@@ -120,13 +123,18 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [MemberConfigController::class, 'update'])->setName('admin.member.config.update');
             });
 
-            // 1:1문의 설정
+            // 1:1문의
             $group->group('/qa', function (RouteCollectorProxy $group) {
-
-                // 설정
+                // 환경설정
                 $group->group('/config', function (RouteCollectorProxy $group) {
-                    $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa-config');
-                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa-config.update');
+                    $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa.config');
+                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa.config.update');
+                });
+
+                // 알림/푸시 설정
+                $group->group('/notification', function (RouteCollectorProxy $group) {
+                    $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa.notification');
+                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa.notification.update');
                 });
 
                 // 1:1문의 내용 (미구현)

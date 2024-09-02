@@ -143,11 +143,16 @@
 
                                 <select id="admin_menu_id" name="admin_menu_id" class="required" required>
                                     <option value="">선택하세요</option>
-                                    {% for menu in admin_menu %}
+                                    {% for menu in admin_menus %}
                                     <optgroup label="{{ menu.am_name }}">
                                         <option value="{{ menu.am_id }}">{{ menu.am_name }} 전체</option>
                                         {% for child in menu.children %}
                                         <option value="{{ child.am_id }}">{{ child.am_name }}</option>
+                                        {% if child.children %}
+                                            {% for child2 in child.children %}
+                                                <option value="{{ child2.am_id }}">└ {{ child2.am_name }}</option>
+                                            {% endfor %}
+                                        {% endif %}
                                         {% endfor %}
                                     </optgroup>
                                     {% endfor %}

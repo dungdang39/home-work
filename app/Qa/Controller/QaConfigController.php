@@ -56,7 +56,7 @@ class QaConfigController
             }
 
             $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.qa-config');
+            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.qa.config');
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
 
         } catch (\Exception $e) {

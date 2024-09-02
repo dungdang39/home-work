@@ -27,76 +27,98 @@ class AdminMenuMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         $route_context = RouteContext::fromRequest($request);
-        $current_admin_route = $this->get_current_admin_route($route_context);
+        $current_route = $route_context->getRoute()->getName();
 
         $fetch_menus = $this->menu_service->fetchAll();
 
-        $admin_menu = [];
-        foreach ($fetch_menus as $menu) {
-            // 메뉴 활성화 여부
-            $menu['active'] = ($menu['am_route'] === $current_admin_route);
+        $admin_menus = [];
+        foreach ($fetch_menus as &$menu) {
+            $route_name = $menu['am_route'];
             // url 변환
-            $menu['url'] = $this->generateUrl($route_context, $menu['am_route']);
-            // 메뉴 분류
-            if ($menu['am_parent_id'] === null) {
-                $admin_menu[$menu['am_id']] = $menu;
-            } else {
-                if ($menu['active']) {
-                    $admin_menu[$menu['am_parent_id']]['active'] = true;
-                }
-                $admin_menu[$menu['am_parent_id']]['children'][$menu['am_order']] = $menu;
-            }
+            $menu['url'] = $this->generateUrl($request, $route_name);
+            // 메뉴 활성화
+            $menu['active'] = $this->isActiveMenu($current_route, $route_name);
         }
+        $admin_menus = $this->buildMenuTree($fetch_menus);
 
         // 대시보드는 관리자메뉴에 없으므로 별도로 활성화 처리
-        if ($current_admin_route === "admin.dashboard") {
-            $admin_menu[key($admin_menu)]['active'] = true;
+        if ($current_route === "admin.dashboard") {
+            $admin_menus[key($admin_menus)]['active'] = true;
         }
-        $request = $request->withAttribute('admin_menu', $admin_menu);
-        $request = $request->withAttribute('current_admin_route', $current_admin_route);
 
         $view = Twig::fromRequest($request);
-        $view->getEnvironment()->addGlobal('admin_menu', $admin_menu);
+        $view->getEnvironment()->addGlobal('admin_menus', $admin_menus);
 
         return $handler->handle($request);
     }
 
     /**
      * URL 생성
-     * @param RouteContext $routeContext
-     * @param string|null $routeName
+     * @param Request $request
+     * @param string|null $route_name
      * @return string|null
      */
-    private function generateUrl(RouteContext $route_context, ?string $route_name): ?string
+    private function generateUrl(Request $request, ?string $menu_route): ?string
     {
-        if ($route_name === null) {
+        if ($menu_route === null) {
             return null;
         }
 
         try {
-            return $route_context->getRouteParser()->urlFor($route_name);
+            return RouteContext::fromRequest($request)
+                ->getRouteParser()
+                ->urlFor($menu_route);
         } catch (Exception $e) {
             return null;
         }
     }
 
     /**
-     * 관리자 라우트 추출
-     * 
-     * 관리자 메뉴의 route는 admin.{name}.{action} 형식이므로
-     * admin.{name}을 추출하여 반환
-     * 
-     * @param RouteContext $route_context
-     * @return string
+     * 메뉴 활성화 여부
+     * @param string $current_route
+     * @param string $menu_route
+     * @return bool
      */
-    private function get_current_admin_route(RouteContext $route_context): string
+    private function isActiveMenu(string $current_route, ?string $menu_route): bool
     {
-        try {
-            $route_fullname = $route_context->getRoute()->getName();
-            $array = explode('.', $route_fullname);
-            return  "{$array[0]}.{$array[1]}" . (isset($array[2]) ? ".{$array[2]}" : '');
-        } catch (Exception $e) {
-            return '';
+        if ($menu_route === null) {
+            return false;
         }
+
+        if ($menu_route === $current_route) {
+            return true;
+        }
+
+        $pattern = $menu_route . ".*";
+        $pattern = preg_quote($pattern, '#');
+        $pattern = str_replace('\*', '.*', $pattern);
+
+        if (preg_match('#^' . $pattern . '\z#u', $current_route) === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 재귀적으로 메뉴 트리 생성
+     * @param array $menus
+     * @param int|null $parent_id
+     * @return array
+     */
+    private function buildMenuTree(array $menus, int $parent_id = null) {
+        $branch = [];
+
+        foreach ($menus as $menu) {
+            if ($menu['am_parent_id'] === $parent_id) {
+                $children = $this->buildMenuTree($menus, $menu['am_id']);
+                if ($children) {
+                    $menu['children'] = $children;
+                }
+                $branch[] = $menu;
+            }
+        }
+
+        return $branch;
     }
 }

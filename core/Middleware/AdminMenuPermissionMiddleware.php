@@ -7,6 +7,7 @@ use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\Routing\RouteContext;
 
 /**
  * 관리자 메뉴 권한 체크 미들웨어
@@ -33,9 +34,10 @@ class AdminMenuPermissionMiddleware
             return $response;
         }
 
-        $current_admin_route = $request->getAttribute('current_admin_route');
+        $route_context = RouteContext::fromRequest($request);
+        $current_route = $route_context->getRoute()->getName();
         $method = $request->getMethod();
-        $permission = $this->service->existsAdminMenuPermission($mb_id, $current_admin_route, $method);
+        $permission = $this->service->existsAdminMenuPermission($mb_id, $current_route, $method);
 
         if (!$permission) {
             throw new Exception('접근 권한이 없습니다.');

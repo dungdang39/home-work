@@ -294,314 +294,351 @@
         "table": "admin_menu",
         "values": [
             {
-                "fields": {
-                    "am_name": "기본환경",
-                    "am_route": "admin.setting",
-                    "am_order": 0
-                },
+                "am_name": "기본환경",
+                "am_route": "admin.setting",
+                "am_order": 0,
                 "children": [
                     {
                         "am_name": "기본환경설정",
-                        "am_route": "admin.setting.config.",
-                        "am_order": 0
+                        "am_route": "admin.setting.config",
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "운영진설정",
                         "am_route": "admin.setting.permission",
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "API연동설정",
                         "am_route": "admin.setting.api",
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": [
+                            {
+                                "am_name": "소셜로그인",
+                                "am_route": "admin.setting.api.social",
+                                "am_order": 0,
+                                "children": []
+                            }
+                        ]
                     },
                     {
                         "am_name": "캐시파일 일괄 삭제",
                         "am_route": "admin.setting.remove-cache",
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     },
                     {
                         "am_name": "플러그인 관리",
                         "am_route": "admin.setting.plugin",
-                        "am_order": 4
+                        "am_order": 4,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "메뉴",
-                    "am_route": "admin.menu",
-                    "am_order": 1
-                },
+                "am_name": "메뉴",
+                "am_route": "admin.menu",
+                "am_order": 1,
                 "children": [
                     {
                         "am_name": "메뉴 관리",
                         "am_route": "admin.menu.manage",
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "디자인/UI",
-                    "am_route": "admin.design",
-                    "am_order": 2
-                },
+                "am_name": "디자인/UI",
+                "am_route": "admin.design",
+                "am_order": 2,
                 "children": [
                     {
                         "am_name": "테마 설정",
                         "am_route": "admin.design.theme",
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "배너 관리",
                         "am_route": "admin.design.banner",
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "팝업레이어 관리",
                         "am_route": "admin.design.popup",
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     },
                     {
                         "am_name": "메인화면 설정",
                         "am_route": "admin.design.mainpage",
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "회원",
-                    "am_route": "admin.member",
-                    "am_order": 3
-                },
+                "am_name": "회원",
+                "am_route": "admin.member",
+                "am_order": 3,
                 "children": [
                     {
                         "am_name": "기본회원설정",
                         "am_route": "admin.member.config",
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "회원 관리",
                         "am_route": "admin.member.manage",
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "1:1문의",
-                        "am_route": "admin.member.qa-config",
-                        "am_order": 2
+                        "am_route": "admin.member.qa",
+                        "am_order": 2,
+                        "children": [
+                            {
+                                "am_name": "환경설정",
+                                "am_route": "admin.member.qa.config",
+                                "am_order": 0,
+                                "children": []
+                            },
+                            {
+                                "am_name": "알림/푸시 설정",
+                                "am_route": "admin.member.qa.notification",
+                                "am_order": 1,
+                                "children": []
+                            }
+                        ]
                     },
                     {
                         "am_name": "포인트 관리",
                         "am_route": "admin.member.point",
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     },
                     {
                         "am_name": "예치금 관리",
                         "am_route": null,
-                        "am_order": 4
+                        "am_order": 4,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "쇼핑몰",
-                    "am_route": "admin.shop",
-                    "am_order": 4
-                },
+                "am_name": "쇼핑몰",
+                "am_route": "admin.shop",
+                "am_order": 4,
                 "children": [
                     {
                         "am_name": "대시보드",
                         "am_route": "admin.shop.dashboard",
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "쇼핑몰 설정",
                         "am_route": "admin.shop.config",
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "주문 관리",
                         "am_route": null,
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     },
                     {
                         "am_name": "상품",
                         "am_route": null,
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     },
                     {
                         "am_name": "카테고리",
                         "am_route": null,
-                        "am_order": 4
+                        "am_order": 4,
+                        "children": []
                     },
                     {
                         "am_name": "문의 관리",
                         "am_route": null,
-                        "am_order": 5
+                        "am_order": 5,
+                        "children": []
                     },
                     {
                         "am_name": "리뷰 관리",
                         "am_route": null,
-                        "am_order": 6
+                        "am_order": 6,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "커뮤니티",
-                    "am_route": null,
-                    "am_order": 5
-                },
+                "am_name": "커뮤니티",
+                "am_route": null,
+                "am_order": 5,
                 "children": [
                     {
                         "am_name": "기본환경설정",
                         "am_route": null,
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "게시판 관리",
                         "am_route": null,
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "게시판 그룹 관리",
                         "am_route": null,
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     },
                     {
                         "am_name": "글, 댓글 현황",
                         "am_route": null,
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "컨텐츠",
-                    "am_route": "admin.content",
-                    "am_order": 6
-                },
+                "am_name": "컨텐츠",
+                "am_route": "admin.content",
+                "am_order": 6,
                 "children": [
                     {
                         "am_name": "컨텐츠 관리",
                         "am_route": "admin.content.manage",
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "FAQ",
                         "am_route": "admin.content.faq",
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "알림/메시징/메일",
-                    "am_route": null,
-                    "am_order": 7
-                },
+                "am_name": "알림/메시징/메일",
+                "am_route": null,
+                "am_order": 7,
                 "children": [
                     {
                         "am_name": "자동발송 설정",
                         "am_route": null,
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "SMS",
                         "am_route": null,
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "알림톡",
                         "am_route": null,
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "광고/캠페인",
-                    "am_route": null,
-                    "am_order": 8
-                },
+                "am_name": "광고/캠페인",
+                "am_route": null,
+                "am_order": 8,
                 "children": [
                     {
                         "am_name": "네이버쇼핑",
                         "am_route": null,
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "쇼핑몰 기획전",
                         "am_route": null,
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "쿠폰 관리",
                         "am_route": null,
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     },
                     {
                         "am_name": "쿠폰존 관리",
                         "am_route": null,
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     },
                     {
                         "am_name": "친구톡",
                         "am_route": null,
-                        "am_order": 4
+                        "am_order": 4,
+                        "children": []
                     },
                     {
                         "am_name": "메일 직접발송",
                         "am_route": null,
-                        "am_order": 5
+                        "am_order": 5,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "통계",
-                    "am_route": null,
-                    "am_order": 9
-                },
+                "am_name": "통계",
+                "am_route": null,
+                "am_order": 9,
                 "children": [
                     {
                         "am_name": "애널리틱스",
                         "am_route": null,
-                        "am_order": 0
+                        "am_order": 0,
+                        "children": []
                     },
                     {
                         "am_name": "접속자",
                         "am_route": null,
-                        "am_order": 1
+                        "am_order": 1,
+                        "children": []
                     },
                     {
                         "am_name": "쇼핑몰",
                         "am_route": null,
-                        "am_order": 2
+                        "am_order": 2,
+                        "children": []
                     },
                     {
                         "am_name": "인기검색어 순위",
                         "am_route": null,
-                        "am_order": 3
+                        "am_order": 3,
+                        "children": []
                     }
                 ]
             },
             {
-                "fields": {
-                    "am_name": "부가서비스",
-                    "am_route": null,
-                    "am_order": 10
-                },
+                "am_name": "부가서비스",
+                "am_route": null,
+                "am_order": 10,
                 "children": []
             },
             {
-                "fields": {
-                    "am_name": "컨텐츠 몰",
-                    "am_route": null,
-                    "am_order": 11
-                },
+                "am_name": "컨텐츠 몰",
+                "am_route": null,
+                "am_order": 11,
                 "children": []
             }
         ]
