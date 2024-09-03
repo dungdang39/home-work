@@ -65,7 +65,7 @@ class PopupService
         $query = "SELECT *
                     FROM {$this->table}
                     WHERE {$sql_where}
-                    ORDER BY pu_created_at DESC
+                    ORDER BY created_at DESC
                     LIMIT :offset, :limit";
 
         return Db::getInstance()->run($query, $values)->fetchAll();

@@ -16,7 +16,7 @@ class PopupCreateRequest
     public ?int $pu_top;
     public ?int $pu_width;
     public ?int $pu_height;
-    public ?string $pu_subject;
+    public ?string $pu_title;
     public ?string $pu_content;
     public ?string $pu_mobile_content;
 
@@ -28,7 +28,7 @@ class PopupCreateRequest
     public function validate(): void
     {
         // 필수 값 검증
-        if (empty($this->pu_subject)) {
+        if (empty($this->pu_title)) {
             throw new \InvalidArgumentException("제목을 입력하세요.");
         }
 

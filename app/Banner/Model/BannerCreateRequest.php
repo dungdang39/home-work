@@ -19,7 +19,7 @@ class BannerCreateRequest
     public ?string $bn_start_datetime;
     public ?string $bn_end_datetime;
     public ?int $bn_order;
-    public ?int $bn_status;
+    public ?int $bn_is_enabled;
 
     public ?UploadedFile $image_file;
     public ?UploadedFile $mobile_image_file;

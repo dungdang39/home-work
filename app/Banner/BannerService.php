@@ -121,7 +121,7 @@ class BannerService
             $sql_where .= " AND bn_position = :bn_position";
         }
 
-        $query = "SELECT * FROM {$this->table} WHERE {$sql_where} ORDER BY bn_order, bn_created_at DESC";
+        $query = "SELECT * FROM {$this->table} WHERE {$sql_where} ORDER BY bn_order, created_at DESC";
 
         // $params = array_merge($params, $page_params);
 

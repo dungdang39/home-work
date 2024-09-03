@@ -91,10 +91,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_subject">팝업 타이틀<strong class="sound_only"> 필수</strong></label>
+                        <th scope="row"><label for="pu_title">팝업 타이틀<strong class="sound_only"> 필수</strong></label>
                         </th>
                         <td>
-                            <input type="text" name="pu_subject" value="{{ popup.pu_subject }}" id="pu_subject" required class="frm_input required" size="80">
+                            <input type="text" name="pu_title" value="{{ popup.pu_title }}" id="pu_title" required class="frm_input required" size="80">
                         </td>
                     </tr>
                     <tr>
@@ -120,7 +120,7 @@
         errmsg = "";
         errfld = "";
 
-        check_field(form.pu_subject, "제목을 입력하세요.");
+        check_field(form.pu_title, "제목을 입력하세요.");
 
         if (errmsg != "") {
             alert(errmsg);

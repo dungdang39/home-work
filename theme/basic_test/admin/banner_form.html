@@ -117,10 +117,10 @@
                         <td>
                             <span class="frm_info">
                             </span>
-                            <label for="bn_status_1" class="rules_label">사용</label>
-                            <input name="bn_status" id="bn_status_1" type="radio" value="1" {{ banner.bn_status == '1' or not banner.bn_status ? 'checked' : '' }}>
-                            <label for="bn_status_0" class="rules_label">사용안함</label>
-                            <input name="bn_status" id="bn_status_0" type="radio" value="0" {{ banner.bn_status == '0' ? 'checked' : '' }}>
+                            <label for="bn_is_enabled_1" class="rules_label">사용</label>
+                            <input name="bn_is_enabled" id="bn_is_enabled_1" type="radio" value="1" {{ banner.bn_is_enabled == '1' or not banner.bn_is_enabled ? 'checked' : '' }}>
+                            <label for="bn_is_enabled_0" class="rules_label">사용안함</label>
+                            <input name="bn_is_enabled" id="bn_is_enabled_0" type="radio" value="0" {{ banner.bn_is_enabled == '0' ? 'checked' : '' }}>
                         </td>
                     </tr>
                 </tbody>
