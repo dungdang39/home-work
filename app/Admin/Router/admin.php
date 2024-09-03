@@ -76,7 +76,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 });
             })->add(SuperAdminAuthMiddleware::class);
         });
-        
+
         // 메뉴
         $group->group('/menu', function (RouteCollectorProxy $group) {
             // 메뉴 설정
@@ -88,7 +88,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->delete('', [MenuController::class, 'delete'])->setName('admin.menu.manage.delete');
             })->add(AdminMenuPermissionMiddleware::class);
         });
-        
+
         // 디자인/UI
         $group->group('/design', function (RouteCollectorProxy $group) {
             // 테마
@@ -149,7 +149,6 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->post('/{qa_id}', [QaController::class, 'update'])->setName('admin.member.qa.update');
                     $group->delete('/{qa_id}', [QaController::class, 'delete'])->setName('admin.member.qa.delete');
                 });
-
             });
 
             // 포인트 관리
@@ -170,7 +169,6 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.manage.delete');
                 $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.manage.info');
             });
-            
         })->add(AdminMenuPermissionMiddleware::class);
 
         // 컨텐츠
@@ -186,13 +184,20 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             })->add(AdminMenuPermissionMiddleware::class);
 
             // FAQ 관리
-            $group->group('/faq', function (RouteCollectorProxy $group) {
+            $group->group('/faq-category', function (RouteCollectorProxy $group) {
                 $group->get('', [FaqController::class, 'index'])->setName('admin.content.faq');
-                $group->get('/create', [FaqController::class, 'create'])->setName('admin.content.faq.create');
-                $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
-                $group->get('/{fa_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
-                $group->post('/{fa_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
-                $group->delete('/{fa_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                $group->post('', [FaqController::class, 'insertCategory'])->setName('admin.content.faq.category.insert');
+                $group->post('/{faq_category_id}', [FaqController::class, 'updateCategory'])->setName('admin.content.faq.category.update');
+                $group->delete('/{faq_category_id}', [FaqController::class, 'deleteCategory'])->setName('admin.content.faq.category.delete');
+
+                $group->group('/{faq_category_id}/faq', function (RouteCollectorProxy $group) {
+                    $group->get('', [FaqController::class, 'list'])->setName('admin.content.faq.list');
+                    $group->get('/create', [FaqController::class, 'create'])->setName('admin.content.faq.create');
+                    $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
+                    $group->get('/{id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
+                    $group->post('/{id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
+                    $group->delete('/{id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                });
             })->add(AdminMenuPermissionMiddleware::class);
         });
     })

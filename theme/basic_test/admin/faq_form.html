@@ -1,4 +1,81 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import checked %}
 
 {% block content %}
-{% endblock content $}
+{% set form_action = faq ? url_for('admin.content.faq.update', {'faq_category_id': faq_category.id, 'id': faq.id}) : url_for('admin.content.faq.insert', {'faq_category_id': faq_category.id}) %}
+{% set action = faq ? '수정' : '추가' %}
+
+<h1 id="container_title">컨텐츠 > FAQ > {{ faq_category.subject }} > 항목 </h1>
+<div class="container_wr">
+    <form name="form_faq" action="{{ form_action }}" onsubmit="return validate_form(this);" method="post">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>컨텐츠 > FAQ > {{ faq_category.subject }} > 항목 입력관리</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row"><label for="order">출력순서</label></th>
+                        <td>
+                            <span class="frm_info">
+                                숫자가 작을수록 FAQ 페이지에서 먼저 출력됩니다.
+                            </span>
+                            <input type="text" id="order" name="order" value="{{ faq.order }}" class="frm_input" maxlength="10" size="10">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">질문</th>
+                        <td>
+                            <textarea id="question" name="question">{{ faq.question }}</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">답변</th>
+                        <td>
+                            <textarea id="answer" name="answer">{{ faq.answer }}</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="order">상태</label></th>
+                        <td>
+                            <label for="is_enabled_0" class="rules_label">사용</label>
+                            <input type="radio" id="is_enabled_0" name="is_enabled" value="1" {{ checked(1, faq.is_enabled, true) }}>
+                            <label for="is_enabled_1" class="rules_label">사용안함</label>
+                            <input type="radio" id="is_enabled_1" name="is_enabled" value="0" {{ checked(0, faq.is_enabled) }}>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_fixed_top">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+            <a href="{{ url_for('admin.content.faq.list', {faq_category_id: faq_category.id}) }}" class="btn btn_02">목록</a>
+        </div>
+
+    </form>
+</div>
+<script>
+    function validate_form(f) {
+        errmsg = "";
+        errfld = "";
+
+        check_field(f.question, "질문을 입력하세요.");
+        check_field(f.answer, "답변을 입력하세요.");
+
+        if (errmsg != "") {
+            alert(errmsg);
+            errfld.focus();
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+{% endblock content %}

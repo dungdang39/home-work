@@ -149,6 +149,45 @@ CREATE TABLE IF NOT EXISTS `new_content` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_faq`
+--
+
+DROP TABLE IF EXISTS `new_faq`;
+CREATE TABLE IF NOT EXISTS `new_faq` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `faq_category_id` int(11) NOT NULL DEFAULT 0,
+  `question` text NOT NULL,
+  `answer` text NOT NULL,
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `order` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `faq_category_id` (`faq_category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_faq_category`
+--
+
+DROP TABLE IF EXISTS `new_faq_category`;
+CREATE TABLE IF NOT EXISTS `new_faq_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `subject` varchar(255) NOT NULL DEFAULT '',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `order` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_member`
 --
 

@@ -89,7 +89,10 @@ class Db
      */
     public function insert($table, array $data)
     {
-        $columns = implode(',', array_keys($data));
+        // 각 컬럼 이름에 백틱 추가
+        $columns = implode(',', array_map(function($column) {
+            return "`{$column}`";
+        }, array_keys($data)));
         $placeholders = implode(',', array_fill(0, count($data), '?'));
         $this->run("INSERT INTO `{$table}` ({$columns}) VALUES ({$placeholders})", array_values($data));
 
