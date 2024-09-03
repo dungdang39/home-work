@@ -154,7 +154,8 @@ function get_session($session_name)
 
 
 // 쿠키변수 생성
-function set_cookie($cookie_name, $value, $expire, $path='/', $domain=G5_COOKIE_DOMAIN, $secure=false, $httponly=true)
+// 240903  G5_COOKIE_DOMAIN, G5_SERVER_TIME 사용하지 않기 위해 임시 변수 처리
+function set_cookie($cookie_name, $value, $expire, $path='/', $domain='', $secure=false, $httponly=true)
 {
     global $g5;
     
@@ -164,7 +165,7 @@ function set_cookie($cookie_name, $value, $expire, $path='/', $domain=G5_COOKIE_
         $c['secure'] = true;
     }
 
-    setcookie(md5($cookie_name), base64_encode($value), G5_SERVER_TIME + $expire, $c['path'], $c['domain'], $c['secure'], $c['httponly']);
+    setcookie(md5($cookie_name), base64_encode($value), time() + $expire, $c['path'], $c['domain'], $c['secure'], $c['httponly']);
 }
 
 
@@ -2309,11 +2310,13 @@ function ss_mb_key($member, $regenerate = false)
 
     if (!$client_key) {
         $client_key = get_random_token_string(16);
-        set_cookie('mb_client_key', $client_key, G5_SERVER_TIME * -1);
+        // 240903  G5_SERVER_TIME을 사용하지 않기 위해 임시 주석처리
+        // set_cookie('mb_client_key', $client_key, G5_SERVER_TIME * -1);
+        set_cookie('mb_client_key', $client_key, time() * -1);
     }
 
     // $mb_key = md5($member['mb_datetime'] . $client_key) . run_replace('ss_mb_key_user_agent', md5($_SERVER['HTTP_USER_AGENT']));
-    $mb_key = md5($member['mb_created_at'] . $client_key) . run_replace('ss_mb_key_user_agent', md5($_SERVER['HTTP_USER_AGENT']));
+    $mb_key = md5($member['created_at'] . $client_key) . run_replace('ss_mb_key_user_agent', md5($_SERVER['HTTP_USER_AGENT']));
 
     return $mb_key;
 }

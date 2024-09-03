@@ -113,7 +113,7 @@ class MemberService
     {
         $update_data = [
             "mb_leave_date" => date("Ymd"),
-            "mb_memo" => date('Ymd', G5_SERVER_TIME) . " 탈퇴함\n" . addslashes($member['mb_memo']),
+            "mb_memo" => date('Ymd') . " 탈퇴함\n" . addslashes($member['mb_memo']),
             "mb_certify" => '',
             "mb_adult" => 0,
             "mb_dupinfo" => ''
@@ -335,5 +335,15 @@ class MemberService
         $update_count = Db::getInstance()->update($this->table, $data, ["mb_id" => $mb_id]);
 
         return $update_count;
+    }
+
+    /**
+     * 새로운 암호화 방식으로 비밀번호 업데이트
+     */
+    public function updatePasswordRehash(string $mb_id, string $password): bool
+    {
+        $new_hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $update_rows = $this->update($mb_id, ['mb_password' => $new_hashed_password]);
+        return $update_rows > 0;
     }
 }

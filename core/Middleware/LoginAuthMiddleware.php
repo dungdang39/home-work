@@ -27,10 +27,10 @@ class LoginAuthMiddleware
         if (!$member) {
             throw new Exception('로그인이 필요합니다.');
         }
-        if ($member['mb_leave_date'] && $member['mb_leave_date'] <= date("Ymd", G5_SERVER_TIME)) {
+        if ($member['mb_leave_date'] && $member['mb_leave_date'] <= date("Ymd")) {
             throw new Exception('탈퇴한 회원입니다.');
         }
-        if ($member['mb_intercept_date'] && $member['mb_intercept_date'] <= date("Ymd", G5_SERVER_TIME)) {
+        if ($member['mb_intercept_date'] && $member['mb_intercept_date'] <= date("Ymd")) {
             throw new Exception('차단된 회원입니다.');
         }
 

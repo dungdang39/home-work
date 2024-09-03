@@ -3,20 +3,25 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Model\LoginRequest;
+use App\Admin\Service\LoginService;
 use App\Member\MemberService;
+use Core\AppConfig;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
-use Exception;
 use Slim\Routing\RouteContext;
 
 class LoginController
 {
+    private LoginService $service;
     private MemberService $member_service;
 
     public function __construct(
+        LoginService $service,
         MemberService $member_service
     ) {
+        $this->service = $service;
         $this->member_service = $member_service;
     }
 
@@ -33,8 +38,6 @@ class LoginController
     public function Login(Request $request, Response $response): Response
     {
         try {
-            $config = $request->getAttribute('config');
-
             // 데이터 검증 및 처리
             $request_body = $request->getParsedBody();
             $data = new LoginRequest($request_body);
@@ -48,7 +51,7 @@ class LoginController
             $is_check_password = true;
             if (
                 $is_check_password
-                && (!$member || !check_password($data->mb_password, $member['mb_password']))
+                && (!$member || $this->service->checkPassword($data->mb_password, $member['mb_password']) === false)
             ) {
                 // run_event('password_is_wrong', 'login', $member);
                 throw new Exception('아이디 또는 패스워드가 일치하지 않습니다.');
@@ -64,8 +67,6 @@ class LoginController
             // if (is_use_email_certify() && !preg_match("/[1-9]/", $member['mb_email_certify'])) {
             //     throw new Exception("{$member['mb_email']} 메일로 메일인증을 받으셔야 로그인 가능합니다.");
             // }
-
-            // 관리자 계정 체크
 
             // 세션 생성 전 Hook
             $is_social_login = false;
@@ -132,11 +133,13 @@ class LoginController
             // run_event('member_login_check', $member, $link, $is_social_login);
 
             // 관리자로 로그인시 DATA 폴더의 쓰기 권한이 있는지 체크합니다. 쓰기 권한이 없으면 로그인을 못합니다.
-            if (is_dir(G5_DATA_PATH . '/tmp/')) {
-                $tmp_data_file = G5_DATA_PATH . '/tmp/tmp-write-test-' . time();
+            $app_config = AppConfig::getInstance();
+            $data_path = $app_config->get('BASE_PATH') . '/' . $app_config->get('DATA_DIR');
+            if (is_dir($data_path . '/tmp/')) {
+                $tmp_data_file = $data_path . '/tmp/tmp-write-test-' . time();
                 $tmp_data_check = @fopen($tmp_data_file, 'w');
                 if ($tmp_data_check) {
-                    if (!@fwrite($tmp_data_check, G5_URL)) {
+                    if (!@fwrite($tmp_data_check, "data forder write test")) {
                         $tmp_data_check = false;
                     }
                 }
@@ -146,6 +149,11 @@ class LoginController
                 if (!$tmp_data_check) {
                     // alert("data 폴더에 쓰기권한이 없거나 또는 웹하드 용량이 없는 경우\\n로그인을 못할수도 있으니, 용량 체크 및 쓰기 권한을 확인해 주세요.", $link);
                 }
+            }
+
+            // 이전 패스워드 암호화 방식이라면 새로운 암호화 방식으로 업데이트
+            if ($this->service->isOldPassword($member['mb_password'])) {
+                $this->member_service->updatePasswordRehash($member['mb_id'], $data->mb_password);
             }
         } catch (Exception $e) {
             // alert($e->getMessage());
