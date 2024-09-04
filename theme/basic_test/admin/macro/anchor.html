@@ -1,0 +1,8 @@
+{% macro notification(notifications, section = '') %}
+<ul class="anchor">
+    <li><a href="#anchor_enabled" {% if section == "enabled" %}class="selected"{% endif %}>사용 설정</a></li>
+    {% for noti in notifications %}
+    <li><a href="#anchor_{{ noti.type }}" {% if section == noti.type %}class="selected"{% endif %}>{{ noti.name }}</a></li>
+    {% endfor %}
+</ul>
+{% endmacro notification %}

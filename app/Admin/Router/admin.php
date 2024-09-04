@@ -8,6 +8,7 @@ use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
 use App\Admin\Controller\MenuController;
+use App\Admin\Controller\NotificationController;
 use App\Admin\Controller\SocialController;
 use App\Admin\Controller\ThemeController;
 use App\Banner\Controller\BannerController;
@@ -74,6 +75,13 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->post('/update', [SocialController::class, 'update'])->setName('admin.setting.api.social.update');
                     $group->post('/delete', [SocialController::class, 'delete'])->setName('admin.setting.api.social.delete');
                 });
+
+                // 알림/메시징/메일 설정
+                $group->group('/notification', function (RouteCollectorProxy $group) {
+                    $group->get('', [NotificationController::class, 'index'])->setName('admin.setting.api.notification');
+                    $group->post('/update', [NotificationController::class, 'update'])->setName('admin.setting.api.notification.update');
+                });
+
             })->add(SuperAdminAuthMiddleware::class);
         });
 

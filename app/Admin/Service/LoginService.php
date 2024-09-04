@@ -2,19 +2,13 @@
 
 namespace App\Admin\Service;
 
-use App\Member\MemberService;
 use Core\AppConfig;
 use Core\Database\Db;
 use Exception;
 
 class LoginService
 {
-    private MemberService $member_service;
-
-    public function __construct(
-        MemberService $member_service
-    ) {
-        $this->member_service = $member_service;
+    public function __construct() {
     }
 
     /**

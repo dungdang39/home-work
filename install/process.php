@@ -90,7 +90,7 @@ try {
         // 최고관리자
         $member = $default_values['member'];
         $member['fields']['mb_id'] = $form['admin_id'];
-        $member['fields']['mb_password'] = create_hash($form['admin_pass']);
+        $member['fields']['mb_password'] = password_hash($form['admin_pass'], PASSWORD_DEFAULT);
         $member['fields']['mb_name'] = $form['admin_name'];
         $member['fields']['mb_nick'] = $form['admin_name'];
         $member['fields']['mb_email'] = $form['admin_email'];
@@ -112,13 +112,18 @@ try {
         foreach ($contents['values'] as $content) {
             Db::getInstance()->insert($prefix . $contents['table'], $content['fields']);
         }
+
+        // API > 알림/메시징/메일 설정 
+        $notifications = $default_values['notification'];
+        $noti_table = $prefix . $notifications['table'];
+        insertNotification($noti_table, $notifications['values']);
+
         /*
         // FAQ 설정
         $faq_category = $default_values['faq_category'];
         foreach ($faq_category['values'] as $category) {
             Db::getInstance()->insert($prefix . $faq_category['table'], $category['fields']);
         }
-
         // 게시판 그룹 설정
         $group = $default_values['group'];
         Db::getInstance()->insert($prefix . $group['table'], $group['fields']);
@@ -230,7 +235,8 @@ function insertAdminMenu($table, $menu, $parent_id = null) {
     $db = Db::getInstance();
 
     foreach ($menu as $item) {
-        $children = array_pop($item['children']);
+        $children = $item['children'] ?? null;
+        unset($item['children']);
         if (isset($parent_id)) {
             $item['am_parent_id'] = $parent_id;
         }
@@ -238,6 +244,26 @@ function insertAdminMenu($table, $menu, $parent_id = null) {
     
         if (isset($children) && !empty($children)) {
             insertAdminMenu($table, $children, $insert_id);
+        }
+    }
+}
+
+
+function insertNotification($table, $noti, $parent_id = null) {
+    $db = Db::getInstance();
+
+    foreach ($noti as $item) {
+        $children = $item['children'] ?? null;
+        unset($item['children']);
+        if (isset($parent_id)) {
+            $item['notification_id'] = $parent_id;
+            $db->insert($table . "_setting", $item);
+        } else {
+            $insert_id = $db->insert($table, $item);
+        }
+    
+        if (isset($children) && !empty($children)) {
+            insertNotification($table, $children, $insert_id);
         }
     }
 }

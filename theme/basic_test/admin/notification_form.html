@@ -1,0 +1,97 @@
+{% extends "/admin/_layout.html" %}
+{% import "/admin/macro/anchor.html" as anchor %}
+{% from "macro.html" import checked, description %}
+
+{% block title %}알림/메시징/메일{% endblock %}
+
+{% block content %}
+<h1 id="container_title">기본환경 > API연동설정 > 알림/메시징/메일</h1>
+<div class="container_wr">
+    <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.setting.api.notification.update') }}" onsubmit="return validate_form(this);">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+        <section id="anchor_enabled">
+            <h2 class="h2_frm">사용 설정</h2>
+
+            {{ anchor.notification(notifications, 'enabled') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>사용 설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    {% with %}
+                    {% for noti in notifications %}
+                    {% set type = noti.type %}
+                        <tr>
+                            <th scope="row">{{ noti.name }} 사용</th>
+                            <td colspan="3">
+                                <label for="{{ type }}_is_enabled_1" class="rules_label">사용</label>
+                                <input type="radio" id="{{ type }}_is_enabled_1" name="notification[{{ type }}][is_enabled]" value="1" {{ checked(1, noti.is_enabled) }}>
+                                <label for="{{ type }}_is_enabled_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="{{ type }}_is_enabled_0" name="notification[{{ type }}][is_enabled]" value="0" {{ checked(0, noti.is_enabled) }}>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {% with %}
+        {% for noti in notifications %}
+        {% set type = noti.type %}
+        <section id="anchor_{{ type }}">
+            <h2 class="h2_frm">{{ noti.name }} 설정</h2>
+
+            {{ anchor.notification(notifications, type) }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ noti.name }} 설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        {% for setting in noti.settings %}
+                        {% set key = setting.setting_key|trim %}
+                        {% set name = setting.setting_name %}
+                        {% set value = setting.setting_value %}
+                        {% set attr_id = type ~ '_' ~ key  %}
+                        <tr>
+                            <th scope="row"><label for="{{ attr_id }}">{{ name }}</label></th>
+                            <td>
+                                {{ description(setting.setting_description) }}
+                                <input type="text" id="{{ attr_id }}" name="settings[{{ key }}]" class="frm_input" value="{{ value }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% include "/admin/include/" ~ type ~ ".html" ignore missing %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endfor %}
+        {% endwith %}
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function validate_form(f) {
+        return true;
+    }
+</script>
+{% endblock content %}

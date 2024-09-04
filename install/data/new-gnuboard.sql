@@ -316,6 +316,44 @@ CREATE TABLE IF NOT EXISTS `new_menu` (
   KEY `me_order` (`me_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 메뉴 정보';
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_notification`
+--
+DROP TABLE IF EXISTS `new_notification`;
+CREATE TABLE IF NOT EXISTS `new_notification` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '알림 ID',
+  `type` varchar(100) NOT NULL COMMENT '알림 종류',
+  `name` varchar(255) NOT NULL COMMENT '알림 설정 이름',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '활성화 여부',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_notification_setting`
+--
+DROP TABLE IF EXISTS `new_notification_setting`;
+CREATE TABLE IF NOT EXISTS `new_notification_setting` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '알림설정 ID',
+  `notification_id` int(11) unsigned NOT NULL COMMENT '알림 ID',
+  `setting_key` varchar(255) NOT NULL COMMENT '알림 설정 key',
+  `setting_name` varchar(255) NOT NULL COMMENT '알림 설정 이름',
+  `setting_value` varchar(255) NOT NULL COMMENT '알림 설정 값',
+  `setting_description` text DEFAULT NULL COMMENT '설정값에 대한 설명',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- --------------------------------------------------------
 
 --
