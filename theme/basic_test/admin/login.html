@@ -4,9 +4,8 @@
     <title>관리자 로그인</title>
 </head>
 <body>
-    <form id="form_login" action="{{ url_for('login') }}" method="POST">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <form id="form_login" action="{{ url_for('login') }}" METHOD="post">
+        {{ csrf.field|raw }}
 
         <input type="text" name="mb_id" placeholder="Username">
         <input type="password" name="mb_password" placeholder="Password">

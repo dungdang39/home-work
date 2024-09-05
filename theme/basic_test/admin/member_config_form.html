@@ -6,8 +6,7 @@
 <div class="container_wr">
     <form name="form_member_config" id="form_member_config" method="post" action="{{ url_for('admin.member.config.update') }}"
         onsubmit="return validate_member_config_form(this);">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        {{ csrf.field|raw }}
 
         <section id="anchor_signup">
             <h2 class="h2_frm">회원가입 입력 설정</h2>

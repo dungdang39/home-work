@@ -12,8 +12,7 @@
         <form name="form_social" id="form_social" method="post"
                 action="{{ url_for('admin.setting.api.social.update') }}"
                 onsubmit="return validate_social_form(this);">
-            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            {{ csrf.field|raw }}
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>소셜로그인 설정</caption>
@@ -71,8 +70,7 @@
         <form name="form_add_social" id="form_add_social" method="post"
                 action="{{ url_for('admin.setting.api.social.insert') }}"
                 onsubmit="return validate_add_form(this);">
-            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            {{ csrf.field|raw }}
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>새로운 소셜로그인 추가</caption>

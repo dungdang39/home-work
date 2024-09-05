@@ -10,9 +10,12 @@ use Core\Environment;
 use Core\Extension\CsrfExtension;
 use DI\Container;
 use Dotenv\Exception\InvalidPathException;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extra\Html\HtmlExtension;
@@ -49,11 +52,19 @@ AppFactory::setContainer($container);
 
 // Create App
 $app = AppFactory::create();
+$callableResolver = $app->getCallableResolver();
 $responseFactory = $app->getResponseFactory();
 
 // Register Middleware On Container
 $container->set('csrf', function () use ($responseFactory) {
-    return new Guard($responseFactory);
+    $guard = new Guard($responseFactory);
+    // CSRF 검증 실패시 처리할 핸들러 설정
+    // @todo: 템플릿에서 처리될 수 있도록 수정 필요
+    // $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
+    //     $request = $request->withAttribute("csrf_status", false);
+    //     return $handler->handle($request);
+    // });
+    return $guard;
 });
 
 // Create Request object from globals
@@ -103,10 +114,11 @@ $app->add(TwigMiddleware::create($app, $twig));
 // Add JSON Body Parser Middleware
 $app->add(new JsonBodyParserMiddleware());
 
+// Add MethodOverride middleware
+// X-Http-Method-Override 헤더 또는 _METHOD 폼 파라미터를 사용하여 HTTP 메소드를 재정의합니다.
+$app->add(new MethodOverrideMiddleware());
 
 // Create Error Handler
-$callableResolver = $app->getCallableResolver();
-$responseFactory = $app->getResponseFactory();
 $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
 
 // Create Shutdown Handler

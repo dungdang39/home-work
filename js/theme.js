@@ -11,12 +11,19 @@ $(function () {
             type: "POST",
             url: uri,
             data: {
-                "csrf_name": $("input[name='csrf_name']").val(),
-                "csrf_value": $("input[name='csrf_value']").val(),
                 "type": "update"
             },
             cache: false,
             async: false,
+            beforeSend: function (xhr) {
+                for (let key in csrf) {
+                    if (!csrf[key]) {
+                        alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                        return false;
+                    }
+                    xhr.setRequestHeader(key, csrf[key]);
+                }
+            },
             success: function (data) {
                 alert(data.message);
 

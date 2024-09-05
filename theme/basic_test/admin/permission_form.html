@@ -26,8 +26,7 @@
     <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.setting.permission.delete-list') }}"
         onsubmit="return fauthlist_submit(this);">
         <input type="hidden" name="page" value="{{ pagination.page }}">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        {{ csrf.field|raw }}
 
         <div class="tbl_head01 tbl_wrap">
             <table>
@@ -116,8 +115,7 @@
 
         <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.setting.permission.insert') }}" method="post"
             autocomplete="off" onsubmit="return validate_permission_form(this);">
-            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            {{ csrf.field|raw }}
 
             <div class="tbl_frm01 tbl_wrap">
                 <table>

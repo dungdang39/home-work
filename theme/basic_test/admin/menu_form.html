@@ -91,8 +91,7 @@
     </div>
 
     <form name="fmenulist" id="fmenulist" method="post" action="./menu_list_update.php" onsubmit="return fmenulist_submit(this);">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        {{ csrf.field|raw }}
 
         <div id="menulist" class="tbl_head01 tbl_wrap">
             <table>

@@ -26,8 +26,7 @@
     -->
     <form name="form_category" id="form_category" method="post"
         action="{{ url_for('admin.content.faq.category.insert') }}">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        {{ csrf.field|raw }}
 
         <div id="area_category_info" class="tbl_frm01 tbl_wrap">
             <table>

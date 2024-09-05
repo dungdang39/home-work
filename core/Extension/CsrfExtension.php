@@ -31,7 +31,9 @@ class CsrfExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
                     'value' => $csrfValueKey
                 ],
                 'name'  => $csrfName,
-                'value' => $csrfValue
+                'value' => $csrfValue,
+                'field' => "<input type=\"hidden\" name=\"$csrfNameKey\" value=\"$csrfName\">\n"
+                          . "<input type=\"hidden\" name=\"$csrfValueKey\" value=\"$csrfValue\">"
             ]
         ];
     }

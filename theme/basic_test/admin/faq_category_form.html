@@ -8,8 +8,7 @@
 <div class="container_wr">
     <form name="frmfaqmasterform" action="./faqmasterformupdate.php" onsubmit="return frmfaqmasterform_check(this);"
         method="post" enctype="MULTIPART/FORM-DATA">
-        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
-        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        {{ csrf.field|raw }}
 
         <div class="tbl_frm01 tbl_wrap">
             <table>
