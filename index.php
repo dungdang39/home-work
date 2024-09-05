@@ -8,6 +8,8 @@ use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
 use Core\Environment;
 use Core\Extension\CsrfExtension;
+use Core\Extension\FlashExtension;
+use Core\Middleware\FlashDataMiddleware;
 use DI\Container;
 use Dotenv\Exception\InvalidPathException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -94,6 +96,7 @@ try {
 }
 
 $twig = Twig::create($template_dir, ['cache' => false]);
+$twig->addExtension(new FlashExtension($container));
 $twig->addExtension(new HtmlExtension());
 $twig->addExtension(new CsrfExtension($container->get('csrf')));
 
@@ -107,6 +110,9 @@ $app->addBodyParsingMiddleware();
 
 // Add CSRF Protection Middleware
 $app->add('csrf');
+
+// Add Flash Data Middleware
+$app->add(new FlashDataMiddleware());
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
