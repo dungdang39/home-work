@@ -17,6 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -38,7 +39,9 @@ include_once(__DIR__.'/lib/common.lib.php');    // 공통 라이브러리
 $displayErrorDetails = true;
 
 // Start PHP session
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!file_exists(__DIR__ . '/.env')) {
     header('Location: install/index.php');
@@ -69,6 +72,10 @@ $container->set('csrf', function () use ($responseFactory) {
     return $guard;
 });
 
+$container->set('flash', function () {
+    return new Messages($_SESSION);
+});
+
 // Create Request object from globals
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
@@ -96,7 +103,7 @@ try {
 }
 
 $twig = Twig::create($template_dir, ['cache' => false]);
-$twig->addExtension(new FlashExtension($container));
+$twig->addExtension(new FlashExtension($container->get('flash')));
 $twig->addExtension(new HtmlExtension());
 $twig->addExtension(new CsrfExtension($container->get('csrf')));
 
@@ -112,7 +119,7 @@ $app->addBodyParsingMiddleware();
 $app->add('csrf');
 
 // Add Flash Data Middleware
-$app->add(new FlashDataMiddleware());
+$app->add(new FlashDataMiddleware($container->get('flash')));
 
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));

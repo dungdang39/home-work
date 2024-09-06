@@ -1,26 +1,33 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import anchor, checked, info, selected %}
+
+{% block title %}기본환경 > 기본환경설정{% endblock %}
 
 {% block head %}
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" async></script>
 {% endblock head %}
 
 {% block content %}
+{% set sub_menus = {
+    'site' : '사이트 설정',
+    'business': '사업자 정보',
+    'ip': 'IP접속 관리',
+    'meta': '메타태그/스크립트'
+} %}
+
 <h1 id="container_title">기본환경 > 기본환경설정</h1>
 <div class="container_wr">
-    <form name="fconfigform" id="fconfigform" method="post" action="{{ url_for('admin.setting.config.update') }}" onsubmit="return validate_config_form(this);">
+    <form name="form_config" id="form_config" method="post" action="{{ url_for('admin.setting.config.update') }}" onsubmit="return validate_config_form(this);">
         {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
 
         <section id="anchor_site">
-            <h2 class="h2_frm">사이트 설정</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_site">사이트설정</a></li>
-                <li><a href="#anchor_business">사업자정보</a></li>
-                <li><a href="#anchor_ip">IP 접속 관리</a></li>
-                <li><a href="#anchor_meta">메타태그/스크립트</a></li>
-            </ul>
+            <h2 class="h2_frm">{{ sub_menus.site }}</h2>
+            {{ anchor(sub_menus, 'site') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
-                    <caption>홈페이지 기본환경 설정</caption>
+                    <caption>{{ sub_menus.site }}</caption>
                     <colgroup>
                         <col class="grid_4">
                         <col>
@@ -31,39 +38,34 @@
                         <tr>
                             <th scope="row"><label for="cf_site_title">사이트 제목<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <span class="frm_info"> 
-                                    브라우저 탭 / 메일 발송 등에 표시되는 이름입니다.
-                                </span>
-                                <input type="text" name="cf_site_title" value="{{ config.cf_site_title }}" id="cf_site_title" class="required frm_input" size="40" required>
+                                {{ info('브라우저 탭 / 메일 발송 등에 표시되는 이름입니다.') }}
+                                <input type="text" id="cf_site_title" name="cf_site_title" class="required frm_input" value="{{ old('cf_site_title', config) }}" size="40" required>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_site_description">사이트 설명</label></th>
                             <td>
-                                <span class="frm_info"> 
-                                    사이트 설명을 간략하게 입력해 주세요. 검색 엔진에 제공하는 정보입니다.
-                                </span>
-                                <textarea name="cf_site_description" id="cf_site_description">{{ config.cf_site_description }}</textarea>
+                                {{ info('사이트 설명을 간략하게 입력해 주세요. 검색 엔진에 제공하는 정보입니다.') }}
+                                <textarea name="cf_site_description" id="cf_site_description">
+                                    {{- old('cf_site_description', config) -}}
+                                </textarea>
                             </td>
                             <th scope="row"><label for="cf_site_keyword">사이트 키워드</label></th>
                             <td>
-                                <span class="frm_info">
-                                    쉼표나 탭으로 구분하여 입력하세요. 검색 엔진에 제공하는 정보입니다.
-                                </span>
-                                <textarea name="cf_site_keyword" id="cf_site_keyword" >{{ config.cf_site_keyword }}</textarea>
+                                {{ info('쉼표나 탭으로 구분하여 입력하세요. 검색 엔진에 제공하는 정보입니다.') }}
+                                <textarea name="cf_site_keyword" id="cf_site_keyword" >
+                                    {{- old('cf_site_keyword', config) -}}
+                                </textarea>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_admin">최고관리자<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    레벨10 회원을 최고관리자로 지정할 수 있습니다. 사이트의 모든 권한을 갖게 됩니다.
-                                </span>
+                                {{ info('레벨10 회원을 최고관리자로 지정할 수 있습니다. 사이트의 모든 권한을 갖게 됩니다.') }}
                                 <select name="cf_admin" id="cf_admin" required>
                                     <option value="">선택안함</option>
                                 {% for admin in admins %}
-                                    {% set selected = (admin == config.cf_admin) ? 'selected' : '' %}
-                                    <option value="{{ admin }}" {{ selected }}>{{ admin }}</option>
+                                    <option value="{{ admin }}" {{ selected(admin, old('cf_admin', config)) }}>{{ admin }}</option>
                                 {% endfor %}
                                 </select>
                             </td>
@@ -72,55 +74,48 @@
                         <tr>
                             <th scope="row"><label for="cf_privacy_officer_name">개인정보관리책임자명<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자명입니다.
-                                </span>
-                                <input type="text" name="cf_privacy_officer_name" value="{{ config.cf_privacy_officer_name }}" id="cf_privacy_officer_name" required class="required frm_input" size="40">
+                                {{ info('사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자명입니다.') }}
+                                <input type="text" name="cf_privacy_officer_name" value="{{ old('cf_privacy_officer_name', config) }}" id="cf_privacy_officer_name" required class="required frm_input" size="40">
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_privacy_officer_email">개인정보관리책임자명 메일 주소<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자 이메일입니다.
-                                </span>
-                                <input type="text" name="cf_privacy_officer_email" value="{{ config.cf_privacy_officer_email }}" id="cf_privacy_officer_email" required class="required email frm_input" size="40">
+                                {{ info('사이트 하단, 개인정보처리방침에 표시할 개인정보관리책임자 이메일입니다.') }}
+                                <input type="text" name="cf_privacy_officer_email" value="{{ old('cf_privacy_officer_email', config) }}" id="cf_privacy_officer_email" required class="required email frm_input" size="40">
                             </td>
                         </tr>
-                        <!--
-                        <tr>
-                            <th scope="row"><label for="cf_admin_email">단축URL</label></th>
-                            <td colspan="3">
-                            </td>
-                        </tr>
-                        -->
+                        {% with %}
                         {% for i in 1..10 %}
+                        {% set field_subject = 'cf_' ~ i ~ '_subj' %}
+                        {% set field_value = 'cf_' ~ i %}
                         <tr>
                             <th scope="row">여분필드{{ i }}</th>
                             <td class="td_extra">
-                                <label for="cf_{{ i }}_subj">여분필드{{ i }} 제목</label>
-                                <input type="text" name="cf_{{ i }}_subj" value="{{ attribute(config, 'cf_' ~ i ~ '_subj') }}" id="cf_{{ i }}_subj" class="frm_input" size="30">
-                                <label for="cf_{{ i }}">여분필드{{ i }} 값</label>
-                                <input type="text" name="cf_{{ i }}" value="{{ attribute(config, 'cf_' ~ i) }}" id="cf_{{ i }}" class="frm_input extra-value-input" size="30">
+                                <label for="{{ field_subject }}">여분필드{{ i }} 제목</label>
+                                <input type="text" id="{{ field_subject }}" name="{{ field_subject }}" value="{{ old(field_subject, config) }}" class="frm_input" size="30">
+                                <label for="{{ field_value }}">여분필드{{ i }} 값</label>
+                                <input type="text" id="{{ field_value }}" name="{{ field_value }}" value="{{ old(field_value, config) }}" class="frm_input extra-value-input" size="30">
                             </td>
                         </tr>
                         {% endfor %}
+                        {% endwith %}
                         <tr>
                             <th scope="row">쇼핑몰 사용</th>
                             <td colspan="3">
-                                <label for="cf_use_shop_0" class="rules_label">사용</label>
-                                <input name="cf_use_shop" id="cf_use_shop_0" type="radio" value="1" {{ config.cf_use_shop == 1 ? 'checked' : '' }}>
-                                <label for="cf_use_shop_1" class="rules_label">사용안함</label>
-                                <input name="cf_use_shop" id="cf_use_shop_1" type="radio" value="0" {{ config.cf_use_shop == 0 ? 'checked' : '' }}>
+                                <label for="cf_use_shop_1" class="rules_label">사용</label>
+                                <input name="cf_use_shop" id="cf_use_shop_1" type="radio" value="1" {{ checked(1, old('cf_use_shop', config)) }}>
+                                <label for="cf_use_shop_0" class="rules_label">사용안함</label>
+                                <input name="cf_use_shop" id="cf_use_shop_0" type="radio" value="0" {{ checked(0, old('cf_use_shop', config), true) }}>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">커뮤니티 사용</th>
                             <td colspan="3">
-                                <label for="cf_use_community_0" class="rules_label">사용</label>
-                                <input name="cf_use_community" id="cf_use_community_0" type="radio" value="1" {{ config.cf_use_community == 1 ? 'checked' : '' }}>
-                                <label for="cf_use_community_1" class="rules_label">사용안함</label>
-                                <input name="cf_use_community" id="cf_use_community_1" type="radio" value="0" {{ config.cf_use_community == 0 ? 'checked' : '' }}>
+                                <label for="cf_use_community_1" class="rules_label">사용</label>
+                                <input name="cf_use_community" id="cf_use_community_1" type="radio" value="1" {{ checked(1, old('cf_use_community', config)) }}>
+                                <label for="cf_use_community_0" class="rules_label">사용안함</label>
+                                <input name="cf_use_community" id="cf_use_community_0" type="radio" value="0" {{ checked(0, old('cf_use_community', config), true) }}>
                             </td>
                         </tr>
                     </tbody>
@@ -129,17 +124,12 @@
         </section>
 
         <section id="anchor_business">
-            <h2 class="h2_frm">사업자 정보</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_site">사이트설정</a></li>
-                <li><a href="#anchor_business">사업자정보</a></li>
-                <li><a href="#anchor_ip">IP 접속 관리</a></li>
-                <li><a href="#anchor_meta">메타태그/스크립트</a></li>
-            </ul>
+            <h2 class="h2_frm">{{ sub_menus.business }}</h2>
+            {{ anchor(sub_menus, 'business') }}
 
             <div class="tbl_frm01 tbl_wrap">
                 <table>
-                    <caption>사업자정보</caption>
+                    <caption>{{ sub_menus.business }}</caption>
                     <colgroup>
                         <col class="grid_4">
                         <col>
@@ -149,50 +139,50 @@
                     <tbody>
                         <tr>
                             <th scope="row"><label for="cf_company_name">회사명</label></th>
-                            <td><input type="text" name="cf_company_name" id="cf_company_name" class="frm_input" value="{{ config.cf_company_name }}"></td>
+                            <td><input type="text" name="cf_company_name" id="cf_company_name" class="frm_input" value="{{ old('cf_company_name', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_reg_no">사업자등록번호</label></th>
-                            <td><input type="text" name="cf_biz_reg_no" id="cf_biz_reg_no" class="frm_input" value="{{ config.cf_biz_reg_no }}"></td>
+                            <td><input type="text" name="cf_biz_reg_no" id="cf_biz_reg_no" class="frm_input" value="{{ old('cf_biz_reg_no', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_ceo_name">대표자명</label></th>
-                            <td><input type="text" name="cf_ceo_name" id="cf_ceo_name" class="frm_input" value="{{ config.cf_ceo_name }}"></td>
+                            <td><input type="text" name="cf_ceo_name" id="cf_ceo_name" class="frm_input" value="{{ old('cf_ceo_name', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_main_phone_number">대표전화번호</label></th>
-                            <td><input type="text" name="cf_main_phone_number" id="cf_main_phone_number" class="frm_input" value="{{ config.cf_main_phone_number }}"></td>
+                            <td><input type="text" name="cf_main_phone_number" id="cf_main_phone_number" class="frm_input" value="{{ old('cf_main_phone_number', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_fax_number">팩스번호</label></th>
-                            <td><input type="text" name="cf_fax_number" id="cf_fax_number" class="frm_input" value="{{ config.cf_fax_number }}"></td>
+                            <td><input type="text" name="cf_fax_number" id="cf_fax_number" class="frm_input" value="{{ old('cf_fax_number', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_ecom_reg_no">통신판매업신고번호</label></th>
-                            <td><input type="text" name="cf_ecom_reg_no" id="cf_ecom_reg_no" class="frm_input" value="{{ config.cf_ecom_reg_no }}"></td>
+                            <td><input type="text" name="cf_ecom_reg_no" id="cf_ecom_reg_no" class="frm_input" value="{{ old('cf_ecom_reg_no', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_add_telecom_no">부가통신사업자번호</label></th>
-                            <td><input type="text" name="cf_add_telecom_no" id="cf_add_telecom_no" class="frm_input" value="{{ config.cf_add_telecom_no }}"></td>
+                            <td><input type="text" name="cf_add_telecom_no" id="cf_add_telecom_no" class="frm_input" value="{{ old('cf_add_telecom_no', config) }}"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_zip_code">사업장 우편번호</label></th>
                             <td>
-                                <input type="text" name="cf_biz_zip_code" id="cf_biz_zip_code" class="frm_input" value="{{ config.cf_biz_zip_code }}">
-                                <button type="button" class="btn_frmline" onclick="win_zip('fconfigform', 'cf_biz_zip_code', 'cf_biz_address', 'cf_biz_address_detail', 'cf_biz_address_etc', '');">주소찾기</button><br>
+                                <input type="text" name="cf_biz_zip_code" id="cf_biz_zip_code" class="frm_input" value="{{ old('cf_biz_zip_code', config) }}">
+                                <button type="button" class="btn_frmline" onclick="win_zip('form_config', 'cf_biz_zip_code', 'cf_biz_address', 'cf_biz_address_detail', 'cf_biz_address_etc', '');">주소찾기</button><br>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_address">사업장 기본주소</label></th>
-                            <td><input type="text" name="cf_biz_address" id="cf_biz_address" class="frm_input" value="{{ config.cf_biz_address }}" placeholder="기본주소"></td>
+                            <td><input type="text" name="cf_biz_address" id="cf_biz_address" class="frm_input" value="{{ old('cf_biz_address', config) }}" placeholder="기본주소"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_address_detail">사업장 상세주소</label></th>
-                            <td><input type="text" name="cf_biz_address_detail" id="cf_biz_address_detail" class="frm_input" value="{{ config.cf_biz_address_detail }}" placeholder="상세주소"></td>
+                            <td><input type="text" name="cf_biz_address_detail" id="cf_biz_address_detail" class="frm_input" value="{{ old('cf_biz_address_detail', config) }}" placeholder="상세주소"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_biz_address_etc">참고항목</label></th>
-                            <td><input type="text" name="cf_biz_address_etc" id="cf_biz_address_etc" class="frm_input" value="{{ config.cf_biz_address_etc }}" readonly></td>
+                            <td><input type="text" name="cf_biz_address_etc" id="cf_biz_address_etc" class="frm_input" value="{{ old('cf_biz_address_etc', config) }}" readonly></td>
                         </tr>
                     </tbody>
                 </table>
@@ -200,16 +190,12 @@
         </section>
 
         <section id="anchor_ip">
-            <h2 class="h2_frm">IP 접속 관리</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_site">사이트설정</a></li>
-                <li><a href="#anchor_business">사업자정보</a></li>
-                <li><a href="#anchor_ip">IP 접속 관리</a></li>
-                <li><a href="#anchor_meta">메타태그/스크립트</a></li>
-            </ul>
+            <h2 class="h2_frm">{{ sub_menus.ip }}</h2>
+            {{ anchor(sub_menus, 'ip') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
-                    <caption>IP 접속 관리</caption>
+                    <caption>{{ sub_menus.ip }}</caption>
                     <colgroup>
                         <col class="grid_4">
                         <col>
@@ -220,23 +206,17 @@
                         <tr>
                             <th scope="row"><label for="cf_possible_ip">접근가능 IP</label></th>
                             <td>
-                                <!--
-                                <span class="frm_info">
-                                    입력된 IP의 컴퓨터만 접근할 수 있습니다.
-                                    <br>123.123.+ 도 입력 가능. (엔터로 구분)
-                                </span>
-                                -->
-                                <textarea name="cf_possible_ip" id="cf_possible_ip">{{ config.cf_possible_ip }}</textarea>
+                                {{ info('입력된 IP의 컴퓨터만 접근할 수 있습니다.\n 123.123.+ 도 입력 가능. (엔터로 구분)') }}
+                                <textarea name="cf_possible_ip" id="cf_possible_ip">
+                                    {{- old('cf_possible_ip', config) -}}
+                                </textarea>
                             </td>
                             <th scope="row"><label for="cf_intercept_ip">접근차단 IP</label></th>
                             <td>
-                                <!--
-                                <span class="frm_info">
-                                    입력된 IP의 컴퓨터는 접근할 수 없음.
-                                    <br>123.123.+ 도 입력 가능. (엔터로 구분)
-                                </span>
-                                -->
-                                <textarea name="cf_intercept_ip" id="cf_intercept_ip">{{ config.cf_intercept_ip }}</textarea>
+                                {{ info('입력된 IP의 컴퓨터는 접근할 수 없음.\n 123.123.+ 도 입력 가능. (엔터로 구분)') }}
+                                <textarea name="cf_intercept_ip" id="cf_intercept_ip">
+                                    {{- old('cf_intercept_ip', config) -}}
+                                </textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -245,16 +225,12 @@
         </section>
 
         <section id="anchor_meta">
-            <h2 class="h2_frm">본인확인 설정</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_site">사이트설정</a></li>
-                <li><a href="#anchor_business">사업자정보</a></li>
-                <li><a href="#anchor_ip">IP 접속 관리</a></li>
-                <li><a href="#anchor_meta">메타태그/스크립트</a></li>
-            </ul>
+            <h2 class="h2_frm">>{{ sub_menus.meta }}</h2>
+            {{ anchor(sub_menus, 'meta') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
-                    <caption>본인확인 설정</caption>
+                    <caption>>{{ sub_menus.meta }}</caption>
                     <colgroup>
                         <col class="grid_4">
                         <col>
@@ -263,28 +239,34 @@
                         <tr>
                             <th scope="row"><label for="cf_add_script">사용자 스크립트</label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    사용자 정의 자바스크립트를 입력하세요. {{ '</html>'|e('html') }} 다음에 추가됩니다.
-                                </span>
-                                <textarea name="cf_add_script" id="cf_add_script">{% autoescape false %}{{ config.cf_add_script }}{% endautoescape %}</textarea>
+                                {{ info('사용자 정의 자바스크립트를 입력하세요. </html> 다음에 추가됩니다.') }}
+                                <textarea name="cf_add_script" id="cf_add_script">
+                                {%- autoescape false -%}
+                                    {{- old('cf_add_script', config) -}}
+                                {%- endautoescape -%}
+                                </textarea>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_add_css">사용자 스타일시트(CSS)</label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    사용자 정의 스타일시트를 입력하세요. {{ '<head>'|e('html') }} 마지막에 추가됩니다.
-                                </span>
-                                <textarea name="cf_add_css" id="cf_add_css">{% autoescape false %}{{ config.cf_add_css }}{% endautoescape %}</textarea>
+                                {{ info('사용자 정의 스타일시트를 입력하세요. <head> 마지막에 추가됩니다.') }}
+                                <textarea name="cf_add_css" id="cf_add_css">
+                                {%- autoescape false -%}
+                                    {{- old('cf_add_css', config) -}}
+                                {%- endautoescape -%}
+                                </textarea>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="cf_add_meta">사용자 메타태그</label></th>
                             <td colspan="3">
-                                <span class="frm_info">
-                                    사용자 정의 스타일시트를 입력하세요. {{ '<meta>'|e('html') }} 마지막에 추가됩니다.
-                                </span>
-                                <textarea name="cf_add_meta" id="cf_add_meta">{% autoescape false %}{{ config.cf_add_meta }}{% endautoescape %}</textarea>
+                                {{ info('사용자 정의 메타 태그를 입력하세요. <meta> 마지막에 추가됩니다.') }}
+                                <textarea name="cf_add_meta" id="cf_add_meta">
+                                {%- autoescape false -%}
+                                    {{- old('cf_add_meta', config) -}}
+                                {%- endautoescape -%}
+                                </textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -301,8 +283,8 @@
 
 <script>
     function validate_config_form(f) {
-        var current_user_ip = "127.0.0.1";
-        var cf_intercept_ip_val = f.cf_intercept_ip.value;
+        let current_user_ip = "{{ current_ip }}";
+        let cf_intercept_ip_val = f.cf_intercept_ip.value;
 
         if (cf_intercept_ip_val && current_user_ip) {
             var cf_intercept_ips = cf_intercept_ip_val.split("\n");

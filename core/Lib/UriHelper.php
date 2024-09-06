@@ -2,7 +2,7 @@
 
 namespace Core\Lib;
 
-use Slim\Psr7\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 
 class UriHelper

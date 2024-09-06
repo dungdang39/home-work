@@ -1,23 +1,26 @@
 {% extends "/admin/_layout.html" %}
-{% import "/admin/macro/anchor.html" as anchor %}
-{% from "macro.html" import checked, description %}
+{% from "macro.html" import anchor, checked, info %}
 
 {% block title %}알림/메시징/메일{% endblock %}
 
 {% block content %}
+{% set sub_menus = {'enabled' : '사용 설정'} %}
+{% for noti in notifications %}
+    {% set sub_menus = sub_menus | merge({ (noti.type): noti.name }) %}
+{% endfor %}
+
 <h1 id="container_title">기본환경 > API연동설정 > 알림/메시징/메일</h1>
 <div class="container_wr">
     <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.setting.api.notification.update') }}" onsubmit="return validate_form(this);">
         {{ csrf.field|raw }}
 
         <section id="anchor_enabled">
-            <h2 class="h2_frm">사용 설정</h2>
-
-            {{ anchor.notification(notifications, 'enabled') }}
+            <h2 class="h2_frm">{{ sub_menus.enabled }}</h2>
+            {{ anchor(sub_menus, 'enabled') }}
 
             <div class="tbl_frm01 tbl_wrap">
                 <table>
-                    <caption>사용 설정</caption>
+                    <caption>{{ sub_menus.enabled }}</caption>
                     <colgroup>
                         <col class="grid_4">
                         <col>
@@ -47,8 +50,7 @@
         {% set type = noti.type %}
         <section id="anchor_{{ type }}">
             <h2 class="h2_frm">{{ noti.name }} 설정</h2>
-
-            {{ anchor.notification(notifications, type) }}
+            {{ anchor(sub_menus, type) }}
 
             <div class="tbl_frm01 tbl_wrap">
                 <table>
@@ -68,7 +70,7 @@
                         <tr>
                             <th scope="row"><label for="{{ attr_id }}">{{ name }}</label></th>
                             <td>
-                                {{ description(setting.setting_description) }}
+                                {{ info(setting.setting_description) }}
                                 <input type="text" id="{{ attr_id }}" name="settings[{{ key }}]" class="frm_input" value="{{ value }}">
                             </td>
                         </tr>

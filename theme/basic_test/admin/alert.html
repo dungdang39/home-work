@@ -1,0 +1,8 @@
+{% with %}
+{% set message = error_first_message() %}
+    {% if message %}
+    <script>
+        alert('{{ message }}');
+    </script>
+    {% endif %}
+{% endwith %}

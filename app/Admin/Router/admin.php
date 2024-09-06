@@ -52,7 +52,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             // 기본환경 설정
             $group->group('/config', function (RouteCollectorProxy $group) {
                 $group->get('', [ConfigController::class, 'index'])->setName('admin.setting.config');
-                $group->post('', [ConfigController::class, 'update'])->setName('admin.setting.config.update');
+                $group->put('', [ConfigController::class, 'update'])->setName('admin.setting.config.update');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 운영진 설정
@@ -103,6 +103,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('/theme', function (RouteCollectorProxy $group) {
                 $group->get('', [ThemeController::class, 'index'])->setName('admin.design.theme');
                 $group->post('/{theme}', [ThemeController::class, 'update'])->setName('admin.design.theme.update');
+                $group->put('/', [ThemeController::class, 'updateInfo'])->setName('admin.design.theme.config.update');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 배너
