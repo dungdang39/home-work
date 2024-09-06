@@ -4,8 +4,8 @@ namespace App\Qa\Controller;
 
 use App\Qa\Model\QaConfigRequest;
 use App\Qa\Service\QaConfigService;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 

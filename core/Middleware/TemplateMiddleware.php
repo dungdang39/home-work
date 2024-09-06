@@ -5,10 +5,10 @@ namespace Core\Middleware;
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
 use Core\Lib\UriHelper;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Views\Twig;
-use Slim\Psr7\Request;
 
 /**
  *  템플릿 설정 Middleware

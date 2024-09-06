@@ -7,8 +7,8 @@ use App\Faq\Model\FaqCategoryRequest;
 use App\Faq\Model\FaqCategorySearchRequest;
 use App\Faq\Model\FaqRequest;
 use Core\Model\PageParameters;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 

@@ -4,7 +4,7 @@ namespace App\Banner;
 
 use Core\Database\Db;
 use Core\Lib\UriHelper;
-use Slim\Psr7\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class BannerService
 {
