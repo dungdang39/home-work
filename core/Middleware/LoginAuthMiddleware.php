@@ -7,6 +7,7 @@ use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\Views\Twig;
 
 /**
  * LoginAuth Middleware
@@ -35,7 +36,9 @@ class LoginAuthMiddleware
         }
 
         $request = $request->withAttribute('member', $member);
-    
+        $view = Twig::fromRequest($request);
+        $view->getEnvironment()->addGlobal('member', $member);
+
         return $handler->handle($request);
     }
 }

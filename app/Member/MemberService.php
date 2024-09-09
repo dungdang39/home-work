@@ -221,7 +221,7 @@ class MemberService
         $query = "SELECT *
                     FROM {$this->table}
                     WHERE {$sql_where}
-                    ORDER BY mb_created_at DESC
+                    ORDER BY created_at DESC
                     LIMIT :offset, :limit";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -266,7 +266,7 @@ class MemberService
      */
     public function fetchMemberByLevel(int $mb_level)
     {
-        $query = "SELECT * FROM `{$this->table}` WHERE mb_level = :mb_level";
+        $query = "SELECT mb_id, mb_name, mb_nick FROM `{$this->table}` WHERE mb_level = :mb_level";
         $stmt = Db::getInstance()->run($query, ["mb_level" => $mb_level]);
 
         return $stmt->fetchAll();

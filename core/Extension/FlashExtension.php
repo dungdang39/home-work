@@ -34,9 +34,9 @@ final class FlashExtension extends AbstractExtension
      * 
      * @param string $key  요청 데이터의 키
      * @param mixed $default  기본값
-     * @return string  이전 입력 값
+     * @return mixed  이전 입력 값
      */
-    public function old(string $key = null, $default = null): string
+    public function old(string $key = null, $default = null)
     {
         $old = $this->flash->getFirstMessage('old', $default);
 

@@ -1,0 +1,207 @@
+{% extends "/admin/_layout.html" %}
+{% from "macro.html" import selected %}
+
+{% block title %}디자인/UI > 테마 설정{% endblock title %}
+
+{% block head %}
+<script src="{{ base_url }}/js/theme.js"></script>
+{% endblock head %}
+
+{% block content %}
+<style>
+    #theme_detail { display: none; }
+</style>
+
+<h1 id="container_title">디자인/UI > 테마 설정</h1>
+<div class="container_wr">
+    <section id="anchor_theme">
+        <h2 class="h2_frm">테마 선택</h2>
+        <ul class="anchor">
+            <li><a href="#anchor_theme">테마</a></li>
+            <li><a href="#anchor_logo">로고</a></li>
+            <li><a href="#anchor_layout">레이아웃</a></li>
+        </ul>
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>테마 선택</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <ul id="theme_list">
+                    {% for theme in themes %}
+                        <li>
+                            <div class="tmli_if">
+                                <img src="{{ base_url ~ theme.screenshot }}" alt="{{ theme.name }}">
+                                <div class="tmli_tit">
+                                    <p>{{ theme.name }}</p>
+                                </div>
+                            </div>
+                            {% if theme.theme == current_theme %}
+                            <span class="theme_sl theme_sl_use">사용중</span>
+                            <button type="button" class="theme_sl theme_deactive"
+                                data-theme="{{ theme.theme }}"
+                                data-name="{{ theme.name }}"
+                                data-uri="{{ url_for('admin.design.theme.update', {'theme': theme.theme }) }}">사용안함</button>
+                            {% else %}
+                            <button type="button" class="theme_sl theme_active"
+                                data-theme="{{ theme.theme }}"
+                                data-name="{{ theme.name }}"
+                                data-uri="{{ url_for('admin.design.theme.update', {'theme': theme.theme }) }}">테마적용</button>
+                            {% endif %}
+
+                            <button type="button" class="tmli_dt theme_preview"
+                                data-theme-name="{{ theme.name }}"
+                                data-theme-uri="{{ theme.uri }}"
+                                data-theme-maker="{{ theme.maker }}"
+                                data-theme-maker-uri="{{ theme.maker_uri }}"
+                                data-theme-version="{{ theme.version }}"
+                                data-theme-detail="{{ theme.detail }}"
+                                data-theme-license="{{ theme.license }}"
+                                data-theme-license-uri="{{ theme.license_uri }}"
+                                data-theme-screenshot="{{ base_url ~ theme.screenshot }}">상세보기</button>
+                        </li>
+                    {% else %}
+                        <li class="no_theme">설치된 테마가 없습니다.</li>
+                    {% endfor %}
+                    </ul>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="theme_detail">
+            <h2 id="theme_name"></h2>
+            <div class="theme_dt_img"><img src="" id="theme_screenshot" alt=""></div>
+            <div class="theme_dt_if">
+                <p id="theme_description"></p>
+                <table>
+                    <tr>
+                        <th scope="row">Version</th>
+                        <td id="theme_version"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Maker</th>
+                        <td id="theme_maker"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">License</th>
+                        <td id="theme_license"></td>
+                    </tr>
+                </table>
+                <div class="theme_dt_btn">
+                    <button type="button" class="close_btn">닫기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <form name="form_theme" method="post" action="{{ url_for('admin.design.theme.config.update') }}" enctype="multipart/form-data">
+        <input type="hidden" name="_METHOD" value="PUT"/>
+        {{ csrf.field|raw }}
+
+        <section id="anchor_logo">
+            <h2 class="h2_frm">로고</h2>
+            <ul class="anchor">
+                <li><a href="#anchor_theme">테마</a></li>
+                <li><a href="#anchor_logo">로고</a></li>
+                <li><a href="#anchor_layout">레이아웃</a></li>
+            </ul>
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>로고 선택</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="logo_header_file">상단 로고 이미지</label></th>
+                            <td>
+                                <input type="file" name="logo_header_file" id="logo_header_file" class="frm_file">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="logo_footer_file">하단 로고 이미지</label></th>
+                            <td>
+                                <input type="file" name="logo_footer_file" id="logo_footer_file" class="frm_file">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <a href="#" class="btn_02 btn">취소 </a>
+                <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+            </div>
+        </section>
+
+        <section id="anchor_layout">
+            <h2 class="h2_frm">레이아웃</h2>
+            <ul class="anchor">
+                <li><a href="#anchor_theme">테마</a></li>
+                <li><a href="#anchor_logo">로고</a></li>
+                <li><a href="#anchor_layout">레이아웃</a></li>
+            </ul>
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>레이아웃 선택</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="layout_community">커뮤니티</label></th>
+                            <td>
+                                <select name="layout_community">
+                                    <option value="community" {{ selected('community', config.layout_community, true) }}>커뮤니티</option>
+                                    <option value="shop" {{ selected('shop', config.layout_community) }}>쇼핑몰</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="layout_member">회원</label></th>
+                            <td>
+                                <select name="layout_member">
+                                    <option value="community" {{ selected('community', config.layout_member, true) }}>커뮤니티</option>
+                                    <option value="shop" {{ selected('shop', config.layout_member) }}>쇼핑몰</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="layout_shop">쇼핑몰</label></th>
+                            <td>
+                                <select name="layout_shop">
+                                    <option value="community" {{ selected('community', config.layout_shop) }}>커뮤니티</option>
+                                    <option value="shop" {{ selected('shop', config.layout_shop, true) }}>쇼핑몰</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="layout_content">컨텐츠</label></th>
+                            <td>
+                                <select name="layout_content">
+                                    <option value="content" {{ selected('shop', config.layout_content, true) }}>컨텐츠</option>
+                                    <option value="community" {{ selected('community', config.layout_content) }}>커뮤니티</option>
+                                    <option value="shop" {{ selected('shop', config.layout_content) }}>쇼핑몰</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <a href="#" class="btn_02 btn">취소 </a>
+                <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+            </div>
+        </section>
+    </form>
+</div>
+{% endblock content %}

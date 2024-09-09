@@ -26,7 +26,7 @@ class ConfigService
     public function getTheme(): string
     {
         $config = $this->getConfig();
-        if (empty($config)) {
+        if (empty($config) || empty($config['cf_theme'])) {
             return ThemeService::DEFAULT_THEME;
         }
         return $config['cf_theme'];

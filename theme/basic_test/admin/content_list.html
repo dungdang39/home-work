@@ -37,7 +37,7 @@
                             <span class="sound_only">{{ content.title }}</span>
                             보기
                         </a>
-                        <a href="{{ url_for('admin.content.manage.delete', {code: content.code}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">
+                        <a href="{{ url_for('admin.content.manage.delete', {code: content.code}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_02">
                             <span class="sound_only">{{ content.title }}</span>
                             삭제
                         </a>

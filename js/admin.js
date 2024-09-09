@@ -51,7 +51,7 @@ function is_checked(elements_name) {
     return checked;
 }
 
-function delete_confirm(element)
+function delete_confirm(href)
 {
     message = "한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?";
     if (!confirm(message)) {
@@ -60,7 +60,7 @@ function delete_confirm(element)
 
     $.ajax({
         type: "DELETE",
-        url: element.href,
+        url: href,
         beforeSend: function (xhr) {
             for (let key in csrf) {
                 if (!csrf[key]) {
@@ -79,6 +79,10 @@ function delete_confirm(element)
             if (data.result === 'success') {
                 document.location.reload();
             }
+        },
+        error: function (xhr, status, error) {
+            let result = xhr.responseJSON;
+            alert(xhr.status + ' ' + error + ': ' + result.message);
         }
     });
 }

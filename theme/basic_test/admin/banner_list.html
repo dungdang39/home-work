@@ -51,7 +51,7 @@
                         <br> URL :{{ banner.bn_url }}
                     </td>
                     <td headers="th_mng" class="td_mng td_mns_m">
-                        <a href="{{ url_for('admin.design.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this); return false;" class="btn btn_02">삭제</a>
+                        <a href="{{ url_for('admin.design.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_02">삭제</a>
                         <a href="#" class="btn btn_02">즉시종료</a>
                         <a href="{{ url_for('admin.design.banner.view', {'bn_id': banner.bn_id}) }}" class="btn btn_03">수정</a>
                     </td>
