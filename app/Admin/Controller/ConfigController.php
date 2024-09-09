@@ -10,7 +10,6 @@ use DI\Container;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 class ConfigController extends BaseController
@@ -50,9 +49,7 @@ class ConfigController extends BaseController
     public function update(Request $request, Response $response): Response
     {
         try {
-            // throw new Exception('Not implemented');
-            $request_body = $request->getParsedBody();
-            $data = new UpdateConfigRequest($request_body);
+            $data = UpdateConfigRequest::createFromRequestBody($request);
 
             $this->service->update($data->toArray());
         } catch (Exception $e) {

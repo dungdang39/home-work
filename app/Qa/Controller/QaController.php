@@ -4,6 +4,7 @@ namespace App\Qa\Controller;
 
 use App\Qa\Service\QaConfigService;
 use App\Qa\Service\QaService;
+use Core\BaseController;
 use Core\Model\PageParameters;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -11,15 +12,18 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Exception;
 
-class QaController
+class QaController extends BaseController
 {
     private QaService $service;
     private QaConfigService $config_service;
 
     public function __construct(
+        Container $container,
         QaService $service,
         QaConfigService $config_service
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
         $this->config_service = $config_service;
     }
@@ -73,11 +77,8 @@ class QaController
             $routeContext = RouteContext::fromRequest($request);
             $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member');
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
     }
 
@@ -142,11 +143,8 @@ class QaController
             $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.view', ['mb_id' => $member['mb_id']]);
             return $response->withHeader('Location', $redirect_url)->withStatus(302);
 
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
     }
 
@@ -173,15 +171,11 @@ class QaController
 
             $this->service->leaveMember($member);
 
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => 'Q&A이 삭제되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+            
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->responseJson($response, 'Q&A가 삭제되었습니다.');
     }
 }

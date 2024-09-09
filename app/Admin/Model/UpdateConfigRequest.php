@@ -60,18 +60,9 @@ class UpdateConfigRequest
     {
         $this->mapDataToProperties($this, $data);
 
-        $this->filterProperties();
-
         $this->checkInterceptIp($this->cf_intercept_ip);
-    }
 
-    /**
-     * 객체를 배열로 변환
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
+        $this->filterProperties();
     }
 
     /**
@@ -79,7 +70,7 @@ class UpdateConfigRequest
      * * @todo trait로 분리 예정
      * @return void
      */
-    private function filterProperties(): void
+    protected function filterProperties(): void
     {
         $allow_tags = ['cf_add_script', 'cf_add_css', 'cf_add_meta'];
 
@@ -96,7 +87,7 @@ class UpdateConfigRequest
      * @throws \Exception
      * @return void
      */
-    public function checkInterceptIp(string $cf_intercept_ip): void
+    protected function checkInterceptIp(string $cf_intercept_ip): void
     {
         if (!empty($cf_intercept_ip)) {
             $remote_addr = $_SERVER['REMOTE_ADDR'];

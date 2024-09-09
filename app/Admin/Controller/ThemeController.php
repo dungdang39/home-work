@@ -2,24 +2,31 @@
 
 namespace App\Admin\Controller;
 
+use App\Admin\Model\UpdateConfigRequest;
+use App\Admin\Model\UpdateThemeConfigRequest;
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
+use Core\BaseController;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class ThemeController
+class ThemeController extends BaseController
 {
     private ConfigService $config_service;
-    private ThemeService $theme_service;
+    private ThemeService $service;
 
     public function __construct(
+        Container $container,
         ConfigService $config_service,
-        ThemeService $theme_service
+        ThemeService $service
     ) {
+        parent::__construct($container);
+
         $this->config_service = $config_service;
-        $this->theme_service = $theme_service;
+        $this->service = $service;
     }
 
     /**
@@ -28,10 +35,10 @@ class ThemeController
     public function index(Request $request, Response $response): Response
     {
         $config = $request->getAttribute('config');
-        $themes = $this->theme_service->getThemes();
+        $themes = $this->service->getThemes();
 
         // 설정된 테마가 존재하지 않는다면 테마설정 초기화
-        $exists_theme = $this->theme_service->existsTheme($config['cf_theme']);
+        $exists_theme = $this->service->existsTheme($config['cf_theme']);
         if (isset($config['cf_theme']) && !$exists_theme) {
             $this->config_service->update(['cf_theme' => '']);
         }
@@ -40,7 +47,7 @@ class ThemeController
             "themes" => $themes,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/theme_list.html', $response_data);
+        return $view->render($response, '/admin/theme_form.html', $response_data);
     }
 
     /**
@@ -48,32 +55,46 @@ class ThemeController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
+        $theme = $args['theme'];
+
         try {
-            $theme = $args['theme'];
             $update_type = $request->getParsedBody()['type'] ?? null;
 
             if ($update_type === 'reset') {
                 $this->config_service->update(['cf_theme' => '']);
-                return api_response_json($response, [
-                    'result' => 'success',
-                    'message' => '테마가 사용안함 처리되었습니다.',
-                ], 200);
+                return $this->responseJson($response, '테마가 사용안함 처리되었습니다.');
             }
     
-            if (!$this->theme_service->existsTheme($theme)) {
-                return api_response_json($response, [
-                    'result' => 'error',
-                    'message' => '선택하신 테마가 설치되어 있지 않습니다.',
-                ], 400);
+            if (!$this->service->existsTheme($theme)) {
+                return $this->responseJson($response, '선택하신 테마가 설치되어 있지 않습니다.', 400);
             }
     
             $this->config_service->update(['cf_theme' => $theme]);
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => '테마가 변경되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            throw $e;
+            return $this->responseJson($response, '테마가 변경되었습니다.');
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+    }
+
+    /**
+     * 테마의 기타설정 업데이트
+     */
+    public function updateInfo(Request $request, Response $response, array $args): Response
+    {
+        try {
+            $request_body = $request->getParsedBody();
+            $request_files = $request->getUploadedFiles();
+            $data = new UpdateThemeConfigRequest($request_body, $request_files);
+
+            // 파일 업로드 이후
+            unset($data->logo_header_file);
+            unset($data->logo_footer_file);
+
+            $this->config_service->update($data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
+
+        return $this->redirectRoute($request, $response, 'admin.design.theme');
     }
 }

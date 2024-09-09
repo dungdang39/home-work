@@ -6,19 +6,24 @@ use App\Faq\FaqService;
 use App\Faq\Model\FaqCategoryRequest;
 use App\Faq\Model\FaqCategorySearchRequest;
 use App\Faq\Model\FaqRequest;
+use Core\BaseController;
 use Core\Model\PageParameters;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class FaqController
+class FaqController extends BaseController
 {
     private FaqService $service;
 
     public function __construct(
+        Container $container,
         FaqService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -46,14 +51,16 @@ class FaqController
      */
     public function insertCategory(Request $request, Response $response): Response
     {
-        $request_body = $request->getParsedBody();
-        $data = new FaqCategoryRequest($request_body);
+        try {
+            $request_body = $request->getParsedBody();
+            $data = new FaqCategoryRequest($request_body);
 
-        $this->service->insertCategory($data->toArray());
+            $this->service->insertCategory($data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.faq');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.faq');
     }
 
     /**
@@ -61,15 +68,17 @@ class FaqController
      */
     public function updateCategory(Request $request, Response $response, array $args): Response
     {
-        $faq_category = $this->service->getFaqCategory($args['faq_category_id']);
-        $request_body = $request->getParsedBody();
-        $data = new FaqCategoryRequest($request_body);
+        try {
+            $faq_category = $this->service->getFaqCategory($args['faq_category_id']);
+            $request_body = $request->getParsedBody();
+            $data = new FaqCategoryRequest($request_body);
 
-        $this->service->updateCategory($faq_category['id'], $data->toArray());
+            $this->service->updateCategory($faq_category['id'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.faq');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.faq');
     }
 
     /**
@@ -82,17 +91,11 @@ class FaqController
 
             $this->service->deleteFaqs($faq_category['id']);
             $this->service->deleteCategory($faq_category['id']);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => 'FAQ 카테고리가 삭제되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, 'FAQ 카테고리가 삭제되었습니다.');
     }
 
     /**
@@ -130,14 +133,16 @@ class FaqController
      */
     public function insert(Request $request, Response $response, array $args): Response
     {
-        $request_body = $request->getParsedBody();
-        $data = new FaqRequest($request_body);
+        try {
+            $request_body = $request->getParsedBody();
+            $data = new FaqRequest($request_body);
 
-        $this->service->insert($args['faq_category_id'], $data->toArray());
+            $this->service->insert($args['faq_category_id'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.faq.list', ['faq_category_id' => $args['faq_category_id']]);
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.faq.list', ['faq_category_id' => $args['faq_category_id']]);
     }
 
     /**
@@ -161,15 +166,17 @@ class FaqController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        $faq = $this->service->getFaq($args['id']);
-        $request_body = $request->getParsedBody();
-        $data = new FaqRequest($request_body);
+        try {
+            $faq = $this->service->getFaq($args['id']);
+            $request_body = $request->getParsedBody();
+            $data = new FaqRequest($request_body);
 
-        $this->service->update($faq['id'], $data->toArray());
+            $this->service->update($faq['id'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.faq.list', ['faq_category_id' => $faq['faq_category_id']]);
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.faq.list', ['faq_category_id' => $faq['faq_category_id']]);
     }
 
     /**
@@ -181,16 +188,10 @@ class FaqController
             $faq = $this->service->getFaq($args['id']);
 
             $this->service->delete($faq['id']);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => 'FAQ 항목이 삭제되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, 'FAQ 항목이 삭제되었습니다.');
     }
 }

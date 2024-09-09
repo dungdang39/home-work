@@ -4,18 +4,22 @@ namespace App\Member\Controller;
 
 use App\Member\MemberConfigService;
 use App\Member\Model\UpdateMemberConfigRequest;
+use Core\BaseController;
+use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class MemberConfigController
+class MemberConfigController extends BaseController
 {
     private MemberConfigService $service;
 
     public function __construct(
+        Container $container,
         MemberConfigService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -49,14 +53,10 @@ class MemberConfigController
             } else {
                 $this->service->update($data->toArray());
             }
-
-            // run_event('admin_member_config_form_update');
-    
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.config');
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
         } catch (\Exception $e) {
-            throw $e;
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->redirectRoute($request, $response, 'admin.member.config');
     }
 }

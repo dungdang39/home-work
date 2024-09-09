@@ -7,7 +7,6 @@ use Core\Database\Db;
 /**
  * 관리자 메뉴 서비스 클래스
  * @todo 캐시처리 적용
- * @todo 테이블 이름 변경
  */
 class AdminMenuService
 {

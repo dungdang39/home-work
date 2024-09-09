@@ -1,8 +1,11 @@
 {% extends "/admin/_layout.html" %}
 {% from "macro.html" import selected, checked %}
 
+{% set title = '기본환경 > 운영진설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
 {% block content %}
-<h1 id="container_title">기본환경 > 운영진설정</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
 
     <div class="local_desc01 local_desc">
@@ -24,7 +27,7 @@
     </form>
 
     <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.setting.permission.delete-list') }}"
-        onsubmit="return fauthlist_submit(this);">
+        onsubmit="return validate_form_permission_list(this);">
         <input type="hidden" name="page" value="{{ pagination.page }}">
         {{ csrf.field|raw }}
 
@@ -114,7 +117,7 @@
         </div>
 
         <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.setting.permission.insert') }}" method="post"
-            autocomplete="off" onsubmit="return validate_permission_form(this);">
+            autocomplete="off" onsubmit="return validate_form_permission(this);">
             {{ csrf.field|raw }}
 
             <div class="tbl_frm01 tbl_wrap">
@@ -255,34 +258,19 @@
                     window.location.reload();
                 },
                 error: function (xhr, status, error) {
-                    alert('오류가 발생했습니다: ' + xhr.responseText);
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.message);
                 }
             });
         });
 
         // 삭제 버튼 클릭 이벤트 핸들러
         $('.btn_delete').click(function (e) {
-            let url = $(this).data('url');
-
-            $.ajax({
-                url: url,
-                type: "DELETE",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("csrf_name", $("input[name='csrf_name']").val());
-                    xhr.setRequestHeader("csrf_value", $("input[name='csrf_value']").val());
-                },
-                success: function (response) {
-                    alert(response.message);
-                    window.location.reload();
-                },
-                error: function (xhr, status, error) {
-                    alert('오류가 발생했습니다: ' + xhr.responseText);
-                }
-            });
+            delete_confirm($(this).data('url'));
         });
     })
 
-    function validate_permission_form() {
+    function validate_form_permission() {
         if ($select_menu.val() == "") {
             alert("메뉴를 선택해주세요.");
             return false;
@@ -295,7 +283,7 @@
         }
     }
 
-    function fauthlist_submit(f) {
+    function validate_form_permission_list(f) {
         alert("선택삭제 기능 확인 중");
         return false;
         if (!is_checked("chk[]")) {

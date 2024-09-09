@@ -7,14 +7,16 @@ use App\Member\MemberService;
 use App\Member\Model\MemberSearchRequest;
 use App\Member\Model\MemberUpdateRequest;
 use App\Member\Model\MemberCreateRequest;
+use Core\BaseController;
 use Core\Model\PageParameters;
+use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Exception;
 
-class MemberController
+class MemberController extends BaseController
 {
     private MemberService $service;
     private MemberConfigService $config_service;
@@ -22,11 +24,14 @@ class MemberController
     private MemberUpdateRequest $update_request;
 
     public function __construct(
+        Container $container,
         MemberService $service,
         MemberConfigService $config_service,
         MemberCreateRequest $create_request,
         MemberUpdateRequest $update_request,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
         $this->config_service = $config_service;
         $this->create_request = $create_request;
@@ -76,18 +81,13 @@ class MemberController
         try {
             $request_body = $request->getParsedBody();
             $data = $this->create_request->load($request_body);
-    
+
             $this->service->createMember($data->toArray());
-    
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.manage');
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->redirectRoute($request, $response, 'admin.member.manage');
     }
 
     /**
@@ -95,7 +95,11 @@ class MemberController
      */
     public function view(Request $request, Response $response, array $args): Response
     {
-        $member = $this->service->getMember($args['mb_id']);
+        try {
+            $member = $this->service->getMember($args['mb_id']);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
         $response_data = [
             "member" => $member,
@@ -116,7 +120,7 @@ class MemberController
             $member = $this->service->getMember($args['mb_id']);
             $request_body = $request->getParsedBody();
             $data = $this->update_request->load($request_body, $member);
-    
+
             $login_member_level = $login_member['mb_level'];
             $member_level = $member['mb_level'];
 
@@ -141,22 +145,16 @@ class MemberController
                     $login_member['mb_id'] === $member['mb_id']
                     || is_super_admin($config, $member['mb_id'])
                 ) {
-                        throw new Exception('해당 관리자의 탈퇴 일자 또는 접근 차단 일자를 수정할 수 없습니다.', 403);
+                    throw new Exception('해당 관리자의 탈퇴 일자 또는 접근 차단 일자를 수정할 수 없습니다.', 403);
                 }
             }
 
             $this->service->updateMember($member['mb_id'], $data->toArray());
-    
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.manage.view', ['mb_id' => $member['mb_id']]);
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
-
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->redirectRoute($request, $response, 'admin.member.manage.view', ['mb_id' => $member['mb_id']]);
     }
 
     /**
@@ -181,17 +179,11 @@ class MemberController
             }
 
             $this->service->leaveMember($member);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => '회원이 삭제되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->responseJson($response, '회원이 삭제되었습니다.');
     }
 
     /**
@@ -199,18 +191,14 @@ class MemberController
      */
     public function getMemberInfo(Request $request, Response $response, array $args): Response
     {
-        try {
-            $member = $this->service->getMember($args['mb_id']);
+        $mb_id = $args['mb_id'];
 
-            return api_response_json($response, [
-                'result' => 'success',
-                'member' => $member,
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        try {
+            $member = $this->service->getMember($mb_id);
+        } catch (Exception $e) {
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, "회원정보 조회가 완료되었습니다.", 200, ['member' => $member]);
     }
 }

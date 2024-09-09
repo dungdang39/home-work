@@ -19,13 +19,4 @@ class AdminMenuPermissionSearchRequest
     {
         return new self($query_params);
     }
-
-    /**
-     * 객체를 배열로 변환
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
-    }
 }

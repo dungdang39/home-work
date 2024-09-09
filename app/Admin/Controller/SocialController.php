@@ -5,19 +5,23 @@ namespace App\Admin\Controller;
 use App\Admin\Model\CreateSocialProviderRequest;
 use App\Admin\Model\UpdateSocialProviderRequest;
 use App\Admin\Service\SocialService;
+use Core\BaseController;
+use DI\Container;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class SocialController
+class SocialController extends BaseController
 {
     private SocialService $service;
 
     public function __construct(
+        Container $container,
         SocialService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -26,12 +30,12 @@ class SocialController
      */
     public function index(Request $request, Response $response): Response
     {
-        $view = Twig::fromRequest($request);
         $providers = $this->service->getProviders();
 
         $response_data = [
             "providers" => $providers
         ];
+        $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/social_form.html', $response_data);
     }
 
@@ -44,21 +48,18 @@ class SocialController
     public function insert(Request $request, Response $response): Response
     {
         try {
-            $body = $request->getParsedBody();
-            $data = CreateSocialProviderRequest::load($body)->toArray();
+            $data = CreateSocialProviderRequest::createFromRequestBody($request);
 
-            if ($this->service->isExistProvider($data['provider_key'])) {
+            if ($this->service->isExistProvider($data->provider_key)) {
                 throw new Exception('이미 등록된 소셜 로그인입니다.');
             }
 
-            $this->service->createProvider($data);
+            $this->service->createProvider($data->toArray());
         } catch (Exception $e) {
-            throw $e;
+            return $this->handleException($request, $response, $e);
         }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.setting.api.social');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
 
     /**
@@ -67,19 +68,16 @@ class SocialController
     public function update(Request $request, Response $response): Response
     {
         try {
-            $request_body = $request->getParsedBody();
-            $data = UpdateSocialProviderRequest::load($request_body)->toArray();
+            $data = UpdateSocialProviderRequest::createFromRequestBody($request);
 
-            foreach ($data['providers'] as $key => $data) {
-                $this->service->update($key, $data);
+            foreach ($data->providers as $key => $value) {
+                $this->service->update($key, $value);
             }
-        } catch (\Exception $e) {
-            throw $e;
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.setting.api.social');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
 
     /**
@@ -89,15 +87,12 @@ class SocialController
     {
         try {
             $request_body = $request->getParsedBody();
-            $provider_key = $request_body['provider_key'];
     
-            $this->service->deleteProvider($provider_key);
-        } catch (\Exception $e) {
-            throw $e;
+            $this->service->deleteProvider($request_body['provider_key']);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.setting.api.social');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
 }

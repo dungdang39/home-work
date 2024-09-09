@@ -6,18 +6,23 @@ use App\Banner\BannerService;
 use App\Banner\Model\BannerCreateRequest;
 use App\Banner\Model\BannerSearchRequest;
 use App\Banner\Model\BannerUpdateRequest;
+use Core\BaseController;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class BannerController
+class BannerController extends BaseController
 {
     private BannerService $service;
 
     public function __construct(
+        Container $container,
         BannerService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -51,17 +56,19 @@ class BannerController
      */
     public function insert(Request $request, Response $response): Response
     {
-        $request_body = $request->getParsedBody();
-        $request_file = $request->getUploadedFiles();
-        $data = new BannerCreateRequest($request_body, $request_file);
+        try {
+            $request_body = $request->getParsedBody();
+            $request_file = $request->getUploadedFiles();
+            $data = new BannerCreateRequest($request_body, $request_file);
 
-        $this->service->makeBannerDir($request);
-        $this->service->uploadImage($request, $data);
-        $this->service->insert($data->toArray());
+            $this->service->makeBannerDir($request);
+            $this->service->uploadImage($request, $data);
+            $this->service->insert($data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.design.banner');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.design.banner');
     }
 
     /**
@@ -69,7 +76,11 @@ class BannerController
      */
     public function view(Request $request, Response $response, array $args): Response
     {
-        $banner = $this->service->getBanner($args['bn_id']);
+        try {
+            $banner = $this->service->getBanner($args['bn_id']);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
         $response_data = [
             "banner" => $banner,
@@ -83,18 +94,20 @@ class BannerController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        $banner = $this->service->getBanner($args['bn_id']);
-        $request_body = $request->getParsedBody();
-        $request_file = $request->getUploadedFiles();
-        $data = new BannerUpdateRequest($request_body, $request_file);
+        try {
+            $banner = $this->service->getBanner($args['bn_id']);
+            $request_body = $request->getParsedBody();
+            $request_file = $request->getUploadedFiles();
+            $data = new BannerUpdateRequest($request_body, $request_file);
+    
+            // @todo 기존 파일 삭제처리 필요
+            $this->service->uploadImage($request, $data);
+            $this->service->update($args['bn_id'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        // @todo 기존 파일 삭제처리 필요
-        $this->service->uploadImage($request, $data);
-        $this->service->update($args['bn_id'], $data->toArray());
-
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.design.banner.view', ['bn_id' => $args['bn_id']]);
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.design.banner.view', ['bn_id' => $banner['bn_id']]);
     }
 
     /**
@@ -107,18 +120,11 @@ class BannerController
 
             // @todo 파일 삭제처리 필요
             $this->service->delete($banner['bn_id']);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => '배너가 삭제되었습니다.',
-            ], 200);
-
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], 200);
+        } catch (Exception $e) {
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, '배너가 삭제되었습니다.');
     }
 
     /**
@@ -129,8 +135,6 @@ class BannerController
         $request_body = $request->getParsedBody();
         $this->service->updateOrder($request_body);
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.design.banner');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.design.banner');
     }
 }

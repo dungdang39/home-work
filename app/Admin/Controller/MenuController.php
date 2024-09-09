@@ -4,36 +4,40 @@ namespace App\Admin\Controller;
 
 use App\Content\ContentService;
 use App\Admin\Service\MenuService;
+use Core\BaseController;
+use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
- * 운영진 설정
+ * 메뉴 설정
  */
-class MenuController
+class MenuController extends BaseController
 {
     private ContentService $content_service;
     private MenuService $service;
 
     public function __construct(
+        Container $container,
         ContentService $content_service,
         MenuService $service
     ) {
+        parent::__construct($container);
+
         $this->content_service = $content_service;
         $this->service = $service;
     }
 
     public function index(Request $request, Response $response): Response
     {
-        $view = Twig::fromRequest($request);
-
         $menus = $this->service->getMenu();
 
         $response_data = [
             'menus' => $menus,
         ];
+        $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/menu_form.html', $response_data);
     }
 
@@ -67,10 +71,6 @@ class MenuController
                 break;
         }
 
-        // json으로 반환
-        $json = json_encode($data, JSON_UNESCAPED_UNICODE);
-        $response->getBody()->write($json);
-        return $response->withStatus(200)->withAddedHeader('Content-Type', 'application/json');
-
+        return $this->responseJson($response, null, 200, $data);
     }
 }

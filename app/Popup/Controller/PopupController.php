@@ -6,19 +6,24 @@ use App\Popup\Model\PopupCreateRequest;
 use App\Popup\Model\PopupSearchRequest;
 use App\Popup\Model\PopupUpdateRequest;
 use App\Popup\PopupService;
+use Core\BaseController;
 use Core\Model\PageParameters;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class PopupController
+class PopupController extends BaseController
 {
     private PopupService $service;
 
     public function __construct(
+        Container $container,
         PopupService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -55,14 +60,16 @@ class PopupController
      */
     public function insert(Request $request, Response $response): Response
     {
-        $request_body = $request->getParsedBody();
-        $data = new PopupCreateRequest($request_body);
+        try {
+            $request_body = $request->getParsedBody();
+            $data = new PopupCreateRequest($request_body);
 
-        $this->service->insert($data->toArray());
+            $this->service->insert($data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.design.popup');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.design.popup');
     }
 
     /**
@@ -70,7 +77,11 @@ class PopupController
      */
     public function view(Request $request, Response $response, array $args): Response
     {
-        $popup = $this->service->getPopup($args['pu_id']);
+        try {
+            $popup = $this->service->getPopup($args['pu_id']);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
         $response_data = [
             "popup" => $popup,
@@ -84,15 +95,17 @@ class PopupController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        $popup = $this->service->getPopup($args['pu_id']);
-        $request_body = $request->getParsedBody();
-        $data = new PopupUpdateRequest($request_body);
+        try {
+            $popup = $this->service->getPopup($args['pu_id']);
+            $request_body = $request->getParsedBody();
+            $data = new PopupUpdateRequest($request_body);
 
-        $this->service->update($popup['pu_id'], $data->toArray());
+            $this->service->update($popup['pu_id'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.design.popup.view', ['pu_id' => $popup['pu_id']]);
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.design.popup.view', ['pu_id' => $popup['pu_id']]);
     }
 
     /**
@@ -104,16 +117,10 @@ class PopupController
             $popup = $this->service->getPopup($args['pu_id']);
 
             $this->service->delete($popup['pu_id']);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => '팝업이 삭제되었습니다.',
-            ], 200);
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, '팝업이 삭제되었습니다.');
     }
 }

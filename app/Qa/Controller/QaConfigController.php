@@ -4,20 +4,25 @@ namespace App\Qa\Controller;
 
 use App\Qa\Model\QaConfigRequest;
 use App\Qa\Service\QaConfigService;
+use Core\BaseController;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class QaConfigController
+class QaConfigController extends BaseController
 {
     private QaConfigService $service;
     private QaConfigRequest $request_model;
 
     public function __construct(
+        Container $container,
         QaConfigService $service,
         QaConfigRequest $request_model
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
         $this->request_model = $request_model;
     }
@@ -48,22 +53,15 @@ class QaConfigController
             $request_body = $request->getParsedBody();
             $data = $this->request_model->load($request_body);
 
-            
             if ($qa_config) {
                 $this->service->update($data->toArray());
             } else {
                 $this->service->insert($data->toArray());
             }
-
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.qa.config');
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
-
-        } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
         }
+
+        return $this->redirectRoute($request, $response, 'admin.member.qa.config');
     }
 }

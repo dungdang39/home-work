@@ -3,6 +3,7 @@
 namespace Core\Traits;
 
 use Exception;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * API Request/Response Class 처리 트레이트
@@ -16,6 +17,26 @@ trait SchemaHelperTrait
     public function toArray(): array
     {
         return get_object_vars($this);
+    }
+
+    /**
+     * Request Body로부터 객체 생성
+     * @return self
+     */
+    public static function createFromRequestBody(Request $request): self
+    {
+        $body = $request->getParsedBody() ?? [];
+        return new self($body);
+    }
+
+    /**
+     * Query Params로부터 객체 생성
+     * @return self
+     */
+    public static function createFromQueryParams(Request $request): self
+    {
+        $query_params = $request->getQueryParams() ?? [];
+        return new self($query_params);
     }
 
     /**
@@ -59,7 +80,7 @@ trait SchemaHelperTrait
                 }
             }
         }
-    }
+    }  
 
     /**
      * 예외를 던지는 유틸리티 메서드

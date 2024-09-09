@@ -6,19 +6,24 @@ use App\Content\Model\ContentCreateRequest;
 use App\Content\Model\ContentSearchRequest;
 use App\Content\Model\ContentUpdateRequest;
 use App\Content\ContentService;
+use Core\BaseController;
 use Core\Model\PageParameters;
+use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-class ContentController
+class ContentController extends BaseController
 {
     private ContentService $service;
 
     public function __construct(
+        Container $container,
         ContentService $service,
     ) {
+        parent::__construct($container);
+
         $this->service = $service;
     }
 
@@ -55,14 +60,16 @@ class ContentController
      */
     public function insert(Request $request, Response $response): Response
     {
-        $request_body = $request->getParsedBody();
-        $data = new ContentCreateRequest($request_body);
+        try {
+            $request_body = $request->getParsedBody();
+            $data = new ContentCreateRequest($request_body);
 
-        $this->service->insert($data->toArray());
+            $this->service->insert($data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.manage');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.manage');
     }
 
     /**
@@ -70,7 +77,11 @@ class ContentController
      */
     public function view(Request $request, Response $response, array $args): Response
     {
-        $content = $this->service->getContent($args['code']);
+        try {
+            $content = $this->service->getContent($args['code']);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
         $response_data = [
             "content" => $content,
@@ -84,15 +95,17 @@ class ContentController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        $content = $this->service->getContent($args['code']);
-        $request_body = $request->getParsedBody();
-        $data = new ContentUpdateRequest($request_body);
+        try {
+            $content = $this->service->getContent($args['code']);
+            $request_body = $request->getParsedBody();
+            $data = new ContentUpdateRequest($request_body);
 
-        $this->service->update($content['code'], $data->toArray());
+            $this->service->update($content['code'], $data->toArray());
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
 
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.content.manage.view', ['code' => $content['code']]);
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        return $this->redirectRoute($request, $response, 'admin.content.manage.view', ['code' => $content['code']]);
     }
 
     /**
@@ -100,20 +113,16 @@ class ContentController
      */
     public function delete(Request $request, Response $response, array $args): Response
     {
+        $code = $args['code'];
+
         try {
-            $content = $this->service->getContent($args['code']);
+            $content = $this->service->getContent($code);
 
             $this->service->delete($content['code']);
-
-            return api_response_json($response, [
-                'result' => 'success',
-                'message' => '컨텐츠가 삭제되었습니다.',
-            ], 200);
         } catch (\Exception $e) {
-            return api_response_json($response, [
-                'result' => 'error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+            return $this->responseJson($response, $e->getMessage(), $e->getCode());
         }
+
+        return $this->responseJson($response, '컨텐츠가 삭제되었습니다.');
     }
 }

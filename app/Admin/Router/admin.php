@@ -59,8 +59,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('/permission', function (RouteCollectorProxy $group) {
                 $group->get('', [AdminMenuPermissionController::class, 'index'])->setName('admin.setting.permission');
                 $group->post('', [AdminMenuPermissionController::class, 'insert'])->setName('admin.setting.permission.insert');
-                $group->put('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'update'])->setName('admin.setting.permission.update');
-                $group->delete('/{mb_id}/{admin_menu_id}', [AdminMenuPermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
+                $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [AdminMenuPermissionController::class, 'update'])->setName('admin.setting.permission.update');
+                $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [AdminMenuPermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
                 $group->delete('/list', [AdminMenuPermissionController::class, 'delete_list'])->setName('admin.setting.permission.delete-list');
             })->add(SuperAdminAuthMiddleware::class);
 

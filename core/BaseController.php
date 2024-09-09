@@ -110,4 +110,29 @@ class BaseController
 
         return $this->redirect($response, $referer);
     }
+    
+    /**
+     * JSON 형식으로 반환하는 공통 메서드
+     * 
+     * @param Response $response 서버 응답 객체
+     * @param string|null $message 응답 메시지
+     * @param int|null $status HTTP 상태 코드
+     * @param array|null $data 추가 데이터
+     * @return Response JSON 형식의 응답 객체
+     */
+    protected function responseJson(
+        Response $response,
+        ?string $message = '처리되었습니다.',
+        ?int $status = 200,
+        ?array $data = []
+    ): Response {
+        $result = [];
+        $result['result'] = $status >= 400 ? 'error' : 'success';
+        $result['message'] = $message;
+        $result = array_merge($result, $data);
+
+        $json = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
 }
