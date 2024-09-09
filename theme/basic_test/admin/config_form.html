@@ -65,7 +65,9 @@
                                 <select name="cf_admin" id="cf_admin" required>
                                     <option value="">선택안함</option>
                                 {% for admin in admins %}
-                                    <option value="{{ admin }}" {{ selected(admin, old('cf_admin', config)) }}>{{ admin }}</option>
+                                    <option value="{{ admin.mb_id }}" {{ selected(admin.mb_id, old('cf_admin', config)) }}>
+                                        {{- admin.mb_id ~ " (" ~ admin.mb_name ~ ")"-}}
+                                    </option>
                                 {% endfor %}
                                 </select>
                             </td>
