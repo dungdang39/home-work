@@ -1,20 +1,22 @@
 <h2>관리자 주메뉴</h2>
 <ul class="gnb_ul">
     {% for menu in admin_menus %}
-    <li class="gnb_li {{ menu.active ? 'on' : '' }}">
-        <button type="button" class="btn_op menu-{{ loop.index }}00 menu-order-{{ loop.index }}" title="{{ menu.am_name }}">{{ menu.am_name }}</button>
+    <li class="{{ html_classes('gnb_li', {'on': menu.active}) }}">
+        <button type="button" class="btn_op menu-{{ loop.index }}00 menu-order-{{ loop.index }}" title="{{ menu.am_name }}">
+            {{- menu.am_name -}}
+        </button>
         <div class="gnb_oparea_wr">
             <div class="gnb_oparea">
                 <h3>{{ menu.am_name }}</h3>
                 <ul>
                     {% for child in menu.children %}
                     <li>
-                        <a href="{{ child.url }}" class="gnb_2da {{ child.active ? 'on' : '' }}">{{ child.am_name }}</a>
+                        <a href="{{ child.url }}" class="{{ html_classes('gnb_2da', {'on': child.active}) }}">{{ child.am_name }}</a>
                         {% if child.children %}
                         <ul>
                             {% for child2 in child.children %}
                             <li>
-                                <a href="{{ child2.url }}" class="gnb_3da {{ child2.active ? 'on' : '' }}">└ {{ child2.am_name }}</a>
+                                <a href="{{ child2.url }}" class="{{ html_classes('gnb_3da', {'on': child2.active}) }}">└ {{ child2.am_name }}</a>
                             </li>
                             {% endfor %}
                         </ul>

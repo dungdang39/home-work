@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="{{ base_url }}/js/font-awesome/css/font-awesome.min.css?ver=2303229">
     <script>
         // 자바스크립트에서 사용하는 전역변수 선언
-        var base_url = "{{ base_url }}";
+        const base_url = "{{ base_url }}";
+        const theme_url = "{{ theme_url }}";
         const csrf = {
             '{{ csrf.keys.name }}': '{{ csrf.name }}',
             '{{ csrf.keys.value }}': '{{ csrf.value }}'
@@ -27,7 +28,7 @@
 </head>
 
 <body>
-    <div id="hd_login_msg">최고관리자님 로그인 중 <a href="{{ url_for('logout') }}">로그아웃</a></div>
+    <div id="hd_login_msg">{{ member.mb_name }}님 로그인 중 <a href="{{ url_for('logout') }}">로그아웃</a></div>
 
     <div id="to_content"><a href="#container">본문 바로가기</a></div>
 
@@ -37,6 +38,7 @@
         {% endblock header %}
     </header>
 
+    <!-- @todo 사이드 메뉴 open close 쿠키-->
     <nav id="gnb" class="gnb_large ">
         {% block snb %}
             {{ include('/admin/_snb.html') }}
