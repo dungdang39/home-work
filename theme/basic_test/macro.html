@@ -1,11 +1,11 @@
 {% macro selected(option_value, selected_value, default = false) %}
-    {% if option_value is same as(selected_value) or (not selected_value and default) %}
+    {% if option_value == selected_value or (not selected_value and default) %}
         selected
     {% endif %}
 {% endmacro selected %}
 
 {% macro checked(option_value, selected_value, default = false) %}
-    {% if option_value is same as(selected_value) or (not selected_value and default) %}
+    {% if option_value == selected_value or (not selected_value and default) %}
         checked
     {% endif %}
 {% endmacro checked %}

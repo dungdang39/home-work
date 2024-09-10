@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Extension\FlashExtension;
 use Exception;
 use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -13,9 +14,6 @@ class BaseController
 {
     protected $container;
     protected Messages $flash;
-
-    // 플래시 메시지에서 에러 메시지를 저장할 때 사용할 키
-    public const ERROR_FLASH_KEY = 'errors';
 
     public function __construct(Container $container)
     {
@@ -88,7 +86,7 @@ class BaseController
     /**
      * 컨트롤러 공통 예외 처리 메서드
      * 
-     * 예외 발생 시 플래시 메시지에 에러 내용을 저장하고
+     * 예외 발생 시 이전 입력 데이터와 에러 내용을 플래시 메시지에 저장하고
      * 사용자를 이전 페이지로 리디렉션함.
      * 
      * @param Request $request 클라이언트 요청 객체
@@ -98,14 +96,16 @@ class BaseController
      */
     protected function handleException(Request $request, Response $response, Exception $e): Response
     {
-        $this->flash->addMessage(self::ERROR_FLASH_KEY, $e->getMessage());
+        // 예외 발생 시 에러 메시지를 플래시에 저장
+        $this->flash->addMessage(FlashExtension::OLD_FLASH_KEY, $request->getParsedBody());
+        $this->flash->addMessage(FlashExtension::ERROR_FLASH_KEY, $e->getMessage());
 
         $referer = $request->getHeaderLine('Referer');
         if (empty($referer) || !filter_var($referer, FILTER_VALIDATE_URL)) {
             $referer = '/'; // 기본값으로 루트 설정
         }
 
-        // 로깅 추가 (선택적)
+        // @todo 로깅 추가
         // $this->logger->error($e->getMessage(), ['exception' => $e]);
 
         return $this->redirect($response, $referer);

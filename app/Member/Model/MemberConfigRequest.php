@@ -7,7 +7,7 @@ use Core\Traits\SchemaHelperTrait;
 /**
  * 회원 > 기본환경설정 업데이트 요청 객체
  */
-class UpdateMemberConfigRequest
+class MemberConfigRequest
 {
     use SchemaHelperTrait;
 
@@ -29,8 +29,8 @@ class UpdateMemberConfigRequest
     public ?int $member_image_height = 0;
     public ?bool $use_recommend = false;
     public ?int $recommend_point = 0;
-    public ?string $prohibit_word;
-    public ?string $prohibit_domain;
+    public ?string $prohibit_word = '';
+    public ?string $prohibit_domain = '';
     public ?string $signup_terms;
     public ?string $privacy_policy;
 

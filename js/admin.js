@@ -76,9 +76,7 @@ function delete_confirm(href)
             if (data.message) {
                 alert(data.message);
             }
-            if (data.result === 'success') {
-                document.location.reload();
-            }
+            document.location.reload();
         },
         error: function (xhr, status, error) {
             let result = xhr.responseJSON;

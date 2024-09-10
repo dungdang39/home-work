@@ -448,10 +448,23 @@
                 "am_order": 3,
                 "children": [
                     {
-                        "am_name": "기본회원설정",
+                        "am_name": "회원설정",
                         "am_route": "admin.member.config",
                         "am_order": 0,
-                        "children": []
+                        "children": [
+                            {
+                                "am_name": "기본회원설정",
+                                "am_route": "admin.member.config.basic",
+                                "am_order": 0,
+                                "children": []
+                            },
+                            {
+                                "am_name": "알림/푸시 설정",
+                                "am_route": "admin.member.config.notification",
+                                "am_order": 1,
+                                "children": []
+                            }
+                        ]
                     },
                     {
                         "am_name": "회원 관리",

@@ -131,8 +131,10 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         $group->group('/member', function (RouteCollectorProxy $group) {
             // 기본환경 설정
             $group->group('/config', function (RouteCollectorProxy $group) {
-                $group->get('', [MemberConfigController::class, 'index'])->setName('admin.member.config');
-                $group->post('', [MemberConfigController::class, 'update'])->setName('admin.member.config.update');
+                $group->redirect('', 'config/basic')->setName('admin.member.config');
+
+                $group->get('/basic', [MemberConfigController::class, 'index'])->setName('admin.member.config.basic');
+                $group->put('/basic', [MemberConfigController::class, 'update'])->setName('admin.member.config.basic.update');
             });
 
             // 1:1문의
@@ -205,7 +207,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
                     $group->get('/{faq_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
                     $group->post('/{faq_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
-                    $group->delete('/{faq_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                    $group->delete('/{id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
                 });
             })->add(AdminMenuPermissionMiddleware::class);
         });

@@ -12,6 +12,9 @@ use Slim\Flash\Messages;
 
 final class FlashExtension extends AbstractExtension
 {
+    public const ERROR_FLASH_KEY = 'errors';
+    public const OLD_FLASH_KEY = 'old';
+
     protected $flash;
 
     public function __construct(Messages $flash)
@@ -38,15 +41,16 @@ final class FlashExtension extends AbstractExtension
      */
     public function old(string $key = null, $default = null)
     {
-        $old = $this->flash->getFirstMessage('old', $default);
+        $old = $this->flash->getFirstMessage(self::OLD_FLASH_KEY);
 
-        $value = $old[$key] ?? null;
-
-        if (is_null($value) && is_array($default)) {
-            return $default[$key] ?? '';
+        // $key가 null인 경우, 전체 $old 배열을 반환
+        if ($key === null) {
+            return $old;
         }
 
-        return $value ?? $default;
+        $default = is_array($default) && array_key_exists($key, $default) ? $default[$key] : $default;
+
+        return $old[$key] ?? $default;
     }
 
 
@@ -56,7 +60,7 @@ final class FlashExtension extends AbstractExtension
      */
     public function errors()
     {
-        $errors = $this->flash->getFirstMessage('errors', []);
+        $errors = $this->flash->getFirstMessage(self::ERROR_FLASH_KEY, []);
 
         if (!is_array($errors)) {
             return [$errors];
@@ -71,7 +75,7 @@ final class FlashExtension extends AbstractExtension
      */
     public function error_first_message(): string
     {
-        $errors = $this->flash->getFirstMessage('errors', []);
+        $errors = $this->flash->getFirstMessage(self::ERROR_FLASH_KEY, []);
 
         if (is_array($errors) && count($errors) > 0) {
             return $errors[0];

@@ -3,9 +3,10 @@
 namespace App\Member\Controller;
 
 use App\Member\MemberConfigService;
-use App\Member\Model\UpdateMemberConfigRequest;
+use App\Member\Model\MemberConfigRequest;
 use Core\BaseController;
 use DI\Container;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -43,8 +44,7 @@ class MemberConfigController extends BaseController
     public function update(Request $request, Response $response): Response
     {
         try {
-            $request_body = $request->getParsedBody();
-            $data = new UpdateMemberConfigRequest($request_body);
+            $data = MemberConfigRequest::createFromRequestBody($request);
 
             $member_config = $this->service->getMemberConfig();
 
@@ -53,10 +53,10 @@ class MemberConfigController extends BaseController
             } else {
                 $this->service->update($data->toArray());
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
 
-        return $this->redirectRoute($request, $response, 'admin.member.config');
+        return $this->redirectRoute($request, $response, 'admin.member.config.basic');
     }
 }

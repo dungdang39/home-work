@@ -126,9 +126,6 @@ $app->addBodyParsingMiddleware();
 // Add CSRF Protection Middleware
 $app->add('csrf');
 
-// Add Flash Data Middleware
-$app->add(new FlashDataMiddleware($container->get('flash')));
-
 // Add Twig-View Middleware
 $app->add(TwigMiddleware::create($app, $twig));
 
