@@ -74,10 +74,10 @@ class BannerController extends BaseController
     /**
      * 배너 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $args): Response
+    public function view(Request $request, Response $response, string $bn_id): Response
     {
         try {
-            $banner = $this->service->getBanner($args['bn_id']);
+            $banner = $this->service->getBanner($bn_id);
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -92,17 +92,17 @@ class BannerController extends BaseController
     /**
      * 배너 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $bn_id): Response
     {
         try {
-            $banner = $this->service->getBanner($args['bn_id']);
+            $banner = $this->service->getBanner($bn_id);
             $request_body = $request->getParsedBody();
             $request_file = $request->getUploadedFiles();
             $data = new BannerUpdateRequest($request_body, $request_file);
     
             // @todo 기존 파일 삭제처리 필요
             $this->service->uploadImage($request, $data);
-            $this->service->update($args['bn_id'], $data->toArray());
+            $this->service->update($bn_id, $data->toArray());
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -113,10 +113,10 @@ class BannerController extends BaseController
     /**
      * 배너 삭제
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, string $bn_id): Response
     {
         try {
-            $banner = $this->service->getBanner($args['bn_id']);
+            $banner = $this->service->getBanner($bn_id);
 
             // @todo 파일 삭제처리 필요
             $this->service->delete($banner['bn_id']);
@@ -130,7 +130,7 @@ class BannerController extends BaseController
     /**
      * 배너 전시순서 변경
      */
-    public function update_order(Request $request, Response $response, array $args): Response
+    public function update_order(Request $request, Response $response, string $bn_id): Response
     {
         $request_body = $request->getParsedBody();
         $this->service->updateOrder($request_body);

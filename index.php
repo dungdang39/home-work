@@ -18,6 +18,7 @@ use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Flash\Messages;
+use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -79,6 +80,13 @@ $container->set('flash', function () {
 // Create Request object from globals
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
+
+/**
+ * Changing the default invocation strategy on the RouteCollector component
+ * will change it for every route being defined after this change being applied
+ */
+$routeCollector = $app->getRouteCollector();
+$routeCollector->setDefaultInvocationStrategy(new RequestResponseArgs());
 
 // Twig & 테마경로 설정
 try {

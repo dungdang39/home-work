@@ -93,10 +93,10 @@ class MemberController extends BaseController
     /**
      * 회원 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $args): Response
+    public function view(Request $request, Response $response, string $mb_id): Response
     {
         try {
-            $member = $this->service->getMember($args['mb_id']);
+            $member = $this->service->getMember($mb_id);
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -111,13 +111,13 @@ class MemberController extends BaseController
     /**
      * 회원 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $mb_id): Response
     {
         try {
             $login_member = $request->getAttribute('member');
             $config = $request->getAttribute('config');
 
-            $member = $this->service->getMember($args['mb_id']);
+            $member = $this->service->getMember($mb_id);
             $request_body = $request->getParsedBody();
             $data = $this->update_request->load($request_body, $member);
 
@@ -161,11 +161,11 @@ class MemberController extends BaseController
      * 회원 삭제
      * - 실제 삭제하지 않고 탈퇴일자 및 회원메모를 업데이트한다.
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, string $mb_id): Response
     {
         try {
             $config = $request->getAttribute('config');
-            $member = $this->service->getMember($args['mb_id']);
+            $member = $this->service->getMember($mb_id);
             $login_member = $request->getAttribute('member');
 
             if ($member === $login_member) {
@@ -189,10 +189,8 @@ class MemberController extends BaseController
     /**
      * 회원정보 조회
      */
-    public function getMemberInfo(Request $request, Response $response, array $args): Response
+    public function getMemberInfo(Request $request, Response $response, string $mb_id): Response
     {
-        $mb_id = $args['mb_id'];
-
         try {
             $member = $this->service->getMember($mb_id);
         } catch (Exception $e) {

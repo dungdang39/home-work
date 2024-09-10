@@ -6,6 +6,7 @@ use App\Qa\Service\QaConfigService;
 use App\Qa\Service\QaService;
 use Core\BaseController;
 use Core\Model\PageParameters;
+use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -85,9 +86,9 @@ class QaController extends BaseController
     /**
      * Q&A 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $args): Response
+    public function view(Request $request, Response $response, array $qa_id): Response
     {
-        $member = $this->service->getMember($args['mb_id']);
+        $member = $this->service->getMember($qa_id);
 
         $response_data = [
             "member" => $member,
@@ -99,13 +100,13 @@ class QaController extends BaseController
     /**
      * Q&A 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, array $qa_id): Response
     {
         try {
             $login_member = $request->getAttribute('member');
             $config = $request->getAttribute('config');
 
-            $member = $this->service->getMember($args['mb_id']);
+            $member = $this->service->getMember($qa_id);
             $request_body = $request->getParsedBody();
             $data = $this->update_request->load($request_body, $member);
     
@@ -152,11 +153,11 @@ class QaController extends BaseController
      * Q&A 삭제
      * - 실제 삭제하지 않고 탈퇴일자 및 Q&A메모를 업데이트한다.
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, array $qa_id): Response
     {
         try {
             $config = $request->getAttribute('config');
-            $member = $this->service->getMember($args['mb_id']);
+            $member = $this->service->getMember($qa_id);
             $login_member = $request->getAttribute('member');
 
             if ($member === $login_member) {

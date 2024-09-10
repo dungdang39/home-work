@@ -75,10 +75,10 @@ class PopupController extends BaseController
     /**
      * 팝업 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $args): Response
+    public function view(Request $request, Response $response, string $pu_id): Response
     {
         try {
-            $popup = $this->service->getPopup($args['pu_id']);
+            $popup = $this->service->getPopup($pu_id);
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -93,10 +93,10 @@ class PopupController extends BaseController
     /**
      * 팝업 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $pu_id): Response
     {
         try {
-            $popup = $this->service->getPopup($args['pu_id']);
+            $popup = $this->service->getPopup($pu_id);
             $request_body = $request->getParsedBody();
             $data = new PopupUpdateRequest($request_body);
 
@@ -111,10 +111,10 @@ class PopupController extends BaseController
     /**
      * 팝업 삭제
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, string $pu_id): Response
     {
         try {
-            $popup = $this->service->getPopup($args['pu_id']);
+            $popup = $this->service->getPopup($pu_id);
 
             $this->service->delete($popup['pu_id']);
         } catch (Exception $e) {

@@ -75,11 +75,8 @@ class AdminMenuPermissionController extends BaseController
     /**
      * 운영진 권한 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $mb_id, string $admin_menu_id): Response
     {
-        $mb_id = $args['mb_id'];
-        $admin_menu_id = $args['admin_menu_id'];
-
         try {
             $permission = $this->service->getPermission($mb_id, $admin_menu_id);
 
@@ -100,11 +97,8 @@ class AdminMenuPermissionController extends BaseController
     /**
      * 운영진 권한 삭제
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, string $mb_id, string $admin_menu_id): Response
     {
-        $mb_id = $args['mb_id'];
-        $admin_menu_id = $args['admin_menu_id'];
-
         try {
             $permission = $this->service->getPermission($mb_id, $admin_menu_id);
 

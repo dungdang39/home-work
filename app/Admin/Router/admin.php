@@ -203,9 +203,9 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->get('', [FaqController::class, 'list'])->setName('admin.content.faq.list');
                     $group->get('/create', [FaqController::class, 'create'])->setName('admin.content.faq.create');
                     $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
-                    $group->get('/{id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
-                    $group->post('/{id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
-                    $group->delete('/{id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                    $group->get('/{faq_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
+                    $group->post('/{faq_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
+                    $group->delete('/{faq_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
                 });
             })->add(AdminMenuPermissionMiddleware::class);
         });

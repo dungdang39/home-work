@@ -2,7 +2,6 @@
 
 namespace App\Admin\Controller;
 
-use App\Admin\Model\UpdateConfigRequest;
 use App\Admin\Model\UpdateThemeConfigRequest;
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
@@ -53,10 +52,8 @@ class ThemeController extends BaseController
     /**
      * 테마 설정 업데이트
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $theme): Response
     {
-        $theme = $args['theme'];
-
         try {
             $update_type = $request->getParsedBody()['type'] ?? null;
 
@@ -79,7 +76,7 @@ class ThemeController extends BaseController
     /**
      * 테마의 기타설정 업데이트
      */
-    public function updateInfo(Request $request, Response $response, array $args): Response
+    public function updateInfo(Request $request, Response $response): Response
     {
         try {
             $request_body = $request->getParsedBody();

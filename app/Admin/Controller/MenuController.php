@@ -41,13 +41,13 @@ class MenuController extends BaseController
         return $view->render($response, '/admin/menu_form.html', $response_data);
     }
 
-    public function getUrls(Request $request, Response $response, array $args): Response
+    public function getUrls(Request $request, Response $response, string $type): Response
     {
         $routeContext = RouteContext::fromRequest($request);
         $route = $routeContext->getRouteParser();
 
         $data = [];
-        switch ($args['type']) {
+        switch ($type) {
             case 'shop_category':
                 // $data = $this->service->getUrls('admin');
                 break;

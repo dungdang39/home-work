@@ -75,10 +75,10 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $args): Response
+    public function view(Request $request, Response $response, string $code): Response
     {
         try {
-            $content = $this->service->getContent($args['code']);
+            $content = $this->service->getContent($code);
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -93,10 +93,10 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 수정
      */
-    public function update(Request $request, Response $response, array $args): Response
+    public function update(Request $request, Response $response, string $code): Response
     {
         try {
-            $content = $this->service->getContent($args['code']);
+            $content = $this->service->getContent($code);
             $request_body = $request->getParsedBody();
             $data = new ContentUpdateRequest($request_body);
 
@@ -111,10 +111,8 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 삭제
      */
-    public function delete(Request $request, Response $response, array $args): Response
+    public function delete(Request $request, Response $response, string $code): Response
     {
-        $code = $args['code'];
-
         try {
             $content = $this->service->getContent($code);
 
