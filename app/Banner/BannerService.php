@@ -4,6 +4,7 @@ namespace App\Banner;
 
 use Core\Database\Db;
 use Core\Lib\UriHelper;
+use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class BannerService
@@ -44,7 +45,7 @@ class BannerService
         $banner = $this->fetchBanner($bn_id);
 
         if (empty($banner)) {
-            throw new \Exception('배너 정보를 찾을 수 없습니다.');
+            throw new Exception('배너 정보를 찾을 수 없습니다.', 404);
         }
 
         return $banner;

@@ -115,14 +115,10 @@ class BannerController extends BaseController
      */
     public function delete(Request $request, Response $response, string $bn_id): Response
     {
-        try {
-            $banner = $this->service->getBanner($bn_id);
+        $banner = $this->service->getBanner($bn_id);
 
-            // @todo 파일 삭제처리 필요
-            $this->service->delete($banner['bn_id']);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        // @todo 파일 삭제처리 필요
+        $this->service->delete($banner['bn_id']);
 
         return $this->responseJson($response, '배너가 삭제되었습니다.');
     }

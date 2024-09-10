@@ -3,6 +3,7 @@
 namespace App\Content;
 
 use Core\Database\Db;
+use Exception;
 
 class ContentService
 {
@@ -33,7 +34,7 @@ class ContentService
         $content = $this->fetchContent($code);
 
         if (empty($content)) {
-            throw new \Exception('컨텐츠 정보를 찾을 수 없습니다.');
+            throw new Exception('컨텐츠 정보를 찾을 수 없습니다.', 404);
         }
 
         return $content;

@@ -183,7 +183,7 @@ class MemberController extends BaseController
             return $this->handleException($request, $response, $e);
         }
 
-        return $this->responseJson($response, '회원이 삭제되었습니다.');
+        return $this->redirectRoute($request, $response, 'admin.member.manage');
     }
 
     /**
@@ -191,11 +191,7 @@ class MemberController extends BaseController
      */
     public function getMemberInfo(Request $request, Response $response, string $mb_id): Response
     {
-        try {
-            $member = $this->service->getMember($mb_id);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $member = $this->service->getMember($mb_id);
 
         return $this->responseJson($response, "회원정보 조회가 완료되었습니다.", 200, ['member' => $member]);
     }

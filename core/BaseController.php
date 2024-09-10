@@ -127,7 +127,6 @@ class BaseController
         ?array $data = []
     ): Response {
         $result = [];
-        $result['result'] = $status >= 400 ? 'error' : 'success';
         $result['message'] = $message;
         $result = array_merge($result, $data);
 

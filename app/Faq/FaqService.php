@@ -3,6 +3,7 @@
 namespace App\Faq;
 
 use Core\Database\Db;
+use Exception;
 
 class FaqService
 {
@@ -43,7 +44,7 @@ class FaqService
     {
         $faq_category = $this->fetchFaqCategory($id);
         if (empty($faq_category)) {
-            throw new \Exception('FAQ 카테고리 정보를 찾을 수 없습니다.');
+            throw new Exception('FAQ 카테고리 정보를 찾을 수 없습니다.', 404);
         }
 
         return $faq_category;
@@ -71,7 +72,7 @@ class FaqService
         $faq = $this->fetchFaq($id);
 
         if (empty($faq)) {
-            throw new \Exception('FAQ 항목 정보를 찾을 수 없습니다.');
+            throw new Exception('FAQ 항목 정보를 찾을 수 없습니다.', 404);
         }
 
         return $faq;

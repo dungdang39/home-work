@@ -177,6 +177,6 @@ class QaController extends BaseController
             return $this->handleException($request, $response, $e);
         }
 
-        return $this->responseJson($response, 'Q&A가 삭제되었습니다.');
+        return $this->redirectRoute($request, $response, 'admin.member.qa');
     }
 }

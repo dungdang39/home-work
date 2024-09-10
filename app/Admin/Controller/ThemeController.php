@@ -10,6 +10,7 @@ use DI\Container;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Views\Twig;
 
 class ThemeController extends BaseController
@@ -54,23 +55,20 @@ class ThemeController extends BaseController
      */
     public function update(Request $request, Response $response, string $theme): Response
     {
-        try {
-            $update_type = $request->getParsedBody()['type'] ?? null;
+        $update_type = $request->getParsedBody()['type'] ?? null;
 
-            if ($update_type === 'reset') {
-                $this->config_service->update(['cf_theme' => '']);
-                return $this->responseJson($response, '테마가 사용안함 처리되었습니다.');
-            }
-    
-            if (!$this->service->existsTheme($theme)) {
-                return $this->responseJson($response, '선택하신 테마가 설치되어 있지 않습니다.', 400);
-            }
-    
-            $this->config_service->update(['cf_theme' => $theme]);
-            return $this->responseJson($response, '테마가 변경되었습니다.');
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        if ($update_type === 'reset') {
+            $this->config_service->update(['cf_theme' => '']);
+            return $this->responseJson($response, '테마가 사용안함 처리되었습니다.');
         }
+
+        if (!$this->service->existsTheme('asdmi')) {
+            throw new HttpNotFoundException($request, '선택하신 테마가 설치되어 있지 않습니다.');
+        }
+
+        $this->config_service->update(['cf_theme' => $theme]);
+
+        return $this->responseJson($response, '테마가 변경되었습니다.');
     }
 
     /**

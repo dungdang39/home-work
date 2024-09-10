@@ -113,13 +113,9 @@ class ContentController extends BaseController
      */
     public function delete(Request $request, Response $response, string $code): Response
     {
-        try {
-            $content = $this->service->getContent($code);
+        $content = $this->service->getContent($code);
 
-            $this->service->delete($content['code']);
-        } catch (\Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->delete($content['code']);
 
         return $this->responseJson($response, '컨텐츠가 삭제되었습니다.');
     }

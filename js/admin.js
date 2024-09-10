@@ -82,7 +82,7 @@ function delete_confirm(href)
         },
         error: function (xhr, status, error) {
             let result = xhr.responseJSON;
-            alert(xhr.status + ' ' + error + ': ' + result.message);
+            alert(xhr.status + ' ' + error + ': ' + result.error.description);
         }
     });
 }

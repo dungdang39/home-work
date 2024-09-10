@@ -1,7 +1,7 @@
 <?php
 
-use API\Handlers\HttpErrorHandler;
-use API\Handlers\ShutdownHandler;
+use Core\Handlers\HttpErrorHandler;
+use Core\Handlers\ShutdownHandler;
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
 use App\Admin\Service\ThemeService;
@@ -15,6 +15,7 @@ use Dotenv\Exception\InvalidPathException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Csrf\Guard;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Flash\Messages;
@@ -65,11 +66,10 @@ $responseFactory = $app->getResponseFactory();
 $container->set('csrf', function () use ($responseFactory) {
     $guard = new Guard($responseFactory);
     // CSRF 검증 실패시 처리할 핸들러 설정
-    // @todo: 템플릿에서 처리될 수 있도록 수정 필요
-    // $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
-    //     $request = $request->withAttribute("csrf_status", false);
-    //     return $handler->handle($request);
-    // });
+    $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
+        $message = 'CSRF 검증이 실패했습니다. 새로고침 후 다시 시도해주세요.';
+        throw new HttpForbiddenException($request, $message);
+    });
     return $guard;
 });
 

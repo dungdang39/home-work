@@ -86,14 +86,10 @@ class FaqController extends BaseController
      */
     public function deleteCategory(Request $request, Response $response, string $faq_category_id): Response
     {
-        try {
-            $faq_category = $this->service->getFaqCategory($faq_category_id);
+        $faq_category = $this->service->getFaqCategory($faq_category_id);
 
-            $this->service->deleteFaqs($faq_category['id']);
-            $this->service->deleteCategory($faq_category['id']);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->deleteFaqs($faq_category['id']);
+        $this->service->deleteCategory($faq_category['id']);
 
         return $this->responseJson($response, 'FAQ 카테고리가 삭제되었습니다.');
     }
@@ -184,13 +180,9 @@ class FaqController extends BaseController
      */
     public function delete(Request $request, Response $response, string $faq_category_id, string $faq_id): Response
     {
-        try {
-            $faq = $this->service->getFaq($faq_id);
+        $faq = $this->service->getFaq($faq_id);
 
-            $this->service->delete($faq['id']);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->delete($faq['id']);
 
         return $this->responseJson($response, 'FAQ 항목이 삭제되었습니다.');
     }

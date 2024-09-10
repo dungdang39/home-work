@@ -3,6 +3,7 @@
 namespace App\Popup;
 
 use Core\Database\Db;
+use Exception;
 
 class PopupService
 {
@@ -33,7 +34,7 @@ class PopupService
         $popup = $this->fetchPopup($pu_id);
 
         if (empty($popup)) {
-            throw new \Exception('팝업 정보를 찾을 수 없습니다.');
+            throw new Exception('팝업 정보를 찾을 수 없습니다.', 404);
         }
 
         return $popup;

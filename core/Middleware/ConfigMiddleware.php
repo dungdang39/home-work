@@ -3,7 +3,6 @@
 namespace Core\Middleware;
 
 use App\Config\ConfigService;
-use Core\Database\Db;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -26,7 +25,7 @@ class ConfigMiddleware
         $config = $this->config_service->getConfig();
 
         if (!$config) {
-            throw new Exception('Config not found.');
+            throw new Exception('Config not found.', 400);
         }
 
         $request = $request->withAttribute('config', $config);

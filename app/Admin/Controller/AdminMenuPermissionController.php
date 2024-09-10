@@ -61,7 +61,7 @@ class AdminMenuPermissionController extends BaseController
             $data = CreateAdminMenuPermissionRequest::createFromRequestBody($request);
             $permission = $this->service->fetch($data->mb_id, $data->admin_menu_id);
             if ($permission) {
-                throw new Exception('이미 등록된 운영진&권한입니다.');
+                throw new Exception('이미 등록된 운영진&권한입니다.', 409);
             }
 
             $this->service->insert($data->toArray());
@@ -77,19 +77,15 @@ class AdminMenuPermissionController extends BaseController
      */
     public function update(Request $request, Response $response, string $mb_id, string $admin_menu_id): Response
     {
-        try {
-            $permission = $this->service->getPermission($mb_id, $admin_menu_id);
+        $permission = $this->service->getPermission($mb_id, $admin_menu_id);
 
-            $data = AdminMenuPermissionRequest::createFromRequestBody($request);
+        $data = AdminMenuPermissionRequest::createFromRequestBody($request);
 
-            $this->service->update(
-                $permission['mb_id'],
-                $permission['admin_menu_id'],
-                $data->toArray()
-            );
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->update(
+            $permission['mb_id'],
+            $permission['admin_menu_id'],
+            $data->toArray()
+        );
 
         return $this->responseJson($response, '수정되었습니다.');
     }
@@ -99,13 +95,9 @@ class AdminMenuPermissionController extends BaseController
      */
     public function delete(Request $request, Response $response, string $mb_id, string $admin_menu_id): Response
     {
-        try {
-            $permission = $this->service->getPermission($mb_id, $admin_menu_id);
+        $permission = $this->service->getPermission($mb_id, $admin_menu_id);
 
-            $this->service->delete($permission['mb_id'], $permission['admin_menu_id']);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->delete($permission['mb_id'], $permission['admin_menu_id']);
 
         return $this->responseJson($response, '삭제되었습니다.');
     }

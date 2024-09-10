@@ -113,13 +113,9 @@ class PopupController extends BaseController
      */
     public function delete(Request $request, Response $response, string $pu_id): Response
     {
-        try {
-            $popup = $this->service->getPopup($pu_id);
+        $popup = $this->service->getPopup($pu_id);
 
-            $this->service->delete($popup['pu_id']);
-        } catch (Exception $e) {
-            return $this->responseJson($response, $e->getMessage(), $e->getCode());
-        }
+        $this->service->delete($popup['pu_id']);
 
         return $this->responseJson($response, '팝업이 삭제되었습니다.');
     }
