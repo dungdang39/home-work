@@ -8,6 +8,7 @@ class ThemeService
     public const DIRECTORY = 'theme';
     private const SCREENSHOT = 'screenshot.png';
     private const DEFAULT_SCREENSHOT_PATH = '/img/theme_no_screenshot.jpg';
+    private const INDEX = 'index.html';
     private const README = 'readme.txt';
     private const THEME_INFO_PATTERNS = [
         'name' => '#^Theme Name:(.+)$#i',
@@ -64,8 +65,8 @@ class ThemeService
                 }
 
                 return (
-                    is_file($theme_dir . '/index.html')
-                    && is_file($theme_dir . '/readme.txt')
+                    is_file($theme_dir . '/' . self::INDEX)
+                    && is_file($theme_dir . '/' . self::README)
                 );
             }
         );

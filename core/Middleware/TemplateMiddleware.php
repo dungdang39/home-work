@@ -4,10 +4,12 @@ namespace Core\Middleware;
 
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
+use Core\AppConfig;
 use Core\Lib\UriHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\App;
 use Slim\Views\Twig;
 
 /**
@@ -35,6 +37,7 @@ class TemplateMiddleware
 
         // 템플릿 전역변수 설정
         $view = Twig::fromRequest($request);
+        $view->getEnvironment()->addGlobal('app_config', AppConfig::getInstance());
         $view->getEnvironment()->addGlobal('config', $config);
         $view->getEnvironment()->addGlobal('base_url', $base_url);
         $view->getEnvironment()->addGlobal('theme_url', $base_url . $theme_path);

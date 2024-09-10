@@ -26,7 +26,7 @@ class InstallService
         $twig = new Environment($loader);
         $twig->addGlobal('app_name', $app_config->get('APP_NAME'));
         $twig->addGlobal('base_url', $app_config->get('BASE_URL'));
-        $twig->addGlobal('version', $app_config->get('VERSION'));
+        $twig->addGlobal('version', AppConfig::VERSION);
 
         return $twig;
     }

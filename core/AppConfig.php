@@ -5,10 +5,10 @@ namespace Core;
 class AppConfig
 {
     private static ?AppConfig $instance = null;
+    public const VERSION = '1.0.0';
 
     private array $config = [
         'APP_NAME' => 'NEW-그누보드',
-        'VERSION' => '1.0.0',
         'LICENSE_FILE' => 'LICENSE.txt',
 
         'DOMAIN' => '',
