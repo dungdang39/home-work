@@ -177,6 +177,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [MemberController::class, 'insert'])->setName('admin.member.manage.insert');
                 $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('admin.member.manage.view');
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('admin.member.manage.update');
+                $group->delete('/list', [MemberController::class, 'deleteList'])->setName('admin.member.manage.delete.list');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.manage.delete');
                 $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.manage.info');
             });

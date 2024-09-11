@@ -4,15 +4,20 @@
     {% endif %}
 {% endmacro selected %}
 
+{# @todo  radio 버튼과 checkbox에서 사용. 자료형으로 인한 비정상적인 체크 오류 수정해야함. #}
 {% macro checked(option_value, selected_value, default = false) %}
     {% if option_value == selected_value or (not selected_value and default) %}
         checked
     {% endif %}
 {% endmacro checked %}
 
-{% macro info(string = '') %}
+{% macro info(string = '', is_escape = true) %}
     {% if string %}
-    <span class="frm_info">{{ string|e('html')|nl2br }}</span>
+        {% if is_escape %}
+            <span class="frm_info">{{ string|e('html')|nl2br }}</span>
+        {% else %}
+            <span class="frm_info">{{ string|raw|nl2br }}</span>
+        {% endif %}
     {% endif %}
 {% endmacro info %}
 
@@ -27,3 +32,65 @@
     {% endfor %}
     </ul>
 {% endmacro anchor %}
+
+{% macro renderPagination(pagination, query_params = []) %}
+    {% set cur_page = pagination.page %}
+    {% set total_page = pagination.total_page %}
+    {% set pages_to_show = 10 %} {# 페이지당 표시할 링크 수 #}
+
+    {# "page" 파라미터를 제거하고 쿼리 문자열을 재구성하는 로직 #}
+    {% set cleaned_query_string = '' %}
+    {% for key, value in query_params %}
+        {% if key != 'page' %}
+            {% if cleaned_query_string %}
+                {% set cleaned_query_string = cleaned_query_string ~ '&' %}
+            {% endif %}
+            {% set cleaned_query_string = cleaned_query_string ~ key ~ '=' ~ value %}
+        {% endif %}
+    {% endfor %}
+
+    {# 쿼리 문자열이 비어있으면 빈 문자열, 아니면 '&' 추가 #}
+    {% set base_url = '?' ~ cleaned_query_string ~ (cleaned_query_string ? '&' : '') %}
+
+    {# 페이지네이션의 시작/끝 페이지 계산 #}
+    {% set start_page = (((cur_page - 1) // pages_to_show) * pages_to_show) + 1 %}
+    {% set end_page = start_page + pages_to_show - 1 %}
+    {% if end_page > total_page %}
+        {% set end_page = total_page %}
+    {% endif %}
+
+    <nav class="pg_wrap">
+        <span class="pg">
+        {# "처음" 링크 #}
+    {% if cur_page > 1 -%}
+        <a href="{{ base_url }}page=1" class="pg_page pg_start">처음</a>
+    {%- endif %}
+
+    {# "이전" 링크 (이전 페이지 그룹으로 이동) #}
+    {% if start_page > 1 -%}
+        <a href="{{ base_url }}page={{ start_page - 1 }}" class="pg_page pg_prev">이전</a>
+    {%- endif %}
+
+    {# 페이지 링크 #}
+    {% for page_num in start_page..end_page -%}
+        {% if page_num >= 1 %}
+            {% if cur_page != page_num %}
+                <a href="{{ base_url }}page={{ page_num }}" class="pg_page">{{ page_num }}<span class="sound_only">페이지</span></a>
+            {% else %}
+                <span class="sound_only">열린</span><strong class="pg_current">{{ page_num }}</strong><span class="sound_only">페이지</span>
+            {% endif %}
+        {% endif %}
+    {%- endfor %}
+
+    {# "다음" 링크 (다음 페이지 그룹으로 이동) #}
+    {% if total_page > end_page -%}
+        <a href="{{ base_url }}page={{ end_page + 1 }}" class="pg_page pg_next">다음</a>
+    {%- endif %}
+
+    {# "맨끝" 링크 #}
+    {% if cur_page < total_page -%}
+        <a href="{{ base_url }}page={{ total_page }}" class="pg_page pg_end">맨끝</a>
+    {%- endif %}
+        </span>
+    </nav>
+{% endmacro %}

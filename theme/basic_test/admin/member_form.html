@@ -1,27 +1,31 @@
 {% extends "/admin/_layout.html" %}
-{% from "macro.html" import selected, checked %}
+{% from "macro.html" import anchor, checked, info, selected %}
+
+{% set action = member ? '수정' : '추가' %}
+{% set form_action = member ? url_for('admin.member.manage.update', {'mb_id': member.mb_id}) : url_for('admin.member.manage.insert') %}
+{% set title = '회원 > 회원관리 > 회원' ~ action  %}
+{% set sub_menus = {
+    'basic' : '기본정보',
+    'personal': '개인정보',
+    'management': '관리'
+} %}
+
+{% block title %}{{ title }}{% endblock title %}
 
 {% block head %}
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" async></script>
 {% endblock head %}
 
 {% block content %}
-{% set form_action = member ? url_for('admin.member.manage.update', {'mb_id': member.mb_id}) : url_for('admin.member.manage.insert') %}
-{% set action = member ? '수정' : '추가' %}
-
-<h1 id="container_title">회원 > 회원관리 > 회원 {{ action }}</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
     <form name="form_member" action="{{ form_action }}" onsubmit="return validate_form(this);" method="post" enctype="multipart/form-data">
         {{ csrf.field|raw }}
 
-        <section id="basic_info">
-            <h2 class="h2_frm">기본정보</h2>
-            <ul class="anchor">
-                <li><a href="#basic_info">기본정보</a></li>
-                <li><a href="#personal_info">개인정보</a></li>
-                <li><a href="#management">관리</a></li>
-                <li><a href="#extra_fields">여분필드</a></li>
-            </ul>
+        <section id="anchor_basic">
+            <h2 class="h2_frm">{{ sub_menus.basic }}</h2>
+            {{ anchor(sub_menus, 'basic') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>기본정보</caption>
@@ -38,7 +42,7 @@
                             {% if member %}
                                 {{ member.mb_id }}
                             {% else %}
-                                <input type="text" name="mb_id" value="{{ member.mb_id }}" id="mb_id" required class="frm_input required alnum_" size="15" maxlength="20">
+                                <input type="text" name="mb_id" value="{{ old('mb_id', member) }}" id="mb_id" class="frm_input required alnum_" size="15" maxlength="20" required>
                             {% endif %}
                             </td>
                             <th scope="row">
@@ -55,19 +59,27 @@
                             <th scope="row"><label for="mb_level">회원 권한</label></th>
                             <td>
                                 <select id="mb_level" name="mb_level">
-                                    {% for i in range(1, 10) %}
-                                    <option value="{{ i }}" {{ selected(i, member.mb_level) }}>{{ i }}</option>
-                                    {% endfor %}
+                                {% for i in range(1, 10) -%}
+                                    <option value="{{ i }}" {{ selected(i, old('mb_level', member)) }}>
+                                        {{- i -}}
+                                    </option>
+                                {%- endfor %}
                                 </select>
                             </td>
                             <th scope="row">포인트</th>
-                            <td><a href="{{ url_for('admin.member.point', {mb_id: member.mb_id}) }}" target="_blank">{{ member.mb_point }}</a> 점</td>
+                            <td>
+                                {% if member %}
+                                <a href="{{ url_for('admin.member.point', {mb_id: member.mb_id}) }}" target="_blank">
+                                    {{- member.mb_point -}}
+                                </a> 점
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_img">회원이미지</label></th>
                             <td colspan="3">
-                                <span class="frm_info">이미지 크기는 <strong>넓이 60픽셀 높이 60픽셀</strong>로 해주세요.</span> <input
-                                    type="file" name="mb_img" id="mb_img">
+                                {{ info('이미지 크기는 <strong>넓이 60픽셀 높이 60픽셀</strong>로 해주세요.', false ) }}
+                                <input type="file" name="mb_img" id="mb_img">
                             </td>
                         </tr>
                         {% if member %}
@@ -81,14 +93,10 @@
             </div>
         </section>
         
-        <section id="personal_info">
-            <h2 class="h2_frm">개인정보</h2>
-            <ul class="anchor">
-                <li><a href="#basic_info">기본정보</a></li>
-                <li><a href="#personal_info">개인정보</a></li>
-                <li><a href="#management">관리</a></li>
-                <li><a href="#extra_fields">여분필드</a></li>
-            </ul>
+        <section id="anchor_personal">
+            <h2 class="h2_frm">{{ sub_menus.personal }}</h2>
+            {{ anchor(sub_menus, 'personal') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>개인정보</caption>
@@ -102,44 +110,44 @@
                         <tr>
                             <th scope="row"><label for="mb_name">이름(실명)<strong class="sound_only">필수</strong></label></th>
                             <td>
-                                <input type="text" name="mb_name" value="{{ member.mb_name }}" id="mb_name" required class="required frm_input" size="15" maxlength="20">
+                                <input type="text" name="mb_name" value="{{ old('mb_name', member) }}" id="mb_name" required class="required frm_input" size="15" maxlength="20">
                             </td>
                             <th scope="row"><label for="mb_nick">닉네임<strong class="sound_only">필수</strong></label></th>
-                            <td><input type="text" name="mb_nick" value="{{ member.mb_nick }}" id="mb_nick" required
+                            <td><input type="text" name="mb_nick" value="{{ old('mb_nick', member) }}" id="mb_nick" required
                                     class="required frm_input" size="15" maxlength="20"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_email">E-mail<strong class="sound_only">필수</strong></label>
                             </th>
-                            <td><input type="text" name="mb_email" value="{{ member.mb_email }}" id="mb_email" maxlength="100" required
+                            <td><input type="text" name="mb_email" value="{{ old('mb_email', member) }}" id="mb_email" maxlength="100" required
                                     class="required frm_input email" size="30"></td>
                             <th scope="row"><label for="mb_homepage">홈페이지</label></th>
-                            <td><input type="text" name="mb_homepage" value="{{ member.mb_homepage }}" id="mb_homepage" class="frm_input"
+                            <td><input type="text" name="mb_homepage" value="{{ old('mb_homepage', member) }}" id="mb_homepage" class="frm_input"
                                     maxlength="255" size="15"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_hp">휴대폰번호</label></th>
-                            <td><input type="text" name="mb_hp" value="{{ member.mb_hp }}" id="mb_hp" class="frm_input" size="15"
+                            <td><input type="text" name="mb_hp" value="{{ old('mb_hp', member) }}" id="mb_hp" class="frm_input" size="15"
                                     maxlength="20"></td>
                             <th scope="row"><label for="mb_tel">전화번호</label></th>
-                            <td><input type="text" name="mb_tel" value="{{ member.mb_tel }}" id="mb_tel" class="frm_input" size="15"
+                            <td><input type="text" name="mb_tel" value="{{ old('mb_tel', member) }}" id="mb_tel" class="frm_input" size="15"
                                     maxlength="20"></td>
                         </tr>
                         <tr>
                             <th scope="row">본인인증 방법</th>
                             <td>
-                                <input type="radio" name="mb_certify" value="" id="mb_certify" {{ checked("", member.mb_certify) }}>
+                                <input type="radio" name="mb_certify" value="" id="mb_certify" {{ checked("", old('mb_certify', member), true) }}>
                                 <label for="mb_certify">인증없음</label>
-                                <input type="radio" name="mb_certify" value="simple" id="mb_certify_sa" {{ checked("simple", member.mb_certify) }}>
+                                <input type="radio" name="mb_certify" value="simple" id="mb_certify_sa" {{ checked("simple", old('mb_certify', member)) }}>
                                 <label for="mb_certify_sa">통합인증</label>
-                                <input type="radio" name="mb_certify" value="hp" id="mb_certify_hp" {{ checked("hp", member.mb_certify) }}>
+                                <input type="radio" name="mb_certify" value="hp" id="mb_certify_hp" {{ checked("hp", old('mb_certify', member)) }}>
                                 <label for="mb_certify_hp">휴대폰</label>
                             </td>
                             <th scope="row">성인인증</th>
                             <td>
-                                <input type="radio" name="mb_adult" value="1" id="mb_adult_yes" {{ checked(1, member.mb_adult) }}>
+                                <input type="radio" name="mb_adult" value="1" id="mb_adult_yes" {{ checked(1, old('mb_adult', member)) }}>
                                 <label for="mb_adult_yes">성인</label>
-                                <input type="radio" name="mb_adult" value="0" id="mb_adult_no" {{ checked(0, member.mb_adult) }}>
+                                <input type="radio" name="mb_adult" value="0" id="mb_adult_no" {{ checked(0, old('mb_adult', member)) }}>
                                 <label for="mb_adult_no">미성년자</label>
                             </td>
                         </tr>
@@ -158,40 +166,40 @@
                             <th scope="row">주소</th>
                             <td colspan="3" class="td_addr_line">
                                 <label for="mb_zip" class="sound_only">우편번호</label>
-                                <input type="text" name="mb_zip" value="{{ member.mb_zip }}" id="mb_zip" class="frm_input readonly" size="5" maxlength="6">
+                                <input type="text" name="mb_zip" value="{{ old('mb_zip', member) }}" id="mb_zip" class="frm_input readonly" size="5" maxlength="6">
                                 <button type="button" class="btn_frmline"
                                     onclick="win_zip('fmember', 'mb_zip', 'mb_addr1', 'mb_addr2', 'mb_addr3', 'mb_addr_jibeon');">
                                     주소 검색
                                 </button>
                                 <br>
-                                <input type="text" name="mb_addr1" value="{{ member.mb_addr1 }}" id="mb_addr1" class="frm_input readonly" size="60">
+                                <input type="text" name="mb_addr1" value="{{ old('mb_addr1', member) }}" id="mb_addr1" class="frm_input readonly" size="60">
                                 <label for="mb_addr1">기본주소</label>
                                 <br>
-                                <input type="text" name="mb_addr2" value="{{ member.mb_addr2 }}" id="mb_addr2" class="frm_input" size="60">
+                                <input type="text" name="mb_addr2" value="{{ old('mb_addr2', member) }}" id="mb_addr2" class="frm_input" size="60">
                                 <label for="mb_addr2">상세주소</label>
                                 <br>
-                                <input type="text" name="mb_addr3" value="{{ member.mb_addr3 }}" id="mb_addr3" class="frm_input" size="60">
+                                <input type="text" name="mb_addr3" value="{{ old('mb_addr3', member) }}" id="mb_addr3" class="frm_input" size="60">
                                 <label for="mb_addr3">참고항목</label>
-                                <input type="hidden" name="mb_addr_jibeon" value="{{ member.mb_addr_jibeon }}"><br>
+                                <input type="hidden" name="mb_addr_jibeon" value="{{ old('mb_addr_jibeon', member) }}"><br>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_signature">서명</label></th>
-                            <td colspan="3"><textarea name="mb_signature" id="mb_signature">{{ member.mb_signature }}</textarea></td>
+                            <td colspan="3">
+                                <textarea name="mb_signature" id="mb_signature">
+                                    {{- old('mb_signature', member) -}}
+                                </textarea>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <section id="management">
-            <h2 class="h2_frm">관리</h2>
-            <ul class="anchor">
-                <li><a href="#basic_info">기본정보</a></li>
-                <li><a href="#personal_info">개인정보</a></li>
-                <li><a href="#management">관리</a></li>
-                <li><a href="#extra_fields">여분필드</a></li>
-            </ul>
+        <section id="anchor_management">
+            <h2 class="h2_frm">{{ sub_menus.management }}</h2>
+            {{ anchor(sub_menus, 'management') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>관리</caption>
@@ -204,7 +212,7 @@
                     <tbody>
                         <tr>
                             <th scope="row"><label for="mb_memo">메모</label></th>
-                            <td colspan="3"><textarea name="mb_memo" id="mb_memo">{{ member.mb_memo }}</textarea></td>
+                            <td colspan="3"><textarea name="mb_memo" id="mb_memo">{{ old('mb_memo', member) }}</textarea></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_cert_history">본인인증 내역</label></th>
@@ -215,38 +223,38 @@
                         <tr>
                             <th scope="row">메일 수신</th>
                             <td>
-                                <input type="radio" name="mb_mailling" value="1" id="mb_mailling_yes" {{ checked(1, member.mb_mailling) }}>
+                                <input type="radio" name="mb_mailling" value="1" id="mb_mailling_yes" {{ checked(1, old('mb_mailling', member), true) }}>
                                 <label for="mb_mailling_yes">예</label>
-                                <input type="radio" name="mb_mailling" value="0" id="mb_mailling_no" {{ checked(0, member.mb_mailling) }}>
+                                <input type="radio" name="mb_mailling" value="0" id="mb_mailling_no" {{ checked(0, old('mb_mailling', member)) }}>
                                 <label for="mb_mailling_no">아니오</label>
                             </td>
                             <th scope="row"><label for="mb_sms_yes">SMS 수신</label></th>
                             <td>
-                                <input type="radio" name="mb_sms" value="1" id="mb_sms_yes" {{ checked(1, member.mb_sms) }}>
+                                <input type="radio" name="mb_sms" value="1" id="mb_sms_yes" {{ checked(1, old('mb_sms', member), true) }}>
                                 <label for="mb_sms_yes">예</label>
-                                <input type="radio" name="mb_sms" value="0" id="mb_sms_no" {{ checked(0, member.mb_sms) }}>
+                                <input type="radio" name="mb_sms" value="0" id="mb_sms_no" {{ checked(0, old('mb_sms', member)) }}>
                                 <label for="mb_sms_no">아니오</label>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">정보 공개</th>
                             <td colspan="3">
-                                <input type="radio" name="mb_open" value="1" id="mb_open_yes" {{ checked(1, member.mb_open) }}>
+                                <input type="radio" name="mb_open" value="1" id="mb_open_yes" {{ checked(1, old('mb_open', member), true) }}>
                                 <label for="mb_open_yes">예</label>
-                                <input type="radio" name="mb_open" value="0" id="mb_open_no" {{ checked(0, member.mb_open) }}>
+                                <input type="radio" name="mb_open" value="0" id="mb_open_no" {{ checked(0, old('mb_open', member)) }}>
                                 <label for="mb_open_no">아니오</label>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_leave_date">탈퇴일자</label></th>
                             <td>
-                                <input type="text" name="mb_leave_date" value="{{ member.mb_leave_date }}" id="mb_leave_date" class="frm_input" maxlength="8">
+                                <input type="text" name="mb_leave_date" value="{{ old('mb_leave_date', member) }}" id="mb_leave_date" class="frm_input" maxlength="8">
                                 <input type="checkbox" value="" id="mb_leave_date_set_today">
                                 <label for="mb_leave_date_set_today">탈퇴일을 오늘로 지정</label>
                             </td>
                             <th scope="row">접근차단일자</th>
                             <td>
-                                <input type="text" name="mb_intercept_date" value="{{ member.mb_intercept_date }}" id="mb_intercept_date" class="frm_input" maxlength="8">
+                                <input type="text" name="mb_intercept_date" value="{{ old('mb_intercept_date', member) }}" id="mb_intercept_date" class="frm_input" maxlength="8">
                                 <input type="checkbox" value="" id="mb_intercept_date_set_today">
                                 <label for="mb_intercept_date_set_today">접근차단일을 오늘로 지정</label>
                             </td>
@@ -266,48 +274,17 @@
                             <tr>
                                 <th scope="row">인증일시</th>
                                 <td colspan="3">
-                                    {% if not member.mb_email_verified_at %}
+                                    {% if not mb_email_verified_at %}
                                         <?php echo help('회원님이 메일을 수신할 수 없는 경우 등에 직접 인증처리를 하실 수 있습니다.') ?>
                                         <input type="checkbox" name="passive_certify" id="passive_certify">
                                         <label for="passive_certify">수동인증</label>
                                     {% else %}
-                                        {{ member.mb_email_verified_at}}
+                                        {{ mb_email_verified_at }}
                                     {% endif %}
                                 </td>
                             </tr>
                             {% endif %}
                         {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="extra_fields">
-            <h2 class="h2_frm">여분필드</h2>
-            <ul class="anchor">
-                <li><a href="#basic_info">기본정보</a></li>
-                <li><a href="#personal_info">개인정보</a></li>
-                <li><a href="#management">관리</a></li>
-                <li><a href="#extra_fields">여분필드</a></li>
-            </ul>
-            <div class="tbl_frm01 tbl_wrap">
-                <table>
-                    <caption>여분필드</caption>
-                    <colgroup>
-                        <col class="grid_4">
-                        <col>
-                        <col class="grid_4">
-                        <col>
-                    </colgroup>
-                    <tbody>
-                        {% for i in range(1, 10) %}
-                        <tr>
-                            <th scope="row"><label for="mb_1">여분 필드 {{ i }}</label></th>
-                            <td colspan="3">
-                                <input type="text" name="mb_{{ i }}" value="{{ attribute(member, 'mb_' ~ i ) }}"
-                                    id="mb_{{ i }}" class="frm_input" size="30" maxlength="255"></td>
-                        </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>

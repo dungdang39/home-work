@@ -21,27 +21,30 @@ class PageParameters
     public int $limit = 0;
 
     /**
-     * 모바일 여부
-     * @OA\Parameter(name="is_mobile", in="query", @OA\Schema(type="boolean", default=false))
-     */
-    public bool $is_mobile = false;
-
-    /**
      * 시작 위치
      */
     public int $offset = 0;
 
     /**
+     * 총 페이지 수
+     */
+    public int $total_page = 0;
+
+    /**
+     * 총 데이터 수
+     */
+    public int $total_count = 0;
+
+    /**
      * @param array $data 요청 데이터
      * @param int $limit 기본 페이지당 결과 수
-     * @param int $mobile_limit 모바일에서 기본 페이지당 결과 수
      */
-    public function __construct(array $data, int $limit = 15, int $mobile_limit = 10)
+    public function __construct(array $data, int $limit = 15)
     {
         $this->mapDataToProperties($this, $data);
 
         // limit과 offset 설정
-        $this->setLimit($limit, $mobile_limit);
+        $this->setLimit($limit);
         $this->setOffset();
     }
 
@@ -50,12 +53,10 @@ class PageParameters
      * @param int $limit 기본 페이지당 결과 수
      * @param int $mobile_limit 모바일에서 기본 페이지당 결과 수
      */
-    private function setLimit(int $limit, int $mobile_limit): void
+    private function setLimit(int $limit): void
     {
-        // limit값이 없을 경우 기본값 설정
-        $this->limit = ($this->limit <= 0)
-            ? ($this->is_mobile ? $mobile_limit : $limit)
-            : $this->limit;
+        // limit 값이 없을 경우 기본값 설정
+        $this->limit = ($this->limit <= 0) ? $limit : $this->limit;
 
         // limit 값이 100을 초과하지 않도록 제한
         if ($this->limit > 100) {

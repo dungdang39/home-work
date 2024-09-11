@@ -9,7 +9,6 @@ use App\Config\ConfigService;
 use Core\Environment;
 use Core\Extension\CsrfExtension;
 use Core\Extension\FlashExtension;
-use Core\Middleware\FlashDataMiddleware;
 use DI\Container;
 use Dotenv\Exception\InvalidPathException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -24,6 +23,7 @@ use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extra\Html\HtmlExtension;
+use Twig\Extra\Intl\IntlExtension;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -111,9 +111,10 @@ try {
 }
 
 $twig = Twig::create($template_dir, ['cache' => false]);
+$twig->addExtension(new CsrfExtension($container->get('csrf')));
 $twig->addExtension(new FlashExtension($container->get('flash')));
 $twig->addExtension(new HtmlExtension());
-$twig->addExtension(new CsrfExtension($container->get('csrf')));
+$twig->addExtension(new IntlExtension());
 
 /**
  * Add Middleware

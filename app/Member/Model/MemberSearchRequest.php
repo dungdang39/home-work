@@ -8,7 +8,11 @@ class MemberSearchRequest
 {
     use SchemaHelperTrait;
 
-    public ?string $mb_id;
+    public ?string $status;
+
+    public ?string $field;
+
+    public ?string $keyword;
 
     public function __construct(array $query_params = [])
     {

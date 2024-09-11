@@ -15,6 +15,7 @@
         "php-di/php-di": "^6.4",
         "ext-pdo": "*",
         "twig/html-extra": "^3.11",
+        "twig/intl-extra": "^3.12",
         "hybridauth/hybridauth": "^3.11"
     },
     "autoload": {

@@ -103,7 +103,7 @@ class QaController extends BaseController
     public function update(Request $request, Response $response, array $qa_id): Response
     {
         try {
-            $login_member = $request->getAttribute('member');
+            $login_member = $request->getAttribute('login_member');
             $config = $request->getAttribute('config');
 
             $member = $this->service->getMember($qa_id);
@@ -158,7 +158,7 @@ class QaController extends BaseController
         try {
             $config = $request->getAttribute('config');
             $member = $this->service->getMember($qa_id);
-            $login_member = $request->getAttribute('member');
+            $login_member = $request->getAttribute('login_member');
 
             if ($member === $login_member) {
                 throw new Exception('로그인 중인 관리자는 삭제할 수 없습니다.', 403);

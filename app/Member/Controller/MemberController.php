@@ -4,31 +4,32 @@ namespace App\Member\Controller;
 
 use App\Member\MemberConfigService;
 use App\Member\MemberService;
+use App\Member\Model\CreateMemberRequest;
 use App\Member\Model\MemberSearchRequest;
-use App\Member\Model\MemberUpdateRequest;
-use App\Member\Model\MemberCreateRequest;
+use App\Member\Model\MemberRequest;
 use Core\BaseController;
 use Core\Model\PageParameters;
 use DI\Container;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
-use Slim\Views\Twig;
 use Exception;
+// use Psr\Http\Message\ResponseInterface as Response;
+// use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\http\Response;
+use Slim\http\ServerRequest as Request;
+use Slim\Views\Twig;
 
 class MemberController extends BaseController
 {
     private MemberService $service;
     private MemberConfigService $config_service;
-    private MemberCreateRequest $create_request;
-    private MemberUpdateRequest $update_request;
+    private CreateMemberRequest $create_request;
+    private MemberRequest $update_request;
 
     public function __construct(
         Container $container,
         MemberService $service,
         MemberConfigService $config_service,
-        MemberCreateRequest $create_request,
-        MemberUpdateRequest $update_request,
+        CreateMemberRequest $create_request,
+        MemberRequest $update_request,
     ) {
         parent::__construct($container);
 
@@ -43,13 +44,18 @@ class MemberController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
-        $query_params = $request->getQueryParams();
-        $request_params = new MemberSearchRequest($query_params);
-        $page_params = new PageParameters($query_params);
-        $params = array_merge($request_params->toArray(), $page_params->toArray());
-
         // 회원 설정 조회
         $member_config = $this->config_service->getMemberConfig();
+
+        // 검색 조건 설정
+        $search_params = MemberSearchRequest::createFromQueryParams($request)->toArray();
+
+        // 페이지 설정
+        $total_count = $this->service->fetchMembersTotalCount($search_params);
+        $page_params = PageParameters::createFromQueryParams($request)->toArray();
+        $page_params['total_count'] = $total_count;
+        $page_params['total_page'] = ceil($total_count / $page_params['limit']);
+        $params = array_merge($search_params, $page_params);
 
         // 회원 목록 조회
         $members = $this->service->getMembers($params);
@@ -57,6 +63,10 @@ class MemberController extends BaseController
         $response_data = [
             "member_config" => $member_config,
             "members" => $members,
+            "total_count" => $total_count,
+            "search" => $search_params,
+            "pagination" => $page_params,
+            "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/member_list.html', $response_data);
@@ -114,7 +124,7 @@ class MemberController extends BaseController
     public function update(Request $request, Response $response, string $mb_id): Response
     {
         try {
-            $login_member = $request->getAttribute('member');
+            $login_member = $request->getAttribute('login_member');
             $config = $request->getAttribute('config');
 
             $member = $this->service->getMember($mb_id);
@@ -166,7 +176,7 @@ class MemberController extends BaseController
         try {
             $config = $request->getAttribute('config');
             $member = $this->service->getMember($mb_id);
-            $login_member = $request->getAttribute('member');
+            $login_member = $request->getAttribute('login_member');
 
             if ($member === $login_member) {
                 throw new Exception('로그인 중인 관리자는 삭제할 수 없습니다.', 403);
@@ -183,6 +193,11 @@ class MemberController extends BaseController
             return $this->handleException($request, $response, $e);
         }
 
+        return $this->redirectRoute($request, $response, 'admin.member.manage');
+    }
+
+    public function deleteList(Request $request, Response $response): Response
+    {
         return $this->redirectRoute($request, $response, 'admin.member.manage');
     }
 

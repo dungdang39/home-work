@@ -15,7 +15,7 @@ class SuperAdminAuthMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         $config = $request->getAttribute('config');
-        $member = $request->getAttribute('member');
+        $member = $request->getAttribute('login_member');
         $mb_id = isset($member['mb_id']) ? $member['mb_id'] : '';
 
         if (!is_super_admin($config, $mb_id)) {

@@ -34,7 +34,27 @@ class MemberService
             return [];
         }
 
+        foreach ($members as &$member) {
+            $member['status'] = $this->getMemberStatus($member);
+        }
+
         return $members;
+    }
+
+    /**
+     * 회원 상태 조회
+     * @param array $member 회원정보
+     * @return string
+     */
+    public function getMemberStatus(array $member): string
+    {
+        if ($member['mb_leave_date']) {
+            return "leave";
+        }
+        if ($member['mb_intercept_date']) {
+            return "intercept";
+        }
+        return "normal";
     }
 
     /**
@@ -201,28 +221,79 @@ class MemberService
     // ========================================
 
     /**
+     * 회원 전체 카운트 조회
+     * @param array $params 조회조건
+     * @return int
+     */
+    public function fetchMembersTotalCount(array $params): int
+    {
+        $wheres = [];
+        $values = [];
+
+        if (isset($params['status'])) {
+            if ($params['status'] == 'leave') {
+                $wheres[] = "mb_leave_date is not null";
+            } elseif ($params['status'] == 'intercept') {
+                $wheres[] = "mb_intercept_date is not null";
+            } elseif ($params['status'] == 'normal') {
+                $wheres[] = "mb_leave_date is null";
+                $wheres[] = "mb_intercept_date is null";
+            }
+        }
+
+        if (isset($params['field']) && isset($params['keyword'])) {
+            $wheres[] = "{$params['field']} LIKE :keyword";
+            $values["keyword"] = "%{$params['keyword']}%";
+        }
+
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT COUNT(*)
+                    FROM {$this->table}
+                    {$sql_where}";
+
+        return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
+
+    /**
      * 회원 목록 조회
      * @param array $params 조회조건
      * @return array|false
      */
     public function fetchMembers(array $params): array
     {
-        $sql_where = "1";
-        $values = [
-            "offset" => $params['offset'],
-            "limit" => $params['limit'],
-        ];
+        $wheres = [];
+        $values = [];
 
-        // if (!empty($params['pu_device'])) {
-        //     $sql_where .= " AND pu_device = :pu_device";
-        //     $values['pu_device'] = $params['pu_device'];
-        // }
+        if (isset($params['status'])) {
+            if ($params['status'] == 'leave') {
+                $wheres[] = "mb_leave_date is not null";
+            } elseif ($params['status'] == 'intercept') {
+                $wheres[] = "mb_intercept_date is not null";
+            } elseif ($params['status'] == 'normal') {
+                $wheres[] = "mb_leave_date is null";
+                $wheres[] = "mb_intercept_date is null";
+            }
+        }
+
+        if (isset($params['field']) && isset($params['keyword'])) {
+            $wheres[] = "{$params['field']} LIKE :keyword";
+            $values["keyword"] = "%{$params['keyword']}%";
+        }
+
+        if (isset($params['offset']) && isset($params['limit'])) {
+            $values["offset"] = $params['offset'];
+            $values["limit"] = $params['limit'];
+            $sql_limit = "LIMIT :offset, :limit";
+        }
+
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
 
         $query = "SELECT *
                     FROM {$this->table}
-                    WHERE {$sql_where}
-                    ORDER BY created_at DESC
-                    LIMIT :offset, :limit";
+                    {$sql_where}
+                    ORDER BY created_at DESC, mb_no DESC
+                    {$sql_limit}";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
     }

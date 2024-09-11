@@ -61,10 +61,10 @@ class ContentService
             $sql_limit = "LIMIT :offset, :limit";
         }
 
-        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
 
         $query = "SELECT * FROM {$this->table}
-                    {$where}
+                    {$sql_where}
                     ORDER BY created_at DESC
                     {$sql_limit}";
 
