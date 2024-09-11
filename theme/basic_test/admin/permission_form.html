@@ -216,7 +216,8 @@
                     $area_permission.show();
                 },
                 error: function (xhr, status, error) {
-                    alert(xhr.responseJSON.message);
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.error.description);
                 }
             });
         });

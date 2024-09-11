@@ -10,8 +10,8 @@ use Core\BaseController;
 use Core\Model\PageParameters;
 use DI\Container;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 /**
@@ -87,7 +87,7 @@ class AdminMenuPermissionController extends BaseController
             $data->toArray()
         );
 
-        return $this->responseJson($response, '수정되었습니다.');
+        return $response->withJson(['message' => '수정되었습니다.']);
     }
 
     /**
@@ -99,6 +99,6 @@ class AdminMenuPermissionController extends BaseController
 
         $this->service->delete($permission['mb_id'], $permission['admin_menu_id']);
 
-        return $this->responseJson($response, '삭제되었습니다.');
+        return $response->withJson(['message' => '삭제되었습니다.']);
     }
 }

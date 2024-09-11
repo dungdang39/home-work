@@ -77,6 +77,9 @@ class MemberRequest
         $this->processPassword();
         $this->mb_hp = hyphen_hp_number($this->mb_hp);
 
+        // unset($this->member_config);
+        // unset($this->config);
+
         return $this;
     }
 

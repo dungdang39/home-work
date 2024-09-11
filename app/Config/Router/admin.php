@@ -2,8 +2,8 @@
 
 namespace App\Config\Router;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\App;
 use Slim\Views\Twig;
 

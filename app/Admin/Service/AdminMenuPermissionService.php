@@ -34,7 +34,7 @@ class AdminMenuPermissionService
     {
         $permission = $this->fetch($mb_id, $admin_menu_id);
         if (empty($permission)) {
-            throw new Exception('권한이 존재하지 않습니다.', 404);
+            throw new Exception('관리자메뉴 권한이 존재하지 않습니다.', 404);
         }
         return $permission;
     }

@@ -10,8 +10,8 @@ use Core\BaseController;
 use Core\Model\PageParameters;
 use DI\Container;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class ContentController extends BaseController
@@ -117,6 +117,6 @@ class ContentController extends BaseController
 
         $this->service->delete($content['code']);
 
-        return $this->responseJson($response, '컨텐츠가 삭제되었습니다.');
+        return $response->withJson(['message' => '컨텐츠가 삭제되었습니다.']);
     }
 }

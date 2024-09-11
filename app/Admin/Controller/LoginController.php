@@ -7,8 +7,8 @@ use App\Admin\Service\LoginService;
 use App\Member\MemberService;
 use Core\AppConfig;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 use Slim\Routing\RouteContext;
 

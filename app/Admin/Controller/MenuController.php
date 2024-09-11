@@ -6,8 +6,8 @@ use App\Content\ContentService;
 use App\Admin\Service\MenuService;
 use Core\BaseController;
 use DI\Container;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
@@ -71,6 +71,6 @@ class MenuController extends BaseController
                 break;
         }
 
-        return $this->responseJson($response, null, 200, $data);
+        return $response->withJson($data, 200);
     }
 }

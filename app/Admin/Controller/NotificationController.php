@@ -6,8 +6,8 @@ use App\Admin\Service\NotificationService;
 use Core\BaseController;
 use DI\Container;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class NotificationController extends BaseController

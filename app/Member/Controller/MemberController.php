@@ -11,10 +11,8 @@ use Core\BaseController;
 use Core\Model\PageParameters;
 use DI\Container;
 use Exception;
-// use Psr\Http\Message\ResponseInterface as Response;
-// use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\http\Response;
-use Slim\http\ServerRequest as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class MemberController extends BaseController
@@ -159,7 +157,7 @@ class MemberController extends BaseController
                 }
             }
 
-            $this->service->updateMember($member['mb_id'], $data->toArray());
+            $this->service->updateMember($member['mb_id'], get_object_vars($data));
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -208,6 +206,9 @@ class MemberController extends BaseController
     {
         $member = $this->service->getMember($mb_id);
 
-        return $this->responseJson($response, "회원정보 조회가 완료되었습니다.", 200, ['member' => $member]);
+        return $response->withJson([
+            'message' => "회원정보 조회가 완료되었습니다.",
+            'member' => $member
+        ], 200);
     }
 }

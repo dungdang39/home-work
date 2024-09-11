@@ -9,8 +9,8 @@ use App\Banner\Model\BannerUpdateRequest;
 use Core\BaseController;
 use DI\Container;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class BannerController extends BaseController
@@ -120,7 +120,7 @@ class BannerController extends BaseController
         // @todo 파일 삭제처리 필요
         $this->service->delete($banner['bn_id']);
 
-        return $this->responseJson($response, '배너가 삭제되었습니다.');
+        return $response->withJson(['message' => '배너가 삭제되었습니다.']);
     }
 
     /**

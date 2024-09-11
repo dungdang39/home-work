@@ -10,8 +10,8 @@ use Core\BaseController;
 use Core\Model\PageParameters;
 use DI\Container;
 use Exception;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class FaqController extends BaseController
@@ -91,7 +91,7 @@ class FaqController extends BaseController
         $this->service->deleteFaqs($faq_category['id']);
         $this->service->deleteCategory($faq_category['id']);
 
-        return $this->responseJson($response, 'FAQ 카테고리가 삭제되었습니다.');
+        return $response->withJson(['message' => 'FAQ 카테고리가 삭제되었습니다.']);
     }
 
     /**
@@ -184,6 +184,6 @@ class FaqController extends BaseController
 
         $this->service->delete($faq['id']);
 
-        return $this->responseJson($response, 'FAQ 항목이 삭제되었습니다.');
+        return $response->withJson(['message' => 'FAQ 항목이 삭제되었습니다.']);
     }
 }

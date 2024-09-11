@@ -5,8 +5,8 @@ namespace Core;
 use Core\Extension\FlashExtension;
 use Exception;
 use DI\Container;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Slim\Flash\Messages;
 use Slim\Routing\RouteContext;
 
@@ -39,23 +39,6 @@ class BaseController
     /**
      * 리디렉션을 처리하는 공통 메서드
      * 
-     * @param Response $response 서버 응답 객체
-     * @param string $url 리디렉션할 URL
-     * @param int $status HTTP 상태 코드 (기본값 302)
-     * @return Response 리디렉션된 응답 객체
-     */
-    protected function redirect(Response $response, string $url, ?int $status = 302): Response
-    {
-        if (empty($url)) {
-            $url = '/';
-        }
-
-        return $response->withHeader('Location', $url)->withStatus($status);
-    }
-
-    /**
-     * 리디렉션을 처리하는 공통 메서드
-     * 
      * @param Request $request 클라이언트 요청 객체
      * @param Response $response 서버 응답 객체
      * @param string $route_name 리디렉션할 라우터 이름
@@ -80,7 +63,7 @@ class BaseController
             return $this->handleException($request, $response, $e);
         }
 
-        return $this->redirect($response, $url, $status);
+        return $response->withRedirect($url, $status);
     }
 
     /**
@@ -108,30 +91,6 @@ class BaseController
         // @todo 로깅 추가
         // $this->logger->error($e->getMessage(), ['exception' => $e]);
 
-        return $this->redirect($response, $referer);
-    }
-    
-    /**
-     * JSON 형식으로 반환하는 공통 메서드
-     * 
-     * @param Response $response 서버 응답 객체
-     * @param string|null $message 응답 메시지
-     * @param int|null $status HTTP 상태 코드
-     * @param array|null $data 추가 데이터
-     * @return Response JSON 형식의 응답 객체
-     */
-    protected function responseJson(
-        Response $response,
-        ?string $message = '처리되었습니다.',
-        ?int $status = 200,
-        ?array $data = []
-    ): Response {
-        $result = [];
-        $result['message'] = $message;
-        $result = array_merge($result, $data);
-
-        $json = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $response->getBody()->write($json);
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+        return $response->withRedirect($referer);
     }
 }
