@@ -35,26 +35,6 @@ class UpdateConfigRequest
     public string $cf_add_script = '';
     public string $cf_add_css = '';
     public string $cf_add_meta = '';
-    public string $cf_1_subj = '';
-    public string $cf_2_subj = '';
-    public string $cf_3_subj = '';
-    public string $cf_4_subj = '';
-    public string $cf_5_subj = '';
-    public string $cf_6_subj = '';
-    public string $cf_7_subj = '';
-    public string $cf_8_subj = '';
-    public string $cf_9_subj = '';
-    public string $cf_10_subj = '';
-    public string $cf_1 = '';
-    public string $cf_2 = '';
-    public string $cf_3 = '';
-    public string $cf_4 = '';
-    public string $cf_5 = '';
-    public string $cf_6 = '';
-    public string $cf_7 = '';
-    public string $cf_8 = '';
-    public string $cf_9 = '';
-    public string $cf_10 = '';
 
     public function __construct(array $data = [])
     {

@@ -87,21 +87,6 @@
                                 <input type="text" name="cf_privacy_officer_email" value="{{ old('cf_privacy_officer_email', config) }}" id="cf_privacy_officer_email" required class="required email frm_input" size="40">
                             </td>
                         </tr>
-                        {% with %}
-                        {% for i in 1..10 %}
-                        {% set field_subject = 'cf_' ~ i ~ '_subj' %}
-                        {% set field_value = 'cf_' ~ i %}
-                        <tr>
-                            <th scope="row">여분필드{{ i }}</th>
-                            <td class="td_extra">
-                                <label for="{{ field_subject }}">여분필드{{ i }} 제목</label>
-                                <input type="text" id="{{ field_subject }}" name="{{ field_subject }}" value="{{ old(field_subject, config) }}" class="frm_input" size="30">
-                                <label for="{{ field_value }}">여분필드{{ i }} 값</label>
-                                <input type="text" id="{{ field_value }}" name="{{ field_value }}" value="{{ old(field_value, config) }}" class="frm_input extra-value-input" size="30">
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        {% endwith %}
                         <tr>
                             <th scope="row">쇼핑몰 사용</th>
                             <td colspan="3">
