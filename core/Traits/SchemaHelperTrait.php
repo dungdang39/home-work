@@ -4,6 +4,7 @@ namespace Core\Traits;
 
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\UploadedFile;
 
 /**
  * API Request/Response Class 처리 트레이트
@@ -37,6 +38,35 @@ trait SchemaHelperTrait
     {
         $query_params = $request->getQueryParams() ?? [];
         return new self($query_params);
+    }
+
+    /**
+     * Request 객체로부터 속성 설정 및 유효성 검사
+     * @param Request $request Request 객체
+     * @return self
+     * @throws Exception  유효성 검사 실패 시 예외 발생
+     */
+    public function configure(Request $request)
+    {
+        $query = $request->getQueryParams();
+        $body = $request->getParsedBody();
+        $files = $request->getUploadedFiles();
+
+        $this->mapDataToProperties($this, $query);
+        $this->mapDataToProperties($this, $body);
+        $this->mapFileToProperties($this, $files);
+
+        $this->beforeValidate();
+
+        $this->validate();
+
+        if ($this->validator->failed()) {
+            $this->throwException($this->validator->getFirstError());
+        }
+
+        $this->afterValidate();
+
+        return $this;
     }
 
     /**
@@ -80,7 +110,56 @@ trait SchemaHelperTrait
                 }
             }
         }
-    }  
+    }
+
+    /**
+     * 주어진 파일 데이터를 클래스 속성에 매핑
+     * 
+     * @param object $object 데이터를 매핑할 클래스 객체
+     * @param array $files 업로드된 파일 배열
+     */
+    protected function mapFileToProperties(object &$object, array $files): void
+    {
+        foreach ($files as $key => $file) {
+            if (property_exists($object, $key)) {
+                if ($file instanceof UploadedFile) {
+                    // UploadedFile 객체에서 파일 관련 정보를 추출하여 클래스 속성에 할당
+                    if ($file->getError() === UPLOAD_ERR_OK) {
+                        // 파일이 정상적으로 업로드된 경우
+                        $object->$key = $file;
+                    } else {
+                        // 파일 업로드 오류 처리
+                        // 예를 들어, 오류를 로그에 기록하거나 기본값을 설정할 수 있습니다.
+                        $object->$key = null; // 기본값 설정
+                    }
+                } else {
+                    // 파일이 UploadedFile 객체가 아닌 경우 처리
+                    $object->$key = null; // 또는 적절한 기본값 처리
+                }
+            }
+        }
+    }
+
+    /**
+     * 유효성 검사 전처리
+     */
+    protected function beforeValidate(): void
+    {
+    }
+
+    /**
+     * 유효성 검사
+     */
+    protected function validate(): void
+    {
+    }
+
+    /**
+     * 유효성 검사 후처리
+     */
+    protected function afterValidate(): void
+    {
+    }
 
     /**
      * 예외를 던지는 유틸리티 메서드

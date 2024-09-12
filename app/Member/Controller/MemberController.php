@@ -81,16 +81,17 @@ class MemberController extends BaseController
 
     /**
      * 회원 등록
-     * @todo 유효성검사 정상 동작 체크
-     * @todo 아이디, 이메일, 닉네임 중복 검사 추가
      */
     public function insert(Request $request, Response $response): Response
     {
         try {
-            $request_body = $request->getParsedBody();
-            $data = $this->create_request->load($request_body);
+            $data = $this->create_request->configure($request);
 
-            $this->service->createMember($data->toArray());
+            // @todo 아이디, 이메일, 닉네임 중복 검사 추가
+            // @todo 파일 업로드 추가
+            unset($data->mb_img);
+
+            $this->service->createMember(get_object_vars($data));
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
