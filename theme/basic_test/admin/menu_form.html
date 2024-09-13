@@ -69,28 +69,36 @@
                 <tr>
                     <th scope="row"><label for="menu_type">새탭</label></th>
                     <td>
+                        <label for="me_target_1" class="rules_label">사용</label>
+                        <input name="me_target" id="me_target_1" type="radio" value="1">
+                        <label for="me_target_0" class="rules_label">사용안함</label>
+                        <input name="me_target" id="me_target_0" type="radio" value="0" checked>
                     </td>
                 </tr>
-                <tr>
+                <tr id="add_sub">
                     <th scope="row"><label for="menu_type">하위카테고리/게시판 자동추가</label></th>
                     <td>
+                        <label for="is_add_sub_1" class="rules_label">추가</label>
+                        <input name="is_add_sub" id="is_add_sub_1" type="radio" value="1">
+                        <label for="is_add_sub_0" class="rules_label">추가안함</label>
+                        <input name="is_add_sub" id="is_add_sub_0" type="radio" value="0" checked>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="me_use">사용</label></th>
+                    <th scope="row"><label for="menu_order">전시 순서</label></th>
                     <td>
-                        <select name="me_use" id="me_use">
-                            <option value="both">PC/모바일 모두 사용</option>
-                            <option value="pc">PC에서만 사용</option>
-                            <option value="mobile">모바일에서만 사용</option>
-                        </select>
+                        <input type="text" name="me_order" value="" id="me_order" class="frm_input frm_number" size="10">
                     </td>
                 </tr>
             </tbody>
         </table>
+        <div>
+            <button type="button" id="btn_menu_cancel" class="btn_02 btn">취소</button>
+            <button type="button" id="btn_menu_add" class="btn_submit btn">추가</button>
+        </div>
     </div>
 
-    <form name="fmenulist" id="fmenulist" method="post" action="./menu_list_update.php" onsubmit="return fmenulist_submit(this);">
+    <form name="form_menu_list" id="for_menu_list" method="post" action="{{ url_for('admin.design.menu.list.update') }}" onsubmit="return validate_form(this);">
         {{ csrf.field|raw }}
 
         <div id="menulist" class="tbl_head01 tbl_wrap">
@@ -100,58 +108,30 @@
                     <tr>
                         <th scope="col">메뉴</th>
                         <th scope="col">링크</th>
-                        <th scope="col">새창</th>
                         <th scope="col">순서</th>
-                        <th scope="col">PC사용</th>
-                        <th scope="col">모바일사용</th>
                         <th scope="col">관리</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg0 menu_list menu_group_10">
+                    {% for menu in menus %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }} menu_list menu_group_10">
+                        <input type="text" name="me_order[]" value="0" id="me_order_0" class="tbl_input" size="5">
                         <td class="td_category">
                             <input type="hidden" name="code[]" value="10">
-                            <label for="me_name_0" class="sound_only"> 메뉴<strong class="sound_only">
-                                    필수</strong></label>
-                            <input type="text" name="me_name[]" value="메인페이지" id="me_name_0" required=""
-                                class="required tbl_input full_input">
+                            <label for="me_name_0" class="sound_only">메뉴<strong class="sound_only">필수</strong></label>
+                            <input type="text" name="me_name[]" value="메인페이지" id="me_name_0" class="required tbl_input full_input" required>
                         </td>
                         <td>
-                            <label for="me_link_0" class="sound_only">링크<strong class="sound_only">
-                                    필수</strong></label>
-                            <input type="text" name="me_link[]" value="http://127.0.0.1/g5-update" id="me_link_0"
-                                required="" class="required tbl_input full_input">
+                            <label for="me_link_0" class="sound_only">링크<strong class="sound_only">필수</strong></label>
+                            <input type="text" name="me_link[]" value="" id="me_link_0" class="required tbl_input full_input" required>
                         </td>
-                        <td class="td_mng">
-                            <label for="me_target_0" class="sound_only">새창</label>
-                            <select name="me_target[]" id="me_target_0">
-                                <option value="self" selected="selected">사용안함</option>
-                                <option value="blank">사용함</option>
-                            </select>
-                        </td>
-                        <td class="td_num">
-                            <label for="me_order_0" class="sound_only">순서</label>
-                            <input type="text" name="me_order[]" value="0" id="me_order_0" class="tbl_input" size="5">
-                        </td>
-                        <td class="td_mng">
-                            <label for="me_use_0" class="sound_only">PC사용</label>
-                            <select name="me_use[]" id="me_use_0">
-                                <option value="1" selected="selected">사용함</option>
-                                <option value="0">사용안함</option>
-                            </select>
-                        </td>
-                        <td class="td_mng">
-                            <label for="me_mobile_use_0" class="sound_only">모바일사용</label>
-                            <select name="me_mobile_use[]" id="me_mobile_use_0">
-                                <option value="1" selected="selected">사용함</option>
-                                <option value="0">사용안함</option>
-                            </select>
-                        </td>
-                        <td class="td_mng">
+                        <td class="td_mng td_mng_l">
                             <button type="button" class="btn_add_submenu btn_03 ">추가</button>
                             <button type="button" class="btn_del_menu btn_02">삭제</button>
+                            <button type="button" class="btn_del_menu btn_04">이동</button>
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -196,28 +176,53 @@
                 return;
             }
             if (menu_type == "custom_input") {
+                $("#me_name").val("");
+                $("#me_link").val("");
                 $form_menu_info.show();
                 $area_select_url.hide();
                 return;
             }
 
-            let url = "./menu/" + menu_type;
-            $.get(url, function (data) {
-                console.log(data);
-                if (data == "") {
-                    alert("선택한 메뉴타입에 해당하는 데이터가 없습니다.");
-                    return;
+            let route = "{{ url_for('admin.design.menu.urls', {'type': '__REPLACE_ID__'}) }}";
+            let url = route.replace('__REPLACE_ID__', menu_type);
+
+            $.ajax({
+                url: url,
+                type: "get",
+                success: function (data) {
+                    if (data.length < 1) {
+                        alert("등록된 데이터가 없습니다.");
+                        return;
+                    }
+
+                    $area_select_url.show();
+
+                    $menu_url.empty();
+                    let html = '<option value="">선택하세요.</option>';
+                    data.forEach(function(item) {
+                        let data_route = "{{ url_for('content', {'code': '__REPLACE_ID__'}) }}";
+                        let data_url = data_route.replace('__REPLACE_ID__', item.id);
+
+                        html += '<option value="' + item.id + '" data-url="' + data_url + '" data-title="' + item.title + '">';
+                        html += item.title + "(" + item.id + ")";
+                        html += '</option>';
+                    });
+
+                    $menu_url.append(html);
+                    $area_select_url.show();
+                    $form_menu_info.hide();
+
+                    // 
+                    if (menu_type == "community_group" && menu_type == "shop_category") {
+                        $("#add_sub").show();
+                    } else {
+                        $("#add_sub").hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.error.description);
                 }
-
-                $menu_url.empty();
-                let html = '<option value="">선택하세요.</option>';
-                data.forEach(function(item) {
-                    html += '<option value="' + item.url + '">' + item.subject + "(" + item.id + ")" + '</option>';
-                });
-
-                $menu_url.append(html);
-                $area_select_url.show();
-                $form_menu_info.hide();
             });
         });
 
@@ -226,13 +231,23 @@
             if ($(this).val() == "") {
                 return false;
             }
-            $("#me_name").val($(this).find("option:selected").text());
-            $("#me_link").val($(this).val());
+            $("#me_name").val($(this).find("option:selected").data("title"));
+            $("#me_link").val($(this).find("option:selected").data("url"));
 
             $form_menu_info.show();
         });
 
+        // 메뉴 추가 버튼 클릭
+        $("#btn_menu_add").on("click", function () {
 
+        });
+        // 메뉴 취소 버튼 클릭
+        $("#btn_menu_cancel").on("click", function () {
+            $menu_type.val("");
+            $area_select_type.hide();
+            $area_select_url.hide();
+            $form_menu_info.hide();
+        });
 
         $(document).on("click", ".btn_add_submenu", function () {
             var code = $(this).closest("tr").find("input[name='code[]']").val().substr(0, 2);
@@ -293,7 +308,7 @@
             .toString(tobase | 0);
     }
 
-    function fmenulist_submit(f) {
+    function validate_form(f) {
 
         var me_links = document.getElementsByName('me_link[]');
         var reg = /^javascript/;
@@ -313,7 +328,7 @@
     
     function cancel_confirm() {
         if (confirm("메뉴설정을 취소하시겠습니까?")) {
-            location.href = "{{ url_for('admin.menu.manage') }}";
+            location.href = "{{ url_for('admin.design.menu') }}";
         }
     }
 </script>

@@ -85,18 +85,6 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             })->add(SuperAdminAuthMiddleware::class);
         });
 
-        // 메뉴
-        $group->group('/menu', function (RouteCollectorProxy $group) {
-            // 메뉴 설정
-            $group->group('/menu', function (RouteCollectorProxy $group) {
-                $group->get('', [MenuController::class, 'index'])->setName('admin.menu.manage');
-                $group->get('/{type}', [MenuController::class, 'getUrls'])->setName('admin.menu.manage.urls');
-                $group->post('', [MenuController::class, 'insert'])->setName('admin.menu.manage.insert');
-                $group->put('/{me_id}', [MenuController::class, 'update'])->setName('admin.menu.manage.update');
-                $group->delete('', [MenuController::class, 'delete'])->setName('admin.menu.manage.delete');
-            })->add(AdminMenuPermissionMiddleware::class);
-        });
-
         // 디자인/UI
         $group->group('/design', function (RouteCollectorProxy $group) {
             // 테마
@@ -124,6 +112,21 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{pu_id}', [PopupController::class, 'view'])->setName('admin.design.popup.view');
                 $group->post('/{pu_id}', [PopupController::class, 'update'])->setName('admin.design.popup.update');
                 $group->delete('/{pu_id}', [PopupController::class, 'delete'])->setName('admin.design.popup.delete');
+            })->add(AdminMenuPermissionMiddleware::class);
+
+            // 메인화면 설정
+            $group->group('/mainpage', function (RouteCollectorProxy $group) {
+
+            });
+
+            // 메뉴 설정
+            $group->group('/menu', function (RouteCollectorProxy $group) {
+                $group->get('', [MenuController::class, 'index'])->setName('admin.design.menu');
+                $group->get('/{type}', [MenuController::class, 'getUrls'])->setName('admin.design.menu.urls');
+                $group->post('', [MenuController::class, 'insert'])->setName('admin.design.menu.insert');
+                $group->put('/{me_id}', [MenuController::class, 'update'])->setName('admin.design.menu.update');
+                $group->delete('', [MenuController::class, 'delete'])->setName('admin.design.menu.delete');
+                $group->post('/list/update', [MenuController::class, 'updateList'])->setName('admin.design.menu.list.update');
             })->add(AdminMenuPermissionMiddleware::class);
         });
 
@@ -187,6 +190,9 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
         // 컨텐츠
         $group->group('/content', function (RouteCollectorProxy $group) {
+            // 컨텐츠 목록을 ajax에서 조회
+            $group->get('/list', [ContentController::class, 'getList'])->setName('admin.content.list');
+
             // 컨텐츠 관리
             $group->group('/manage', function (RouteCollectorProxy $group) {
                 $group->get('', [ContentController::class, 'index'])->setName('admin.content.manage');

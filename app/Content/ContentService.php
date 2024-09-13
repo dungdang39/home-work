@@ -16,10 +16,10 @@ class ContentService
 
     /**
      * 컨텐츠 목록정보 가져오기
-     * @param array $params  검색 조건
+     * @param array|null $params  검색 조건
      * @return array
      */
-    public function getContents(array $params): array
+    public function getContents(array $params = []): array
     {
         $contents = $this->fetchContents($params);
 
@@ -54,14 +54,14 @@ class ContentService
     {
         $wheres = [];
         $values = [];
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
 
+        $sql_limit = "";
         if (isset($params['offset']) && isset($params['limit'])) {
             $values["offset"] = $params['offset'];
             $values["limit"] = $params['limit'];
             $sql_limit = "LIMIT :offset, :limit";
         }
-
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
 
         $query = "SELECT * FROM {$this->table}
                     {$sql_where}

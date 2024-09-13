@@ -6,6 +6,7 @@ use App\Content\ContentService;
 use App\Admin\Service\MenuService;
 use Core\BaseController;
 use DI\Container;
+use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Routing\RouteContext;
@@ -30,6 +31,9 @@ class MenuController extends BaseController
         $this->service = $service;
     }
 
+    /**
+     * 메뉴 설정 페이지
+     */
     public function index(Request $request, Response $response): Response
     {
         $menus = $this->service->getMenu();
@@ -41,6 +45,9 @@ class MenuController extends BaseController
         return $view->render($response, '/admin/menu_form.html', $response_data);
     }
 
+    /**
+     * 
+     */
     public function getUrls(Request $request, Response $response, string $type): Response
     {
         $routeContext = RouteContext::fromRequest($request);
@@ -61,9 +68,9 @@ class MenuController extends BaseController
                 $contents = $this->content_service->fetchContents();
                 foreach ($contents as $content) {
                     $data[] = array(
-                        'url' => $route->urlFor('admin.content', ['co_id' => $content['co_id']]),
-                        'id' => $content['co_id'],
-                        'subject' => $content['co_subject'],
+                        'url' => $route->urlFor('content', ['code' => $content['code']]),
+                        'id' => $content['code'],
+                        'title' => $content['title'],
                     );
                 }
                 break;
@@ -72,5 +79,19 @@ class MenuController extends BaseController
         }
 
         return $response->withJson($data, 200);
+    }
+
+    public function updateList(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+            
+            
+            $this->service->updateList($data);
+        } catch (Exception $e) {
+            return $this->handleException($request, $response, $e);
+        }
+
+        return $this->redirectRoute($request, $response, 'admin.design.menu');
     }
 }

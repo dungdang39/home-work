@@ -399,22 +399,9 @@
                 ]
             },
             {
-                "am_name": "메뉴",
-                "am_route": "admin.menu",
-                "am_order": 1,
-                "children": [
-                    {
-                        "am_name": "메뉴 관리",
-                        "am_route": "admin.menu.manage",
-                        "am_order": 0,
-                        "children": []
-                    }
-                ]
-            },
-            {
                 "am_name": "디자인/UI",
                 "am_route": "admin.design",
-                "am_order": 2,
+                "am_order": 1,
                 "children": [
                     {
                         "am_name": "테마 설정",
@@ -439,13 +426,19 @@
                         "am_route": "admin.design.mainpage",
                         "am_order": 3,
                         "children": []
+                    },
+                    {
+                        "am_name": "메뉴 설정",
+                        "am_route": "admin.design.menu",
+                        "am_order": 4,
+                        "children": []
                     }
                 ]
             },
             {
                 "am_name": "회원",
                 "am_route": "admin.member",
-                "am_order": 3,
+                "am_order": 2,
                 "children": [
                     {
                         "am_name": "회원설정",
@@ -508,7 +501,7 @@
             {
                 "am_name": "쇼핑몰",
                 "am_route": "admin.shop",
-                "am_order": 4,
+                "am_order": 3,
                 "children": [
                     {
                         "am_name": "대시보드",
@@ -557,7 +550,7 @@
             {
                 "am_name": "커뮤니티",
                 "am_route": null,
-                "am_order": 5,
+                "am_order": 4,
                 "children": [
                     {
                         "am_name": "기본환경설정",
@@ -588,7 +581,7 @@
             {
                 "am_name": "컨텐츠",
                 "am_route": "admin.content",
-                "am_order": 6,
+                "am_order": 5,
                 "children": [
                     {
                         "am_name": "컨텐츠 관리",
@@ -607,7 +600,7 @@
             {
                 "am_name": "알림/메시징/메일",
                 "am_route": null,
-                "am_order": 7,
+                "am_order": 6,
                 "children": [
                     {
                         "am_name": "자동발송 설정",
@@ -632,7 +625,7 @@
             {
                 "am_name": "광고/캠페인",
                 "am_route": null,
-                "am_order": 8,
+                "am_order": 7,
                 "children": [
                     {
                         "am_name": "네이버쇼핑",
@@ -675,7 +668,7 @@
             {
                 "am_name": "통계",
                 "am_route": null,
-                "am_order": 9,
+                "am_order": 8,
                 "children": [
                     {
                         "am_name": "애널리틱스",
@@ -706,13 +699,13 @@
             {
                 "am_name": "부가서비스",
                 "am_route": null,
-                "am_order": 10,
+                "am_order": 9,
                 "children": []
             },
             {
                 "am_name": "컨텐츠 몰",
                 "am_route": null,
-                "am_order": 11,
+                "am_order": 10,
                 "children": []
             }
         ]

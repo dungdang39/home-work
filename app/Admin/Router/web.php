@@ -12,7 +12,7 @@ use Slim\Routing\RouteCollectorProxy;
  * @var App $app
  */
 $app->group('', function (RouteCollectorProxy $group) {
-    $group->get('content/{co_id}', [IndexController::class, 'index'])->setName('content');
+    $group->get('content/{code}', [IndexController::class, 'index'])->setName('content');
 })
     ->add(TemplateMiddleware::class)
     ->add(ConfigMiddleware::class);
