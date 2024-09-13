@@ -79,7 +79,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 // 알림/메시징/메일 설정
                 $group->group('/notification', function (RouteCollectorProxy $group) {
                     $group->get('', [NotificationController::class, 'index'])->setName('admin.setting.api.notification');
-                    $group->post('/update', [NotificationController::class, 'update'])->setName('admin.setting.api.notification.update');
+                    $group->put('/update', [NotificationController::class, 'update'])->setName('admin.setting.api.notification.update');
                 });
 
             })->add(SuperAdminAuthMiddleware::class);
@@ -139,10 +139,12 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 1:1문의
             $group->group('/qa', function (RouteCollectorProxy $group) {
+                $group->redirect('', 'qa/config')->setName('admin.member.qa');
+                
                 // 환경설정
                 $group->group('/config', function (RouteCollectorProxy $group) {
                     $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa.config');
-                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa.config.update');
+                    $group->put('', [QaConfigController::class, 'update'])->setName('admin.member.qa.config.update');
                 });
 
                 // 알림/푸시 설정
@@ -152,13 +154,13 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 });
 
                 // 1:1문의 내용 (미구현)
-                $group->group('', function (RouteCollectorProxy $group) {
-                    $group->get('', [QaController::class, 'index'])->setName('admin.member.qa');
-                    $group->get('/create', [QaController::class, 'create'])->setName('admin.member.qa.create');
-                    $group->post('', [QaController::class, 'insert'])->setName('admin.member.qa.insert');
-                    $group->get('/{qa_id}', [QaController::class, 'view'])->setName('admin.member.qa.view');
-                    $group->post('/{qa_id}', [QaController::class, 'update'])->setName('admin.member.qa.update');
-                    $group->delete('/{qa_id}', [QaController::class, 'delete'])->setName('admin.member.qa.delete');
+                $group->group('/manage', function (RouteCollectorProxy $group) {
+                    $group->get('', [QaController::class, 'index'])->setName('admin.member.qa.manage');
+                    $group->get('/create', [QaController::class, 'create'])->setName('admin.member.qa.manage.create');
+                    $group->post('', [QaController::class, 'insert'])->setName('admin.member.qa.manage.insert');
+                    $group->get('/{qa_id}', [QaController::class, 'view'])->setName('admin.member.qa.manage.view');
+                    $group->post('/{qa_id}', [QaController::class, 'update'])->setName('admin.member.qa.manage.update');
+                    $group->delete('/{qa_id}', [QaController::class, 'delete'])->setName('admin.member.qa.manage.delete');
                 });
             });
 

@@ -3,6 +3,7 @@
 namespace App\Qa\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * 1:1문의 설정 요청
@@ -13,37 +14,35 @@ class QaConfigRequest
 
     public string $qa_title;
     public string $qa_category = '';
-    public bool $qa_use_email = false;
-    public bool $qa_req_email = false;
-    public bool $qa_use_hp = false;
-    public bool $qa_req_hp = false;
+    public int $qa_use_email = 0;
+    public int $qa_req_email = 0;
+    public int $qa_use_hp = 0;
+    public int $qa_req_hp = 0;
     public int $qa_use_sms = 0;
     public string $qa_send_number;
     public int $qa_use_editor = 0;
-    public int $qa_image_width;
-    public int $qa_upload_size;
+    public int $qa_image_width = 0;
+    public int $qa_upload_size = 0;
     public ?string $qa_insert_content = '';
 
-    public function __construct()
-    {
-    }
-
-    public function load(array $data): self
+    public function __construct(array $data)
     {
         $this->mapDataToProperties($this, $data);
 
-        return $this;
+        $this->validate();
     }
 
-    public function validate(): bool
+    /**
+     * 유효성 검사
+     * @throws Exception 유효성 검사 실패 시 예외 발생
+     */
+    private function validate(): void
     {
-        // 여기에 유효성 검사를 추가할 수 있습니다.
-        // 예: $this->qa_title 이 비어 있으면 false 반환
-        if (empty($this->qa_title) || empty($this->qa_category)) {
-            return false;
+        if (empty($this->qa_title)) {
+            $this->throwException('타이틀을 입력해주세요.');
         }
-
-        // 기타 유효성 검사 로직 추가
-        return true;
+        if (empty($this->qa_category)) {
+            $this->throwException('카테고리를 입력해주세요.');
+        }
     }
 }

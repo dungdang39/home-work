@@ -14,17 +14,14 @@ use Slim\Views\Twig;
 class QaConfigController extends BaseController
 {
     private QaConfigService $service;
-    private QaConfigRequest $request_model;
 
     public function __construct(
         Container $container,
         QaConfigService $service,
-        QaConfigRequest $request_model
     ) {
         parent::__construct($container);
 
         $this->service = $service;
-        $this->request_model = $request_model;
     }
 
     /**
@@ -50,8 +47,7 @@ class QaConfigController extends BaseController
         try {
             // Q&A 설정 조회
             $qa_config = $this->service->getQaConfig();
-            $request_body = $request->getParsedBody();
-            $data = $this->request_model->load($request_body);
+            $data = QaConfigRequest::createFromRequestBody($request);
 
             if ($qa_config) {
                 $this->service->update($data->toArray());
