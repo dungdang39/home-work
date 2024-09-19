@@ -4,10 +4,9 @@ namespace App\Content;
 
 use App\Content\Model\ContentCreateRequest;
 use App\Content\Model\ContentSearchRequest;
-use App\Content\Model\ContentUpdateRequest;
 use App\Content\ContentService;
+use App\Content\Model\ContentUpdateRequest;
 use Core\BaseController;
-use Core\Model\PageParameters;
 use DI\Container;
 use Exception;
 use Slim\Http\Response;
@@ -30,17 +29,23 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 목록 페이지
      */
-    public function index(Request $request, Response $response): Response
-    {
-        $query_params = $request->getQueryParams();
-        $request_params = new ContentSearchRequest($query_params);
-        $page_params = new PageParameters($query_params);
-        $params = array_merge($request_params->toArray(), $page_params->toArray());
+    public function index(Request $request, Response $response, ContentSearchRequest $search): Response {
+        // 검색 조건 설정
+        $params = $search->publics();
 
+        // 총 데이터 수 조회 및 페이징 정보 설정
+        $total_count = $this->service->fetchContentsTotalCount($params);
+        $search->setTotalCount($total_count);
+        
+        // 컨텐츠 목록 조회
         $contents = $this->service->getContents($params);
 
         $response_data = [
             "contents" => $contents,
+            "total_count" => $total_count,
+            "search" => $search,
+            "pagination" => $search->getPaginationInfo(),
+            "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/content_list.html', $response_data);
@@ -58,13 +63,17 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 등록
      */
-    public function insert(Request $request, Response $response): Response
+    public function insert(Request $request, Response $response, ContentCreateRequest $data): Response
     {
         try {
-            $request_body = $request->getParsedBody();
-            $data = new ContentCreateRequest($request_body);
+            // 파일 업로드 처리
+            $this->service->makeContentDir($request);
+            $this->service->uploadImage($request, $data);
+            // 파일 필드 제거
+            unset($data->head_image_file);
+            unset($data->foot_image_file);
 
-            $this->service->insert($data->toArray());
+            $this->service->insert($data->publics());
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -93,14 +102,19 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 수정
      */
-    public function update(Request $request, Response $response, string $code): Response
+    public function update(Request $request, Response $response, string $code, ContentUpdateRequest $data): Response
     {
         try {
             $content = $this->service->getContent($code);
-            $request_body = $request->getParsedBody();
-            $data = new ContentUpdateRequest($request_body);
 
-            $this->service->update($content['code'], $data->toArray());
+            // @todo: 기존 이미지 파일 삭제 처리
+            $this->service->makeContentDir($request);
+            $this->service->uploadImage($request, $data);
+            // 파일 필드 제거
+            unset($data->head_image_file);
+            unset($data->foot_image_file);
+
+            $this->service->update($content['code'], $data->publics());
         } catch (Exception $e) {
             return $this->handleException($request, $response, $e);
         }
@@ -111,10 +125,11 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 삭제
      */
-    public function delete(Request $request, Response $response, string $code): Response
+    public function delete(Response $response, string $code): Response
     {
         $content = $this->service->getContent($code);
 
+        // @todo: 이미지 파일 삭제 처리
         $this->service->delete($content['code']);
 
         return $response->withJson(['message' => '컨텐츠가 삭제되었습니다.']);

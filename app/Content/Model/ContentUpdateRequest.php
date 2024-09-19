@@ -3,6 +3,8 @@
 namespace App\Content\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Slim\Http\ServerRequest as Request;
+use Slim\Psr7\UploadedFile;
 
 class ContentUpdateRequest
 {
@@ -10,15 +12,19 @@ class ContentUpdateRequest
 
     public ?string $title;
     public ?string $content;
-    public ?string $mobile_content;
     public ?string $head_include_file;
     public ?string $foot_include_file;
     public ?string $head_image;
     public ?string $foot_image;
+    public ?UploadedFile $head_image_file = null;
+    public ?UploadedFile $foot_image_file = null;
 
-    public function __construct(array $data = [])
+    public function __construct(Request $request)
     {
-        $this->mapDataToProperties($this, $data);
+        $body = $request->getParsedBody() ?? [];
+        $files = $request->getUploadedFiles() ?? [];
+
+        $this->mapDataToProperties($this, array_merge($body, $files));
     }
 
     public function validate(): void

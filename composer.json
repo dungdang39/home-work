@@ -13,6 +13,7 @@
         "zircote/swagger-php": "^4.10",
         "doctrine/annotations": "^2.0",
         "php-di/php-di": "^6.4",
+        "php-di/slim-bridge": "^3.4",
         "ext-pdo": "*",
         "twig/html-extra": "^3.11",
         "twig/intl-extra": "^3.12",

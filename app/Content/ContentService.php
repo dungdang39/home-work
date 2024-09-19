@@ -3,15 +3,22 @@
 namespace App\Content;
 
 use Core\Database\Db;
+use Core\Lib\UriHelper;
 use Exception;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ContentService
 {
-    public string $table;
+    public const DIRECTORY = 'content';
+    public const PERMISSION = 0755;
 
-    public function __construct()
+    private string $table;
+    private UriHelper $uri_helper;
+
+    public function __construct(UriHelper $uri_helper)
     {
         $this->table = $_ENV['DB_PREFIX'] . 'content';
+        $this->uri_helper = $uri_helper;
     }
 
     /**
@@ -40,9 +47,72 @@ class ContentService
         return $content;
     }
 
+    /**
+     * 컨텐츠 이미지 경로 가져오기
+     * 
+     * @param Request $request
+     * @return string
+     */
+    public function getContentPath(Request $request): string
+    {
+        $base_path = $this->uri_helper->getBasePath($request);
+        // @TODO: data 경로도 상수로 빼야함.
+        return $base_path . "/data/" . self::DIRECTORY;
+    }
+
+    /**
+     * 컨텐츠 디렉토리 생성
+     * 
+     * @param Request $request
+     * @return void
+     */
+    public function makeContentDir(Request $request): void
+    {
+        $content_path = $this->getContentPath($request);
+        if (file_exists($content_path)) {
+            return;
+        }
+
+        @mkdir($content_path, self::PERMISSION);
+        @chmod($content_path, self::PERMISSION);
+    }
+
+    /**
+     * 컨텐츠 이미지 업로드
+     * 
+     * @param Request $request  요청 객체
+     * @param object $data  컨텐츠 데이터
+     * @return void
+     */
+    public function uploadImage(Request $request, object &$data)
+    {
+        $content_path = $this->getContentPath($request);
+        if ($data->head_image_file->getSize() > 0) {
+            $data->head_image = moveUploadedFile($content_path, $data->head_image_file);
+        }
+        if ($data->foot_image_file->getSize() > 0) {
+            $data->foot_image = moveUploadedFile($content_path, $data->foot_image_file);
+        }
+    }
+
     // ========================================
     // Database Queries
     // ========================================
+
+    /**
+     * 컨텐츠 총 개수 조회
+     * @param array $params  검색 조건
+     * @return int
+     */
+    public function fetchContentsTotalCount(array $params = []): int
+    {
+        $wheres = [];
+        $values = [];
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT COUNT(*) FROM {$this->table} {$sql_where}";
+        return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
 
     /**
      * 컨텐츠 목록 조회

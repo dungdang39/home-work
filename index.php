@@ -10,15 +10,16 @@ use Core\Extension\FlashExtension;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use DI\Container;
+use DI\Bridge\Slim\Bridge;
 use Dotenv\Exception\InvalidPathException;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Exception\HttpForbiddenException;
-use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Flash\Messages;
-use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -42,13 +43,17 @@ Environment::load(__DIR__, ["only_env" => true]);
 define('_GNUBOARD_', true);
 include_once(__DIR__ . '/lib/common.lib.php');
 
-// Slim & Container 생성
+// Slim App 생성
 $container = new Container();
-AppFactory::setContainer($container);
-$app = AppFactory::create();
+$app = Bridge::create($container);
 $responseFactory = $app->getResponseFactory();
 
-// CSRF 및 Flash 컨테이너 설정
+// Container 설정
+$container->set(ServerRequestInterface::class, function () {
+    $serverRequestCreator = ServerRequestCreatorFactory::create();
+    return $serverRequestCreator->createServerRequestFromGlobals();
+});
+
 $container->set('csrf', function () use ($responseFactory) {
     $guard = new Guard($responseFactory);
     $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
@@ -74,9 +79,8 @@ $app->add(new MethodOverrideMiddleware());
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add('csrf');
 
-// 전역에서 Request 객체 생성
-$serverRequestCreator = ServerRequestCreatorFactory::create();
-$request = $serverRequestCreator->createServerRequestFromGlobals();
+// Request를 Container에서 가져오기
+$request = $container->get(ServerRequestInterface::class);
 
 // 에러 핸들러 설정
 $app_debug = $_ENV['APP_DEBUG'] ?? false;
@@ -88,6 +92,9 @@ register_shutdown_function($shutdownHandler);
 $errorMiddleware = $app->addErrorMiddleware($app_debug, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
+// 기본 경로 설정
+$app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
+
 // 라우트 설정
 setupRoutes($app);
 
@@ -95,7 +102,6 @@ setupRoutes($app);
 $response = $app->handle($request);
 $responseEmitter = new ResponseEmitter();
 $responseEmitter->emit($response);
-
 
 /**
  * 설치 여부 확인
@@ -145,13 +151,8 @@ function setupTwig()
 /**
  * 라우트 설정 함수
  */
-function setupRoutes($app)
+function setupRoutes(App $app)
 {
-    $app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
-
-    $route_collector = $app->getRouteCollector();
-    $route_collector->setDefaultInvocationStrategy(new RequestResponseArgs());
-
     $route_files = glob(__DIR__ . "/app/*/Router/*.php");
     foreach ($route_files as $file) {
         include_once $file;
@@ -160,7 +161,7 @@ function setupRoutes($app)
     if ($_ENV['APP_ROUTE_CACHE'] ?? false) {
         $cache_dir = __DIR__ . "/data/cache/API";
         createDirectory($cache_dir);
-        $route_collector->setCacheFile("$cache_dir/router-cache.php");
+        $app->getRouteCollector()->setCacheFile("$cache_dir/router-cache.php");
     }
 }
 

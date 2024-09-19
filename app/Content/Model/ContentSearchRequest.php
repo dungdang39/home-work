@@ -2,18 +2,11 @@
 
 namespace App\Content\Model;
 
-use Core\Traits\SchemaHelperTrait;
+use Core\Model\PageParameters;
 
-class ContentSearchRequest
+class ContentSearchRequest extends PageParameters
 {
-    use SchemaHelperTrait;
-
     public ?string $search_field;
 
     public ?string $search_text;
-
-    public function __construct(array $query_params = [])
-    {
-        $this->mapDataToProperties($this, $query_params);
-    }
 }

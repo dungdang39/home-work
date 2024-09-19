@@ -1,10 +1,13 @@
 {% extends "/admin/_layout.html" %}
 
+{% set title = "컨텐츠 > 컨텐츠 관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
 {% block content %}
 {% set form_action = content ? url_for('admin.content.manage.update', {'code': content.code}) : url_for('admin.content.manage.insert') %}
 {% set action = content ? '수정' : '추가' %}
 
-<h1 id="container_title">컨텐츠 > FAQ > 카테고리 {{ action }}</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
     <form name="form_content" action="{{ form_action }}" onsubmit="return validate_form(this);"
         method="post" enctype="MULTIPART/FORM-DATA">
@@ -12,7 +15,7 @@
 
         <div class="tbl_frm01 tbl_wrap">
             <table>
-                <caption>컨텐츠 {{ action }}</caption>
+                <caption>{{ title }}</caption>
                 <colgroup>
                     <col class="grid_4">
                     <col>
@@ -21,7 +24,7 @@
                     <tr>
                         <th scope="row"><label for="code">컨텐츠 코드</label></th>
                         <td>
-                            <input type="text" id="code" name="code" value="{{ content.code }}"
+                            <input type="text" id="code" name="code" value="{{ old('code', content) }}"
                                 class="required frm_input" size="20" maxlength="20" required
                                 {% if content.code %} readonly {% endif %}>
                         </td>
@@ -29,45 +32,41 @@
                     <tr>
                         <th scope="row"><label for="title">컨텐츠 타이틀</label></th>
                         <td>
-                            <input type="text" id="title" name="title" value="{{ content.title }}" class="frm_input required" size="90" required>
+                            <input type="text" id="title" name="title" value="{{ old('title', content) }}" class="frm_input required" size="90" required>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">내용</th>
                         <td>
-                            <textarea id="content" name="content">{{ content.content }}</textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">내용 (모바일)</th>
-                        <td>
-                            <textarea id="content" name="content">{{ content.mobile_content }}</textarea>
+                            <textarea id="content" name="content">
+                                {{- old('content', content) -}}
+                            </textarea>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="head_include_file">상단 파일 경로</label></th>
                         <td>
                             <span class="frm_info">설정값이 없으면 기본 상단 파일을 사용합니다.</span>
-                            <input type="text" id="head_include_file" name="head_include_file" value="{{ content.head_include_file }}" class="frm_input" size="60">
+                            <input type="text" id="head_include_file" name="head_include_file" value="{{ old('head_include_file', content) }}" class="frm_input" size="60">
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="foot_include_file">하단 파일 경로</label></th>
                         <td>
                             <span class="frm_info">설정값이 없으면 기본 하단 파일을 사용합니다.</span>
-                            <input type="text" id="foot_include_file" name="foot_include_file" value="{{ content.foot_include_file }}" class="frm_input" size="60">
+                            <input type="text" id="foot_include_file" name="foot_include_file" value="{{ old('foot_include_file', content) }}" class="frm_input" size="60">
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="head_image">상단이미지</label></th>
+                        <th scope="row"><label for="head_image_file">상단이미지</label></th>
                         <td>
-                            <input type="file" name="head_image" id="head_image">
+                            <input type="file" name="head_image_file" id="head_image_file">
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="foot_image">하단이미지</label></th>
+                        <th scope="row"><label for="foot_image_file">하단이미지</label></th>
                         <td>
-                            <input type="file" name="foot_image" id="foot_image">
+                            <input type="file" name="foot_image_file" id="foot_image_file">
                         </td>
                     </tr>
                 </tbody>

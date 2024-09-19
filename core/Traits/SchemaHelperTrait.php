@@ -21,13 +21,29 @@ trait SchemaHelperTrait
     }
 
     /**
+     * 인스턴스의 공개 속성만 배열로 반환.
+     * 
+     * 외부에서 get_object_vars를 호출하는 방법이 가장 빠르지만, 모든 접근제한자 속성을 가져오므로 맞지 않음.
+     * - PHP 7.1 부터 사용 가능
+     * - ReflectionClass를 사용한 방법보다 약 3배 빠름.
+     * 
+     * @see https://stackoverflow.com/questions/13124072
+     * @return array
+     */
+    public function publics(): array
+    {
+        return \Closure::fromCallable("get_object_vars")->__invoke($this);
+    }
+
+    /**
      * Request Body로부터 객체 생성
      * @return self
      */
     public static function createFromRequestBody(Request $request): self
     {
         $body = $request->getParsedBody() ?? [];
-        return new self($body);
+        $files = $request->getUploadedFiles() ?? [];
+        return new self(array_merge($body, $files));
     }
 
     /**

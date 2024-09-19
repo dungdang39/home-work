@@ -108,7 +108,6 @@ CREATE TABLE IF NOT EXISTS `new_content` (
   `title` varchar(255) NOT NULL COMMENT '컨텐츠 타이틀',
   `content` longtext NOT NULL COMMENT '내용',
   `seo_title` varchar(255) NOT NULL DEFAULT '' COMMENT 'SEO 제목',
-  `mobile_content` longtext NOT NULL COMMENT '내용 (모바일)',
   `hit` int(11) NOT NULL DEFAULT 0 COMMENT '조회수',
   `head_include_file` varchar(255) DEFAULT NULL COMMENT '상단 파일 경로',
   `foot_include_file` varchar(255) DEFAULT NULL COMMENT '하단 파일 경로',

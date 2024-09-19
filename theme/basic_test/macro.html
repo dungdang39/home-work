@@ -58,6 +58,9 @@
     {% if end_page > total_page %}
         {% set end_page = total_page %}
     {% endif %}
+    {% if start_page > end_page %}
+        {% set start_page = end_page %}
+    {% endif %}
 
     <nav class="pg_wrap">
         <span class="pg">
