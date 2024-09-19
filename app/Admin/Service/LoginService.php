@@ -22,7 +22,7 @@ class LoginService
     public function checkPassword(string $password, string $hashed_password): bool
     {
         if ($this->isOldPassword($hashed_password)) {
-            return $this->checkOldPassword($password, $hashed_password);
+            return $this->checkPasswordWithOldHashing($password, $hashed_password);
         }
 
         return password_verify($password, $hashed_password);
@@ -46,7 +46,7 @@ class LoginService
      * @return bool
      * @throws Exception
      */
-    private function checkOldPassword(string $password, string $hashed_password): bool
+    private function checkPasswordWithOldHashing(string $password, string $hashed_password): bool
     {
         $app_config = AppConfig::getInstance();
         if ($app_config->get('STRING_ENCRYPT_FUNCTION') === 'create_hash') {
@@ -72,5 +72,16 @@ class LoginService
     {
         $row = Db::getInstance()->run("SELECT PASSWORD('{$password}') as pw")->fetch();
         return $row['pw'];
+    }
+
+    public function set_member_key_session(array $member): void
+    {
+        $_SESSION['ss_mb_key'] = $this->create_member_key($member);
+    }
+
+    public function create_member_key(array $member): string
+    {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        return md5($member['created_at'] . $ip . $_SERVER['HTTP_USER_AGENT']);
     }
 }

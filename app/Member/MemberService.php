@@ -141,7 +141,7 @@ class MemberService
         $this->updateMember($member['mb_id'], $update_data);
 
         // Hook - 회원탈퇴
-        run_event('member_leave', $member);
+        // run_event('member_leave', $member);
 
         //소셜로그인 해제
         if (function_exists('social_member_link_delete')) {

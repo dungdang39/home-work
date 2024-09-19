@@ -35,9 +35,9 @@ class LoginAuthMiddleware
             throw new Exception('차단된 회원입니다.');
         }
 
-        $request = $request->withAttribute('login_member', $member);
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('login_member', $member);
+        $request = $request->withAttribute('login_member', $member);
 
         return $handler->handle($request);
     }

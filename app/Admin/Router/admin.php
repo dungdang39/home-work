@@ -2,7 +2,6 @@
 
 namespace App\Login\Router;
 
-
 use App\Admin\Controller\AdminMenuPermissionController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;

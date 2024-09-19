@@ -69,8 +69,8 @@ class LoginController
             // }
 
             // 세션 생성 전 Hook
-            $is_social_login = false;
-            run_event('login_session_before', $member, $is_social_login);
+            // $is_social_login = false;
+            // run_event('login_session_before', $member, $is_social_login);
 
             /*
             @include_once($member_skin_path.'/login_check.skin.php');
@@ -84,9 +84,9 @@ class LoginController
             */
 
             // 회원아이디 세션 생성
-            set_session('ss_mb_id', $member['mb_id']);
+            $_SESSION['ss_mb_id'] = $member['mb_id'];
             // FLASH XSS 공격에 대응하기 위하여 회원의 고유키를 생성해 놓는다. 관리자에서 검사함
-            generate_mb_key($member);
+            $this->service->set_member_key_session($member);
 
             /*
             // 회원의 토큰키를 세션에 저장한다. /common.php 에서 해당 회원의 토큰값을 검사한다.
@@ -189,7 +189,7 @@ class LoginController
         $routeContext = RouteContext::fromRequest($request);
         $redirect_url = $routeContext->getRouteParser()->urlFor('admin.login');
 
-        run_event('admin_logout', $redirect_url);
+        // run_event('admin_logout', $redirect_url);
 
         return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }

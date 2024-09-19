@@ -9,7 +9,7 @@ use Dotenv\Repository\RepositoryBuilder;
 class Environment
 {
     public static array $option = [
-        "name" => null,
+        "names" => ['.env'],
         "only_env" => false
     ];
 
@@ -41,7 +41,7 @@ class Environment
      */
     private static function create(string $path): Dotenv
     {
-        return Dotenv::createImmutable($path, self::$option['name']);
+        return Dotenv::createImmutable($path, self::$option['names']);
     }
 
     /**
@@ -56,6 +56,6 @@ class Environment
         $repository_builder = $repository_builder->addAdapter(EnvConstAdapter::class);
         $repository = $repository_builder->immutable()->make();
 
-        return Dotenv::create($repository, $path, self::$option['name']);
+        return Dotenv::create($repository, $path, self::$option['names']);
     }
 }

@@ -445,7 +445,7 @@ var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_addr3, frm_j
                 onresize : function(size) {
                     element_wrap.style.height = size.height + "px";
                 },
-                maxSuggestItems : g5_is_mobile ? 6 : 10,
+                maxSuggestItems : 6,
                 width : '100%',
                 height : '100%'
             }).embed(element_wrap);
