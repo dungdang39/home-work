@@ -16,6 +16,8 @@ class FaqRequest
     public function __construct(array $data = [])
     {
         $this->mapDataToProperties($this, $data);
+
+        $this->validate();
     }
 
     public function validate(): void

@@ -2,7 +2,7 @@
 
 namespace App\Login\Router;
 
-use App\Admin\Controller\AdminMenuPermissionController;
+use App\Admin\Controller\PermissionController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
@@ -56,11 +56,11 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 운영진 설정
             $group->group('/permission', function (RouteCollectorProxy $group) {
-                $group->get('', [AdminMenuPermissionController::class, 'index'])->setName('admin.setting.permission');
-                $group->post('', [AdminMenuPermissionController::class, 'insert'])->setName('admin.setting.permission.insert');
-                $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [AdminMenuPermissionController::class, 'update'])->setName('admin.setting.permission.update');
-                $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [AdminMenuPermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
-                $group->delete('/list', [AdminMenuPermissionController::class, 'delete_list'])->setName('admin.setting.permission.delete-list');
+                $group->get('', [PermissionController::class, 'index'])->setName('admin.setting.permission');
+                $group->post('', [PermissionController::class, 'insert'])->setName('admin.setting.permission.insert');
+                $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'update'])->setName('admin.setting.permission.update');
+                $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
+                $group->delete('/list', [PermissionController::class, 'delete_list'])->setName('admin.setting.permission.delete-list');
             })->add(SuperAdminAuthMiddleware::class);
 
             // API연동 설정
@@ -215,7 +215,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->post('', [FaqController::class, 'insert'])->setName('admin.content.faq.insert');
                     $group->get('/{faq_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
                     $group->post('/{faq_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
-                    $group->delete('/{id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                    $group->delete('/{faq_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
                 });
             })->add(AdminMenuPermissionMiddleware::class);
         });

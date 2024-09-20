@@ -7,7 +7,7 @@ use App\Popup\Model\PopupSearchRequest;
 use App\Popup\Model\PopupUpdateRequest;
 use App\Popup\PopupService;
 use Core\BaseController;
-use Core\Model\PageParameters;
+use Core\Model\PaginationRequest;
 use DI\Container;
 use Exception;
 use Slim\Http\Response;
@@ -34,7 +34,7 @@ class PopupController extends BaseController
     {
         $query_params = $request->getQueryParams();
         $request_params = new PopupSearchRequest($query_params);
-        $page_params = new PageParameters($query_params);
+        $page_params = new PaginationRequest($query_params);
         $params = array_merge($request_params->toArray(), $page_params->toArray());
 
         $popups = $this->service->getPopups($params);

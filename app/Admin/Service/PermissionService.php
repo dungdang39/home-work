@@ -9,7 +9,7 @@ use Exception;
 /**
  * 관리자 메뉴 권한 서비스 클래스
  */
-class AdminMenuPermissionService
+class PermissionService
 {
     public string $table;
     private AdminMenuService $admin_menu_service;
@@ -25,21 +25,6 @@ class AdminMenuPermissionService
     }
 
     /**
-     * 관리자 메뉴 권한 조회
-     * @param string $mb_id 회원 ID
-     * @param int $admin_menu_id 관리자 메뉴 ID
-     * @return array
-     */
-    public function getPermission(string $mb_id, int $admin_menu_id): array
-    {
-        $permission = $this->fetch($mb_id, $admin_menu_id);
-        if (empty($permission)) {
-            throw new Exception('관리자메뉴 권한이 존재하지 않습니다.', 404);
-        }
-        return $permission;
-    }
-
-    /**
      * 관리자 메뉴 권한 목록 조회
      * @param array $params 검색 조건
      * @return array
@@ -52,11 +37,35 @@ class AdminMenuPermissionService
         }
         return $permissions;
     }
-    
+
+    /**
+     * 관리자 메뉴 권한 조회
+     * @param string $mb_id 회원 ID
+     * @param int $admin_menu_id 관리자 메뉴 ID
+     * @return array
+     */
+    public function getPermission(string $mb_id, int $admin_menu_id): array
+    {
+        $permission = $this->fetch($mb_id, $admin_menu_id);
+        if (empty($permission)) {
+            throw new Exception('관리자메뉴 권한이 존재하지 않습니다.', 404);
+        }
+        return $permission;
+    }    
 
     // ========================================
     // Database Queries
     // ========================================
+
+    public function fetchPermissionsTotalCount(array $params = []): int
+    {
+        $wheres = [];
+        $values = [];
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT COUNT(*) FROM {$this->table} {$sql_where}";
+        return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
 
     /**
      * 관리자 메뉴 권한 존재 여부
@@ -163,6 +172,29 @@ class AdminMenuPermissionService
 
         return $stmt->fetch();
     }
+
+    /**
+     * 권한 존재 여부 확인
+     * @param string $mb_id 회원 ID
+     * @param int $admin_menu_id 관리자 메뉴 ID
+     * @return bool
+     */
+    public function exists(string $mb_id, int $admin_menu_id): bool
+    {
+        $query = "SELECT EXISTS(
+                    SELECT 1 FROM `{$this->table}`
+                    WHERE mb_id = :mb_id
+                    AND admin_menu_id = :admin_menu_id
+                )";
+
+        $stmt = Db::getInstance()->run($query, [
+            "mb_id" => $mb_id,
+            "admin_menu_id" => $admin_menu_id,
+        ]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
 
     public function insert(array $data): void
     {

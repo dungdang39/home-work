@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Content\Model;
+namespace App\Admin\Model;
 
 use Core\Model\PaginationRequest;
 
-class ContentSearchRequest extends PaginationRequest
+class SearchPermissionRequest extends PaginationRequest
 {
     public ?string $search_field;
 

@@ -83,6 +83,21 @@ class FaqService
     // ========================================
 
     /**
+     * FAQ 카테고리 총 갯수 조회
+     */
+    public function fetchFaqCategoriesTotalCount(array $params = []): int
+    {
+        $wheres = [];
+        $values = [];
+
+        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT COUNT(*) FROM {$this->category_table} {$where}";
+
+        return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
+
+    /**
      * FAQ 카테고리 목록 조회
      * 
      * @param array $params  검색 조건

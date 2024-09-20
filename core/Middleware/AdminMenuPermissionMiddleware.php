@@ -2,7 +2,7 @@
 
 namespace Core\Middleware;
 
-use App\Admin\Service\AdminMenuPermissionService;
+use App\Admin\Service\PermissionService;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,10 +14,10 @@ use Slim\Routing\RouteContext;
  */
 class AdminMenuPermissionMiddleware
 {
-    private AdminMenuPermissionService $service;
+    private PermissionService $service;
 
     public function __construct(
-        AdminMenuPermissionService $service
+        PermissionService $service
     ) {
         $this->service = $service;
     }

@@ -1,13 +1,18 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import renderPagination %}
+
+{% set title = "컨텐츠 > FAQ > 카테고리 관리" %}
+{% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-<h1 id="container_title">컨텐츠 > FAQ > 카테고리 관리</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
-    <!--
     <div class="local_ov01 local_ov">
-        <span class="btn_ov01"><span class="ov_txt"> 전체 FAQ </span><span class="ov_num"> 1건</span></span>
+        <span class="btn_ov01">
+            <span class="ov_txt"> 전체 FAQ </span>
+            <span class="ov_num"> {{ total_count|format_number }}건</span>
+        </span>
     </div>
-    -->
     <div class="local_desc01 local_desc">
         <ol>
             <li>FAQ는 무제한으로 등록할 수 있습니다</li>
@@ -19,11 +24,6 @@
         </p>
     </div>
 
-    <!--
-    <div class="btn_fixed_top">
-        <a href="#" class="btn_01 btn">FAQ 카테고리 추가</a>
-    </div>
-    -->
     <form name="form_category" id="form_category" method="post"
         action="{{ url_for('admin.content.faq.category.insert') }}">
         {{ csrf.field|raw }}
@@ -46,13 +46,14 @@
                                 placeholder="순서">
                         </td>
                         <td>
-                            <select name="is_enabled">
+                            <select id="is_enabled" name="is_enabled">
                                 <option value="1">사용</option>
                                 <option value="0">사용안함</option>
                             </select>
                         </td>
                         <td>
                             <button type="submit" class="btn btn_01">확인</button>
+                            <button type="button" class="btn btn_02">취소</button>
                         </td>
                     </tr>
                 </tbody>
@@ -108,6 +109,9 @@
             </tbody>
         </table>
     </div>
+
+    {{ renderPagination(pagination, query_params) }}
+
 </div>
 <script>
     $(function () {
@@ -125,7 +129,7 @@
 
             $("#subject").val("");
             $("#order").val("");
-            $("#is_enabled").val("");
+            $("#is_enabled").val("1");
 
             $area_category_info.show();
         });
@@ -139,6 +143,15 @@
             $("#order").val($(this).data("order"));
             $("#is_enabled").val($(this).data("is_enabled"));
             $area_category_info.show();
+        });
+
+        // FAQ 카테고리 취소 버튼 클릭
+        $(".btn_02").on("click", function () {
+            $("#subject").val("");
+            $("#order").val("");
+            $("#is_enabled").val("1");
+
+            $area_category_info.hide();
         });
     });
 </script>

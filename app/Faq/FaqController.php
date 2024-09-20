@@ -7,7 +7,7 @@ use App\Faq\Model\FaqCategoryRequest;
 use App\Faq\Model\FaqCategorySearchRequest;
 use App\Faq\Model\FaqRequest;
 use Core\BaseController;
-use Core\Model\PageParameters;
+use Core\Model\PaginationRequest;
 use DI\Container;
 use Exception;
 use Slim\Http\Response;
@@ -32,15 +32,25 @@ class FaqController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
-        $query_params = $request->getQueryParams();
-        $request_params = new FaqCategorySearchRequest($query_params);
-        $page_params = new PageParameters($query_params);
-        $params = array_merge($request_params->toArray(), $page_params->toArray());
+        // 검색 조건 설정
+        $search_params = FaqCategorySearchRequest::createFromQueryParams($request)->toArray();
+
+        // 페이지 설정
+        $total_count = $this->service->fetchFaqCategoriesTotalCount($search_params);
+        $page_params = PaginationRequest::createFromQueryParams($request)->toArray();
+        $page_params['total_count'] = $total_count;
+        $page_params['total_page'] = ceil($total_count / $page_params['limit']);
+        $params = array_merge($search_params, $page_params);
+
 
         $faq_categories = $this->service->getFaqCategories($params);
 
         $response_data = [
             "faq_categories" => $faq_categories,
+            "total_count" => $total_count,
+            "search" => $search_params,
+            "pagination" => $page_params,
+            "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/faq_category_list.html', $response_data);
@@ -105,6 +115,7 @@ class FaqController extends BaseController
         $response_data = [
             "faq_category" => $faq_category,
             "faqs" => $faqs,
+            "total_count" => count($faqs),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/faq_list.html', $response_data);
@@ -130,8 +141,7 @@ class FaqController extends BaseController
     public function insert(Request $request, Response $response, string $faq_category_id): Response
     {
         try {
-            $request_body = $request->getParsedBody();
-            $data = new FaqRequest($request_body);
+            $data = new FaqRequest($request->getParsedBody());
 
             $this->service->insert($faq_category_id, $data->toArray());
         } catch (Exception $e) {
@@ -164,8 +174,7 @@ class FaqController extends BaseController
     {
         try {
             $faq = $this->service->getFaq($faq_id);
-            $request_body = $request->getParsedBody();
-            $data = new FaqRequest($request_body);
+            $data = new FaqRequest($request->getParsedBody());
 
             $this->service->update($faq['id'], $data->toArray());
         } catch (Exception $e) {

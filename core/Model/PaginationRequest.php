@@ -5,7 +5,7 @@ namespace Core\Model;
 use Core\Traits\SchemaHelperTrait;
 use Slim\Http\ServerRequest as Request;
 
-class PageParameters
+class PaginationRequest
 {
     use SchemaHelperTrait;
 
@@ -47,7 +47,7 @@ class PageParameters
         $this->mapDataToProperties($this, $request->getQueryParams());
 
         // limit 및 offset 설정
-        $this->setLimit(self::DEFAULT_LIMIT);
+        $this->setLimit();
     }
 
     /**
@@ -79,21 +79,13 @@ class PageParameters
     /**
      * limit 값 설정
      * @param int $limit 기본 페이지당 결과 수
+     * @return void
      */
-    public function setLimit(int $limit): void
+    public function setLimit(int $limit = 0): void
     {
-        $this->limit = $limit;
-
-        // limit 값이 없을 경우 기본값 설정
         if ($this->limit <= 0) {
-            $this->limit = self::DEFAULT_LIMIT;
+            $this->limit = $limit > 0 ? min($limit, 100) : self::DEFAULT_LIMIT;
         }
-
-        // limit 값이 100을 초과하지 않도록 제한
-        if ($this->limit > 100) {
-            $this->limit = 100;
-        }
-
         $this->setOffset();
     }
 

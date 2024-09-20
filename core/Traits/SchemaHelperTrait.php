@@ -2,6 +2,7 @@
 
 namespace Core\Traits;
 
+use Core\Validator\Validator;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\UploadedFile;
@@ -13,6 +14,7 @@ trait SchemaHelperTrait
 {
     /**
      * 객체를 배열로 변환
+     * @deprecated  publics() 메서드로 대체
      * @return array
      */
     public function toArray(): array
@@ -37,6 +39,7 @@ trait SchemaHelperTrait
 
     /**
      * Request Body로부터 객체 생성
+     * @deprecated  
      * @return self
      */
     public static function createFromRequestBody(Request $request): self
@@ -48,6 +51,7 @@ trait SchemaHelperTrait
 
     /**
      * Query Params로부터 객체 생성
+     * @deprecated 
      * @return self
      */
     public static function createFromQueryParams(Request $request): self
@@ -58,6 +62,7 @@ trait SchemaHelperTrait
 
     /**
      * Request 객체로부터 속성 설정 및 유효성 검사
+     * @deprecated 
      * @param Request $request Request 객체
      * @return self
      * @throws Exception  유효성 검사 실패 시 예외 발생
@@ -84,6 +89,39 @@ trait SchemaHelperTrait
 
         return $this;
     }
+
+
+    /**
+     * Request 객체로부터 속성 설정 및 유효성 검사
+     * @param Request $request Request 객체
+     * @return self
+     * @throws Exception  유효성 검사 실패 시 예외 발생
+     */
+    protected function initializeFromRequest(Request $request, Validator $validator): self
+    {
+        $query = $request->getQueryParams();
+        $body = $request->getParsedBody();
+        $files = $request->getUploadedFiles();
+
+        $this->mapDataToProperties($this, $query);
+        $this->mapDataToProperties($this, $body);
+        $this->mapFileToProperties($this, $files);
+
+        $this->beforeValidate();
+
+        $this->validate();
+
+        $validator->validate($this->publics());
+
+        if ($validator->failed()) {
+            $this->throwException($validator->getFirstError());
+        }
+
+        $this->afterValidate();
+
+        return $this;
+    }
+
 
     /**
      * 주어진 데이터를 클래스 속성에 매핑

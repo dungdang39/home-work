@@ -1,13 +1,17 @@
 {% extends "/admin/_layout.html" %}
 
+{% set title = "컨텐츠 > FAQ > " ~ faq_category.subject ~" > 항목 관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
 {% block content %}
-<h1 id="container_title">컨텐츠 > FAQ > {{ faq_category.subject }} > 항목 관리</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
-    <!--
     <div class="local_ov01 local_ov">
-        <span class="btn_ov01"><span class="ov_txt"> 등록된 FAQ 상세내용</span><span class="ov_num"> 1건</span></span>
+        <span class="btn_ov01">
+            <span class="ov_txt"> 등록된 FAQ 상세내용</span>
+            <span class="ov_num"> {{ total_count|format_number }}건</span>
+        </span>
     </div>
-    -->
     <div class="local_desc01 local_desc">
         <ol>
             <li>FAQ는 무제한으로 등록할 수 있습니다</li>
@@ -22,7 +26,7 @@
 
     <div class="tbl_head01 tbl_wrap">
         <table>
-            <caption>{{ faq_category.subject }} >항목 목록</caption>
+            <caption>{{ faq_category.subject }} > 항목 목록</caption>
             <thead>
                 <tr>
                     <th scope="col">번호</th>
@@ -38,11 +42,11 @@
                     <td class="td_left">{{ faq.question }}</td>
                     <td class="td_num">{{ faq.order }}</td>
                     <td class="td_mng td_mng_m">
-                        <a href="{{ url_for('admin.content.faq.view', {faq_category_id: faq_category.id, id: faq.id}) }}" class="btn btn_03">
+                        <a href="{{ url_for('admin.content.faq.view', {faq_category_id: faq_category.id, faq_id: faq.id}) }}" class="btn btn_03">
                             <span class="sound_only">{{ faq.question }}</span>
                             수정
                         </a>
-                        <a href="{{ url_for('admin.content.faq.delete', {faq_category_id: faq_category.id, id: faq.id}) }}"
+                        <a href="{{ url_for('admin.content.faq.delete', {faq_category_id: faq_category.id, faq_id: faq.id}) }}"
                             onclick="delete_confirm(this); return false;" class="btn btn_02">
                             <span class="sound_only">{{ faq.question }}</span>
                             삭제

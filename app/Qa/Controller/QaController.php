@@ -5,7 +5,7 @@ namespace App\Qa\Controller;
 use App\Qa\Service\QaConfigService;
 use App\Qa\Service\QaService;
 use Core\BaseController;
-use Core\Model\PageParameters;
+use Core\Model\PaginationRequest;
 use DI\Container;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -36,7 +36,7 @@ class QaController extends BaseController
     {
         $query_params = $request->getQueryParams();
         $request_params = new QaSearchRequest($query_params);
-        $page_params = new PageParameters($query_params);
+        $page_params = new PaginationRequest($query_params);
         $params = array_merge($request_params->toArray(), $page_params->toArray());
 
         // Q&A 설정 조회

@@ -8,7 +8,7 @@ use App\Member\Model\CreateMemberRequest;
 use App\Member\Model\MemberSearchRequest;
 use App\Member\Model\MemberRequest;
 use Core\BaseController;
-use Core\Model\PageParameters;
+use Core\Model\PaginationRequest;
 use DI\Container;
 use Exception;
 use Slim\Http\Response;
@@ -50,7 +50,7 @@ class MemberController extends BaseController
 
         // 페이지 설정
         $total_count = $this->service->fetchMembersTotalCount($search_params);
-        $page_params = PageParameters::createFromQueryParams($request)->toArray();
+        $page_params = PaginationRequest::createFromQueryParams($request)->toArray();
         $page_params['total_count'] = $total_count;
         $page_params['total_page'] = ceil($total_count / $page_params['limit']);
         $params = array_merge($search_params, $page_params);
