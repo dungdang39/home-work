@@ -7,7 +7,6 @@ use App\Config\ConfigService;
 use App\Member\MemberService;
 use Core\BaseController;
 use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -48,13 +47,9 @@ class ConfigController extends BaseController
      */
     public function update(Request $request, Response $response): Response
     {
-        try {
-            $data = UpdateConfigRequest::createFromRequestBody($request);
+        $data = UpdateConfigRequest::createFromRequestBody($request);
 
-            $this->service->update($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->update($data->toArray());
 
         return $this->redirectRoute($request, $response, 'admin.setting.config');
     }

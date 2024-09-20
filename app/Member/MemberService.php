@@ -2,17 +2,23 @@
 
 namespace App\Member;
 
+use API\Exceptions\HttpNotFoundException;
 use Core\Database\Db;
 use Exception;
+use Slim\Http\ServerRequest as Request;
 
 class MemberService
 {
     public string $table;
+
     private MemberConfigService $mconfig_service;
+    private Request $request;
 
     public function __construct(
+        Request $request,
         MemberConfigService $mconfig_service
     ) {
+        $this->request = $request;
         $this->table = $_ENV['DB_PREFIX'] . 'member';
         $this->mconfig_service = $mconfig_service;
     }
@@ -67,7 +73,7 @@ class MemberService
         $member = $this->fetchMemberById($mb_id);
 
         if (!$member) {
-            throw new Exception("회원정보가 존재하지 않습니다.", 404);
+            throw new HttpNotFoundException($this->request, "회원정보가 존재하지 않습니다.");
         }
 
         return $member;
@@ -372,7 +378,7 @@ class MemberService
      */
     public function existsMemberByEmail(string $mb_email, string $mb_id): bool
     {
-        $query = "SELECT count(*) as cnt
+        $query = "SELECT COUNT(*) as cnt
                     FROM {$this->table}
                     WHERE mb_email = :mb_email
                     AND mb_id <> :mb_id";

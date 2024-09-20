@@ -1,5 +1,5 @@
 {% extends "/admin/_layout.html" %}
-{% from "macro.html" import selected, checked %}
+{% from "macro.html" import checked, renderPagination, selected%}
 
 {% set title = '기본환경 > 운영진설정' %}
 {% block title %}{{ title }}{% endblock title %}
@@ -18,7 +18,7 @@
         <label for="stx" class="sound_only">
             회원아이디<strong class="sound_only"> 필수</strong>
         </label>
-        <input type="text" id="search_text" name="search_text" class="frm_input required" value="{{ params.search_text }}" required>
+        <input type="text" id="search_text" name="search_text" class="frm_input required" value="{{ search.search_text }}" required>
         <input type="submit" value="검색" id="fsearch_submit" class="btn_submit">
         <select name="limit" id="limit">
             <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
@@ -107,6 +107,7 @@
             <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
                 class="btn btn_02">
         </div>
+        {{ renderPagination(pagination, query_params) }}
     </form>
 
     <section id="add_admin">
@@ -217,7 +218,7 @@
                 },
                 error: function (xhr, status, error) {
                     let result = xhr.responseJSON;
-                    alert(xhr.status + ' ' + error + ': ' + result.error.description);
+                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
                 }
             });
         });
@@ -265,7 +266,7 @@
                 },
                 error: function (xhr, status, error) {
                     let result = xhr.responseJSON;
-                    alert(xhr.status + ' ' + error + ': ' + result.error.description);
+                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
                 }
             });
         });

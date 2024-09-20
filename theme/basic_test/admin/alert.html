@@ -2,7 +2,7 @@
 {% set message = error_first_message() %}
     {% if message %}
     <script>
-        alert('{{ message }}');
+        alert("{{ message|e('js') }}");
     </script>
     {% endif %}
 {% endwith %}

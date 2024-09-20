@@ -28,7 +28,7 @@ $(function () {
             },
             error: function (xhr, status, error) {
                 let result = xhr.responseJSON;
-                alert(xhr.status + ' ' + error + ': ' + result.error.description);
+                alert(xhr.status + ' ' + error + ': ' + result.error.message);
             }
         });
     });
@@ -62,7 +62,7 @@ $(function () {
             },
             error: function (xhr, status, error) {
                 let result = xhr.responseJSON;
-                alert(xhr.status + ' ' + error + ': ' + result.error.description);
+                alert(xhr.status + ' ' + error + ': ' + result.error.message);
             }
         });
     });

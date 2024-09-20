@@ -64,19 +64,11 @@ $container->set('csrf', function () use ($responseFactory) {
 
 $container->set('flash', fn() => new Messages($_SESSION));
 
-// Twig & Extension 설정
-$twig = setupTwig();
-$twig->addExtension(new CsrfExtension($container->get('csrf')));
-$twig->addExtension(new FlashExtension($container->get('flash')));
-$twig->addExtension(new HtmlExtension());
-$twig->addExtension(new IntlExtension());
-
 // 미들웨어 설정
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 $app->add(new JsonBodyParserMiddleware());
 $app->add(new MethodOverrideMiddleware());
-$app->add(TwigMiddleware::create($app, $twig));
 $app->add('csrf');
 
 // Request를 Container에서 가져오기
@@ -84,13 +76,22 @@ $request = $container->get(ServerRequestInterface::class);
 
 // 에러 핸들러 설정
 $app_debug = $_ENV['APP_DEBUG'] ?? false;
+$app_debug = false;
 $callableResolver = $app->getCallableResolver();
-$errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
+$errorHandler = new HttpErrorHandler($callableResolver, $responseFactory, $container);
 $shutdownHandler = new ShutdownHandler($request, $errorHandler, $app_debug);
 register_shutdown_function($shutdownHandler);
 
 $errorMiddleware = $app->addErrorMiddleware($app_debug, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
+
+// Twig 설정
+$twig = setupTwig();
+$twig->addExtension(new CsrfExtension($container->get('csrf')));
+$twig->addExtension(new FlashExtension($container->get('flash')));
+$twig->addExtension(new HtmlExtension());
+$twig->addExtension(new IntlExtension());
+$app->add(TwigMiddleware::create($app, $twig));
 
 // 기본 경로 설정
 $app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
@@ -125,27 +126,23 @@ function validateIsInstalled($path)
  */
 function setupTwig()
 {
-    try {
-        $theme_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
-        ThemeService::setBaseDir($theme_dir);
+    $theme_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
+    ThemeService::setBaseDir($theme_dir);
 
-        $config_service = new ConfigService();
-        $theme_service = new ThemeService();
-        $theme = $config_service->getTheme();
+    $config_service = new ConfigService();
+    $theme_service = new ThemeService();
+    $theme = $config_service->getTheme();
 
-        if (!$theme_service->existsTheme($theme)) {
-            $theme = ThemeService::DEFAULT_THEME;
-        }
-
-        $template_dir = str_replace('\\', '/', "$theme_dir/$theme");
-
-        $cache_dir = __DIR__ . "/data/cache/twig";
-        createDirectory($cache_dir);
-
-        return Twig::create($template_dir, ['cache' => $cache_dir, 'auto_reload' => true]);
-    } catch (InvalidPathException $e) {
-        // Handle the exception as necessary
+    if (!$theme_service->existsTheme($theme)) {
+        $theme = ThemeService::DEFAULT_THEME;
     }
+
+    $template_dir = str_replace('\\', '/', "$theme_dir/$theme");
+
+    $cache_dir = __DIR__ . "/data/cache/twig";
+    createDirectory($cache_dir);
+
+    return Twig::create($template_dir, ['cache' => $cache_dir, 'auto_reload' => true]);
 }
 
 /**
