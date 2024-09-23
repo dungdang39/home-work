@@ -18,17 +18,6 @@ use Slim\Http\Response;
  */
 class HttpErrorHandler extends SlimErrorHandler
 {
-    public const BAD_REQUEST = 'Bad Request';
-    public const UNAUTHENTICATED = 'Unauthenticated';
-    public const FORBIDDEN = 'Forbidden';
-    public const RESOURCE_NOT_FOUND = 'Resource Not Found';
-    public const NOT_ALLOWED = 'Not Allowed';
-    public const CONFLICT = 'Conflict';
-    public const UNPROCESSABLE_ENTITY = 'Unprocessable Entity';
-    public const SERVER_ERROR = 'Server Error';
-    public const NOT_IMPLEMENTED = 'Not Implemented';
-    public const INSUFFICIENT_PRIVILEGES = 'Insufficient Privileges';
-
     private container $container;
 
     public function __construct(
@@ -69,10 +58,13 @@ class HttpErrorHandler extends SlimErrorHandler
      */
     protected function respond(): ResponseInterface
     {
+        if ($this->exception instanceof PDOException) {
+            $this->statusCode = 500;
+        }
+
         // 기본 응답 형식이 HTML이고 GET 요청이 아닌 경우
         if ($this->contentType === 'text/html' && $this->request->getMethod() !== 'GET') {
             if ($this->exception instanceof PDOException) {
-                $this->statusCode = 500;
                 $message = 'DB operator error' . ($this->displayErrorDetails ? ': ' . $this->exception->getMessage() : '');
             } else {
                 $message = $this->exception->getMessage();
@@ -96,7 +88,7 @@ class HttpErrorHandler extends SlimErrorHandler
         // 그 외의 응답 형식은 JSON으로 처리
         $this->registerErrorRenderer('application/json', JsonErrorRenderer::class);
         $this->forceContentType('application/json');
-
-        return parent::respond()->withStatus($this->statusCode);
+        
+        return parent::respond();
     }
 }

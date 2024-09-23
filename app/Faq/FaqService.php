@@ -4,14 +4,18 @@ namespace App\Faq;
 
 use Core\Database\Db;
 use Exception;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Http\ServerRequest as Request;
 
 class FaqService
 {
     public string $category_table;
     public string $table;
+    public Request $request;
 
-    public function __construct()
+    public function __construct(Request $request)
     {
+        $this->request = $request;
         $this->category_table = $_ENV['DB_PREFIX'] . 'faq_category';
         $this->table = $_ENV['DB_PREFIX'] . 'faq';
     }
@@ -72,7 +76,7 @@ class FaqService
         $faq = $this->fetchFaq($id);
 
         if (empty($faq)) {
-            throw new Exception('FAQ 항목 정보를 찾을 수 없습니다.', 404);
+            throw new HttpNotFoundException($this->request, 'FAQ 항목 정보를 찾을 수 없습니다.');
         }
 
         return $faq;
@@ -177,7 +181,7 @@ class FaqService
      */
     public function fetchFaq(int $id)
     {
-        $query = "SELECT * FROM {$this->table} WHERE id1 = :id";
+        $query = "SELECT * FROM {$this->table} WHERE id = :id";
         return Db::getInstance()->run($query, ["id" => $id])->fetch();
     }
 
