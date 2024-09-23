@@ -2,50 +2,53 @@
 
 /**
  * GnuBoard5 API with Slim Framework
- * 
+ *
  * @package g5-api
- * @version 1.0.0
+ * @version 0.0.2
  * @link
  */
 
+use API\EnvironmentConfig;
 use API\Handlers\HttpErrorHandler;
 use API\Handlers\ShutdownHandler;
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
+use API\Service\ConfigService;
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-//gnuboard 로딩
+
+// 그누보드 로딩
 $is_root = false;
 $g5_path = g5_root_path($is_root, 1);
+date_default_timezone_set('Asia/Seoul'); // 그누보드 5 기본 시간대.
 
 require_once(dirname(__DIR__, 1) . '/config.php');   // 설정 파일
 unset($g5_path);
 
-include_once(G5_LIB_PATH.'/hook.lib.php');    // hook 함수 파일
-include_once (G5_LIB_PATH.'/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
+include_once(G5_LIB_PATH . '/hook.lib.php');    // hook 함수 파일
+include_once(G5_LIB_PATH . '/common.lib.php'); // 공통 라이브러리 // @todo 정리후 삭제대상
 
 if (!include(G5_DATA_PATH . '/' . G5_DBCONFIG_FILE)) {
     header('Content-Type: application/json');
     echo json_encode('그누보드가 설치되어있지 않습니다.');
     exit;
 }
-//-------------------------
-// Create refresh token table
+
 create_refresh_token_table();
 
 // 응답 json 에 오류메시지를 같이 출력합니다.
-// - Should be set to false in production
 // 실서버에서는 false 이어야 합니다.
+// Should be set to false in production
 $displayErrorDetails = false;
 if (G5_DEBUG) {
     $displayErrorDetails = true;
 }
 
 //@todo 임시 전역변수 정리후 삭제대상
-$config = getConfig();
+$config = ConfigService::getConfig();
 /**
  * Instantiate App
  */
@@ -53,7 +56,10 @@ $container = new Container();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
-// Create Request object from globals
+//env 설정
+$container->set(EnvironmentConfig::class, new EnvironmentConfig());
+
+// PHP 서버 변수에서 값을 가져와 요청 객체를 생성합니다.
 $serverRequestCreator = ServerRequestCreatorFactory::create();
 $request = $serverRequestCreator->createServerRequestFromGlobals();
 
@@ -63,20 +69,20 @@ $request = $serverRequestCreator->createServerRequestFromGlobals();
 // The routing middleware should be added earlier than the ErrorMiddleware
 // Otherwise exceptions thrown from it will not be handled by the middleware
 $app->addRoutingMiddleware();
+//$app->add(new CorsMiddleware());
 
-// Add JSON Body Parser Middleware
 $app->add(new JsonBodyParserMiddleware());
 
-// Create Error Handler
+// Error Handler
 $callableResolver = $app->getCallableResolver();
 $responseFactory = $app->getResponseFactory();
 $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
 
-// Create Shutdown Handler
+// Shutdown Handler
 $shutdownHandler = new ShutdownHandler($request, $errorHandler, $displayErrorDetails);
 register_shutdown_function($shutdownHandler);
 
-// Add Error Middleware
+// Error Middleware
 $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
@@ -85,15 +91,17 @@ $errorMiddleware->setDefaultErrorHandler($errorHandler);
  */
 // Set the base path for the API version
 $api_path = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
-$api_version = explode("/", str_replace($api_path, '', $_SERVER['REQUEST_URI']))[1];
-$app->setBasePath($api_path . '/' . $api_version);
+$app->setBasePath($api_path);
 
-// Include all Routers for the requested API version.
-$routerFiles = glob(__DIR__ . "/{$api_version}/Routers/*.php");
-foreach ($routerFiles as $routerFile) {
-    include_once $routerFile;
+$router_files = glob(__DIR__ . "/v1/Routers/*.php");
+foreach ($router_files as $router_file) {
+    include $router_file;
 }
 
+$plugin_router_files = glob(__DIR__ . '/Plugin/*/Routers/*.php');
+foreach ($plugin_router_files as $router_file) {
+    require $router_file;
+}
 /**
  * Route Cache (Optional)
  * To generate the route cache data, you need to set the file to one that does not exist in a writable directory.

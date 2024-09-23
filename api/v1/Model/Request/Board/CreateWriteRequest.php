@@ -16,18 +16,13 @@ class CreateWriteRequest
 {
     use SchemaHelperTrait;
 
-    /**
-     * 게시글 순서값
-     * @OA\Property(example=-1)
-     */
     public int $wr_num = 0;
 
     /**
-     * 게시글 답글여부
-     * @OA\Property(example="답글여부")
+     * 게시글 답글 단계
      */
-    public string $wr_reply;
-
+    public string $wr_reply = '';
+    
     private string $wr_seo_title = '';
 
     public function setWrSeoTitle(string $wr_seo_title): void
@@ -114,33 +109,29 @@ class CreateWriteRequest
      */
     public string $wr_link2 = '';
 
-    /**
-     * 옵션
-     * @OA\Property(example="옵션")
-     */
     public string $wr_option = '';
 
     /**
-     * HTML
-     * @OA\Property(example="HTML")
+     *
+     * @OA\Property(example="게시글 내용이 html 일때 필수 'html1' 또는 'html2' - html2 는 \n 을 br 태그로 변환합니다. ")
      */
     public string $html = '';
 
     /**
      * 메일
-     * @OA\Property(example="메일")
+     * @OA\Property(example="게시글 내용이 메일일 때 'mail' ")
      */
     public string $mail = '';
 
     /**
      * 비밀글
-     * @OA\Property(example="비밀글")
+     * @OA\Property(example="비밀글 지정시 'secret' 입력")
      */
     public string $secret = '';
 
     /**
      * 카테고리
-     * @OA\Property(example="카테고리")
+     * @OA\Property(example="카테고리 이름")
      */
     public string $ca_name = '';
 
@@ -151,8 +142,8 @@ class CreateWriteRequest
     public bool $notice = false;
 
     /**
-     * 부모글 ID(답글일 경우)
-     * @OA\Property(example=false)
+     * 부모글 ID(답글일 경우) 없으면 0
+     * @OA\Property(example=0)
      */
     public ?int $wr_parent = 0;
 
@@ -186,7 +177,7 @@ class CreateWriteRequest
      */
     public function validateCategory(array $board, bool $is_admin = false): void
     {
-        $categories = array_map('trim', explode("|", $board['bo_category_list'] . ($is_admin ? '|공지' : '')));
+        $categories = array_map('trim', explode('|', $board['bo_category_list'] . ($is_admin ? '|공지' : '')));
         if (!$board['bo_use_category'] || empty($categories)) {
             $this->ca_name = '';
             return;
@@ -272,7 +263,12 @@ class CreateWriteRequest
      */
     public function validateName(array $member): void
     {
-        $this->wr_name = sanitize_input($this->wr_name, 20);
+        // 외국인 이름 로마자 표기 37자
+        if (preg_match('/^[A-Za-z\-]+$/', $this->wr_name)) {
+            $this->wr_name = sanitize_input($this->wr_name, 37);
+        } else {
+            $this->wr_name = sanitize_input($this->wr_name, 20);
+        }
 
         if (!$member['mb_id'] && $this->wr_name === '') {
             $this->throwException('비회원은 이름은 필수로 입력해야 합니다.');
@@ -297,6 +293,7 @@ class CreateWriteRequest
     public function toArray()
     {
         return [
+            'wr_reply' => $this->wr_reply,
             'wr_num' => $this->wr_num,
             'wr_seo_title' => $this->wr_seo_title,
             'mb_id' => $this->mb_id,

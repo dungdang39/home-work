@@ -3,9 +3,15 @@
 namespace API\Service;
 
 use API\Database\Db;
+use API\Exceptions\HttpBadRequestException;
+use API\v1\Model\Response\Write\FileResponse;
 use API\v1\Model\Response\Write\Thumbnail;
 use Exception;
+use http\Exception\RuntimeException;
 
+/**
+ * 게시물과 댓글관련
+ */
 class WriteService
 {
     public array $board;
@@ -14,33 +20,142 @@ class WriteService
     private PopularSearch $popular_service;
     private MemberImageService $image_service;
     private BoardFileService $file_service;
+    private UrlService $url_service;
 
     public function __construct(
         PopularSearch $popular_service,
         MemberImageService $image_service,
-        BoardFileService $file_service
+        BoardFileService $file_service,
+        UrlService $url_service
     ) {
         $this->file_service = $file_service;
         $this->image_service = $image_service;
         $this->popular_service = $popular_service;
+        $this->url_service = $url_service;
     }
 
     /**
-     * 게시글 목록 조회시 총 게시글 수 조회
-     * @param array $search_params 검색조건
-     * @return int
+     * 1 개의 게시물에 등록된 썸네일 추출
+     *
+     * 첨부파일과 본문이미지 둘다 있으면 첨부파일 우선
+     * @param array $write
+     * @param int $width 썸네일 가로 사이즈
+     * @param int $hight 썸네일 세로 사이즈 없으면 가로 사이즈에 맞춤
+     * @return array ['src' => '썸네일 경로', 'ori' => '원본 이미지 경로', 'alt' => '이미지 설명'] 실패시 빈 배열
      */
-    public function fetchTotalCount(array $search_params): int
+    public function getBoardThumbnail(array $write, $width, $hight = 0)
     {
-        // 검색 조건 설정
-        $search_values = [];
-        $sql_where = $this->getWhereBySearch($search_params, $search_values);
-        $sql_where .= $this->getWhereSearchPart($search_params, $search_values);
+        $attach_images = $this->file_service->getFilesByType($write['wr_id'], 'image');
+        if (isset($attach_images[0]['bf_file'])) {
+            //source 경로 추출
+            $source_path = G5_DATA_PATH . DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . $this->board['bo_table'];
+            $target_path = $source_path; //동일
+            $file_name = basename($attach_images[0]['bf_file']);
+            $thumb_name = ThumbnailService::createThumbnail($file_name, $source_path, $target_path, $width, $hight);
+            //src - url
+            //ori - 원본
+            //alt - 설명
+            return [
+                'src' => $thumb_name ? G5_DATA_URL . '/file/' . $this->board['bo_table'] . '/' . $thumb_name : '',
+                'ori' => G5_DATA_URL . '/file/' . $this->board['bo_table'] . '/' . $attach_images[0]->bf_file,
+                'alt' => $attach_images[0]['bf_content'] === '' ? $attach_images[0]['bf_source'] : $attach_images[0]['bf_content']
+            ];
+        }
 
-        $query = "SELECT COUNT(*) FROM {$this->table} WHERE {$sql_where}";
+        $image_tag = ThumbnailService::getFirstImageTag($write['wr_content']);
+        //src 추출
+        preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $image_tag, $matches);
+        $filefullpath = $matches[1] ?? '';
+        if (!$filefullpath) {
+            return [];
+        }
 
-        $stmt = Db::getInstance()->run($query, $search_values);
-        return $stmt->fetchColumn() ?: 0;
+        //alt 추출
+        preg_match('/alt="([^"]+)"/', $image_tag, $alt);
+        $alt = $alt[1] ?? '';
+        $ym_dir = date('Ym');
+        $save_path = G5_DATA_PATH . DIRECTORY_SEPARATOR . G5_EDITOR_DIR . DIRECTORY_SEPARATOR . $ym_dir;
+        $filename = basename($filefullpath);
+        $source_path = \dirname(\str_replace(G5_DATA_URL, G5_DATA_PATH, $filefullpath));
+        $thumb_name = ThumbnailService::createThumbnail($filename, $source_path, $save_path, $width, $hight);
+        return [
+            'src' => $thumb_name ? G5_DATA_URL . '/' . G5_EDITOR_DIR . '/' . $ym_dir . '/' . $thumb_name : '',
+            'ori' => $filefullpath,
+            'alt' => $alt
+        ];
+    }
+
+    public function getNotice()
+    {
+        $notices = $this->fetchNoticeWrites();
+        return $this->processWrites($this->board, $notices);
+    }
+
+    /**
+     * 게시글 목록 가져오기
+     * @param array $board
+     * @param $search_params
+     * @param $page_params
+     * @return array
+     */
+    public function getWrites(array $board, $search_params, $page_params)
+    {
+        $data = $this->fetchWrites($search_params, $page_params);
+        return $this->processWrites($board, $data);
+    }
+
+    /**
+     * @param array $board 게시판 정보
+     * @param array $input_data 게시글, 게시글 목록
+     * @return array
+     */
+    private function processWrites($board, $input_data): array
+    {
+        $use_show_content = (int)$board['bo_use_list_content'] === 1;
+        $use_show_file = (int)$board['bo_use_list_file'] === 1;
+        $result = [];
+        foreach ($input_data as $write) {
+            $write['mb_icon_path'] = $this->image_service->getMemberImagePath($write['mb_id'], 'icon');
+            $write['mb_image_path'] = $this->image_service->getMemberImagePath($write['mb_id'], 'image');
+            $write['wr_email'] = EncryptionService::encrypt($write['wr_email']);
+            $write['wr_ip'] = preg_replace('/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/', G5_IP_DISPLAY, $write['wr_ip']);
+            $write['wr_password'] = '';
+
+            // 게시판설정에서 내용보기 안할 때
+            if (!$use_show_content) {
+                $write['wr_content'] = '';
+            }
+
+            // 비밀글
+            if (strpos($write['wr_option'], 'secret') !== false) {
+                $empty_write = array_map(function () {
+                    return '';
+                }, $write);
+                $write = array_merge($empty_write, [
+                    'wr_id' => $write['wr_id'],
+                    'wr_num' => $write['wr_num'],
+                    'wr_parent' => $write['wr_parent'],
+                    'wr_reply' => $write['wr_reply'],
+                    'wr_option' => $write['wr_option'],
+                    'ca_name' => $write['ca_name'],
+                    'wr_content' => '비밀글입니다.'
+                ]);
+            } else {
+                // 썸네일
+                $thumb = $this->getBoardThumbnail($write, $board['bo_gallery_width'], $board['bo_gallery_height']);
+                $write['thumbnail'] = new Thumbnail($thumb);
+
+                // 파일 보기
+                if ($use_show_file) {
+                    $write['images'] = (new FileResponse($this->file_service->getFilesByType((int)$write['wr_id'], 'image')))->files ?? [];
+                    $write['normal_files'] = (new FileResponse($this->file_service->getFilesByType((int)$write['wr_id'], 'file')))->files ?? [];
+                }
+            }
+
+            $result[] = $write;
+        }
+
+        return $result;
     }
 
     /**
@@ -65,9 +180,7 @@ class WriteService
         $placeholders = Db::makeWhereInPlaceHolder($notice_ids);
         $query = "SELECT * FROM {$this->table} WHERE wr_id IN ($placeholders) AND wr_option NOT LIKE '%secret%'";
 
-        $stmt = Db::getInstance()->run($query, $notice_ids);
-
-        return $stmt->fetchAll();
+        return Db::getInstance()->run($query, $notice_ids)->fetchAll();
     }
 
     /**
@@ -85,59 +198,32 @@ class WriteService
 
         // 정렬 설정
         list($sst, $sod) = $this->getSortOrder($search_params);
-        $sql_order = $sst ? " ORDER BY {$sst} {$sod} " : "";
+        $sql_order = $sst ? " ORDER BY {$sst} {$sod} " : '';
 
         $query = "SELECT * FROM {$this->table} WHERE {$sql_where} {$sql_order} LIMIT :offset, :per_page";
-        $search_values[':offset'] = $page_params['offset'];
-        $search_values[':per_page'] = $page_params['per_page'];
+        $search_values['offset'] = $page_params['offset'];
+        $search_values['per_page'] = $page_params['per_page'];
 
         return Db::getInstance()->run($query, $search_values)->fetchAll();
     }
 
-    /**
-     * 가져온 게시글 목록 데이터 가공
-     * @param array $board
-     * @param $search_params
-     * @param $page_params
-     * @return array
-     */
-    public function getWrites(array $board, $search_params, $page_params)
-    {
-        $use_show_content = (int)$board['bo_use_list_content'] === 1;
-        $use_show_file = (int)$board['bo_use_list_file'] === 1;
-        $data = $this->fetchWrites($search_params, $page_params);
-        foreach ($data as &$write) {
-            $write["mb_icon_path"] = $this->image_service->getMemberImagePath($write['mb_id'], 'icon');
-            $write["mb_image_path"] = $this->image_service->getMemberImagePath($write['mb_id'], 'image');
-            if ($use_show_file) {
-                $write["images"] = $this->file_service->getFilesByType((int)$write['wr_id'], 'image');
-                $write["normal_files"] = $this->file_service->getFilesByType((int)$write['wr_id'], 'file');
-            }
-            // @todo 썸네일
-            $write['thumbnail'] = new Thumbnail([]);
-            //게시판설정에서 내용보기 체크시
-            $write['wr_password'] = '';
-            if ($use_show_content) {
-                if (strpos($write['wr_option'], 'secret') !== false) {
-                    $empty_write = array_map(function () {
-                        return '';
-                    }, $write);
-                    $write = array_merge($empty_write, [
-                        'wr_id' => $write['wr_id'],
-                        'wr_num' => $write['wr_num'],
-                        'wr_parent' => $write['wr_parent'],
-                        'wr_reply' => $write['wr_reply'],
-                        'wr_option' => $write['wr_option'],
-                        'ca_name' => $write['ca_name'],
-                        'wr_content' => '비밀글입니다.'
-                    ]);
-                }
-            } else {
-                $write['wr_content'] = '';
-            }
-        }
 
-        return $data;
+    /**
+     * 게시글 목록 조회시 총 게시글 수 조회
+     * @param array $search_params 검색조건
+     * @return int
+     */
+    public function fetchTotalCount(array $search_params): int
+    {
+        // 검색 조건 설정
+        $search_values = [];
+        $sql_where = $this->getWhereBySearch($search_params, $search_values);
+        $sql_where .= $this->getWhereSearchPart($search_params, $search_values);
+
+        $query = "SELECT COUNT(*) FROM {$this->table} WHERE {$sql_where}";
+
+        $stmt = Db::getInstance()->run($query, $search_values);
+        return $stmt->fetchColumn() ?: 0;
     }
 
     /**
@@ -251,7 +337,7 @@ class WriteService
         $search_where = $this->getWhereBySearch($search_params, $search_values);
 
         $where = "AND {$search_where} AND wr_num = :wr_num AND wr_reply < :wr_reply";
-        $order_by = "ORDER BY wr_num desc, wr_reply DESC";
+        $order_by = 'ORDER BY wr_num desc, wr_reply DESC';
         $values = [
             'wr_num' => $write['wr_num'],
             'wr_reply' => $write['wr_reply'] ?? '',
@@ -280,7 +366,7 @@ class WriteService
         $search_where = $this->getWhereBySearch($search_params, $search_values);
 
         $where = "AND {$search_where} AND wr_num = :wr_num AND wr_reply > :wr_reply";
-        $order_by = "ORDER BY wr_num, wr_reply";
+        $order_by = 'ORDER BY wr_num, wr_reply';
         $values = [
             'wr_num' => $write['wr_num'],
             'wr_reply' => $write['wr_reply'] ?? '',
@@ -334,7 +420,7 @@ class WriteService
         $query = "SELECT MIN(wr_num) AS min_wr_num FROM {$this->table}";
         $stmt = Db::getInstance()->run($query);
         $row = $stmt->fetch();
-        return (int)$row['min_wr_num'];
+        return $row['min_wr_num'] ?? 0;
     }
 
     /**
@@ -352,13 +438,13 @@ class WriteService
             'wr_num' => $write['wr_num'],
         ];
 
-        $query = "SELECT {$order_func}(SUBSTRING(wr_reply, :reply_len1, 1)) as reply 
+        $query = "SELECT {$order_func} (SUBSTRING(wr_reply, :reply_len1, 1)) as reply 
                 FROM {$this->table} 
                 WHERE wr_num = :wr_num 
                 AND SUBSTRING(wr_reply, :reply_len2, 1) <> ''";
 
         if ($write['wr_reply']) {
-            $query .= " AND wr_reply LIKE :wr_reply";
+            $query .= ' AND wr_reply LIKE :wr_reply';
             $values = array_merge($values, ['wr_reply' => $write['wr_reply'] . '%']);
         }
         $stmt = Db::getInstance()->run($query, $values);
@@ -376,13 +462,9 @@ class WriteService
      */
     public function createWriteData(object $data, array $member = [], array $parent_write = [])
     {
-        $min_wr_num = $this->fetchMinimumWriteNumber() - 1;
-        $data->wr_num = $parent_write ? $parent_write['wr_num'] : $min_wr_num;
+        $data->wr_num = $this->fetchMinimumWriteNumber() - 1;
         $data->wr_parent = $parent_write['wr_id'] ?? 0;
-
-        // TODO: include url.lib.php 문제 해결 필요
-        // exist_seo_title_recursive('bbs', generate_seo_title($data->wr_subject), $this->table);
-        $data->setWrSeoTitle('');
+        $data->setWrSeoTitle($this->url_service->getSeoTtitleRecursive('bbs', $data->wr_subject, $this->table));
         $data->setMbId($member['mb_id'] ?? '');
         $data->setWrDatetime(G5_TIME_YMDHIS);
         $data->setWrLast(G5_TIME_YMDHIS);
@@ -413,10 +495,8 @@ class WriteService
      */
     public function updateWriteData(array $write, object $data): void
     {
-        // TODO include url.lib.php 문제 해결 필요
-        // exist_seo_title_recursive('bbs', generate_seo_title($data->wr_subject), $this->table, $write['wr_id']);
         $data = (array)$data;
-        $data['wr_seo_title'] = '';
+        $data['wr_seo_title'] = $this->url_service->generateSeoTitle($data['wr_subject']);
         $data['wr_last'] = G5_TIME_YMDHIS;
 
         $this->updateWrite($write['wr_id'], $data);
@@ -485,9 +565,10 @@ class WriteService
     }
 
     /**
-     * 부모 아이디로 게시글 삭제
-     * @param int $wr_id 부모 게시글 아이디
+     * @param int $wr_parent
      * @return void
+     * @todo 다시 확인
+     * 부모 아이디로 게시글 삭제
      */
     public function deleteWriteByParentId(int $wr_parent): void
     {
@@ -512,20 +593,20 @@ class WriteService
 
         // 카테고리
         if ($category) {
-            $query_parts[] = "ca_name = :ca_name";
+            $query_parts[] = 'ca_name = :ca_name';
             $params[':ca_name'] = $category;
         }
 
         if (empty($keyword) && $keyword !== '0') {
-            $query_parts[] = "wr_is_comment = 0";
+            $query_parts[] = 'wr_is_comment = 0';
             return implode(' AND ', $query_parts);
         }
 
         // 검색어 처리
-        $terms = explode(" ", $keyword);
-        $tmp = explode(",", $field_string);
-        $fields = array_map('trim', explode("||", $tmp[0]));
-        $is_write = isset($tmp[1]) ? trim($tmp[1]) : "";
+        $terms = explode(' ', $keyword);
+        $tmp = explode(',', $field_string);
+        $fields = array_map('trim', explode('||', $tmp[0]));
+        $is_write = isset($tmp[1]) ? trim($tmp[1]) : '';
 
         $search_clauses = [];
 
@@ -537,7 +618,7 @@ class WriteService
             $field_clauses = [];
             foreach ($fields as $field) {
                 // SQL Injection prevention by whitelisting
-                $field = preg_match("/^[\w\,\|]+$/", $field) ? strtolower($field) : "wr_subject";
+                $field = preg_match('/^[\w\,\|]+$/', $field) ? strtolower($field) : 'wr_subject';
                 $param_key = ":{$field}_{$i}";
                 switch ($field) {
                     case 'mb_id':
@@ -557,10 +638,10 @@ class WriteService
                         break;
                     case 'wr_ip':
                     case 'wr_password':
-                        $field_clauses[] = "1=0";
+                        $field_clauses[] = '1=0';
                         break;
                     default:
-                        if (preg_match("/[a-zA-Z]/", $term)) {
+                        if (preg_match('/[a-zA-Z]/', $term)) {
                             $field = strtolower($field);
                             $param_key = strtolower($param_key);
                         }
@@ -594,7 +675,7 @@ class WriteService
     protected function getWhereSearchPart(array $search_params, &$params = []): string
     {
         if (!$search_params['is_search']) {
-            return "";
+            return '';
         }
 
         $spt = $search_params['spt'];
@@ -603,7 +684,7 @@ class WriteService
         $params[':min_wr_num'] = $spt;
         $params[':max_wr_num'] = $spt + $search_part;
 
-        return " AND (wr_num BETWEEN :min_wr_num AND :max_wr_num)";
+        return ' AND (wr_num BETWEEN :min_wr_num AND :max_wr_num)';
     }
 
     /**
@@ -620,20 +701,20 @@ class WriteService
             if ($this->board['bo_sort_field']) {
                 $sst = $this->board['bo_sort_field'];
             } else {
-                $sst = "wr_num, wr_reply";
-                $sod = "";
+                $sst = 'wr_num, wr_reply';
+                $sod = '';
             }
         } else {
             $board_sort_fields = get_board_sort_fields($this->board, 1);
             if (!$sod && array_key_exists($sst, $board_sort_fields)) {
                 $sst = $board_sort_fields[$sst];
             } else {
-                $sst = preg_match("/^(wr_datetime|wr_hit|wr_good|wr_nogood)$/i", $sst) ? $sst : "";
+                $sst = preg_match('/^(wr_datetime|wr_hit|wr_good|wr_nogood)$/i', $sst) ? $sst : '';
             }
         }
 
         if (!$sst) {
-            $sst = "wr_num, wr_reply";
+            $sst = 'wr_num, wr_reply';
         }
 
         return [$sst, $sod];

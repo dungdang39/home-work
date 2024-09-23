@@ -65,7 +65,7 @@ class PollService
         $poll_item_index = "po_cnt{$item_id}";
         $affect_rows = $db->update($poll_table, [
             $poll_item_index => $poll[$poll_item_index] + 1,
-            'po_ip' => $ip,
+            'po_ips' => $ip,
         ], [
             'po_id' => $po_id,
         ]);
@@ -83,19 +83,14 @@ class PollService
     public function checkAlreadyVote($poll, $member, $ip)
     {
         //member
-        if (isset($member['mb_id'])) {
+        if ($member['mb_id'] !== '') {
             $ids = explode(',', trim($poll['mb_ids']));
-            if (in_array($member['mb_id'], $ids)) {
-                return true;
-            }
+            return in_array($member['mb_id'], $ids);
         }
 
         //guest
         $poll_ips = explode(',', trim($poll['po_ips']));
-        if (in_array($ip, $poll_ips)) {
-            return true;
-        }
-        return false;
+        return in_array($ip, $poll_ips);
     }
 
     /**
@@ -113,9 +108,6 @@ class PollService
 
         //poll etc 테이블 auto increment 설정안되어있어서 아래와 같이 해야함.
         $poll_etc = $db->run("SELECT * FROM  {$poll_etc_table} ORDER BY pc_id DESC LIMIT 1")->fetch();
-        if ($poll_etc === false) {
-            return false;
-        }
 
         if ($poll_etc) {
             $pc_id = $poll_etc['pc_id'] + 1;
@@ -131,8 +123,7 @@ class PollService
             'mb_id' => $mb_id,
             'pc_datetime' => G5_TIME_YMDHIS
         ]);
-
-        return $query_result;
+        return $query_result !== false;
     }
 
     /**

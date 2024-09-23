@@ -1,4 +1,11 @@
 {
+    "minimum-stability": "stable",
+    "config": {
+        "optimize-autoloader": true,
+        "preffered-install": {
+            "*": "dist"
+        }
+    },
     "require": {
         "php": "^7.4 || ^8.0",
         "slim/slim": "^4.14.0",

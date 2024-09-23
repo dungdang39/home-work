@@ -5,8 +5,8 @@ namespace API\v1\Controller;
 use API\Service\ContentService;
 use API\v1\Model\Response\Content\ContentListResponse;
 use API\v1\Model\Response\Content\ContentResponse;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
 class ContentController
 {
@@ -108,6 +108,7 @@ class ContentController
         if (empty($content)) {
             return api_response_json($response, ['message' => '콘텐츠가 없습니다.'], 404);
         }
+        
         $response_data = new ContentResponse($content);
         return api_response_json($response, $response_data);
     }

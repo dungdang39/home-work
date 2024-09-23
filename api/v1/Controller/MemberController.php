@@ -10,6 +10,7 @@ use API\Exceptions\HttpUnprocessableEntityException;
 use API\Service\MemberImageService;
 use API\Service\MemberService;
 use API\Service\PointService;
+use API\Service\Social\SocialService;
 use API\v1\Model\Request\Member\ChangeCertificationEmailRequest;
 use API\v1\Model\Request\Member\CreateMemberRequest;
 use API\v1\Model\Request\Member\SearchPasswordResetMailReqeust;
@@ -29,12 +30,15 @@ class MemberController
     private MemberService $member_service;
     private MemberImageService $image_service;
     private PointService $point_service;
+    private SocialService $social_service;
 
     public function __construct(
         MemberService $member_service,
         MemberImageService $image_service,
-        PointService $point_service
+        PointService $point_service,
+        SocialService $social_service
     ) {
+        $this->social_service = $social_service;
         $this->member_service = $member_service;
         $this->image_service = $image_service;
         $this->point_service = $point_service;
@@ -46,10 +50,10 @@ class MemberController
      *      summary="회원가입",
      *      tags={"회원"},
      *      description="회원 가입을 처리합니다.
-#### 회원가입과 함께 처리되는 작업
-- 회원가입 & 추천인 포인트 지급
-- 회원가입 메일 발송 (메일발송 설정 시)
-- 관리자에게 회원가입 메일 발송 (메일발송 설정 시)",
+    #### 회원가입과 함께 처리되는 작업
+    - 회원가입 & 추천인 포인트 지급
+    - 회원가입 메일 발송 (메일발송 설정 시)
+    - 관리자에게 회원가입 메일 발송 (메일발송 설정 시)",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\MediaType(
@@ -104,10 +108,6 @@ class MemberController
                 throw new HttpConflictException($request, $e->getMessage());
             }
 
-            if ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            }
-
             throw $e;
         }
 
@@ -129,10 +129,10 @@ class MemberController
             // 어떠한 회원정보도 포함되지 않은 일회용 난수를 생성하여 인증에 사용
             $mb_md5 = md5(pack('V*', rand(), rand(), rand(), rand()));
 
-            $this->member_service->updateMember($data->mb_id, ["mb_email_certify2" => $mb_md5]);
+            $this->member_service->updateMember($data->mb_id, ['mb_email_certify2' => $mb_md5]);
 
             $certify_href = G5_BBS_URL . "/email_certify.php?mb_id={$data->mb_id}&amp;mb_md5={$mb_md5}";
-            $w = "";
+            $w = '';
             ob_start();
             include_once(__DIR__ . '../../../../bbs/register_form_update_mail3.php');
             $content = ob_get_clean();
@@ -140,7 +140,6 @@ class MemberController
             $content = run_replace('register_form_update_mail_certify_content', $content, $data->mb_id);
 
             mailer($config['cf_admin_email_name'], $config['cf_admin_email'], $mb_email, $subject, $content, 1);
-
             // 가입축하메일 발송
         } elseif ($config['cf_email_mb_member']) {
             $subject = "[{$config['cf_title']}] 회원가입을 축하드립니다.";
@@ -167,7 +166,7 @@ class MemberController
             mailer($mb_nick, $mb_email, $config['cf_admin_email'], $subject, $content, 1);
         }
 
-        $response_data = new CreateMemberResponse("회원가입이 완료되었습니다.", $data);
+        $response_data = new CreateMemberResponse('회원가입이 완료되었습니다.', $data);
         return api_response_json($response, $response_data);
     }
 
@@ -177,11 +176,11 @@ class MemberController
      *      summary="인증 이메일 변경",
      *      tags={"회원"},
      *      description="
-메일인증을 처리하지 않은 회원의 메일을 변경하고 인증메일을 재전송합니다.
-#### Request Body
-- email: 변경할 이메일 주소
-- password: 회원 비밀번호
-",
+    메일인증을 처리하지 않은 회원의 메일을 변경하고 인증메일을 재전송합니다.
+    #### Request Body
+    - email: 변경할 이메일 주소
+    - password: 회원 비밀번호
+    ",
      *      @OA\Parameter(name="mb_id", in="path", description="회원 아이디", required=true, @OA\Schema(type="string")),
      *      @OA\RequestBody(
      *          required=true,
@@ -216,7 +215,7 @@ class MemberController
             $mb_md5 = md5(pack('V*', rand(), rand(), rand(), rand()));
 
             $certify_href = G5_BBS_URL . '/email_certify.php?mb_id=' . $mb_id . '&amp;mb_md5=' . $mb_md5;
-            $w = "u";
+            $w = 'u';
             $mb_name = $member['mb_name'];
             ob_start();
             include_once(__DIR__ . '../../../../bbs/register_form_update_mail3.php');
@@ -224,9 +223,9 @@ class MemberController
 
             mailer($config['cf_admin_email_name'], $config['cf_admin_email'], $data->email, $subject, $content, 1);
 
-            $this->member_service->updateMember($mb_id, ["mb_email" => $data->email, "mb_email_certify2" => $mb_md5]);
+            $this->member_service->updateMember($mb_id, ['mb_email' => $data->email, 'mb_email_certify2' => $mb_md5]);
 
-            return api_response_json($response, array("message" => "{$data->email} 주소로 인증메일이 재전송되었습니다."));
+            return api_response_json($response, array('message' => "{$data->email} 주소로 인증메일이 재전송되었습니다."));
         } catch (Exception $e) {
             if ($e->getCode() === 403) {
                 throw new HttpForbiddenException($request, $e->getMessage());
@@ -240,10 +239,6 @@ class MemberController
                 throw new HttpConflictException($request, $e->getMessage());
             }
 
-            if ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            }
-
             throw $e;
         }
     }
@@ -255,10 +250,10 @@ class MemberController
      *      tags={"회원"},
      *      security={{"Oauth2Password": {}}},
      *      description="
-JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
-- 탈퇴 또는 차단된 회원은 조회할 수 없습니다.
-- 이메일 인증이 완료되지 않은 회원은 조회할 수 없습니다.
-            ",
+    JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
+    - 탈퇴 또는 차단된 회원은 조회할 수 없습니다.
+    - 이메일 인증이 완료되지 않은 회원은 조회할 수 없습니다.
+    ",
      *      @OA\Response(response="200", description="로그인 회원정보 조회 성공", @OA\JsonContent(ref="#/components/schemas/GetMemberMeResponse")),
      *      @OA\Response(response="401", ref="#/components/responses/401"),
      *      @OA\Response(response="403", ref="#/components/responses/403"),
@@ -284,9 +279,9 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
      *      tags={"회원"},
      *      security={{"Oauth2Password": {}}},
      *      description="
-회원 정보를 조회합니다.
-- 자신&상대방의 정보가 공개 설정된 경우 조회 가능합니다.
-            ",
+    회원 정보를 조회합니다.
+    - 자신&상대방의 정보가 공개 설정된 경우 조회 가능합니다.
+    ",
      *      @OA\Parameter(name="mb_id", in="path", description="회원 아이디", required=true, @OA\Schema(type="string")),
      *      @OA\Response(response="200", description="회원정보 조회 성공", @OA\JsonContent(ref="#/components/schemas/GetMemberResponse")),
      *      @OA\Response(response="401", ref="#/components/responses/401"),
@@ -346,14 +341,10 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
             $this->member_service->updateMemberProfile($member['mb_id'], $data);
 
-            return api_response_json($response, array("message" => "회원정보가 수정되었습니다."));
+            return api_response_json($response, array('message' => '회원정보가 수정되었습니다.'));
         } catch (Exception $e) {
             if ($e->getCode() === 409) {
                 throw new HttpConflictException($request, $e->getMessage());
-            }
-
-            if ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
             }
 
             throw $e;
@@ -406,12 +397,8 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
                 $this->image_service->updateMemberImage($config, $member['mb_id'], 'icon', $uploaded_files['mb_icon']);
             }
 
-            return api_response_json($response, array("message" => "회원 이미지가 수정되었습니다."));
+            return api_response_json($response, array('message' => '회원 아이콘/이미지가 수정되었습니다.'));
         } catch (Exception $e) {
-            if ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
-            }
-
             if ($e->getCode() === 400) {
                 throw new HttpBadRequestException($request, $e->getMessage());
             }
@@ -427,8 +414,8 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
      *      tags={"회원"},
      *      security={{"Oauth2Password": {}}},
      *      description="JWT 토큰을 통해 인증된 회원을 탈퇴합니다.
-- 실제로 데이터가 삭제되지 않고, 탈퇴 처리만 진행됩니다.
-",
+    - 실제로 데이터가 삭제되지 않고, 탈퇴 처리만 진행됩니다.
+    ",
      *      @OA\Response(response="200", description="회원탈퇴 성공", @OA\JsonContent(ref="#/components/schemas/BaseResponse")),
      *      @OA\Response(response="401", ref="#/components/responses/401"),
      *      @OA\Response(response="403", ref="#/components/responses/403"),
@@ -443,12 +430,13 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
         try {
             if (is_super_admin($config, $member['mb_id'])) {
-                throw new HttpForbiddenException($request, "최고 관리자는 탈퇴할 수 없습니다.");
+                throw new HttpForbiddenException($request, '최고 관리자는 탈퇴할 수 없습니다.');
             }
 
+            $this->social_service->leaveMember($member['mb_id']);
             $this->member_service->leaveMember($member);
 
-            return api_response_json($response, array("message" => "회원탈퇴가 완료되었습니다."));
+            return api_response_json($response, array('message' => '회원탈퇴가 완료되었습니다.'));
         } catch (Exception $e) {
             throw $e;
         }
@@ -485,7 +473,7 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
             $member = $this->member_service->verifyPasswordResetEmail($request_data->mb_email);
             if (is_super_admin($config, $member['mb_id'])) {
-                throw new HttpForbiddenException($request, "관리자 아이디는 접근 불가합니다.");
+                throw new HttpForbiddenException($request, '관리자 아이디는 접근 불가합니다.');
             }
 
             // TODO: 메일관련 공통 함수로 변경이 필요하다.
@@ -494,13 +482,13 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
             $mb_lost_certify = get_encrypt_string($change_password);
             $mb_nonce = md5(pack('V*', rand(), rand(), rand(), rand()));  // 일회용 난수 생성
 
-            $this->member_service->updateMember($member['mb_id'], ["mb_lost_certify" => "{$mb_nonce} {$mb_lost_certify}"]);
+            $this->member_service->updateMember($member['mb_id'], ['mb_lost_certify' => "{$mb_nonce} {$mb_lost_certify}"]);
 
             send_reset_password_mail($config, $member, $mb_nonce, $change_password);
 
             run_event('api_password_lost2_after', $member, $mb_nonce, $mb_lost_certify);
 
-            return api_response_json($response, ["message" => '비밀번호를 변경할 수 있는 링크가 ' . $request_data->mb_email . ' 메일로 발송되었습니다.']);
+            return api_response_json($response, ['message' => '비밀번호를 변경할 수 있는 링크가 ' . $request_data->mb_email . ' 메일로 발송되었습니다.']);
         } catch (Exception $e) {
             if ($e->getCode() === 404) {
                 throw new HttpNotFoundException($request, $e->getMessage());
@@ -508,10 +496,6 @@ JWT 토큰을 통해 인증된 회원 정보를 조회합니다.
 
             if ($e->getCode() === 409) {
                 throw new HttpConflictException($request, $e->getMessage());
-            }
-
-            if ($e->getCode() === 422) {
-                throw new HttpUnprocessableEntityException($request, $e->getMessage());
             }
 
             throw $e;

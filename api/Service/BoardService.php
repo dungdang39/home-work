@@ -21,12 +21,11 @@ class BoardService
     public function getCategories(): array
     {
         if (
-            !$this->board['bo_use_category']
-            || $this->board['bo_category_list'] === ""
+            !$this->board['bo_use_category'] || $this->board['bo_category_list'] === ''
         ) {
             return [];
         }
-        return explode("|", $this->board['bo_category_list']);
+        return explode('|', $this->board['bo_category_list']);
     }
 
     // ========================================
@@ -40,7 +39,7 @@ class BoardService
      */
     public function fetchBoardsByGroupId(string $gr_id)
     {
-        $query = "SELECT * FROM {$this->table} WHERE gr_id = :gr_id";
+        $query = "SELECT * FROM {$this->table} WHERE gr_id = :gr_id ORDER BY bo_order";
         $stmt = Db::getInstance()->run($query, ['gr_id' => $gr_id]);
         return $stmt->fetchAll();
     }
@@ -65,7 +64,7 @@ class BoardService
         global $g5;
         $query = "SELECT bo_table FROM `{$g5['board_table']}` ";
         $result = Db::getInstance()->run($query)->fetchAll();
-        if(!$result) {
+        if (!$result) {
             return [];
         }
         return $result;

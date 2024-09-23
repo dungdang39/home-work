@@ -47,7 +47,7 @@ class CommentService
             $comment['save_content'] = $comment['wr_content'];
             $comment['mb_icon_path'] = $this->image_service->getMemberImagePath($comment['mb_id'], 'icon');
             $comment['mb_image_path'] = $this->image_service->getMemberImagePath($comment['mb_id'], 'image');
-            $can_read_comment = $this->board_permission->canReadSecretComment($mb_id, $comment, $password);
+            $can_read_comment = $this->board_permission->canReadSecretComment($mb_id, $comment, false, $password);
             // 수정,삭제는 읽기 권한과 동일함.
             $comment['is_del'] = $can_read_comment;
             $comment['is_edit'] = $can_read_comment;
@@ -58,20 +58,24 @@ class CommentService
                 }, $comment);
                 $secret_comment = [
                     'wr_id' => $comment['wr_id'],
+                    'wr_name' => $comment['wr_name'],
                     'wr_parent' => $comment['wr_parent'],
                     'wr_comment_reply' => $comment['wr_comment_reply'],
                     'wr_option' => $comment['wr_option'],
                     'is_secret' => true,
                     'is_secret_content' => true,
-                    'save_content' => '비밀글입니다.'
+                    'save_content' => '비밀글입니다.',
+                    'wr_datetime' => $comment['wr_datetime']
                 ];
                 $comment = array_merge($empty_comment, $secret_comment);
             }
             // 비밀글 여부 표시
-            if(strpos($comment['wr_option'], 'secret') !== false) {
+            if (strpos($comment['wr_option'], 'secret') !== false) {
                 $comment['is_secret'] = true;
                 $comment['is_secret_content'] = true;
             }
+            $comment['wr_email'] = EncryptionService::encrypt($comment['wr_email']);
+            $comment['wr_ip'] = preg_replace('/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/', G5_IP_DISPLAY, $comment['wr_ip']);
 
             $result[] = new Comment($comment);
         }
@@ -93,7 +97,7 @@ class CommentService
             'wr_id' => $wr_id,
         ])->fetch();
     }
-    
+
     /**
      * 게시글의 댓글목록 조회
      */
@@ -115,15 +119,20 @@ class CommentService
                 }, $comment);
                 $secret_comment = [
                     'wr_id' => $comment['wr_id'],
+                    'wr_name' => $comment['wr_name'],
                     'wr_parent' => $comment['wr_parent'],
                     'wr_comment_reply' => $comment['wr_comment_reply'],
                     'wr_option' => $comment['wr_option'],
                     'is_secret' => true,
                     'is_secret_content' => true,
-                    'save_content' => '비밀글입니다.'
+                    'save_content' => '비밀글입니다.',
+                    'wr_datetime' => $comment['wr_datetime']
                 ];
                 $comment = array_merge($empty_comment, $secret_comment);
             }
+
+            $comment['wr_email'] = EncryptionService::encrypt($comment['wr_email']);
+            $comment['wr_ip'] = preg_replace('/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/', G5_IP_DISPLAY, $comment['wr_ip']);
 
             $result[] = new Comment($comment);
         }
@@ -152,6 +161,10 @@ class CommentService
         ])->fetchAll();
     }
 
+    /**
+     * @param int $wr_id
+     * @return int
+     */
     public function fetchTotalRecords(int $wr_id)
     {
         $query = "SELECT count(*) FROM `{$this->write_table}`
@@ -161,7 +174,7 @@ class CommentService
         $stmt = Db::getInstance()->run($query, [
             'wr_id' => $wr_id
         ]);
-        return $stmt->fetchColumn();
+        return $stmt->fetchColumn() ?: 0;
     }
 
     public function updateCommentData(int $comment_id, object $data): void
@@ -178,10 +191,10 @@ class CommentService
      * @param object $data 댓글의 입력 데이터
      * @param array $member
      * @param array $parent_comment
-     * @return int
+     * @return false|string
      * @throws Exception
      */
-    public function createCommentData(array $write, object $data, array $member = [], array $parent_comment = []): int
+    public function createCommentData(array $write, object $data, array $member = [], array $parent_comment = [])
     {
         $is_guest = $member['mb_id'] === '';
         $data->ca_name = $write['ca_name'];
@@ -217,13 +230,13 @@ class CommentService
     {
         Db::getInstance()->update($this->write_table, $data, ['wr_id' => $comment_id]);
     }
-    
+
 
     /**
      * 댓글 정보를 데이터베이스에 등록
      * @return string|false
      */
-    public function insertComment(object $data): string
+    public function insertComment(object $data)
     {
         return Db::getInstance()->insert($this->write_table, (array)$data);
     }
@@ -278,7 +291,7 @@ class CommentService
                 AND SUBSTRING(wr_comment_reply, :reply_len2, 1) <> ''";
 
         if ($parent['wr_comment_reply']) {
-            $query .= " AND wr_comment_reply LIKE :wr_comment_reply";
+            $query .= ' AND wr_comment_reply LIKE :wr_comment_reply';
             $values = array_merge($values, ['wr_comment_reply' => $parent['wr_comment_reply'] . '%']);
         }
 

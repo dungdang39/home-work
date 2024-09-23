@@ -55,8 +55,8 @@ class BoardNewService
                   ORDER BY a.bn_id DESC
                   LIMIT :offset, :per_page";
 
-        $search_values[':offset'] = $page_params['offset'];
-        $search_values[':per_page'] = $page_params['per_page'];
+        $search_values['offset'] = $page_params['offset'];
+        $search_values['per_page'] = $page_params['per_page'];
 
         $stmt = Db::getInstance()->run($query, $search_values);
         return $stmt->fetchAll();
@@ -78,7 +78,7 @@ class BoardNewService
      * 최신글 추가
      * @return string|false
      */
-    public function insert(string $bo_table, int $wr_id, int $wr_parent, string $mb_id = "")
+    public function insert(string $bo_table, int $wr_id, int $wr_parent, string $mb_id = '')
     {
         $data = [
             'bo_table' => $bo_table,

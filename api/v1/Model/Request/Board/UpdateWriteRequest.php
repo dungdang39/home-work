@@ -65,27 +65,23 @@ class UpdateWriteRequest
      */
     public string $wr_link2 = '';
 
-    /**
-     * 옵션
-     * @OA\Property(example="옵션")
-     */
     public string $wr_option = '';
 
     /**
-     * HTML
-     * @OA\Property(example="HTML")
+     * 
+     * @OA\Property(example="게시글 내용이 html 일때 필수 'html1' 또는 'html2' - html2 는 \n 을 br 태그로 변환합니다. ")
      */
     public string $html = '';
 
     /**
      * 메일
-     * @OA\Property(example="메일")
+     * @OA\Property(example="게시글 내용이 메일일 때 'mail' ")
      */
     public string $mail = '';
 
     /**
      * 비밀글
-     * @OA\Property(example="비밀글")
+     * @OA\Property(example="비밀글 지정시 'secret' 입력")
      */
     public string $secret = '';
 
@@ -134,7 +130,7 @@ class UpdateWriteRequest
      */
     public function validateCategory(array $board, bool $is_admin = false): void
     {
-        $categories = array_map('trim', explode("|", $board['bo_category_list'] . ($is_admin ? '|공지' : '')));
+        $categories = array_map('trim', explode('|', $board['bo_category_list'] . ($is_admin ? '|공지' : '')));
         if (!$board['bo_use_category'] || empty($categories)) {
             $this->ca_name = '';
             return;
@@ -220,7 +216,12 @@ class UpdateWriteRequest
      */
     public function validateName(array $write): void
     {
-        $this->wr_name = sanitize_input($this->wr_name, 20);
+        // 외국인 이름 로마자 표기 37자
+        if (preg_match('/^[A-Za-z\-]+$/', $this->wr_name)) {
+            $this->wr_name = sanitize_input($this->wr_name, 37);
+        } else {
+            $this->wr_name = sanitize_input($this->wr_name, 20);
+        }
 
         if (!$write['mb_id'] && $this->wr_name === '') {
             $this->throwException('비회원 게시글은 이름은 필수로 입력해야 합니다.');
