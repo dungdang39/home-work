@@ -7,7 +7,6 @@ use App\Admin\Model\SearchPermissionRequest;
 use App\Admin\Model\UpdatePermissionRequest;
 use App\Admin\Service\PermissionService;
 use Core\BaseController;
-use DI\Container;
 use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -23,11 +22,8 @@ class PermissionController extends BaseController
     private PermissionService $service;
 
     public function __construct(
-        Container $container,
         PermissionService $service
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
@@ -62,16 +58,12 @@ class PermissionController extends BaseController
      */
     public function insert(Request $request, Response $response, CreatePermissionRequest $data): Response
     {
-        try {
-            $exists = $this->service->exists($data->mb_id, $data->admin_menu_id);
-            if ($exists) {
-                throw new Exception('이미 등록된 권한입니다.', 409);
-            }
-
-            $this->service->insert($data->publics());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        $exists = $this->service->exists($data->mb_id, $data->admin_menu_id);
+        if ($exists) {
+            throw new Exception('이미 등록된 권한입니다.', 409);
         }
+
+        $this->service->insert($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.setting.permission');
     }

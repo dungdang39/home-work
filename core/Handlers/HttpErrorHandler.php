@@ -74,6 +74,8 @@ class HttpErrorHandler extends SlimErrorHandler
             if ($this->exception instanceof PDOException) {
                 $this->statusCode = 500;
                 $message = 'DB operator error' . ($this->displayErrorDetails ? ': ' . $this->exception->getMessage() : '');
+            } else {
+                $message = $this->exception->getMessage();
             }
 
             /** @var Response $response */

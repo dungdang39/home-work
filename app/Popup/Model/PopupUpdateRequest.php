@@ -3,6 +3,8 @@
 namespace App\Popup\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 class PopupUpdateRequest
 {
@@ -12,17 +14,17 @@ class PopupUpdateRequest
     public ?int $pu_disable_hours;
     public ?string $pu_begin_time;
     public ?string $pu_end_time;
-    public ?int $pu_left;
-    public ?int $pu_top;
-    public ?int $pu_width;
-    public ?int $pu_height;
+    public ?int $pu_left = 0;
+    public ?int $pu_top = 0;
+    public ?int $pu_width = 0;
+    public ?int $pu_height = 0;
     public ?string $pu_title;
     public ?string $pu_content;
     public ?string $pu_mobile_content;
 
-    public function __construct(array $data = [])
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
+        $this->initializeFromRequest($request, $validator);
     }
 
     public function validate(): void
@@ -45,11 +47,11 @@ class PopupUpdateRequest
         }
 
         // 좌표와 크기 값 검증
-        if (empty($this->pu_left) || !is_numeric($this->pu_left)) {
+        if (!is_numeric($this->pu_left)) {
             throw new \InvalidArgumentException("유효한 좌측 위치 값을 입력하세요.");
         }
 
-        if (empty($this->pu_top) || !is_numeric($this->pu_top)) {
+        if (!is_numeric($this->pu_top)) {
             throw new \InvalidArgumentException("유효한 상단 위치 값을 입력하세요.");
         }
 

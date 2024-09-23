@@ -5,7 +5,6 @@ namespace App\Qa\Controller;
 use App\Qa\Model\QaConfigRequest;
 use App\Qa\Service\QaConfigService;
 use Core\BaseController;
-use DI\Container;
 use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -16,16 +15,13 @@ class QaConfigController extends BaseController
     private QaConfigService $service;
 
     public function __construct(
-        Container $container,
         QaConfigService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
     /**
-     * Q&A 목록 페이지
+     * Q&A 설정 페이지
      */
     public function index(Request $request, Response $response): Response
     {
@@ -42,20 +38,15 @@ class QaConfigController extends BaseController
     /**
      * Q&A 수정
      */
-    public function update(Request $request, Response $response): Response
+    public function update(Request $request, Response $response, QaConfigRequest $data): Response
     {
-        try {
-            // Q&A 설정 조회
-            $qa_config = $this->service->getQaConfig();
-            $data = QaConfigRequest::createFromRequestBody($request);
+        // Q&A 설정 조회
+        $qa_config = $this->service->getQaConfig();
 
-            if ($qa_config) {
-                $this->service->update($data->toArray());
-            } else {
-                $this->service->insert($data->toArray());
-            }
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        if ($qa_config) {
+            $this->service->update($data->publics());
+        } else {
+            $this->service->insert($data->publics());
         }
 
         return $this->redirectRoute($request, $response, 'admin.member.qa.config');

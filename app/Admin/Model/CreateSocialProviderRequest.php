@@ -3,6 +3,8 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 class CreateSocialProviderRequest
 {
@@ -13,15 +15,10 @@ class CreateSocialProviderRequest
     public ?string $client_id = '';
     public ?string $client_secret = '';
 
-    public function __construct(array $data)
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
+        $this->initializeFromRequest($request, $validator);
         $this->validate();
-    }
-
-    public static function load(array $data): self
-    {
-        return new self($data);
     }
 
     private function validate()

@@ -6,7 +6,6 @@ use App\Qa\Service\QaConfigService;
 use App\Qa\Service\QaService;
 use Core\BaseController;
 use Core\Model\PaginationRequest;
-use DI\Container;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Routing\RouteContext;
@@ -19,12 +18,9 @@ class QaController extends BaseController
     private QaConfigService $config_service;
 
     public function __construct(
-        Container $container,
         QaService $service,
         QaConfigService $config_service
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
         $this->config_service = $config_service;
     }
@@ -32,12 +28,9 @@ class QaController extends BaseController
     /**
      * Q&A 목록 페이지
      */
-    public function index(Request $request, Response $response): Response
+    public function index(Request $request, Response $response, QaSearchRequest $search_request): Response
     {
-        $query_params = $request->getQueryParams();
-        $request_params = new QaSearchRequest($query_params);
-        $page_params = new PaginationRequest($query_params);
-        $params = array_merge($request_params->toArray(), $page_params->toArray());
+        $params = $search_request->publics();
 
         // Q&A 설정 조회
         $member_config = $this->service->getMemberConfig();
@@ -69,29 +62,20 @@ class QaController extends BaseController
      */
     public function insert(Request $request, Response $response): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-            $data = $this->create_request->load($request_body);
-    
-            $this->service->createMember($data->toArray());
-    
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member');
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $request_body = $request->getParsedBody();
+
+        return $this->redirectRoute($request, $response, 'admin.member.qa');
     }
 
     /**
      * Q&A 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, array $qa_id): Response
+    public function view(Request $request, Response $response, $qa_id): Response
     {
-        $member = $this->service->getMember($qa_id);
+        $qa = $this->service->getQa($qa_id);
 
         $response_data = [
-            "member" => $member,
+            "qa" => $qa,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/member_form.html', $response_data);
@@ -102,51 +86,46 @@ class QaController extends BaseController
      */
     public function update(Request $request, Response $response, array $qa_id): Response
     {
-        try {
-            $login_member = $request->getAttribute('login_member');
-            $config = $request->getAttribute('config');
+        $login_member = $request->getAttribute('login_member');
+        $config = $request->getAttribute('config');
 
-            $member = $this->service->getMember($qa_id);
-            $request_body = $request->getParsedBody();
-            $data = $this->update_request->load($request_body, $member);
-    
-            $login_member_level = $login_member['mb_level'];
-            $member_level = $member['mb_level'];
+        $member = $this->service->getMember($qa_id);
+        $request_body = $request->getParsedBody();
+        $data = $this->update_request->load($request_body, $member);
 
-            if (!is_super_admin($config, $login_member['mb_id']) && $member_level >= $login_member_level) {
-                throw new Exception('자신보다 권한이 높거나 같은 Q&A은 수정할 수 없습니다.', 403);
-            }
+        $login_member_level = $login_member['mb_level'];
+        $member_level = $member['mb_level'];
 
-            if (
-                !is_super_admin($config, $login_member['mb_id'])
-                && is_super_admin($config, $member['mb_id'])
-            ) {
-                throw new Exception('최고관리자의 비밀번호를 수정할수 없습니다.', 403);
-            }
+        if (!is_super_admin($config, $login_member['mb_id']) && $member_level >= $login_member_level) {
+            throw new Exception('자신보다 권한이 높거나 같은 Q&A은 수정할 수 없습니다.', 403);
+        }
+
+        if (
+            !is_super_admin($config, $login_member['mb_id'])
+            && is_super_admin($config, $member['mb_id'])
+        ) {
+            throw new Exception('최고관리자의 비밀번호를 수정할수 없습니다.', 403);
+        }
+        if (
+            $login_member['mb_id'] === $member['mb_id']
+            && $member['mb_level'] != $data->mb_level
+        ) {
+            throw new Exception('로그인 중인 관리자 레벨은 수정할 수 없습니다.', 403);
+        }
+        if ($data->mb_leave_date || $data->mb_intercept_date) {
             if (
                 $login_member['mb_id'] === $member['mb_id']
-                && $member['mb_level'] != $data->mb_level
+                || is_super_admin($config, $member['mb_id'])
             ) {
-                throw new Exception('로그인 중인 관리자 레벨은 수정할 수 없습니다.', 403);
+                    throw new Exception('해당 관리자의 탈퇴 일자 또는 접근 차단 일자를 수정할 수 없습니다.', 403);
             }
-            if ($data->mb_leave_date || $data->mb_intercept_date) {
-                if (
-                    $login_member['mb_id'] === $member['mb_id']
-                    || is_super_admin($config, $member['mb_id'])
-                ) {
-                        throw new Exception('해당 관리자의 탈퇴 일자 또는 접근 차단 일자를 수정할 수 없습니다.', 403);
-                }
-            }
-
-            $this->service->updateMember($member['mb_id'], $data->toArray());
-    
-            $routeContext = RouteContext::fromRequest($request);
-            $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.view', ['mb_id' => $member['mb_id']]);
-            return $response->withHeader('Location', $redirect_url)->withStatus(302);
-
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
         }
+
+        $this->service->updateMember($member['mb_id'], $data->toArray());
+
+        $routeContext = RouteContext::fromRequest($request);
+        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.member.view', ['mb_id' => $member['mb_id']]);
+        return $response->withHeader('Location', $redirect_url)->withStatus(302);
     }
 
     /**
@@ -155,27 +134,21 @@ class QaController extends BaseController
      */
     public function delete(Request $request, Response $response, array $qa_id): Response
     {
-        try {
-            $config = $request->getAttribute('config');
-            $member = $this->service->getMember($qa_id);
-            $login_member = $request->getAttribute('login_member');
+        $config = $request->getAttribute('config');
+        $member = $this->service->getMember($qa_id);
+        $login_member = $request->getAttribute('login_member');
 
-            if ($member === $login_member) {
-                throw new Exception('로그인 중인 관리자는 삭제할 수 없습니다.', 403);
-            }
-            if (is_super_admin($config, $member['mb_id'])) {
-                throw new Exception('최고 관리자는 삭제할 수 없습니다.', 403);
-            }
-            if ($member['mb_level'] >= $login_member['mb_level']) {
-                throw new Exception('자신보다 권한이 높거나 같은 Q&A은 삭제할 수 없습니다.', 403);
-            }
-
-            $this->service->leaveMember($member);
-
-            
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        if ($member === $login_member) {
+            throw new Exception('로그인 중인 관리자는 삭제할 수 없습니다.', 403);
         }
+        if (is_super_admin($config, $member['mb_id'])) {
+            throw new Exception('최고 관리자는 삭제할 수 없습니다.', 403);
+        }
+        if ($member['mb_level'] >= $login_member['mb_level']) {
+            throw new Exception('자신보다 권한이 높거나 같은 Q&A은 삭제할 수 없습니다.', 403);
+        }
+
+        $this->service->leaveMember($member);
 
         return $this->redirectRoute($request, $response, 'admin.member.qa');
     }

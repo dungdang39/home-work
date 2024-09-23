@@ -3,6 +3,8 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 class UpdateSocialProviderRequest
 {
@@ -15,25 +17,11 @@ class UpdateSocialProviderRequest
 
     /**
      * SocialUpdateRequest constructor.
-     *
-     * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
+        $this->initializeFromRequest($request, $validator);
         $this->ensureDefaults();
-        $this->validate();
-    }
-
-    /**
-     * Create a new instance of the request.
-     *
-     * @param array $data
-     * @return self
-     */
-    public static function load(array $data): self
-    {
-        return new self($data);
     }
 
     /**
@@ -48,16 +36,5 @@ class UpdateSocialProviderRequest
                 $provider['is_enabled'] = (int)$provider['is_enabled'];
             }
         }
-    }
-
-
-    /**
-     * Validate the data.
-     *
-     * @throws \Exception
-     */
-    private function validate()
-    {
-
     }
 }

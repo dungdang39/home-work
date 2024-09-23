@@ -11,7 +11,6 @@ use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
-use Dotenv\Exception\InvalidPathException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -76,7 +75,7 @@ $request = $container->get(ServerRequestInterface::class);
 
 // 에러 핸들러 설정
 $app_debug = $_ENV['APP_DEBUG'] ?? false;
-$app_debug = false;
+$app_debug = filter_var($app_debug, FILTER_VALIDATE_BOOLEAN);
 $callableResolver = $app->getCallableResolver();
 $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory, $container);
 $shutdownHandler = new ShutdownHandler($request, $errorHandler, $app_debug);
@@ -154,8 +153,8 @@ function setupRoutes(App $app)
     foreach ($route_files as $file) {
         include_once $file;
     }
-
-    if ($_ENV['APP_ROUTE_CACHE'] ?? false) {
+    $route_cache = $_ENV['APP_ROUTE_CACHE'] ?? false;
+    if (filter_var($route_cache, FILTER_VALIDATE_BOOLEAN)) {
         $cache_dir = __DIR__ . "/data/cache/API";
         createDirectory($cache_dir);
         $app->getRouteCollector()->setCacheFile("$cache_dir/router-cache.php");

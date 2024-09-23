@@ -2,16 +2,9 @@
 
 namespace App\Popup\Model;
 
-use Core\Traits\SchemaHelperTrait;
+use Core\Model\PaginationRequest;
 
-class PopupSearchRequest
+class PopupSearchRequest extends PaginationRequest
 {
-    use SchemaHelperTrait;
-
     public ?string $pu_device;
-
-    public function __construct(array $query_params = [])
-    {
-        $this->mapDataToProperties($this, $query_params);
-    }
 }

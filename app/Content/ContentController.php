@@ -7,8 +7,6 @@ use App\Content\Model\ContentSearchRequest;
 use App\Content\ContentService;
 use App\Content\Model\ContentUpdateRequest;
 use Core\BaseController;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -18,11 +16,8 @@ class ContentController extends BaseController
     private ContentService $service;
 
     public function __construct(
-        Container $container,
         ContentService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
@@ -65,18 +60,14 @@ class ContentController extends BaseController
      */
     public function insert(Request $request, Response $response, ContentCreateRequest $data): Response
     {
-        try {
-            // 파일 업로드 처리
-            $this->service->makeContentDir($request);
-            $this->service->uploadImage($request, $data);
-            // 파일 필드 제거
-            unset($data->head_image_file);
-            unset($data->foot_image_file);
+        // 파일 업로드 처리
+        $this->service->makeContentDir($request);
+        $this->service->uploadImage($request, $data);
+        // 파일 필드 제거
+        unset($data->head_image_file);
+        unset($data->foot_image_file);
 
-            $this->service->insert($data->publics());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->insert($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.manage');
     }
@@ -86,11 +77,7 @@ class ContentController extends BaseController
      */
     public function view(Request $request, Response $response, string $code): Response
     {
-        try {
-            $content = $this->service->getContent($code);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $content = $this->service->getContent($code);
 
         $response_data = [
             "content" => $content,
@@ -104,20 +91,16 @@ class ContentController extends BaseController
      */
     public function update(Request $request, Response $response, string $code, ContentUpdateRequest $data): Response
     {
-        try {
-            $content = $this->service->getContent($code);
+        $content = $this->service->getContent($code);
 
-            // @todo: 기존 이미지 파일 삭제 처리
-            $this->service->makeContentDir($request);
-            $this->service->uploadImage($request, $data);
-            // 파일 필드 제거
-            unset($data->head_image_file);
-            unset($data->foot_image_file);
+        // @todo: 기존 이미지 파일 삭제 처리
+        $this->service->makeContentDir($request);
+        $this->service->uploadImage($request, $data);
+        // 파일 필드 제거
+        unset($data->head_image_file);
+        unset($data->foot_image_file);
 
-            $this->service->update($content['code'], $data->publics());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->update($content['code'], $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.manage.view', ['code' => $content['code']]);
     }

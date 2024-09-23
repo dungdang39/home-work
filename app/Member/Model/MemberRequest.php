@@ -5,7 +5,10 @@ namespace App\Member\Model;
 use App\Config\ConfigService;
 use App\Member\MemberConfigService;
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
+use Slim\Routing\RouteContext;
 
 class MemberRequest
 {
@@ -46,26 +49,26 @@ class MemberRequest
 
     private array $member_config;
     private array $config;
+    private Validator $validator;
 
     public function __construct(
+        ConfigService $config_service,
         MemberConfigService $member_config_service,
-        ConfigService $config_service
+        Request $request,
+        Validator $validator
     ) {
-        $this->member_config = $member_config_service->getMemberConfig();
         $this->config = $config_service->getConfig();
+        $this->member_config = $member_config_service->getMemberConfig();
+        $this->validator = $validator;
+
+        $this->initializeFromRequest($request, $validator);
     }
 
-    public function load(array $data, array $member): MemberRequest
+    protected function validate(): void
     {
-        $this->mapDataToProperties($this, $data);
-
-        if ($member['mb_nick'] !== $this->mb_nick) {
-            $this->validateNickName();
-        }
-        if ($member['mb_email'] !== $this->mb_email) {
-            $this->validateEmail();
-            $this->mb_email = get_email_address($this->mb_email);
-        }
+        $this->validateNickName();
+        $this->validateEmail();
+        $this->mb_email = get_email_address($this->mb_email);
 
         if (
             $this->member_config['required_phone']
@@ -73,14 +76,12 @@ class MemberRequest
         ) {
             $this->validateHp();
         }
+    }
 
+    protected function afterValidate(): void
+    {
         $this->processPassword();
         $this->mb_hp = hyphen_hp_number($this->mb_hp);
-
-        // unset($this->member_config);
-        // unset($this->config);
-
-        return $this;
     }
 
     protected function validateName()

@@ -118,7 +118,7 @@ class FaqService
 
         $query = "SELECT * FROM {$this->category_table}
                     {$where}
-                    ORDER BY `order` ASC, created_at DESC
+                    ORDER BY `order` ASC, created_at ASC
                     {$sql_limit}";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -177,7 +177,7 @@ class FaqService
      */
     public function fetchFaq(int $id)
     {
-        $query = "SELECT * FROM {$this->table} WHERE id = :id";
+        $query = "SELECT * FROM {$this->table} WHERE id1 = :id";
         return Db::getInstance()->run($query, ["id" => $id])->fetch();
     }
 

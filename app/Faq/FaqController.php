@@ -7,9 +7,6 @@ use App\Faq\Model\FaqCategoryRequest;
 use App\Faq\Model\FaqCategorySearchRequest;
 use App\Faq\Model\FaqRequest;
 use Core\BaseController;
-use Core\Model\PaginationRequest;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -19,37 +16,31 @@ class FaqController extends BaseController
     private FaqService $service;
 
     public function __construct(
-        Container $container,
         FaqService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
     /**
      * FAQ 카테고리 목록 페이지
      */
-    public function index(Request $request, Response $response): Response
+    public function index(Request $request, Response $response, FaqCategorySearchRequest $search_request): Response
     {
         // 검색 조건 설정
-        $search_params = FaqCategorySearchRequest::createFromQueryParams($request)->toArray();
+        $params = $search_request->publics();
 
-        // 페이지 설정
-        $total_count = $this->service->fetchFaqCategoriesTotalCount($search_params);
-        $page_params = PaginationRequest::createFromQueryParams($request)->toArray();
-        $page_params['total_count'] = $total_count;
-        $page_params['total_page'] = ceil($total_count / $page_params['limit']);
-        $params = array_merge($search_params, $page_params);
+        // 총 데이터 수 조회 및 페이징 정보 설정
+        $total_count = $this->service->fetchFaqCategoriesTotalCount($params);
+        $search_request->setTotalCount($total_count);
 
-
+        // FAQ 카테고리 목록 조회
         $faq_categories = $this->service->getFaqCategories($params);
 
         $response_data = [
             "faq_categories" => $faq_categories,
             "total_count" => $total_count,
-            "search" => $search_params,
-            "pagination" => $page_params,
+            "search" => $search_request,
+            "pagination" => $search_request->getPaginationInfo(),
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
@@ -59,16 +50,9 @@ class FaqController extends BaseController
     /**
      * FAQ 카테고리 등록
      */
-    public function insertCategory(Request $request, Response $response): Response
+    public function insertCategory(Request $request, Response $response, FaqCategoryRequest $data): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-            $data = new FaqCategoryRequest($request_body);
-
-            $this->service->insertCategory($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->insertCategory($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.faq');
     }
@@ -76,17 +60,11 @@ class FaqController extends BaseController
     /**
      * FAQ 카테고리 수정
      */
-    public function updateCategory(Request $request, Response $response, string $faq_category_id): Response
+    public function updateCategory(Request $request, Response $response, FaqCategoryRequest $data, string $faq_category_id): Response
     {
-        try {
-            $faq_category = $this->service->getFaqCategory($faq_category_id);
-            $request_body = $request->getParsedBody();
-            $data = new FaqCategoryRequest($request_body);
+        $faq_category = $this->service->getFaqCategory($faq_category_id);
 
-            $this->service->updateCategory($faq_category['id'], $data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->updateCategory($faq_category['id'], $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.faq');
     }
@@ -94,7 +72,7 @@ class FaqController extends BaseController
     /**
      * FAQ 카테고리 삭제
      */
-    public function deleteCategory(Request $request, Response $response, string $faq_category_id): Response
+    public function deleteCategory(Response $response, string $faq_category_id): Response
     {
         $faq_category = $this->service->getFaqCategory($faq_category_id);
 
@@ -138,15 +116,9 @@ class FaqController extends BaseController
     /**
      * FAQ 항목 등록
      */
-    public function insert(Request $request, Response $response, string $faq_category_id): Response
+    public function insert(Request $request, Response $response, FaqRequest $data, string $faq_category_id): Response
     {
-        try {
-            $data = new FaqRequest($request->getParsedBody());
-
-            $this->service->insert($faq_category_id, $data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->insert($faq_category_id, $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.faq.list', ['faq_category_id' => $faq_category_id]);
     }
@@ -154,7 +126,7 @@ class FaqController extends BaseController
     /**
      * FAQ 항목 상세 폼 페이지
      */
-    public function view(Request $request, Response $response, string $faq_category_id, string $faq_id): Response
+    public function view(Request $request, Response $response, string $faq_id): Response
     {
         $faq = $this->service->getFaq($faq_id);
         $faq_category = $this->service->getFaqCategory($faq['faq_category_id']);
@@ -170,24 +142,19 @@ class FaqController extends BaseController
     /**
      * FAQ 항목 수정
      */
-    public function update(Request $request, Response $response, string $faq_category_id, string $faq_id): Response
+    public function update(Request $request, Response $response, FaqRequest $data, string $faq_id): Response
     {
-        try {
-            $faq = $this->service->getFaq($faq_id);
-            $data = new FaqRequest($request->getParsedBody());
+        $faq = $this->service->getFaq($faq_id);
 
-            $this->service->update($faq['id'], $data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->update($faq['id'], $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.content.faq.list', ['faq_category_id' => $faq['faq_category_id']]);
     }
 
     /**
-     * FAQ 카테고리 삭제
+     * FAQ 항목 삭제
      */
-    public function delete(Request $request, Response $response, string $faq_category_id, string $faq_id): Response
+    public function delete(Response $response, string $faq_id): Response
     {
         $faq = $this->service->getFaq($faq_id);
 

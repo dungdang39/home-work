@@ -44,6 +44,25 @@ class PopupService
     // Database Queries
     // ========================================
 
+    public function fetchPopupsTotalCount(array $params): int
+    {
+        $wheres = [];
+        $values = [];
+        $sql_where = "";
+
+        if (!empty($params['pu_device'])) {
+            $sql_where .= "pu_device = :pu_device";
+            $values['pu_device'] = $params['pu_device'];
+        }
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        $query = "SELECT COUNT(*)
+                    FROM {$this->table}
+                    {$sql_where}";
+
+        return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
+
     /**
      * 팝업 목록 조회
      * 
@@ -52,22 +71,28 @@ class PopupService
      */
     public function fetchPopups(array $params)
     {
-        $sql_where = "1";
-        $values = [
-            "offset" => $params['offset'],
-            "limit" => $params['limit'],
-        ];
+        $wheres = [];
+        $values = [];
+        $sql_where = "";
+        $sql_limit = "";
 
         if (!empty($params['pu_device'])) {
-            $sql_where .= " AND pu_device = :pu_device";
+            $sql_where .= "pu_device = :pu_device";
             $values['pu_device'] = $params['pu_device'];
+        }
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        if (isset($params['offset']) && isset($params['limit'])) {
+            $values["offset"] = $params['offset'];
+            $values["limit"] = $params['limit'];
+            $sql_limit = "LIMIT :offset, :limit";
         }
 
         $query = "SELECT *
                     FROM {$this->table}
-                    WHERE {$sql_where}
+                    {$sql_where}
                     ORDER BY created_at DESC
-                    LIMIT :offset, :limit";
+                    {$sql_limit}";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
     }

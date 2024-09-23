@@ -3,7 +3,8 @@
 namespace App\Qa\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Psr\Http\Message\ServerRequestInterface;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 /**
  * 1:1문의 설정 요청
@@ -25,11 +26,9 @@ class QaConfigRequest
     public int $qa_upload_size = 0;
     public ?string $qa_insert_content = '';
 
-    public function __construct(array $data)
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
-
-        $this->validate();
+        $this->initializeFromRequest($request, $validator);
     }
 
     /**

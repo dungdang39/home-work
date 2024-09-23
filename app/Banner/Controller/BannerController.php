@@ -7,8 +7,6 @@ use App\Banner\Model\BannerCreateRequest;
 use App\Banner\Model\BannerSearchRequest;
 use App\Banner\Model\BannerUpdateRequest;
 use Core\BaseController;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -18,22 +16,17 @@ class BannerController extends BaseController
     private BannerService $service;
 
     public function __construct(
-        Container $container,
         BannerService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
     /**
      * 배너 목록 페이지
      */
-    public function index(Request $request, Response $response): Response
+    public function index(Request $request, Response $response, BannerSearchRequest $search_request): Response
     {
-        $query_params = $request->getQueryParams();
-        $params = new BannerSearchRequest($query_params);
-        $grouped_banners = $this->service->getGroupedBanners($params->toArray());
+        $grouped_banners = $this->service->getGroupedBanners($search_request->publics());
 
         $response_data = [
             "grouped_banners" => $grouped_banners,
@@ -54,19 +47,11 @@ class BannerController extends BaseController
     /**
      * 배너 등록
      */
-    public function insert(Request $request, Response $response): Response
+    public function insert(Request $request, Response $response, BannerCreateRequest $data): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-            $request_file = $request->getUploadedFiles();
-            $data = new BannerCreateRequest($request_body, $request_file);
-
-            $this->service->makeBannerDir($request);
-            $this->service->uploadImage($request, $data);
-            $this->service->insert($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->makeBannerDir($request);
+        $this->service->uploadImage($request, $data);
+        $this->service->insert($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.banner');
     }
@@ -76,11 +61,7 @@ class BannerController extends BaseController
      */
     public function view(Request $request, Response $response, string $bn_id): Response
     {
-        try {
-            $banner = $this->service->getBanner($bn_id);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $banner = $this->service->getBanner($bn_id);
 
         $response_data = [
             "banner" => $banner,
@@ -92,20 +73,13 @@ class BannerController extends BaseController
     /**
      * 배너 수정
      */
-    public function update(Request $request, Response $response, string $bn_id): Response
+    public function update(Request $request, Response $response, BannerUpdateRequest $data, string $bn_id): Response
     {
-        try {
-            $banner = $this->service->getBanner($bn_id);
-            $request_body = $request->getParsedBody();
-            $request_file = $request->getUploadedFiles();
-            $data = new BannerUpdateRequest($request_body, $request_file);
-    
-            // @todo 기존 파일 삭제처리 필요
-            $this->service->uploadImage($request, $data);
-            $this->service->update($bn_id, $data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $banner = $this->service->getBanner($bn_id);
+
+        // @todo 기존 파일 삭제처리 필요
+        $this->service->uploadImage($request, $data);
+        $this->service->update($bn_id, $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.banner.view', ['bn_id' => $banner['bn_id']]);
     }
@@ -113,7 +87,7 @@ class BannerController extends BaseController
     /**
      * 배너 삭제
      */
-    public function delete(Request $request, Response $response, string $bn_id): Response
+    public function delete(Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
 
@@ -126,10 +100,10 @@ class BannerController extends BaseController
     /**
      * 배너 전시순서 변경
      */
-    public function update_order(Request $request, Response $response, string $bn_id): Response
+    public function update_order(Request $request, Response $response): Response
     {
-        $request_body = $request->getParsedBody();
-        $this->service->updateOrder($request_body);
+        // $request_body = $request->getParsedBody();
+        // $this->service->updateOrder($request_body);
 
         return $this->redirectRoute($request, $response, 'admin.design.banner');
     }

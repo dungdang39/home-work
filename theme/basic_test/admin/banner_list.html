@@ -1,7 +1,10 @@
 {% extends "/admin/_layout.html" %}
 
+{% set title = "디자인/UI > 배너관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
 {% block content %}
-<h1 id="container_title">디자인/UI > 배너관리</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
     <div class="local_ov01 local_ov">
         <form name="flist" class="local_sch01 local_sch">

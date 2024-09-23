@@ -5,8 +5,6 @@ namespace App\Admin\Controller;
 use App\Content\ContentService;
 use App\Admin\Service\MenuService;
 use Core\BaseController;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Routing\RouteContext;
@@ -21,12 +19,9 @@ class MenuController extends BaseController
     private MenuService $service;
 
     public function __construct(
-        Container $container,
         ContentService $content_service,
         MenuService $service
     ) {
-        parent::__construct($container);
-
         $this->content_service = $content_service;
         $this->service = $service;
     }
@@ -83,14 +78,9 @@ class MenuController extends BaseController
 
     public function updateList(Request $request, Response $response): Response
     {
-        try {
-            $data = $request->getParsedBody();
-            
-            
-            $this->service->updateList($data);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $data = $request->getParsedBody();
+        
+        $this->service->updateList($data);
 
         return $this->redirectRoute($request, $response, 'admin.design.menu');
     }

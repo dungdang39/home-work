@@ -7,9 +7,6 @@ use App\Popup\Model\PopupSearchRequest;
 use App\Popup\Model\PopupUpdateRequest;
 use App\Popup\PopupService;
 use Core\BaseController;
-use Core\Model\PaginationRequest;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -19,28 +16,32 @@ class PopupController extends BaseController
     private PopupService $service;
 
     public function __construct(
-        Container $container,
         PopupService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
     /**
      * 팝업 목록 페이지
      */
-    public function index(Request $request, Response $response): Response
+    public function index(Request $request, Response $response, PopupSearchRequest $search_request): Response
     {
-        $query_params = $request->getQueryParams();
-        $request_params = new PopupSearchRequest($query_params);
-        $page_params = new PaginationRequest($query_params);
-        $params = array_merge($request_params->toArray(), $page_params->toArray());
+        // 검색 조건 설정
+        $search_params = $search_request->publics();
 
-        $popups = $this->service->getPopups($params);
+        // 총 데이터 수 조회 및 페이징 정보 설정
+        $total_count = $this->service->fetchPopupsTotalCount($search_params);
+        $search_request->setTotalCount($total_count);
+    
+        // 팝업 목록 조회
+        $popups = $this->service->getPopups($search_params);
 
         $response_data = [
             "popups" => $popups,
+            "total_count" => $total_count,
+            "search" => $search_request,
+            "pagination" => $search_request->getPaginationInfo(),
+            "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/popup_list.html', $response_data);
@@ -58,16 +59,9 @@ class PopupController extends BaseController
     /**
      * 팝업 등록
      */
-    public function insert(Request $request, Response $response): Response
+    public function insert(Request $request, Response $response, PopupCreateRequest $data): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-            $data = new PopupCreateRequest($request_body);
-
-            $this->service->insert($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->insert($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.popup');
     }
@@ -77,11 +71,7 @@ class PopupController extends BaseController
      */
     public function view(Request $request, Response $response, string $pu_id): Response
     {
-        try {
-            $popup = $this->service->getPopup($pu_id);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $popup = $this->service->getPopup($pu_id);
 
         $response_data = [
             "popup" => $popup,
@@ -93,17 +83,11 @@ class PopupController extends BaseController
     /**
      * 팝업 수정
      */
-    public function update(Request $request, Response $response, string $pu_id): Response
+    public function update(Request $request, Response $response, PopupUpdateRequest $data, string $pu_id): Response
     {
-        try {
-            $popup = $this->service->getPopup($pu_id);
-            $request_body = $request->getParsedBody();
-            $data = new PopupUpdateRequest($request_body);
+        $popup = $this->service->getPopup($pu_id);
 
-            $this->service->update($popup['pu_id'], $data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->service->update($popup['pu_id'], $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.popup.view', ['pu_id' => $popup['pu_id']]);
     }
@@ -111,7 +95,7 @@ class PopupController extends BaseController
     /**
      * 팝업 삭제
      */
-    public function delete(Request $request, Response $response, string $pu_id): Response
+    public function delete(Response $response, string $pu_id): Response
     {
         $popup = $this->service->getPopup($pu_id);
 

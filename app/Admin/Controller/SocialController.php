@@ -6,7 +6,6 @@ use App\Admin\Model\CreateSocialProviderRequest;
 use App\Admin\Model\UpdateSocialProviderRequest;
 use App\Admin\Service\SocialService;
 use Core\BaseController;
-use DI\Container;
 use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -17,11 +16,8 @@ class SocialController extends BaseController
     private SocialService $service;
 
     public function __construct(
-        Container $container,
         SocialService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
@@ -45,19 +41,13 @@ class SocialController extends BaseController
      * @todo 애플 로그인을 추가할 경우 `social_provider_config` 테이블에 필드를 추가해야함.
      * @todo 애플 로그인 외의 다른 소셜로그인에 추가 필드가 필요한지 확인
      */
-    public function insert(Request $request, Response $response): Response
+    public function insert(Request $request, Response $response, CreateSocialProviderRequest $data): Response
     {
-        try {
-            $data = CreateSocialProviderRequest::createFromRequestBody($request);
-
-            if ($this->service->isExistProvider($data->provider_key)) {
-                throw new Exception('이미 등록된 소셜 로그인입니다.');
-            }
-
-            $this->service->createProvider($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        if ($this->service->isExistProvider($data->provider_key)) {
+            throw new Exception('이미 등록된 소셜 로그인입니다.');
         }
+
+        $this->service->createProvider($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
@@ -65,16 +55,10 @@ class SocialController extends BaseController
     /**
      * 소셜 로그인 설정 업데이트
      */
-    public function update(Request $request, Response $response): Response
+    public function update(Request $request, Response $response, UpdateSocialProviderRequest $data): Response
     {
-        try {
-            $data = UpdateSocialProviderRequest::createFromRequestBody($request);
-
-            foreach ($data->providers as $key => $value) {
-                $this->service->update($key, $value);
-            }
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        foreach ($data->providers as $key => $value) {
+            $this->service->update($key, $value);
         }
 
         return $this->redirectRoute($request, $response, 'admin.setting.api.social');
@@ -85,13 +69,9 @@ class SocialController extends BaseController
      */
     public function delete(Request $request, Response $response): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-    
-            $this->service->deleteProvider($request_body['provider_key']);
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $request_body = $request->getParsedBody();
+
+        $this->service->deleteProvider($request_body['provider_key']);
 
         return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }

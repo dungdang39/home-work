@@ -5,8 +5,6 @@ namespace App\Member\Controller;
 use App\Member\MemberConfigService;
 use App\Member\Model\MemberConfigRequest;
 use Core\BaseController;
-use DI\Container;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -16,11 +14,8 @@ class MemberConfigController extends BaseController
     private MemberConfigService $service;
 
     public function __construct(
-        Container $container,
         MemberConfigService $service,
     ) {
-        parent::__construct($container);
-
         $this->service = $service;
     }
 
@@ -41,20 +36,15 @@ class MemberConfigController extends BaseController
     /**
      * 회원 > 기본환경설정 수정
      */
-    public function update(Request $request, Response $response): Response
+    public function update(Request $request, Response $response, MemberConfigRequest $data): Response
     {
-        try {
-            $data = MemberConfigRequest::createFromRequestBody($request);
+        $member_config = $this->service->getMemberConfig();
+        $publics = $data->publics();
 
-            $member_config = $this->service->getMemberConfig();
-
-            if (empty($member_config)) {
-                $this->service->insert($data->toArray());
-            } else {
-                $this->service->update($data->toArray());
-            }
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
+        if (empty($member_config)) {
+            $this->service->insert($publics);
+        } else {
+            $this->service->update($publics);
         }
 
         return $this->redirectRoute($request, $response, 'admin.member.config.basic');

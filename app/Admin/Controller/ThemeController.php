@@ -6,8 +6,6 @@ use App\Admin\Model\UpdateThemeConfigRequest;
 use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
 use Core\BaseController;
-use DI\Container;
-use Exception;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -19,12 +17,9 @@ class ThemeController extends BaseController
     private ThemeService $service;
 
     public function __construct(
-        Container $container,
         ConfigService $config_service,
         ThemeService $service
     ) {
-        parent::__construct($container);
-
         $this->config_service = $config_service;
         $this->service = $service;
     }
@@ -74,21 +69,15 @@ class ThemeController extends BaseController
     /**
      * 테마의 기타설정 업데이트
      */
-    public function updateInfo(Request $request, Response $response): Response
+    public function updateInfo(Request $request, Response $response, UpdateThemeConfigRequest $data): Response
     {
-        try {
-            $request_body = $request->getParsedBody();
-            $request_files = $request->getUploadedFiles();
-            $data = new UpdateThemeConfigRequest($request_body, $request_files);
+        // @todo 파일 업로드
 
-            // 파일 업로드 이후
-            unset($data->logo_header_file);
-            unset($data->logo_footer_file);
+        // 파일 업로드 이후
+        unset($data->logo_header_file);
+        unset($data->logo_footer_file);
 
-            $this->config_service->update($data->toArray());
-        } catch (Exception $e) {
-            return $this->handleException($request, $response, $e);
-        }
+        $this->config_service->update($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.theme');
     }

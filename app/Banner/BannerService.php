@@ -26,7 +26,7 @@ class BannerService
      */
     public function getGroupedBanners(array $params): array
     {
-        $banners = $this->fetchBanners($params); // , $page_params
+        $banners = $this->fetchBanners($params);
 
         // bn_position으로 그룹핑
         $grouped_banners = [];
@@ -79,10 +79,10 @@ class BannerService
     {
         $banner_path = $this->getBannerPath($request);
 
-        if ($data->image_file->getSize() > 0) {
+        if (isset($data->image_file) && $data->image_file->getSize() > 0) {
             $data->bn_image = moveUploadedFile($banner_path, $data->image_file);
         }
-        if ($data->mobile_image_file->getSize() > 0) {
+        if (isset($data->mobile_image_file) && $data->mobile_image_file->getSize() > 0) {
             $data->bn_mobile_image = moveUploadedFile($banner_path, $data->mobile_image_file);
         }
 
@@ -117,16 +117,30 @@ class BannerService
      */
     public function fetchBanners(array $params) // , array $page_params
     {
-        $sql_where = "1";
+        $wheres = [];
+        $values = [];
+        $sql_where = "";
+        $sql_limit = "";
+
         if (!empty($params['bn_position'])) {
-            $sql_where .= " AND bn_position = :bn_position";
+            $wheres[] = " bn_position = :bn_position";
+            $values["bn_position"] = $params['bn_position'];
+        }
+        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+
+        if (isset($params['offset']) && isset($params['limit'])) {
+            $values["offset"] = $params['offset'];
+            $values["limit"] = $params['limit'];
+            $sql_limit = "LIMIT :offset, :limit";
         }
 
-        $query = "SELECT * FROM {$this->table} WHERE {$sql_where} ORDER BY bn_order, created_at DESC";
+        $query = "SELECT *
+                    FROM {$this->table}
+                    {$sql_where}
+                    ORDER BY bn_order, created_at DESC
+                    {$sql_limit}";
 
-        // $params = array_merge($params, $page_params);
-
-        return Db::getInstance()->run($query, $params)->fetchAll();
+        return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
     /**

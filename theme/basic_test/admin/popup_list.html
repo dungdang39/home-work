@@ -1,16 +1,20 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import info, selected, renderPagination %}
+
+{% set title = "디자인/UI > 팝업레이어 관리" %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h1 id="container_title">팝업레이어 관리</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
 
     <div class="btn_fixed_top ">
-        <a href="{{ url_for('admin.design.popup.create') }}" class="btn btn_01">새창관리추가</a>
+        <a href="{{ url_for('admin.design.popup.create') }}" class="btn btn_01">팝업레이어 추가</a>
     </div>
 
     <div class="tbl_head01 tbl_wrap">
         <table>
-            <caption>팝업레이어 관리 목록</caption>
+            <caption>{{ title }} 목록</caption>
             <thead>
                 <tr>
                     <th scope="col">구분</th>
@@ -57,5 +61,6 @@
             </tbody>
         </table>
     </div>
+    {{ renderPagination(pagination, query_params) }}
 </div>
 {% endblock content %}

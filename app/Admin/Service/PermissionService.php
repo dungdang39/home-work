@@ -148,9 +148,7 @@ class PermissionService
                     ORDER BY a.mb_id ASC, c.am_id ASC
                     LIMIT :offset, :limit";
 
-        $stmt = Db::getInstance()->run($query, $values);
-
-        return $stmt->fetchAll();
+        return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Banner\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
 class BannerUpdateRequest
@@ -24,26 +26,13 @@ class BannerUpdateRequest
     public ?UploadedFile $image_file;
     public ?UploadedFile $mobile_image_file;
 
-    public function __construct(array $data, array $files)
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
-
-        // 파일 처리
-        $this->image_file = $files['bn_image'] ?? null;
-        $this->mobile_image_file = $files['bn_mobile_image'] ?? null;
+        $this->initializeFromRequest($request, $validator);
 
         // 이미지 유효성 검사
         $this->validateImage();
         $this->validateMobileImage();
-    }
-
-    /**
-     * 객체를 배열로 변환
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
     }
 
     /**

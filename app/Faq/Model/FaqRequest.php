@@ -3,6 +3,8 @@
 namespace App\Faq\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 class FaqRequest
 {
@@ -13,11 +15,9 @@ class FaqRequest
     public ?string $answer;
     public ?int $is_enabled = 0;
 
-    public function __construct(array $data = [])
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
-
-        $this->validate();
+        $this->initializeFromRequest($request, $validator);
     }
 
     public function validate(): void

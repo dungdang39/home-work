@@ -3,6 +3,8 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 /**
  * 환경설정 업데이트 요청 객체
@@ -36,9 +38,9 @@ class UpdateConfigRequest
     public string $cf_add_css = '';
     public string $cf_add_meta = '';
 
-    public function __construct(array $data = [])
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
+        $this->initializeFromRequest($request, $validator);
 
         $this->checkInterceptIp($this->cf_intercept_ip);
 

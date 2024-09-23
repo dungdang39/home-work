@@ -3,6 +3,8 @@
 namespace App\Member\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 /**
  * 회원 > 기본환경설정 업데이트 요청 객체
@@ -55,9 +57,9 @@ class MemberConfigRequest
     public ?int $login_point = 0;
     public ?int $memo_send_point = 0;
 
-    public function __construct(array $data = [])
+    public function __construct(Request $request, Validator $validator)
     {
-        $this->mapDataToProperties($this, $data);
+        $this->initializeFromRequest($request, $validator);
 
         $this->filterProperties();
 

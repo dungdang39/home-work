@@ -13,22 +13,13 @@ use Slim\Psr7\UploadedFile;
 trait SchemaHelperTrait
 {
     /**
-     * 객체를 배열로 변환
-     * @deprecated  publics() 메서드로 대체
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
-    }
-
-    /**
      * 인스턴스의 공개 속성만 배열로 반환.
      * 
      * 외부에서 get_object_vars를 호출하는 방법이 가장 빠르지만, 모든 접근제한자 속성을 가져오므로 맞지 않음.
      * - PHP 7.1 부터 사용 가능
      * - ReflectionClass를 사용한 방법보다 약 3배 빠름.
      * 
+     * @todo 적절한 이름인가 고민 필요
      * @see https://stackoverflow.com/questions/13124072
      * @return array
      */
@@ -36,60 +27,6 @@ trait SchemaHelperTrait
     {
         return \Closure::fromCallable("get_object_vars")->__invoke($this);
     }
-
-    /**
-     * Request Body로부터 객체 생성
-     * @deprecated  
-     * @return self
-     */
-    public static function createFromRequestBody(Request $request): self
-    {
-        $body = $request->getParsedBody() ?? [];
-        $files = $request->getUploadedFiles() ?? [];
-        return new self(array_merge($body, $files));
-    }
-
-    /**
-     * Query Params로부터 객체 생성
-     * @deprecated 
-     * @return self
-     */
-    public static function createFromQueryParams(Request $request): self
-    {
-        $query_params = $request->getQueryParams() ?? [];
-        return new self($query_params);
-    }
-
-    /**
-     * Request 객체로부터 속성 설정 및 유효성 검사
-     * @deprecated 
-     * @param Request $request Request 객체
-     * @return self
-     * @throws Exception  유효성 검사 실패 시 예외 발생
-     */
-    public function configure(Request $request)
-    {
-        $query = $request->getQueryParams();
-        $body = $request->getParsedBody();
-        $files = $request->getUploadedFiles();
-
-        $this->mapDataToProperties($this, $query);
-        $this->mapDataToProperties($this, $body);
-        $this->mapFileToProperties($this, $files);
-
-        $this->beforeValidate();
-
-        $this->validate();
-
-        if ($this->validator->failed()) {
-            $this->throwException($this->validator->getFirstError());
-        }
-
-        $this->afterValidate();
-
-        return $this;
-    }
-
 
     /**
      * Request 객체로부터 속성 설정 및 유효성 검사
@@ -129,7 +66,7 @@ trait SchemaHelperTrait
      * @param object $object 데이터를 매핑할 클래스 객체
      * @param array $data 입력 데이터 배열
      */
-    protected function mapDataToProperties(object &$object, array $data): void
+    protected function mapDataToProperties(object &$object, array $data = []): void
     {
         foreach ($data as $key => $value) {
             if (property_exists($object, $key)) {

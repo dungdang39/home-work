@@ -109,7 +109,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/create', [PopupController::class, 'create'])->setName('admin.design.popup.create');
                 $group->post('', [PopupController::class, 'insert'])->setName('admin.design.popup.insert');
                 $group->get('/{pu_id}', [PopupController::class, 'view'])->setName('admin.design.popup.view');
-                $group->post('/{pu_id}', [PopupController::class, 'update'])->setName('admin.design.popup.update');
+                $group->put('/{pu_id}', [PopupController::class, 'update'])->setName('admin.design.popup.update');
                 $group->delete('/{pu_id}', [PopupController::class, 'delete'])->setName('admin.design.popup.delete');
             })->add(AdminMenuPermissionMiddleware::class);
 

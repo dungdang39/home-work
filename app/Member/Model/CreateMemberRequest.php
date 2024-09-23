@@ -6,6 +6,7 @@ use App\Config\ConfigService;
 use App\Member\MemberConfigService;
 use Core\Traits\SchemaHelperTrait;
 use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
 class CreateMemberRequest
@@ -54,11 +55,14 @@ class CreateMemberRequest
     public function __construct(
         ConfigService $config_service,
         MemberConfigService $member_config_service,
+        Request $request,
         Validator $validator
     ) {
         $this->config = $config_service->getConfig();
         $this->member_config = $member_config_service->getMemberConfig();
         $this->validator = $validator;
+
+        $this->initializeFromRequest($request, $validator);
     }
 
     protected function beforeValidate()
@@ -73,8 +77,6 @@ class CreateMemberRequest
         $this->validateName();
         $this->validateNickName();
         $this->validateEmail();
-
-        $this->validator->validate($this->toArray());
     }
 
     protected function afterValidate()

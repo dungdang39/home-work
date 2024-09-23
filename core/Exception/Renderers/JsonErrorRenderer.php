@@ -36,6 +36,10 @@ class JsonErrorRenderer extends AbstractErrorRenderer
                 'description' => $displayErrorDetails ? $this->getErrorDescription($exception) : $this->defaultErrorDescription,
             ],
         ];
+        if ($displayErrorDetails) {
+            $error['error']['file'] = $exception->getFile();
+            $error['error']['line'] = $exception->getLine();
+        }
         
         return (string) json_encode($error, JSON_UNESCAPED_UNICODE);
     }
