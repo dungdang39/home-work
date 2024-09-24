@@ -8,7 +8,6 @@ use Core\Traits\SchemaHelperTrait;
 use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
-use Slim\Routing\RouteContext;
 
 class MemberRequest
 {
@@ -49,19 +48,16 @@ class MemberRequest
 
     private array $member_config;
     private array $config;
-    private Validator $validator;
 
     public function __construct(
         ConfigService $config_service,
         MemberConfigService $member_config_service,
         Request $request,
-        Validator $validator
     ) {
         $this->config = $config_service->getConfig();
         $this->member_config = $member_config_service->getMemberConfig();
-        $this->validator = $validator;
 
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
     }
 
     protected function validate(): void
@@ -84,48 +80,52 @@ class MemberRequest
         $this->mb_hp = hyphen_hp_number($this->mb_hp);
     }
 
-    protected function validateName()
+    private function validateName()
     {
-        if (empty(trim($this->mb_name))) {
-            $this->throwException("이름을 입력해주세요.");
+        if (!Validator::required($this->mb_name)) {
+            $this->throwException('이름을 입력해주세요.');
         }
-        if (!is_valid_utf8_string($this->mb_name)) {
-            $this->throwException("이름을 올바르게 입력해 주십시오.");
+        if (!Validator::isUtf8String($this->mb_name)) {
+            $this->throwException('이름을 올바르게 입력해 주십시오.');
         }
     }
 
-    protected function validateNickName()
+    private function validateNickName()
     {
-        if (empty(trim($this->mb_nick))) {
-            $this->throwException("닉네임을 입력해주세요.");
+        $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
+
+        if (!Validator::required($this->mb_nick)) {
+            $this->throwException('닉네임을 입력해주세요.');
         }
-        if (!is_valid_utf8_string($this->mb_nick)) {
-            $this->throwException("닉네임을 올바르게 입력해 주십시오.");
+        if (!Validator::isUtf8String($this->mb_nick)) {
+            $this->throwException('닉네임을 올바르게 입력해 주십시오.');
         }
-        // if (!is_valid_mb_nick($this->mb_nick)) {
-        //     $this->throwException("닉네임은 공백없이 한글, 영문, 숫자만 입력 가능합니다.");
-        // }
-        // if (is_prohibited_word($this->mb_nick, $this->member_config)) {
-        //     $this->throwException("이미 예약된 단어로 사용할 수 없는 닉네임 입니다.");
-        // }
+        if (!Validator::isAlnumko($this->mb_nick)) {
+            $this->throwException('닉네임은 한글, 영문, 숫자만 입력하세요.');
+        }
+        if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
+            $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
+        }
     }
 
-    protected function validateEmail()
+    private function validateEmail()
     {
-        if (empty(trim($this->mb_email))) {
-            $this->throwException("이메일 주소를 입력해주세요.");
+        $prohibit_domains = explode("\n", $this->member_config['prohibit_domain']);
+
+        if (!Validator::required($this->mb_email)) {
+            $this->throwException('이메일 주소를 입력해주세요.');
         }
-        if (!filter_var($this->mb_email, FILTER_VALIDATE_EMAIL)){
-            $this->throwException("이메일 주소가 올바르지 않습니다.");
+        if (!Validator::isValidEmail($this->mb_email)) {
+            $this->throwException('이메일 주소가 올바르지 않습니다.');
         }
-        // if (is_prohibited_email_domain($this->mb_email, $this->member_config)) {
-        //     $this->throwException("{$this->mb_email} 메일은 사용할 수 없습니다.");
-        // }
+        if (!Validator::isProhibitedDomain($this->mb_email, $prohibit_domains)) {
+            $this->throwException('입력하신 도메인은 사용할 수 없습니다.');
+        }
     }
 
-    protected function validateHp()
+    private function validateHp()
     {
-        if (!is_valid_hp($this->mb_hp)) {
+        if (!Validator::isValidPhoneNumber($this->mb_hp)) {
             $this->throwException("휴대폰번호를 올바르게 입력해 주십시오.");
         }
     }

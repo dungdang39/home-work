@@ -35,12 +35,10 @@ class LoginController
         return $view->render($response, '/admin/login.html');
     }
 
-    public function Login(Request $request, Response $response): Response
+    public function Login(Request $request, Response $response, LoginRequest $data): Response
     {
         try {
             // 데이터 검증 및 처리
-            $request_body = $request->getParsedBody();
-            $data = new LoginRequest($request_body);
             $login_id = $data->mb_id;
 
             // 로그인 체크

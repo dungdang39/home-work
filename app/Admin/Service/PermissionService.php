@@ -4,7 +4,8 @@ namespace App\Admin\Service;
 
 use App\Member\MemberService;
 use Core\Database\Db;
-use Exception;
+use Slim\Http\ServerRequest as Request;
+use Slim\Exception\HttpNotFoundException;
 
 /**
  * 관리자 메뉴 권한 서비스 클래스
@@ -14,14 +15,17 @@ class PermissionService
     public string $table;
     private AdminMenuService $admin_menu_service;
     private MemberService $member_service;
+    private Request $request;
 
     public function __construct(
         AdminMenuService $admin_menu_service,
-        MemberService $member_service
+        MemberService $member_service,
+        Request $request
     ) {
         $this->table = $_ENV['DB_PREFIX'] . 'admin_menu_permission';
         $this->admin_menu_service = $admin_menu_service;
         $this->member_service = $member_service;
+        $this->request = $request;
     }
 
     /**
@@ -48,7 +52,7 @@ class PermissionService
     {
         $permission = $this->fetch($mb_id, $admin_menu_id);
         if (empty($permission)) {
-            throw new Exception('관리자메뉴 권한이 존재하지 않습니다.', 404);
+            throw new HttpNotFoundException($this->request, '관리자메뉴 권한이 존재하지 않습니다.');
         }
         return $permission;
     }    
@@ -190,7 +194,7 @@ class PermissionService
             "admin_menu_id" => $admin_menu_id,
         ]);
 
-        return (bool) $stmt->fetchColumn();
+        return (bool)$stmt->fetchColumn();
     }
 
 

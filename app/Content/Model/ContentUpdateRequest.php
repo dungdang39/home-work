@@ -3,6 +3,7 @@
 namespace App\Content\Model;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
@@ -21,21 +22,16 @@ class ContentUpdateRequest
 
     public function __construct(Request $request)
     {
-        $body = $request->getParsedBody() ?? [];
-        $files = $request->getUploadedFiles() ?? [];
-
-        $this->mapDataToProperties($this, array_merge($body, $files));
+        $this->initializeFromRequest($request);
     }
 
     public function validate(): void
     {
-        // 필수 값 검증
-        if (empty($this->title)) {
-            throw new \InvalidArgumentException("컨텐츠 타이틀을 입력하세요.");
+        if (!Validator::required($this->title)) {
+            $this->throwException("컨텐츠 타이틀을 입력하세요.");
         }
-
-        if (empty($this->content)) {
-            throw new \InvalidArgumentException("내용을 입력하세요.");
+        if (!Validator::required($this->content)) {
+            $this->throwException("내용을 입력하세요.");
         }
     }
 }

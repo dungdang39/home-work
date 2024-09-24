@@ -3,7 +3,7 @@
 namespace App\Member\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Core\Validator\Validator;
+use Core\Validator\Sanitizer;
 use Slim\Http\ServerRequest as Request;
 
 /**
@@ -57,45 +57,12 @@ class MemberConfigRequest
     public ?int $login_point = 0;
     public ?int $memo_send_point = 0;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
 
-        $this->filterProperties();
-
-        $this->prohibit_word = $this->removeDuplicateLines($this->prohibit_word);
-        $this->prohibit_domain = $this->removeDuplicateLines($this->prohibit_domain);
-    }
-
-    /**
-     * 태그를 허용하는 속성을 제외한 모든 속성 필터링
-     * @todo trait로 분리 예정 (config에도 동일코드 존재)
-     * @return void
-     */
-    private function filterProperties(): void
-    {
-        $allow_tags = ['signup_terms', 'privacy_policy'];
-
-        foreach ($this as $key => $value) {
-            if (is_string($value) && !in_array($key, $allow_tags)) {
-                $this->$key = strip_tags(clean_xss_attributes($value));
-            }
-        }
-    }
-    
-    /**
-     * 문자열을 "\n"으로 나누고, 중복을 제거한 후 다시 합쳐서 반환하는 함수
-     * @param string $input_string
-     * @return string
-     */
-    private function removeDuplicateLines(string $input_string) {
-        $lines = explode("\n", $input_string);
-        $trimmed_lines = array_map('trim', $lines); // 각 줄에서 공백 제거
-        $unique_lines = array_unique(array_filter($trimmed_lines)); // 중복 제거 및 빈 줄 필터링
-
-        // 오름차순 정렬
-        sort($unique_lines);
-        
-        return implode("\n", $unique_lines);
+        Sanitizer::cleanXssAll($this, ['signup_terms', 'privacy_policy']);
+        $this->prohibit_word = Sanitizer::removeDuplicateLines($this->prohibit_word);
+        $this->prohibit_domain = Sanitizer::removeDuplicateLines($this->prohibit_domain);
     }
 }

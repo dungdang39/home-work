@@ -3,7 +3,8 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Core\Validator\Validator;
+use Core\Validator\Sanitizer;
+use Exception;
 use Slim\Http\ServerRequest as Request;
 
 /**
@@ -38,42 +39,38 @@ class UpdateConfigRequest
     public string $cf_add_css = '';
     public string $cf_add_meta = '';
 
-    public function __construct(Request $request, Validator $validator)
-    {
-        $this->initializeFromRequest($request, $validator);
+    private Request $request;
 
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+        $this->initializeFromRequest($request);
+    }
+
+    protected function validate()
+    {
         $this->checkInterceptIp($this->cf_intercept_ip);
-
-        $this->filterProperties();
     }
 
-    /**
-     * 태그를 허용하는 속성을 제외한 모든 속성 필터링
-     * * @todo trait로 분리 예정
-     * @return void
-     */
-    protected function filterProperties(): void
+    protected function afterValidate(): void
     {
-        $allow_tags = ['cf_add_script', 'cf_add_css', 'cf_add_meta'];
-
-        foreach ($this as $key => $value) {
-            if (is_string($value) && !in_array($key, $allow_tags)) {
-                $this->$key = strip_tags(clean_xss_attributes($value));
-            }
-        }
+        Sanitizer::cleanXssAll($this, ['cf_add_script', 'cf_add_css', 'cf_add_meta']);
+        $this->cf_possible_ip = Sanitizer::removeDuplicateLines($this->cf_possible_ip);
+        $this->cf_intercept_ip = Sanitizer::removeDuplicateLines($this->cf_intercept_ip);
     }
 
     /**
-     * 차단 IP 체크
-     * @param string $cf_intercept_ip  차단 IP
-     * @throws \Exception
+     * 현재 IP가 차단되는지 검사.
+     * @param string $cf_intercept_ip 차단 IP
+     * @throws Exception   
      * @return void
      */
-    protected function checkInterceptIp(string $cf_intercept_ip): void
+    private function checkInterceptIp(string $cf_intercept_ip): void
     {
         if (!empty($cf_intercept_ip)) {
-            $remote_addr = $_SERVER['REMOTE_ADDR'];
+            $remote_addr = getRealIp($this->request);
             $patterns = explode("\n", trim($cf_intercept_ip));
+
             foreach ($patterns as $pattern) {
                 $pattern = trim($pattern);
                 if (empty($pattern)) {
@@ -82,9 +79,9 @@ class UpdateConfigRequest
 
                 $pattern = str_replace(".", "\.", $pattern);
                 $pattern = str_replace("+", "[0-9\.]+", $pattern);
-                $pat = "/^{$pattern}$/";
+                $pattern = "/^{$pattern}$/";
 
-                if (preg_match($pat, $remote_addr)) {
+                if (preg_match($pattern, $remote_addr)) {
                     $this->throwException("현재 접속 IP : " . $remote_addr . " 가 차단될 수 있기 때문에, 다른 IP를 입력해 주세요.");
                 }
             }

@@ -3,7 +3,6 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
 
 class UpdatePermissionRequest
@@ -14,8 +13,8 @@ class UpdatePermissionRequest
     public ?int $write = 0;
     public ?int $delete = 0;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
     }
 }

@@ -15,18 +15,17 @@ class CreateSocialProviderRequest
     public ?string $client_id = '';
     public ?string $client_secret = '';
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
-        $this->validate();
+        $this->initializeFromRequest($request);
     }
 
-    private function validate()
+    protected function validate()
     {
-        if (empty($this->provider_name)) {
+        if (!Validator::required($this->provider_name)) {
             $this->throwException('제공자명을 입력해주세요.');
         }
-        if (empty($this->provider_key)) {
+        if (!Validator::required($this->provider_key)) {
             $this->throwException('제공자키를 입력해주세요.');
         }
     }

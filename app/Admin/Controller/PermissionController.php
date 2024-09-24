@@ -6,8 +6,9 @@ use App\Admin\Model\CreatePermissionRequest;
 use App\Admin\Model\SearchPermissionRequest;
 use App\Admin\Model\UpdatePermissionRequest;
 use App\Admin\Service\PermissionService;
+use App\Member\MemberService;
 use Core\BaseController;
-use Exception;
+use Core\Exception\HttpConflictException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -19,11 +20,14 @@ use Slim\Views\Twig;
  */
 class PermissionController extends BaseController
 {
+    private MemberService $member_service;
     private PermissionService $service;
 
     public function __construct(
+        MemberService $member_service,
         PermissionService $service
     ) {
+        $this->member_service = $member_service;
         $this->service = $service;
     }
 
@@ -58,9 +62,10 @@ class PermissionController extends BaseController
      */
     public function insert(Request $request, Response $response, CreatePermissionRequest $data): Response
     {
+        $this->member_service->getMember($data->mb_id);
         $exists = $this->service->exists($data->mb_id, $data->admin_menu_id);
         if ($exists) {
-            throw new Exception('이미 등록된 권한입니다.', 409);
+            throw new HttpConflictException($request, '이미 등록된 권한입니다.');
         }
 
         $this->service->insert($data->publics());

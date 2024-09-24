@@ -15,19 +15,18 @@ class FaqRequest
     public ?string $answer;
     public ?int $is_enabled = 0;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
     }
 
     public function validate(): void
     {
-        // 필수 값 검증
-        if (empty($this->question)) {
+        if (!Validator::required($this->question)) {
             throw new \InvalidArgumentException("질문을 입력하세요.");
         }
 
-        if (empty($this->answer)) {
+        if (!Validator::required($this->answer)) {
             throw new \InvalidArgumentException("답변을 입력하세요.");
         }
     }

@@ -3,19 +3,18 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
-
+use Slim\Http\ServerRequest as Request;
 
 class NotificationRequest
 {
     use SchemaHelperTrait;
 
-    public function __construct(array $data)
+    public function __construct(Request $request)
     {
-        $this->mapDataToProperties($this, $data);
-        $this->validate();
+        $this->initializeFromRequest($request);
     }
 
-    private function validate()
+    protected function validate()
     {
     }
 }

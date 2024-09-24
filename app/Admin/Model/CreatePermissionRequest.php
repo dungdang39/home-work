@@ -16,38 +16,28 @@ class CreatePermissionRequest
     public ?int $write = 0;
     public ?int $delete = 0;
 
-    private Validator $validator;
-
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->validator = $validator;
-        $this->initializeFromRequest($request, $this->validator);
+        $this->initializeFromRequest($request);
     }
 
     protected function validate()
     {
-        $this->mb_id = '';
         $this->validateMemberId();
         $this->validateAdminMenuId();
     }
 
     private function validateMemberId()
     {
-        $this->validator->addRule(
-            'mb_id',
-            [
-                ['required' => ['message' => '아이디를 입력해주세요.']],
-            ]
-        );
+        if (!Validator::required($this->mb_id)) {
+            $this->throwException('아이디를 입력해주세요.');
+        }
     }
 
     private function validateAdminMenuId()
     {
-        $this->validator->addRule(
-            'admin_menu_id',
-            [
-                ['required' => ['message' => '관리자 메뉴를 선택해주세요.']],
-            ]
-        );
+        if (!Validator::required($this->admin_menu_id)) {
+            $this->throwException('관리자 메뉴를 입력해주세요.');
+        }
     }
 }

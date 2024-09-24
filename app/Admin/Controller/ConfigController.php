@@ -19,7 +19,6 @@ class ConfigController extends BaseController
         ConfigService $service,
         MemberService $member_service
     ) {
-
         $this->service = $service;
         $this->member_service = $member_service;
     }

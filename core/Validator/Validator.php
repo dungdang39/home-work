@@ -3,92 +3,141 @@
 namespace Core\Validator;
 
 /**
- * 유효성 검사 클래스
+ * 유효성 검사 함수 클래스
  */
-class Validator extends ValidatorFunction
+class Validator
 {
-    private $rules = [];
-    private $errors = [];
-
     /**
-     * 필드에 대한 유효성 검사 규칙 추가
-     *
-     * @param string $field 필드명
-     * @param array $rules 유효성 검사 규칙 배열
+     * 값이 비어있는지 검증
+     * @param mixed $value
+     * @return bool
      */
-    public function addRule(string $field, array $rules): void
+    public static function required($value): bool
     {
-        // 필드에 대한 기존 규칙이 없을 경우 초기화
-        if (!isset($this->rules[$field])) {
-            $this->rules[$field] = [];
-        }
-
-        // 각 규칙을 필드에 추가
-        foreach ($rules as $rule) {
-            foreach ($rule as $function => $options) {
-                $this->rules[$field][] = [
-                    'function' => $function,
-                    'message' => $options['message'] ?? 'Invalid value ' . $field,
-                    'args' => $options['args'] ?? []
-                ];
-            }
-        }
+        $value = is_string($value) ? trim($value) : $value;
+        return !empty($value);
     }
 
     /**
-     * 필드에 대한 유효성 검사 규칙 제거
+     * 값이 알파벳 또는 숫자로 이루어져 있는지 검증
+     * @param mixed $value
+     * @return bool
      */
-    public function removeRule(string $field): void
+    public static function isAlnum($value): bool
     {
-        unset($this->rules[$field]);
+        return ctype_alnum($value);
     }
 
     /**
-     * 필드 규칙들에 따라 유효성 검사 수행
-     *
-     * @param array $data 유효성 검사할 데이터 배열
-     * @return array 유효성 검사 결과
+     * 값의 길이가 최소값 이상인지 검증
+     * @param mixed $value
+     * @return bool
      */
-    public function validate(array $data): array
+    public static function isMinLength($value, int $min): bool
     {
-        foreach ($this->rules as $field => $rules) {
-            $value = $data[$field] ?? null;
+        return mb_strlen($value) >= $min;
+    }
 
-            foreach ($rules as $rule) {
-                $function = $rule['function'];
-                $message = $rule['message'];
-                $args = $rule['args'];
+    /**
+     * 값의 길이가 최대값 이하인지 검증
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isMaxLength($value, int $max_length): bool
+    {
+        return mb_strlen($value) <= $max_length;
+    }
 
-                // ValidatorFunction 클래스에 정의된 메서드를 호출하여 유효성 검사
-                $function_name = 'validate' . str_replace('_', '', ucwords($function, '_'));
-                $isValid = call_user_func_array([$this, $function_name], array_merge([$value], $args));
-                if (!$isValid) {
-                    $this->errors[$field][] = $message;
-                }
-            }
+    /**
+     * 값의 길이가 최소값 이상, 최대값 이하인지 검증
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isBetweenLength($value, int $min_length, int $max_length): bool
+    {
+        return self::isMinLength($value, $min_length) && self::isMaxLength($value, $max_length);
+    }
+
+    /**
+     * 값이 금지어를 포함하고 있는지 검증
+     * @param mixed $value
+     * @param array $prohibit_words
+     */
+    public static function isProhibitedWord($value, array $prohibit_words): bool
+    {
+        return in_array($value, $prohibit_words);
+    }
+
+    /**
+     * 값이 UTF-8 문자열인지 검증
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isUtf8String($value): bool
+    {
+        return mb_detect_encoding($value, 'UTF-8', true) === 'UTF-8';
+    }
+
+    /**
+     * 값이 영문, 한글, 숫자로 이루어져 있는지 검증
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isAlnumko($value): bool
+    {
+        return preg_match('/^[a-zA-Z0-9가-힣]+$/', $value);
+    }
+
+    /**
+     * 값이 비어있지 않고 숫자인지 확인
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isNotEmptyAndNumeric($value): bool
+    {
+        return !empty($value) && is_numeric($value);
+    }
+
+    /**
+     * 값이 이메일 형식인지 검증
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isValidEmail($value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
+     * 휴대폰 번호 형식 검사
+     * @param string $number 휴대폰 번호
+     * @return bool 휴대폰 번호 형식이면 true, 아니면 false
+     */
+    public static function isValidPhoneNumber(string $number): bool
+    {
+        $cleaned_number = preg_replace('/[^0-9]/', '', $number);
+
+        return preg_match('/^01[0-9]{8,9}$/', $cleaned_number) === 1;
+    }
+
+    /**
+     * 이메일 도메인이 금지 도메인인지 검증
+     * @param mixed $value
+     * @param array $prohibit_domains
+     * @return bool
+     */
+    public static function isProhibitedDomain($value, array $prohibit_domains): bool
+    {
+        $email_array = explode('@', $value);
+        if (!isset($email_array[1])) {
+            return false;
         }
+        $email_domain = strtolower($email_array[1]);
 
-        return $this->errors;
-    }
+        $prohibit_domains = array_map(function ($domain) {
+            return strtolower(trim($domain));
+        }, $prohibit_domains);
 
-    /**
-     * 유효성 검사 실패 여부 반환
-     */
-    public function failed(): bool
-    {
-        return !empty($this->errors);
-    }
-
-    /**
-     * 유효성 검사 실패 메시지 반환
-     */
-    public function getFirstError(): ?string
-    {
-        if (empty($this->errors)) {
-            return null;
-        }
-
-        $first_field = array_key_first($this->errors);
-        return $this->errors[$first_field][0];
+        return !in_array($email_domain, $prohibit_domains);
     }
 }

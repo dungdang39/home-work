@@ -2,13 +2,12 @@
 
 namespace Core\Traits;
 
-use Core\Validator\Validator;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\UploadedFile;
 
 /**
- * API Request/Response Class 처리 트레이트
+ * Request/Response Class 처리 트레이트
  */
 trait SchemaHelperTrait
 {
@@ -31,10 +30,10 @@ trait SchemaHelperTrait
     /**
      * Request 객체로부터 속성 설정 및 유효성 검사
      * @param Request $request Request 객체
-     * @return self
+     * @return void
      * @throws Exception  유효성 검사 실패 시 예외 발생
      */
-    protected function initializeFromRequest(Request $request, Validator $validator): self
+    protected function initializeFromRequest(Request $request): void
     {
         $query = $request->getQueryParams();
         $body = $request->getParsedBody();
@@ -48,15 +47,7 @@ trait SchemaHelperTrait
 
         $this->validate();
 
-        $validator->validate($this->publics());
-
-        if ($validator->failed()) {
-            $this->throwException($validator->getFirstError());
-        }
-
         $this->afterValidate();
-
-        return $this;
     }
 
 

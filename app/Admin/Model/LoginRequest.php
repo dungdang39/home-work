@@ -3,7 +3,8 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
-
+use Core\Validator\Validator;
+use Slim\Http\ServerRequest as Request;
 
 class LoginRequest
 {
@@ -12,15 +13,14 @@ class LoginRequest
     public string $mb_id;
     public string $mb_password;
 
-    public function __construct(array $data)
+    public function __construct(Request $request)
     {
-        $this->mapDataToProperties($this, $data);
-        $this->validate();
+        $this->initializeFromRequest($request);
     }
 
-    private function validate()
+    protected function validate()
     {
-        if (empty($this->mb_id) || empty($this->mb_password)) {
+        if (!Validator::required($this->mb_id) || !Validator::required($this->mb_password)) {
             $this->throwException('아이디 또는 비밀번호를 입력해주세요.');
         }
     }

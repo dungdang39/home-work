@@ -3,7 +3,6 @@
 namespace App\Banner\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
@@ -26,10 +25,13 @@ class BannerCreateRequest
     public ?UploadedFile $image_file;
     public ?UploadedFile $mobile_image_file;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
+    }
 
+    protected function validate(): void
+    {
         // 이미지 유효성 검사
         $this->validateImage();
         $this->validateMobileImage();

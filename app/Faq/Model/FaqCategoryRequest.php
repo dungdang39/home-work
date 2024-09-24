@@ -14,16 +14,15 @@ class FaqCategoryRequest
     public ?int $is_enabled = 0;
     public ?int $order = 0;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
     }
 
     public function validate(): void
     {
-        // 필수 값 검증
-        if (empty($this->subject)) {
-            throw new \InvalidArgumentException("FAQ 카테고리 제목을 입력하세요.");
+        if (!Validator::required($this->subject)) {
+            $this->throwException("FAQ 카테고리 제목을 입력하세요.");
         }
     }
 }

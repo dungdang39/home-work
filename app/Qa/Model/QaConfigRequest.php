@@ -26,9 +26,9 @@ class QaConfigRequest
     public int $qa_upload_size = 0;
     public ?string $qa_insert_content = '';
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
     }
 
     /**
@@ -37,10 +37,10 @@ class QaConfigRequest
      */
     private function validate(): void
     {
-        if (empty($this->qa_title)) {
+        if (!Validator::required($this->qa_title)) {
             $this->throwException('타이틀을 입력해주세요.');
         }
-        if (empty($this->qa_category)) {
+        if (!Validator::required($this->qa_category)) {
             $this->throwException('카테고리를 입력해주세요.');
         }
     }

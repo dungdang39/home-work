@@ -350,6 +350,23 @@ class MemberService
     }
 
     /**
+     * 회원 존재 여부 확인
+     * @param string $mb_id 회원 ID
+     * @return bool
+     */
+    public function exists(string $mb_id): bool
+    {
+        $query = "SELECT EXISTS(
+                    SELECT 1 FROM `{$this->table}`
+                    WHERE mb_id = :mb_id
+                )";
+
+        $stmt = Db::getInstance()->run($query, ['mb_id' => $mb_id]);
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    /**
      * 닉네임 중복여부 확인
      * @param string $mb_nick 닉네임
      * @param string $mb_id 회원아이디

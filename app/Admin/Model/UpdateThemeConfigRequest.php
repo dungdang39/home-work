@@ -3,7 +3,6 @@
 namespace App\Admin\Model;
 
 use Core\Traits\SchemaHelperTrait;
-use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
@@ -25,14 +24,13 @@ class UpdateThemeConfigRequest
     public ?UploadedFile $logo_header_file;
     public ?UploadedFile $logo_footer_file;
 
-    public function __construct(Request $request, Validator $validator)
+    public function __construct(Request $request)
     {
-        $this->initializeFromRequest($request, $validator);
+        $this->initializeFromRequest($request);
+    }
 
-        // 파일 처리
-        $this->logo_header_file = $files['logo_header_file'] ?? null;
-        $this->logo_footer_file = $files['logo_footer_file'] ?? null;
-
+    protected function validate()
+    {
         $this->validateImageFile($this->logo_header_file);
         $this->validateImageFile($this->logo_footer_file);
     }
