@@ -21,6 +21,8 @@ class BannerUpdateRequest
     public ?string $bn_end_datetime;
     public ?int $bn_order;
     public ?int $bn_is_enabled;
+    public ?int $bn_image_del = 0;
+    public ?int $bn_mobile_image_del = 0;
 
     public ?UploadedFile $image_file;
     public ?UploadedFile $mobile_image_file;

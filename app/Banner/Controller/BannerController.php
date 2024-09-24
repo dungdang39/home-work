@@ -49,7 +49,6 @@ class BannerController extends BaseController
      */
     public function insert(Request $request, Response $response, BannerCreateRequest $data): Response
     {
-        $this->service->makeBannerDir($request);
         $this->service->uploadImage($request, $data);
         $this->service->insert($data->publics());
 
@@ -62,6 +61,8 @@ class BannerController extends BaseController
     public function view(Request $request, Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
+        $banner['bn_image_width'] = $this->service->getImageWidth($request, $banner['bn_image']);
+        $banner['bn_mobile_image_width'] = $this->service->getImageWidth($request, $banner['bn_image']);
 
         $response_data = [
             "banner" => $banner,
@@ -77,9 +78,19 @@ class BannerController extends BaseController
     {
         $banner = $this->service->getBanner($bn_id);
 
-        // @todo 기존 파일 삭제처리 필요
+        if ($data->bn_image_del) {
+            $this->service->deleteImage($request, $banner['bn_image']);
+            $data->bn_image = null;
+            unset($data->bn_image_del);
+        }
+        if ($data->bn_mobile_image_del) {
+            $this->service->deleteImage($request, $banner['bn_mobile_image']);
+            $data->bn_mobile_image = null;
+            unset($data->bn_mobile_image_del);
+        }
+
         $this->service->uploadImage($request, $data);
-        $this->service->update($bn_id, $data->publics());
+        $this->service->update($banner['bn_id'], $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.banner.view', ['bn_id' => $banner['bn_id']]);
     }
@@ -87,11 +98,12 @@ class BannerController extends BaseController
     /**
      * 배너 삭제
      */
-    public function delete(Response $response, string $bn_id): Response
+    public function delete(Request $request, Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
 
-        // @todo 파일 삭제처리 필요
+        $this->service->deleteImage($request, $banner['bn_image']);
+        $this->service->deleteImage($request, $banner['bn_mobile_image']);
         $this->service->delete($banner['bn_id']);
 
         return $response->withJson(['message' => '배너가 삭제되었습니다.']);

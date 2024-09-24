@@ -1,17 +1,24 @@
 {% extends "/admin/_layout.html" %}
+{% from "macro.html" import checked, info, selected %}
+
+{% set title = '디자인/UI > 배너' %}
+{% set action = banner ? '수정' : '추가' %}
+{% set form_action = banner ? url_for('admin.design.banner.update', {'bn_id': banner.bn_id}) : url_for('admin.design.banner.insert') %}
+
+{% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-{% set form_action = banner ? url_for('admin.design.banner.update', {'bn_id': banner.bn_id}) : url_for('admin.design.banner.insert') %}
-{% set action = banner ? '수정' : '추가' %}
-
-<h1 id="container_title">디자인/UI > 배너{{ action }}</h1>
+<h1 id="container_title">{{ title ~ ' ' ~ action }}</h1>
 <div class="container_wr">
     <form name="fbanner" action="{{ form_action }}" method="post" enctype="multipart/form-data">
         {{ csrf.field|raw }}
+        {% if banner %}
+        <input type="hidden" name="_METHOD" value="PUT"/>
+        {% endif %}
 
         <div class="tbl_frm01 tbl_wrap">
             <table>
-                <caption>배너관리</caption>
+                <caption>{{ title ~ ' ' ~ action }}</caption>
                 <colgroup>
                     <col class="grid_4">
                     <col>
@@ -20,47 +27,53 @@
                     <tr>
                         <th scope="row"><label for="bn_title">배너 타이틀</label></th>
                         <td>
-                            <span class="frm_info"></span>
-                            <input type="text" name="bn_title" size="80" value="{{ banner.bn_title }}" id="bn_title" class="frm_input">
+                            <input type="text" name="bn_title" size="80" value="{{ old('bn_title', banner) }}" id="bn_title" class="frm_input">
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">이미지</th>
                         <td>
                             <input type="file" name="image_file">
+                            {% if banner.bn_image %}
+                            {{ banner.bn_image_file_name }}
+                            <input type="checkbox" name="bn_image_del" value="1" id="bn_image_del"> <label for="bn_image_del">삭제</label>
+                            <div class="banner_or_img">
+                                <img src="{{ base_url ~ banner.bn_image }}" alt="배너 이미지" width="{{ banner.bn_image_width }}">
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">모바일 이미지</th>
                         <td>
                             <input type="file" name="mobile_image_file">
+                            {% if banner.bn_mobile_image %}
+                            {{ banner.bn_image_file_name }}
+                            <input type="checkbox" name="bn_mobile_image_del" value="1" id="bn_mobile_image_del"> <label for="bn_mobile_image_del">삭제</label>
+                            <div class="banner_or_img"></div>
+                                <img src="{{ base_url ~ banner.bn_mobile_image }}" alt="모바일 배너 이미지" width="{{ banner.bn_mobile_image_width }}">
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="bn_alt">이미지 대체텍스트</label></th>
                         <td>
-                            <span class="frm_info">
-                                img 태그의 alt 속성에 해당되는 내용입니다.
-                                <br>배너에 마우스를 오버하면 이미지의 설명이 나옵니다.
-                            </span>
-                            <input type="text" name="bn_alt" value="{{ banner.bn_alt }}" id="bn_alt" class="frm_input" size="80">
+                            {{ info('img 태그의 alt 속성에 해당되는 내용입니다.<br>배너에 마우스를 오버하면 이미지의 설명이 나옵니다.', false) }}
+                            <input type="text" name="bn_alt" value="{{ old('bn_alt', banner) }}" id="bn_alt" class="frm_input" size="80">
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="bn_url">연결 URL</label></th>
                         <td>
-                            <span class="frm_info">
-                                배너클릭시 이동하는 주소입니다.
-                            </span>
-                            <input type="text" name="bn_url" size="80" value="{{ banner.bn_url ?: 'http://' }}" id="bn_url" class="frm_input">
+                            {{ info('배너 클릭시 이동하는 주소입니다.') }}
+                            <input type="text" name="bn_url" size="80" value="{{ old('bn_url', banner) ?: 'http://' }}" id="bn_url" class="frm_input">
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="bn_position">출력위치</label></th>
                         <td>
-                            <span class="frm_info">
-                                선택항목 확인 필요
-                            </span>
+                            {{ info('선택항목 확인 필요') }}
                             <select name="bn_position" id="bn_position">
                                 <option value="left">왼쪽</option>
                                 <option value="main">메인</option>
@@ -70,22 +83,18 @@
                     <tr>
                         <th scope="row"><label for="bn_new_win">새창</label></th>
                         <td>
-                            <span class="frm_info">
-                                배너 클릭시 새창으로 열지를 설정합니다.
-                            </span>
+                            {{ info('배너 클릭시 새창으로 열지를 설정합니다.') }}
                             <label for="bn_target_blank" class="rules_label">사용</label>
-                            <input name="bn_target" id="bn_target_blank" type="radio" value="_blank" {{ banner.bn_target == '_blank' or not banner.bn_target ? 'checked' : '' }}>
+                            <input name="bn_target" id="bn_target_blank" type="radio" value="_blank" {{ checked('_blank', old('bn_target', banner), true) }}>
                             <label for="bn_target_self" class="rules_label">사용안함</label>
-                            <input name="bn_target" id="bn_target_self" type="radio" value="_self" {{ banner.bn_target == '_self' ? 'checked' : '' }}>
+                            <input name="bn_target" id="bn_target_self" type="radio" value="_self" {{ checked('_self', old('bn_target', banner)) }}>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="bn_start_datetime">시작일시</label></th>
                         <td>
-                            <span class="frm_info">
-                                배너 게시 시작일시를 설정합니다.
-                            </span>
-                            <input type="text" name="bn_start_datetime" value="{{ banner.bn_start_datetime }}" id="bn_start_datetime" class="frm_input" size="21" maxlength="19">
+                            {{ info('배너 게시 시작일시를 설정합니다.') }}
+                            <input type="text" name="bn_start_datetime" value="{{ old('bn_start_datetime', banner) }}" id="bn_start_datetime" class="frm_input" size="21" maxlength="19">
                             <input type="checkbox" name="set_start_datetime" id="set_start_datetime">
                             <label for="set_start_datetime">오늘</label>
                         </td>
@@ -93,10 +102,8 @@
                     <tr>
                         <th scope="row"><label for="bn_end_datetime">종료일시</label></th>
                         <td>
-                            <span class="frm_info">
-                                배너 게시 종료일시를 설정합니다.
-                            </span>
-                            <input type="text" name="bn_end_datetime" value="{{ banner.bn_end_datetime }}" id="bn_end_datetime" class="frm_input" size="21" maxlength="19">
+                            {{ info('배너 게시 종료일시를 설정합니다.') }}
+                            <input type="text" name="bn_end_datetime" value="{{ old('bn_end_datetime', banner) }}" id="bn_end_datetime" class="frm_input" size="21" maxlength="19">
                             <input type="checkbox" name="set_end_datetime" id="set_end_datetime">
                             <label for="set_end_datetime">오늘부터 +31일</label>
                         </td>
@@ -108,7 +115,7 @@
                                 배너를 출력할 때 순서를 정합니다. 숫자가 작을수록 먼저 출력됩니다.
                                 <br>출력순서가 중복될 경우, 먼저 등록된 배너가 우선 출력됩니다.
                             </span>
-                            <input type="number" name="bn_order" value="{{ banner.bn_order }}" size="10" id="bn_order" class="frm_input">
+                            <input type="number" name="bn_order" value="{{ old('bn_order', banner) }}" size="10" id="bn_order" class="frm_input">
                         </td>
                     </tr>
                     <tr>
@@ -117,9 +124,9 @@
                             <span class="frm_info">
                             </span>
                             <label for="bn_is_enabled_1" class="rules_label">사용</label>
-                            <input name="bn_is_enabled" id="bn_is_enabled_1" type="radio" value="1" {{ banner.bn_is_enabled == '1' or not banner.bn_is_enabled ? 'checked' : '' }}>
+                            <input name="bn_is_enabled" id="bn_is_enabled_1" type="radio" value="1" {{ checked(1, old('bn_is_enabled', banner, true)) }}>
                             <label for="bn_is_enabled_0" class="rules_label">사용안함</label>
-                            <input name="bn_is_enabled" id="bn_is_enabled_0" type="radio" value="0" {{ banner.bn_is_enabled == '0' ? 'checked' : '' }}>
+                            <input name="bn_is_enabled" id="bn_is_enabled_0" type="radio" value="0" {{ checked(0, old('bn_is_enabled', banner)) }}>
                         </td>
                     </tr>
                 </tbody>

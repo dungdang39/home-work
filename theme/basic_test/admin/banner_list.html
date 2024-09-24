@@ -40,7 +40,7 @@
                 {% for banner in banners %}
                 <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
                     <td headers="th_dvc" width="200px;">
-                        <img src="{{ base_url ~ '/data/banner/' ~ banner.bn_image }}" width="200" alt="{{ banner.bn_alt }}" titke="{{ banner.bn_title }}">
+                        <img src="{{ base_url ~ banner.bn_image }}" width="200" alt="{{ banner.bn_alt }}" titke="{{ banner.bn_title }}">
                     </td>
                     <td headers="th_loc" width="200px;">
                         조회수 : {{ banner.bn_hit }}

@@ -3,22 +3,26 @@
 namespace App\Banner;
 
 use Core\Database\Db;
+use Core\FileService;
 use Core\Lib\UriHelper;
 use Exception;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Intervention\Image\Exception\NotReadableException;
+use Intervention\Image\ImageManagerStatic as Image;
+use Slim\Http\ServerRequest as Request;
 
 class BannerService
 {
     public const DIRECTORY = 'banner';
-    public const PERMISSION = 0755;
+    public const MAX_WIDTH = 750;
 
     private string $table;
-    private UriHelper $uri_helper;
+    private FileService $file_service;
 
-    public function __construct(UriHelper $uri_helper)
-    {
+    public function __construct(
+        FileService $file_service,
+    ) {
         $this->table = $_ENV['DB_PREFIX'] . 'banner';
-        $this->uri_helper = $uri_helper;
+        $this->file_service = $file_service;
     }
 
     /**
@@ -52,20 +56,24 @@ class BannerService
     }
 
     /**
-     * 배너 디렉토리 생성
-     * 
+     * 이미지 너비 가져오기
+     * @todo 이미지 처리하는 클래스로 이동
      * @param Request $request
-     * @return void
+     * @param string|null $path
+     * @return int
      */
-    public function makeBannerDir(Request $request): void
+    public function getImageWidth(Request $request, ?string $path = null): int
     {
-        $banner_path = $this->getBannerPath($request);
-        if (file_exists($banner_path)) {
-            return;
+        if (empty($path)) {
+            return 0;
         }
 
-        @mkdir($banner_path, self::PERMISSION);
-        @chmod($banner_path, self::PERMISSION);
+        $base_path = UriHelper::getBasePath($request);
+        try {
+            return Image::make($base_path . $path)->width();
+        } catch (NotReadableException $e) {
+            return 0;
+        }
     }
 
     /**
@@ -77,14 +85,13 @@ class BannerService
      */
     public function uploadImage(Request $request, object &$data)
     {
-        $banner_path = $this->getBannerPath($request);
+        $directory = $this->getUploadDir($request);
 
-        if (isset($data->image_file) && $data->image_file->getSize() > 0) {
-            $data->bn_image = moveUploadedFile($banner_path, $data->image_file);
-        }
-        if (isset($data->mobile_image_file) && $data->mobile_image_file->getSize() > 0) {
-            $data->bn_mobile_image = moveUploadedFile($banner_path, $data->mobile_image_file);
-        }
+        $data->bn_image = $this->file_service->uploadFile($directory, $data->image_file);
+        $data->bn_mobile_image = $this->file_service->uploadFile($directory, $data->mobile_image_file);
+        
+        $data->bn_image = $this->getRelativeFilePath($data->bn_image);
+        $data->bn_mobile_image = $this->getRelativeFilePath($data->bn_mobile_image);
 
         // 파일 필드 제거
         unset($data->image_file);
@@ -92,16 +99,35 @@ class BannerService
     }
 
     /**
-     * 배너 이미지 경로 가져오기
-     * 
-     * @param Request $request
-     * @return string
+     * 배너 업로드 디렉토리 가져오기
      */
-    public function getBannerPath(Request $request): string
+    public function getUploadDir(Request $request): string
     {
-        $base_path = $this->uri_helper->getBasePath($request);
-        // @TODO: data 경로도 상수로 빼야함.
-        return $base_path . "/data/" . self::DIRECTORY;
+        return FileService::getUploadDir($request) . '/' . self::DIRECTORY;
+    }
+
+
+    /**
+     * 배너 업로드 상대 경로 가져오기
+     */
+    public function getRelativeFilePath(?string $filename = null): string
+    {
+        if (empty($filename)) {
+            return '';
+        }
+
+        return implode('/', [FileService::getRelativePath(), self::DIRECTORY, $filename]);
+    }
+
+    /**
+     * 배너 이미지 삭제
+     * @param Request $request
+     * @param array $banner
+     * @return void
+     */
+    public function deleteImage(Request $request, string $path): void
+    {
+        $this->file_service->deleteFile(UriHelper::getBasePath($request) . $path);
     }
 
     // ========================================

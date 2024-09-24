@@ -75,11 +75,10 @@ class UriHelper
      * 기본 경로를 반환합니다.
      *
      * @param Request $request PSR-7 요청 객체
-     * @return string 서버의 DOCUMENT_ROOT와 베이스 경로를 포함하는 문자열.
+     * @return string 베이스 경로 문자열.
      */
-    public function getBasePath(Request $request): string
+    public static function getBasePath(Request $request): string
     {
-        $routeContext = RouteContext::fromRequest($request);
-        return rtrim($_SERVER['DOCUMENT_ROOT'] . $routeContext->getBasePath(), '/');
+        return $request->getAttribute('base_path');
     }
 }

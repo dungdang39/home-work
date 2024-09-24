@@ -93,6 +93,7 @@ $twig->addExtension(new IntlExtension());
 $app->add(TwigMiddleware::create($app, $twig));
 
 // 기본 경로 설정
+$request = $request->withAttribute('base_path', str_replace('\\', '/', __DIR__));
 $app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
 
 // 라우트 설정
