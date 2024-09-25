@@ -7,6 +7,7 @@ use App\Banner\Model\BannerCreateRequest;
 use App\Banner\Model\BannerSearchRequest;
 use App\Banner\Model\BannerUpdateRequest;
 use Core\BaseController;
+use Core\Validator\Validator;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -62,7 +63,7 @@ class BannerController extends BaseController
     {
         $banner = $this->service->getBanner($bn_id);
         $banner['bn_image_width'] = $this->service->getImageWidth($request, $banner['bn_image']);
-        $banner['bn_mobile_image_width'] = $this->service->getImageWidth($request, $banner['bn_image']);
+        $banner['bn_mobile_image_width'] = $this->service->getImageWidth($request, $banner['bn_mobile_image']);
 
         $response_data = [
             "banner" => $banner,
@@ -78,16 +79,22 @@ class BannerController extends BaseController
     {
         $banner = $this->service->getBanner($bn_id);
 
-        if ($data->bn_image_del) {
+        if (
+            $data->bn_image_del
+            || (Validator::isUploadedFile($data->image_file) && $banner['bn_image'])
+        ) {
             $this->service->deleteImage($request, $banner['bn_image']);
             $data->bn_image = null;
-            unset($data->bn_image_del);
         }
-        if ($data->bn_mobile_image_del) {
+        if (
+            $data->bn_mobile_image_del
+            || (Validator::isUploadedFile($data->mobile_image_file) && $banner['bn_mobile_image'])
+        ) {
             $this->service->deleteImage($request, $banner['bn_mobile_image']);
             $data->bn_mobile_image = null;
-            unset($data->bn_mobile_image_del);
         }
+        unset($data->bn_image_del);
+        unset($data->bn_mobile_image_del);
 
         $this->service->uploadImage($request, $data);
         $this->service->update($banner['bn_id'], $data->publics());

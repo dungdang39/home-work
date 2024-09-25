@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\App;
 use Slim\Csrf\Guard;
+use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Flash\Messages;
@@ -56,6 +57,15 @@ $container->set(ServerRequestInterface::class, function () {
 $container->set('csrf', function () use ($responseFactory) {
     $guard = new Guard($responseFactory);
     $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
+        // CSRF 검증 값이 정상적으로 전달되지 않는 경우 중, 
+        // Post Data 크기가 post_max_size보다 클 경우, CSRF 검증 실패로 처리되는 문제가 있음.
+        $content_length = $request->getServerParams()['CONTENT_LENGTH'] ?? 0;
+        $post_max_size = (int)ini_get('post_max_size');
+        $post_max_size_byte = $post_max_size * 1024 * 1024; // MB -> Byte
+        if ($content_length >= $post_max_size_byte) {
+            throw new HttpBadRequestException($request, "Post Data는 최대 {$post_max_size}MB까지 전송 가능합니다.");
+        }
+
         throw new HttpForbiddenException($request, 'CSRF 검증 실패. 새로고침 후 다시 시도하세요.');
     });
     return $guard;

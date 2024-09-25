@@ -24,7 +24,8 @@
         "ext-pdo": "*",
         "twig/html-extra": "^3.11",
         "twig/intl-extra": "^3.12",
-        "hybridauth/hybridauth": "^3.11"
+        "hybridauth/hybridauth": "^3.11",
+        "intervention/image": "^2.6.1"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +35,8 @@
             "Install\\": "install/"
         },
         "files": [
-            "api/functions.php"
+            "api/functions.php",
+            "core/Lib/functions.php"
         ]
     }
 }

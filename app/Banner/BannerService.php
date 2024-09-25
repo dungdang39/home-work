@@ -5,6 +5,7 @@ namespace App\Banner;
 use Core\Database\Db;
 use Core\FileService;
 use Core\Lib\UriHelper;
+use Core\Validator\Validator;
 use Exception;
 use Intervention\Image\Exception\NotReadableException;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -87,11 +88,14 @@ class BannerService
     {
         $directory = $this->getUploadDir($request);
 
-        $data->bn_image = $this->file_service->uploadFile($directory, $data->image_file);
-        $data->bn_mobile_image = $this->file_service->uploadFile($directory, $data->mobile_image_file);
-        
-        $data->bn_image = $this->getRelativeFilePath($data->bn_image);
-        $data->bn_mobile_image = $this->getRelativeFilePath($data->bn_mobile_image);
+        if (Validator::isUploadedFile($data->image_file)) {
+            $data->bn_image = $this->file_service->uploadFile($directory, $data->image_file);
+            $data->bn_image = $this->getRelativeFilePath($data->bn_image);
+        }
+        if (Validator::isUploadedFile($data->mobile_image_file)) {
+            $data->bn_mobile_image = $this->file_service->uploadFile($directory, $data->mobile_image_file);
+            $data->bn_mobile_image = $this->getRelativeFilePath($data->bn_mobile_image);
+        }
 
         // 파일 필드 제거
         unset($data->image_file);

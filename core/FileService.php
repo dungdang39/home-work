@@ -3,6 +3,7 @@
 namespace Core;
 
 use Core\Lib\UriHelper;
+use Core\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -57,7 +58,7 @@ class FileService
 
         $this->createUploadDirectory($directory);
 
-        if (isset($file) && $file->getError() === UPLOAD_ERR_OK) {
+        if (Validator::isUploadedFile($file)) {
             $filename = $this->moveUploadedFile($directory, $file, $basename);
         }
 
@@ -87,8 +88,7 @@ class FileService
      */
     private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile, ?string $basename = null, int $byte = 16): string
     {
-        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-
+        $extension = getExtension($uploadedFile);
         $basename = $basename ?: bin2hex(random_bytes($byte));
         $filename = sprintf('%s.%0.8s', $basename, $extension);
 

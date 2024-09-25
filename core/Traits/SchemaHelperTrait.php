@@ -2,6 +2,8 @@
 
 namespace Core\Traits;
 
+use Core\Exception\UploadException;
+use Core\Validator\Validator;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\UploadedFile;
@@ -105,18 +107,20 @@ trait SchemaHelperTrait
         foreach ($files as $key => $file) {
             if (property_exists($object, $key)) {
                 if ($file instanceof UploadedFile) {
-                    // UploadedFile 객체에서 파일 관련 정보를 추출하여 클래스 속성에 할당
-                    if ($file->getError() === UPLOAD_ERR_OK) {
-                        // 파일이 정상적으로 업로드된 경우
-                        $object->$key = $file;
-                    } else {
-                        // 파일 업로드 오류 처리
-                        // 예를 들어, 오류를 로그에 기록하거나 기본값을 설정할 수 있습니다.
-                        $object->$key = null; // 기본값 설정
+                    if ($file->getError() !== UPLOAD_ERR_OK) {
+                        throw new UploadException($file->getError());
                     }
+                    if (!Validator::allowedExtension($file)) {
+                        throw new \RuntimeException(sprintf(Validator::ERROR_FILE_EXT, $file->getClientFilename()));
+                    }
+                    if (!Validator::allowedMimeType($file)) {
+                        throw new \RuntimeException(sprintf(Validator::ERROR_FILE_MIME, $file->getClientFilename()));
+                    }
+
+                    $object->$key = $file;
                 } else {
                     // 파일이 UploadedFile 객체가 아닌 경우 처리
-                    $object->$key = null; // 또는 적절한 기본값 처리
+                    $object->$key = null;
                 }
             }
         }
