@@ -10,7 +10,6 @@ $(function () {
         $.ajax({
             type: "POST",
             url: uri,
-            data: {"type": "update"},
             cache: false,
             async: false,
             beforeSend: function (xhr) {
@@ -44,7 +43,6 @@ $(function () {
         $.ajax({
             type: "POST",
             url: uri,
-            data: {"type": "reset"},
             cache: false,
             async: false,
             beforeSend: function (xhr) {

@@ -90,6 +90,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('/theme', function (RouteCollectorProxy $group) {
                 $group->get('', [ThemeController::class, 'index'])->setName('admin.design.theme');
                 $group->post('/{theme}', [ThemeController::class, 'update'])->setName('admin.design.theme.update');
+                $group->post('/{theme}/reset', [ThemeController::class, 'reset'])->setName('admin.design.theme.reset');
                 $group->put('/', [ThemeController::class, 'updateInfo'])->setName('admin.design.theme.config.update');
             })->add(SuperAdminAuthMiddleware::class);
 

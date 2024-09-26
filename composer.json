@@ -25,7 +25,7 @@
         "twig/html-extra": "^3.11",
         "twig/intl-extra": "^3.12",
         "hybridauth/hybridauth": "^3.11",
-        "intervention/image": "^2.6.1"
+        "intervention/image": "^2.7.2"
     },
     "autoload": {
         "psr-4": {

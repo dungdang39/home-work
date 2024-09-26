@@ -1,7 +1,14 @@
 {% extends "/admin/_layout.html" %}
-{% from "macro.html" import selected %}
+{% from "macro.html" import anchor, selected %}
 
-{% block title %}디자인/UI > 테마 설정{% endblock title %}
+{% set title = '디자인/UI > 테마 설정' %}
+{% set sub_menus = {
+    'theme' : '테마',
+    'logo': '로고',
+    'layout': '레이아웃'
+} %}
+
+{% block title %}{{ title }}{% endblock title %}
 
 {% block head %}
 <script src="{{ base_url }}/js/theme.js"></script>
@@ -12,15 +19,12 @@
     #theme_detail { display: none; }
 </style>
 
-<h1 id="container_title">디자인/UI > 테마 설정</h1>
+<h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
     <section id="anchor_theme">
-        <h2 class="h2_frm">테마 선택</h2>
-        <ul class="anchor">
-            <li><a href="#anchor_theme">테마</a></li>
-            <li><a href="#anchor_logo">로고</a></li>
-            <li><a href="#anchor_layout">레이아웃</a></li>
-        </ul>
+        <h2 class="h2_frm">{{ sub_menus.theme }}</h2>
+        {{ anchor(sub_menus, 'theme') }}
+
         <div class="tbl_frm01 tbl_wrap">
             <table>
                 <caption>테마 선택</caption>
@@ -45,7 +49,7 @@
                             <button type="button" class="theme_sl theme_deactive"
                                 data-theme="{{ theme.theme }}"
                                 data-name="{{ theme.name }}"
-                                data-uri="{{ url_for('admin.design.theme.update', {'theme': theme.theme }) }}">사용안함</button>
+                                data-uri="{{ url_for('admin.design.theme.reset', {'theme': theme.theme }) }}">사용안함</button>
                             {% else %}
                             <button type="button" class="theme_sl theme_active"
                                 data-theme="{{ theme.theme }}"
@@ -103,12 +107,9 @@
         {{ csrf.field|raw }}
 
         <section id="anchor_logo">
-            <h2 class="h2_frm">로고</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_theme">테마</a></li>
-                <li><a href="#anchor_logo">로고</a></li>
-                <li><a href="#anchor_layout">레이아웃</a></li>
-            </ul>
+            <h2 class="h2_frm">{{ sub_menus.logo }}</h2>
+            {{ anchor(sub_menus, 'logo') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>로고 선택</caption>
@@ -123,12 +124,20 @@
                             <th scope="row"><label for="logo_header_file">상단 로고 이미지</label></th>
                             <td>
                                 <input type="file" name="logo_header_file" id="logo_header_file" class="frm_file">
+                                {% if config.logo_header %}
+                                <input type="checkbox" id="logo_header_del" name="logo_header_del" value="1"><label for="logo_header_del">삭제</label>
+                                <img src="{{ base_url ~ config.logo_header }}" alt="배너 이미지" width="{{ config.logo_header_width }}">
+                                {% endif %}
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="logo_footer_file">하단 로고 이미지</label></th>
                             <td>
                                 <input type="file" name="logo_footer_file" id="logo_footer_file" class="frm_file">
+                                {% if config.logo_footer %}
+                                <input type="checkbox" id="logo_footer_del" name="logo_footer_del" value="1"><label for="logo_footer_del">삭제</label>
+                                <img src="{{ base_url ~ config.logo_footer }}" alt="배너 이미지" width="{{ config.logo_footer_width }}">
+                                {% endif %}
                             </td>
                         </tr>
                     </tbody>
@@ -141,12 +150,9 @@
         </section>
 
         <section id="anchor_layout">
-            <h2 class="h2_frm">레이아웃</h2>
-            <ul class="anchor">
-                <li><a href="#anchor_theme">테마</a></li>
-                <li><a href="#anchor_logo">로고</a></li>
-                <li><a href="#anchor_layout">레이아웃</a></li>
-            </ul>
+            <h2 class="h2_frm">{{ sub_menus.layout }}</h2>
+            {{ anchor(sub_menus, 'layout') }}
+
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>레이아웃 선택</caption>

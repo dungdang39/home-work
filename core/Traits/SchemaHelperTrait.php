@@ -106,7 +106,7 @@ trait SchemaHelperTrait
     {
         foreach ($files as $key => $file) {
             if (property_exists($object, $key)) {
-                if ($file instanceof UploadedFile) {
+                if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE) {
                     if ($file->getError() !== UPLOAD_ERR_OK) {
                         throw new UploadException($file->getError());
                     }

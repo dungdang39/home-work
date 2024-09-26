@@ -2,6 +2,13 @@
 
 namespace App\Admin\Service;
 
+use Core\FileService;
+use Core\Lib\UriHelper;
+use Core\Validator\Validator;
+use Intervention\Image\Exception\NotReadableException;
+use Intervention\Image\ImageManagerStatic as Image;
+use Slim\Http\ServerRequest as Request;
+
 class ThemeService
 {
     public const DEFAULT_THEME = 'basic_test';
@@ -26,12 +33,20 @@ class ThemeService
      */
     private static string $base_dir;
 
+    private FileService $file_service;
+
+    public function __construct(
+        FileService $file_service
+    ) {
+        $this->file_service = $file_service;
+    }
+
     /**
      * 설치된 테마 목록을 반환합니다.
      * 
      * @return array 테마 목록
      */
-    public function getThemes(): array
+    public function getInstalledThemes(): array
     {
         $themes = [];
         $themes_dirs = $this->getThemeDirectories();
@@ -163,6 +178,75 @@ class ThemeService
         }
 
         return $theme_info;
+    }
+
+    /**
+     * 이미지 너비 가져오기
+     * @todo 이미지 처리하는 클래스로 이동
+     * @todo 배너에 동일한 메서드가 존재함
+     * @param Request $request
+     * @param string|null $path
+     * @return int
+     */
+    public function getImageWidth(Request $request, ?string $path = null): int
+    {
+        if (empty($path)) {
+            return 0;
+        }
+
+        $base_path = UriHelper::getBasePath($request);
+        try {
+            return Image::make($base_path . $path)->width();
+        } catch (NotReadableException $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * 로고 이미지 업로드
+     * 
+     * @param Request $request  요청 객체
+     * @param object $data  테마설정 데이터
+     * @return void
+     */
+    public function uploadImage(Request $request, object &$data)
+    {
+        $directory = $this->getUploadDir($request);
+
+        if (Validator::isUploadedFile($data->logo_header_file)) {
+            $data->logo_header = $this->file_service->uploadFile($directory, $data->logo_header_file);
+            $data->logo_header = $this->getRelativeFilePath($data->logo_header);
+        }
+        if (Validator::isUploadedFile($data->logo_footer_file)) {
+            $data->logo_footer = $this->file_service->uploadFile($directory, $data->logo_footer_file);
+            $data->logo_footer = $this->getRelativeFilePath($data->logo_footer);
+        }
+
+        // 파일 필드 제거
+        unset($data->logo_header_file);
+        unset($data->logo_footer_file);
+    }
+
+    /**
+     * 로고 업로드 디렉토리 가져오기
+     * @todo 배너에 동일한 메서드가 존재함
+     */
+    public function getUploadDir(Request $request): string
+    {
+        return FileService::getUploadDir($request) . '/' . self::DIRECTORY;
+    }
+
+    /**
+     * 로고 업로드 상대 경로 가져오기
+     * @todo 배너에 동일한 메서드가 존재함
+     */
+    public function getRelativeFilePath(?string $filename = null): string
+    {
+        if (empty($filename)) {
+            return '';
+        }
+
+        return implode('/', [FileService::getRelativePath(), self::DIRECTORY, $filename]);
     }
 
     // ========================================

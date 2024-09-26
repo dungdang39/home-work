@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_name` varchar(50) NOT NULL DEFAULT '' COMMENT '회원 실명',
   `mb_nick` varchar(100) NOT NULL COMMENT '회원 닉네임',
   `mb_nick_date` date DEFAULT NULL COMMENT '회원 닉네임 변경일',
+  `mb_image` varchar(255) DEFAULT NULL COMMENT '회원 이미지',
   `mb_email` varchar(255) NOT NULL COMMENT '이메일',
   `mb_homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '홈페이지',
   `mb_level` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '회원레벨',

@@ -78,8 +78,12 @@
                         <tr>
                             <th scope="row"><label for="mb_img">회원이미지</label></th>
                             <td colspan="3">
-                                {{ info('이미지 크기는 <strong>넓이 60픽셀 높이 60픽셀</strong>로 해주세요.', false ) }}
-                                <input type="file" name="mb_img" id="mb_img">
+                                {{ info('권장되는 이미지 크기는 <strong>60 x 60</strong>입니다.', false) }}
+                                <input type="file" name="mb_image_file" id="mb_image_file">
+                                {% if member and member.mb_image %}
+                                <input type="checkbox" id="mb_image_del" name="mb_image_del" value="1"> <label for="mb_image_del">삭제</label>
+                                <img src="{{ base_url ~ member.mb_image }}" alt="배너 이미지" width="60" height="60">
+                                {% endif %}
                             </td>
                         </tr>
                         {% if member %}

@@ -89,7 +89,7 @@ class FileService
     private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile, ?string $basename = null, int $byte = 16): string
     {
         $extension = getExtension($uploadedFile);
-        $basename = $basename ?: bin2hex(random_bytes($byte));
+        $basename = $basename ?: bin2hex(random_bytes($byte) . time());
         $filename = sprintf('%s.%0.8s', $basename, $extension);
 
         $uploadedFile->moveTo($directory . '/' . $filename);

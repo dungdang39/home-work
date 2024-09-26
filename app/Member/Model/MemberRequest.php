@@ -16,13 +16,13 @@ class MemberRequest
     // 기본 정보
     public string $mb_password;
     public int $mb_level;
-    // public ?string $mb_img;  // 이미지 파일 경로
 
     // 개인정보
     public string $mb_name;
     public string $mb_nick;
     public string $mb_email;
     public ?string $mb_nick_date = '';
+    public ?string $mb_image;
     public ?string $mb_homepage = '';
     public ?string $mb_hp = '';
     public ?string $mb_tel = '';
@@ -32,19 +32,22 @@ class MemberRequest
     public ?string $mb_addr3 = '';
     public ?string $mb_signature = '';
     public ?string $mb_certify = '';
-    
+
     // 관리 정보
     public ?string $mb_memo = '';
-    public bool $mb_mailling = false;
-    public bool $mb_sms = false;
-    public bool $mb_open = false;
+    public ?int $mb_mailling = 0;
+    public ?int $mb_sms = 0;
+    public ?int $mb_open = 0;
     public ?string $mb_leave_date = null;
     public ?string $mb_intercept_date = null;
-    public ?string $mb_email_verified_at = null;
+
+    // 기타 정보
     public ?string $mb_signup_ip = '';
+    public ?string $mb_email_verified_at = null;
+    public ?int $mb_image_del = 0;
 
     // 회원 이미지 파일
-    private ?UploadedFile $image_file;
+    public ?UploadedFile $mb_image_file;
 
     private array $member_config;
     private array $config;
@@ -72,6 +75,7 @@ class MemberRequest
         ) {
             $this->validateHp();
         }
+        $this->validateImageFile();
     }
 
     protected function afterValidate(): void
@@ -134,6 +138,15 @@ class MemberRequest
     {
         if (isset($this->mb_password)) {
             $this->mb_password = password_hash($this->mb_password, PASSWORD_DEFAULT);
+        }
+    }
+
+    private function validateImageFile()
+    {
+        if (Validator::isUploadedFile($this->mb_image_file)) {
+            if (!Validator::isImage($this->mb_image_file)) {
+                $this->throwException('이미지 파일만 업로드 할 수 있습니다.');
+            }
         }
     }
 }

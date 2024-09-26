@@ -23,6 +23,7 @@ class CreateMemberRequest
     public string $mb_nick;
     public string $mb_email;
     public ?string $mb_nick_date = '';
+    public ?string $mb_image;
     public ?string $mb_homepage = '';
     public ?string $mb_hp = '';
     public ?string $mb_tel = '';
@@ -46,7 +47,7 @@ class CreateMemberRequest
     public ?string $mb_email_verified_at = null;
 
     // 회원 이미지 파일
-    public ?UploadedFile $mb_img = null;
+    public ?UploadedFile $mb_image_file;
 
     private array $member_config;
     private array $config;
@@ -80,6 +81,7 @@ class CreateMemberRequest
         ) {
             $this->validateHp();
         }
+        $this->validateImageFile();
     }
 
     protected function afterValidate()
@@ -172,6 +174,15 @@ class CreateMemberRequest
     {
         if (!Validator::isValidPhoneNumber($this->mb_hp)) {
             $this->throwException("휴대폰번호를 올바르게 입력해 주십시오.");
+        }
+    }
+
+    private function validateImageFile()
+    {
+        if (Validator::isUploadedFile($this->mb_image_file)) {
+            if (!Validator::isImage($this->mb_image_file)) {
+                $this->throwException('이미지 파일만 업로드 할 수 있습니다.');
+            }
         }
     }
 }

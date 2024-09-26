@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Slim Framework를 사용한 애플리케이션 진입점
+ * @todo https://php-di.org/를 참고해서 코드 분리
+ */
+
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
 use App\Admin\Service\ThemeService;
@@ -7,12 +12,12 @@ use App\Config\ConfigService;
 use Core\Environment;
 use Core\Extension\CsrfExtension;
 use Core\Extension\FlashExtension;
+use Core\FileService;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\App;
 use Slim\Csrf\Guard;
@@ -49,7 +54,7 @@ $app = Bridge::create($container);
 $responseFactory = $app->getResponseFactory();
 
 // Container 설정
-$container->set(ServerRequestInterface::class, function () {
+$container->set(Request::class, function () {
     $serverRequestCreator = ServerRequestCreatorFactory::create();
     return $serverRequestCreator->createServerRequestFromGlobals();
 });
@@ -81,7 +86,7 @@ $app->add(new MethodOverrideMiddleware());
 $app->add('csrf');
 
 // Request를 Container에서 가져오기
-$request = $container->get(ServerRequestInterface::class);
+$request = $container->get(Request::class);
 
 // 에러 핸들러 설정
 $app_debug = $_ENV['APP_DEBUG'] ?? false;
@@ -140,13 +145,15 @@ function setupTwig()
     ThemeService::setBaseDir($theme_dir);
 
     $config_service = new ConfigService();
-    $theme_service = new ThemeService();
+    $file_service = new FileService();
+    $theme_service = new ThemeService($file_service);
     $theme = $config_service->getTheme();
 
     if (!$theme_service->existsTheme($theme)) {
         $theme = ThemeService::DEFAULT_THEME;
+        $config_service->update(['cf_theme' => $theme]);
     }
-
+    
     $template_dir = str_replace('\\', '/', "$theme_dir/$theme");
 
     $cache_dir = __DIR__ . "/data/cache/twig";
