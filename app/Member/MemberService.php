@@ -5,11 +5,11 @@ namespace App\Member;
 use API\Exceptions\HttpNotFoundException;
 use Core\Database\Db;
 use Core\FileService;
+use Core\Image\Strategies\ImageStrategyInterface;
 use Core\Lib\UriHelper;
 use Core\Validator\Validator;
+use DI\Container;
 use Exception;
-use Intervention\Image\Exception\NotReadableException;
-use Intervention\Image\ImageManagerStatic as Image;
 use Slim\Http\ServerRequest as Request;
 
 class MemberService
@@ -18,17 +18,20 @@ class MemberService
 
     public string $table;
 
+    private Container $container;
     private FileService $file_service;
     private MemberConfigService $mconfig_service;
     private Request $request;
 
     public function __construct(
+        Container $container,
         FileService $file_service,
         MemberConfigService $mconfig_service,
         Request $request,
         
     ) {
         $this->table = $_ENV['DB_PREFIX'] . 'member';
+        $this->container = $container;
         $this->file_service = $file_service;
         $this->mconfig_service = $mconfig_service;
         $this->request = $request;
@@ -248,8 +251,9 @@ class MemberService
 
         $base_path = UriHelper::getBasePath($request);
         try {
-            return Image::make($base_path . $path)->width();
-        } catch (NotReadableException $e) {
+            $image_manager = $this->container->get(ImageStrategyInterface::class);
+            return $image_manager->readImage($base_path . $path)->width();
+        } catch (Exception $e) {
             return 0;
         }
     }
@@ -266,11 +270,15 @@ class MemberService
         $directory = $this->getUploadDir($request);
 
         if (Validator::isUploadedFile($data->mb_image_file)) {
-            // @todo 리사이징
-            $data->mb_image = $this->file_service->uploadFile($directory, $data->mb_image_file);
-            $data->mb_image = $this->getRelativeFilePath($data->mb_image);
-        }
+            $image_manager = $this->container->get(ImageStrategyInterface::class);
+            $image = $image_manager->readImage($data->mb_image_file->getFilePath());
 
+            $image->resize(60, 60);
+            $filename = bin2hex(random_bytes(16)) . '_60x60.'. getExtension($data->mb_image_file);
+            $image->save($directory . '/' . $filename);
+
+            $data->mb_image = $this->getRelativeFilePath($filename);
+        }
         // 파일 필드 제거
         unset($data->mb_image_file);
     }

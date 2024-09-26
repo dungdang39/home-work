@@ -30,3 +30,21 @@ if (!function_exists('convertDataSizeUnit')) {
         return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . $size[$factor];
     }
 }
+
+
+if (!function_exists('getPackageVersion')) {
+    /**
+     * 패키지 버전 가져오기
+     * @param string $packageName 패키지명
+     * @return string|null 패키지 버전
+     */
+    function getPackageVersion($package_name) {
+        $composer_lock = json_decode(file_get_contents('./composer.lock'), true);
+        foreach ($composer_lock['packages'] as $package) {
+            if ($package['name'] === $package_name) {
+                return $package['version'];
+            }
+        }
+        return null;
+    }
+}

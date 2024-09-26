@@ -15,6 +15,9 @@ use Core\Extension\FlashExtension;
 use Core\FileService;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
+use Core\Image\Strategies\ImageStrategyInterface;
+use Core\Image\Strategies\ImageStrategyV2;
+use Core\Image\Strategies\ImageStrategyV3;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -62,8 +65,8 @@ $container->set(Request::class, function () {
 $container->set('csrf', function () use ($responseFactory) {
     $guard = new Guard($responseFactory);
     $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
-        // CSRF 검증 값이 정상적으로 전달되지 않는 경우 중, 
-        // Post Data 크기가 post_max_size보다 클 경우, CSRF 검증 실패로 처리되는 문제가 있음.
+        // Post Data 크기가 post_max_size보다 클 경우, CSRF 검증 값이 정상적으로 전달되지 않아
+        // CSRF 검증 실패로 처리되는 문제가 있어 해당 위치에 post_max_size 체크를 추가함.
         $content_length = $request->getServerParams()['CONTENT_LENGTH'] ?? 0;
         $post_max_size = (int)ini_get('post_max_size');
         $post_max_size_byte = $post_max_size * 1024 * 1024; // MB -> Byte
@@ -77,6 +80,14 @@ $container->set('csrf', function () use ($responseFactory) {
 });
 
 $container->set('flash', fn() => new Messages($_SESSION));
+
+$container->set(ImageStrategyInterface::class, function () {
+    $version = getPackageVersion('intervention/image');
+    if (version_compare($version, '3.0.0', '<')) {
+        return new ImageStrategyV2();
+    }
+    return new ImageStrategyV3();
+});
 
 // 미들웨어 설정
 $app->addRoutingMiddleware();
