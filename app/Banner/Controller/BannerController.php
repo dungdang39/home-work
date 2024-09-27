@@ -7,6 +7,8 @@ use App\Banner\Model\BannerCreateRequest;
 use App\Banner\Model\BannerSearchRequest;
 use App\Banner\Model\BannerUpdateRequest;
 use Core\BaseController;
+use Core\FileService;
+use Core\ImageService;
 use Core\Validator\Validator;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -15,11 +17,17 @@ use Slim\Views\Twig;
 class BannerController extends BaseController
 {
     private BannerService $service;
+    private FileService $file_service;
+    private ImageService $image_service;
 
     public function __construct(
         BannerService $service,
+        FileService $file_service,
+        ImageService $image_service
     ) {
         $this->service = $service;
+        $this->file_service = $file_service;
+        $this->image_service = $image_service;
     }
 
     /**
@@ -50,7 +58,10 @@ class BannerController extends BaseController
      */
     public function insert(Request $request, Response $response, BannerCreateRequest $data): Response
     {
-        $this->service->uploadImage($request, $data);
+        $folder = $this->service::DIRECTORY;
+        $data->bn_image = $this->file_service->upload($request, $folder, $data->bn_image_file) ?: null;
+        $data->bn_mobile_image = $this->file_service->upload($request, $folder, $data->bn_mobile_image_file) ?: null;
+
         $this->service->insert($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.banner');
@@ -62,11 +73,11 @@ class BannerController extends BaseController
     public function view(Request $request, Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
-        $banner['bn_image_width'] = $this->service->getImageWidth($request, $banner['bn_image']);
-        $banner['bn_mobile_image_width'] = $this->service->getImageWidth($request, $banner['bn_mobile_image']);
 
         $response_data = [
-            "banner" => $banner,
+            'banner' => $banner,
+            'image_width' => $this->image_service->getImageWidth($request, $banner->bn_image),
+            'mobile_image_width' => $this->image_service->getImageWidth($request, $banner->bn_mobile_image)
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/banner_form.html', $response_data);
@@ -78,28 +89,21 @@ class BannerController extends BaseController
     public function update(Request $request, Response $response, BannerUpdateRequest $data, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
+        $banner->fill($data);
 
-        if (
-            $data->bn_image_del
-            || (Validator::isUploadedFile($data->image_file) && $banner['bn_image'])
-        ) {
-            $this->service->deleteImage($request, $banner['bn_image']);
-            $data->bn_image = null;
+        $folder = $this->service::DIRECTORY;
+        if ($data->bn_image_del || Validator::isUploadedFile($data->bn_image_file)) {
+            $this->file_service->deleteByDb($request, $banner->bn_image);
+            $banner->bn_image = $this->file_service->upload($request, $folder, $data->bn_image_file);
         }
-        if (
-            $data->bn_mobile_image_del
-            || (Validator::isUploadedFile($data->mobile_image_file) && $banner['bn_mobile_image'])
-        ) {
-            $this->service->deleteImage($request, $banner['bn_mobile_image']);
-            $data->bn_mobile_image = null;
+        if ($data->bn_mobile_image_del || Validator::isUploadedFile($data->bn_mobile_image_file)) {
+            $this->file_service->deleteByDb($request, $banner->bn_mobile_image);
+            $banner->bn_mobile_image = $this->file_service->upload($request, $folder, $data->bn_mobile_image_file);
         }
-        unset($data->bn_image_del);
-        unset($data->bn_mobile_image_del);
+        
+        $this->service->update($banner->bn_id, $banner->publics());
 
-        $this->service->uploadImage($request, $data);
-        $this->service->update($banner['bn_id'], $data->publics());
-
-        return $this->redirectRoute($request, $response, 'admin.design.banner.view', ['bn_id' => $banner['bn_id']]);
+        return $this->redirectRoute($request, $response, 'admin.design.banner.view', ['bn_id' => $banner->bn_id]);
     }
 
     /**
@@ -108,10 +112,8 @@ class BannerController extends BaseController
     public function delete(Request $request, Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
-
-        $this->service->deleteImage($request, $banner['bn_image']);
-        $this->service->deleteImage($request, $banner['bn_mobile_image']);
-        $this->service->delete($banner['bn_id']);
+        
+        $this->service->deleteBanner($request, $banner);
 
         return $response->withJson(['message' => '배너가 삭제되었습니다.']);
     }

@@ -126,7 +126,7 @@
                                 <input type="file" name="logo_header_file" id="logo_header_file" class="frm_file">
                                 {% if config.logo_header %}
                                 <input type="checkbox" id="logo_header_del" name="logo_header_del" value="1"><label for="logo_header_del">삭제</label>
-                                <img src="{{ base_url ~ config.logo_header }}" alt="배너 이미지" width="{{ config.logo_header_width }}">
+                                <img src="{{ base_url ~ config.logo_header }}" alt="배너 이미지" width="{{ logo_header_width }}">
                                 {% endif %}
                             </td>
                         </tr>
@@ -136,7 +136,7 @@
                                 <input type="file" name="logo_footer_file" id="logo_footer_file" class="frm_file">
                                 {% if config.logo_footer %}
                                 <input type="checkbox" id="logo_footer_del" name="logo_footer_del" value="1"><label for="logo_footer_del">삭제</label>
-                                <img src="{{ base_url ~ config.logo_footer }}" alt="배너 이미지" width="{{ config.logo_footer_width }}">
+                                <img src="{{ base_url ~ config.logo_footer }}" alt="배너 이미지" width="{{ logo_footer_width }}">
                                 {% endif %}
                             </td>
                         </tr>

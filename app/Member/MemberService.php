@@ -4,35 +4,26 @@ namespace App\Member;
 
 use API\Exceptions\HttpNotFoundException;
 use Core\Database\Db;
-use Core\FileService;
-use Core\Image\Strategies\ImageStrategyInterface;
-use Core\Lib\UriHelper;
-use Core\Validator\Validator;
-use DI\Container;
 use Exception;
 use Slim\Http\ServerRequest as Request;
 
 class MemberService
 {
     public const DIRECTORY = 'member';
+    public const IMAGE_WIDTH = 60;
+    public const IMAGE_HEIGHT = 60;
 
     public string $table;
 
-    private Container $container;
-    private FileService $file_service;
     private MemberConfigService $mconfig_service;
     private Request $request;
 
     public function __construct(
-        Container $container,
-        FileService $file_service,
         MemberConfigService $mconfig_service,
         Request $request,
         
     ) {
         $this->table = $_ENV['DB_PREFIX'] . 'member';
-        $this->container = $container;
-        $this->file_service = $file_service;
         $this->mconfig_service = $mconfig_service;
         $this->request = $request;
     }
@@ -234,85 +225,6 @@ class MemberService
         }
 
         return $members[0];
-    }
-
-    /**
-     * 이미지 너비 가져오기
-     * @todo 이미지 처리하는 클래스로 이동
-     * @param Request $request
-     * @param string|null $path
-     * @return int
-     */
-    public function getImageWidth(Request $request, ?string $path = null): int
-    {
-        if (empty($path)) {
-            return 0;
-        }
-
-        $base_path = UriHelper::getBasePath($request);
-        try {
-            $image_manager = $this->container->get(ImageStrategyInterface::class);
-            return $image_manager->readImage($base_path . $path)->width();
-        } catch (Exception $e) {
-            return 0;
-        }
-    }
-
-    /**
-     * 회원 이미지 업로드
-     * 
-     * @param Request $request  요청 객체
-     * @param object $data  회원 데이터
-     * @return void
-     */
-    public function uploadImage(Request $request, object &$data)
-    {
-        $directory = $this->getUploadDir($request);
-
-        if (Validator::isUploadedFile($data->mb_image_file)) {
-            $image_manager = $this->container->get(ImageStrategyInterface::class);
-            $image = $image_manager->readImage($data->mb_image_file->getFilePath());
-
-            $image->resize(60, 60);
-            $filename = bin2hex(random_bytes(16)) . '_60x60.'. getExtension($data->mb_image_file);
-            $image->save($directory . '/' . $filename);
-
-            $data->mb_image = $this->getRelativeFilePath($filename);
-        }
-        // 파일 필드 제거
-        unset($data->mb_image_file);
-    }
-
-    /**
-     * 회원 업로드 디렉토리 가져오기
-     */
-    public function getUploadDir(Request $request): string
-    {
-        return FileService::getUploadDir($request) . '/' . self::DIRECTORY;
-    }
-
-
-    /**
-     * 회원 업로드 상대 경로 가져오기
-     */
-    public function getRelativeFilePath(?string $filename = null): string
-    {
-        if (empty($filename)) {
-            return '';
-        }
-
-        return implode('/', [FileService::getRelativePath(), self::DIRECTORY, $filename]);
-    }
-
-    /**
-     * 회원 이미지 삭제
-     * @param Request $request
-     * @param array $banner
-     * @return void
-     */
-    public function deleteImage(Request $request, string $path): void
-    {
-        $this->file_service->deleteFile(UriHelper::getBasePath($request) . $path);
     }
 
     // ========================================

@@ -23,8 +23,8 @@ class BannerCreateRequest
     public ?int $bn_order;
     public ?int $bn_is_enabled;
 
-    public ?UploadedFile $image_file;
-    public ?UploadedFile $mobile_image_file;
+    public ?UploadedFile $bn_image_file;
+    public ?UploadedFile $bn_mobile_image_file;
 
     public function __construct(Request $request)
     {
@@ -44,10 +44,10 @@ class BannerCreateRequest
      */
     private function validateImage(): void
     {
-        if (!Validator::isUploadedFile($this->image_file)) {
+        if (!Validator::isUploadedFile($this->bn_image_file)) {
             $this->throwException('배너 이미지를 업로드 하세요.');
         }
-        if (!Validator::isImage($this->image_file)) {
+        if (!Validator::isImage($this->bn_image_file)) {
             $this->throwException('이미지 파일만 업로드 할 수 있습니다.');
         }
     }
@@ -59,8 +59,8 @@ class BannerCreateRequest
      */
     private function validateMobileImage(): void
     {
-        if (Validator::isUploadedFile($this->mobile_image_file)) {
-            if (!Validator::isImage($this->mobile_image_file)) {
+        if (Validator::isUploadedFile($this->bn_mobile_image_file)) {
+            if (!Validator::isImage($this->bn_mobile_image_file)) {
                 $this->throwException('이미지 파일만 업로드 할 수 있습니다.');
             }
         }

@@ -2,13 +2,10 @@
 
 namespace App\Banner;
 
+use App\Banner\Model\Banner;
 use Core\Database\Db;
 use Core\FileService;
-use Core\Lib\UriHelper;
-use Core\Validator\Validator;
 use Exception;
-use Intervention\Image\Exception\NotReadableException;
-use Intervention\Image\ImageManagerStatic as Image;
 use Slim\Http\ServerRequest as Request;
 
 class BannerService
@@ -45,93 +42,29 @@ class BannerService
     /**
      * 배너 정보 가져오기
      */
-    public function getBanner(int $bn_id): array
+    public function getBanner(int $bn_id): Banner
     {
-        $banner = $this->fetchBanner($bn_id);
+        $banner = $this->fetch($bn_id);
 
         if (empty($banner)) {
             throw new Exception('배너 정보를 찾을 수 없습니다.', 404);
         }
 
-        return $banner;
+        return Banner::create($banner);
     }
 
     /**
-     * 이미지 너비 가져오기
-     * @todo 이미지 처리하는 클래스로 이동
+     * 배너 삭제
      * @param Request $request
-     * @param string|null $path
-     * @return int
-     */
-    public function getImageWidth(Request $request, ?string $path = null): int
-    {
-        if (empty($path)) {
-            return 0;
-        }
-
-        $base_path = UriHelper::getBasePath($request);
-        try {
-            return Image::make($base_path . $path)->width();
-        } catch (NotReadableException $e) {
-            return 0;
-        }
-    }
-
-    /**
-     * 배너 이미지 업로드
-     * 
-     * @param Request $request  요청 객체
-     * @param object $data  배너 데이터
+     * @param Banner $banner
      * @return void
      */
-    public function uploadImage(Request $request, object &$data)
+    public function deleteBanner(Request $request, Banner $banner): void
     {
-        $directory = $this->getUploadDir($request);
+        $this->file_service->deleteByDb($request, $banner->bn_image);
+        $this->file_service->deleteByDb($request, $banner->bn_mobile_image);
 
-        if (Validator::isUploadedFile($data->image_file)) {
-            $data->bn_image = $this->file_service->uploadFile($directory, $data->image_file);
-            $data->bn_image = $this->getRelativeFilePath($data->bn_image);
-        }
-        if (Validator::isUploadedFile($data->mobile_image_file)) {
-            $data->bn_mobile_image = $this->file_service->uploadFile($directory, $data->mobile_image_file);
-            $data->bn_mobile_image = $this->getRelativeFilePath($data->bn_mobile_image);
-        }
-
-        // 파일 필드 제거
-        unset($data->image_file);
-        unset($data->mobile_image_file);
-    }
-
-    /**
-     * 배너 업로드 디렉토리 가져오기
-     */
-    public function getUploadDir(Request $request): string
-    {
-        return FileService::getUploadDir($request) . '/' . self::DIRECTORY;
-    }
-
-
-    /**
-     * 배너 업로드 상대 경로 가져오기
-     */
-    public function getRelativeFilePath(?string $filename = null): string
-    {
-        if (empty($filename)) {
-            return '';
-        }
-
-        return implode('/', [FileService::getRelativePath(), self::DIRECTORY, $filename]);
-    }
-
-    /**
-     * 배너 이미지 삭제
-     * @param Request $request
-     * @param array $banner
-     * @return void
-     */
-    public function deleteImage(Request $request, string $path): void
-    {
-        $this->file_service->deleteFile(UriHelper::getBasePath($request) . $path);
+        $this->delete($banner->bn_id);
     }
 
     // ========================================
@@ -179,7 +112,7 @@ class BannerService
      * @param int $bn_id  배너 ID
      * @return array|false
      */
-    public function fetchBanner(int $bn_id)
+    public function fetch(int $bn_id)
     {
         $query = "SELECT * FROM {$this->table} WHERE bn_id = :bn_id";
         return Db::getInstance()->run($query, ["bn_id" => $bn_id])->fetch();

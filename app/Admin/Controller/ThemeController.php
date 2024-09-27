@@ -7,7 +7,7 @@ use App\Admin\Service\ThemeService;
 use App\Config\ConfigService;
 use Core\BaseController;
 use Core\FileService;
-use Core\Lib\UriHelper;
+use Core\ImageService;
 use Core\Validator\Validator;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Http\Response;
@@ -18,16 +18,19 @@ class ThemeController extends BaseController
 {
     private ConfigService $config_service;
     private FileService $file_service;
+    private ImageService $image_service;
     private ThemeService $service;
 
     public function __construct(
         ConfigService $config_service,
         FileService $file_service,
+        ImageService $image_service,
         ThemeService $service,
 
     ) {
         $this->config_service = $config_service;
         $this->file_service = $file_service;
+        $this->image_service = $image_service;
         $this->service = $service;
     }
 
@@ -37,13 +40,13 @@ class ThemeController extends BaseController
     public function index(Request $request, Response $response): Response
     {
         $config = $request->getAttribute('config');
-        $banner['logo_header_width'] = $this->service->getImageWidth($request, $config['logo_header']);
-        $banner['logo_footer_width'] = $this->service->getImageWidth($request, $config['logo_footer']);
 
         $response_data = [
-            "config" => $config,
-            "current_theme" => $config['cf_theme'],
-            "themes" => $this->service->getInstalledThemes(),
+            'config' => $config,
+            'current_theme' => $config['cf_theme'],
+            'themes' => $this->service->getInstalledThemes(),
+            'logo_header_width' => $this->image_service->getImageWidth($request, $config['logo_header']),
+            'logo_footer_width' => $this->image_service->getImageWidth($request, $config['logo_footer']),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/theme_form.html', $response_data);
@@ -80,24 +83,21 @@ class ThemeController extends BaseController
     {
         $config = $request->getAttribute('config');
 
-        if (
-            $data->logo_header_del
-            || (Validator::isUploadedFile($data->logo_header_file) && $config['logo_header'])
-        ) {
-            $this->file_service->deleteFile(UriHelper::getBasePath($request) . $config['logo_header']);
-            $data->logo_header = null;
+        $folder = $this->service::DIRECTORY;
+        if ($data->logo_header_del || Validator::isUploadedFile($data->logo_header_file)) {
+            $this->file_service->deleteByDb($request, $config['logo_header']);
+            $data->logo_header = $this->file_service->upload($request, $folder, $data->logo_header_file);
         }
-        if (
-            $data->logo_footer_del
-            || (Validator::isUploadedFile($data->logo_footer_file) && $config['logo_footer'])
-        ) {
-            $this->file_service->deleteFile(UriHelper::getBasePath($request) . $config['logo_footer']);
-            $data->logo_footer = null;
+        if ($data->logo_footer_del || Validator::isUploadedFile($data->logo_footer_file)) {
+            $this->file_service->deleteByDb($request, $config['logo_footer']);
+            $data->logo_footer = $this->file_service->upload($request, $folder, $data->logo_footer_file);
         }
+        // 파일 필드 제거
         unset($data->logo_header_del);
         unset($data->logo_footer_del);
+        unset($data->logo_header_file);
+        unset($data->logo_footer_file);
 
-        $this->service->uploadImage($request, $data);
         $this->config_service->update($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.theme');

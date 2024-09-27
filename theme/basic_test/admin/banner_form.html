@@ -33,12 +33,12 @@
                     <tr>
                         <th scope="row">이미지</th>
                         <td>
-                            <input type="file" name="image_file">
+                            <input type="file" name="bn_image_file">
                             {% if banner.bn_image %}
                             {{ banner.bn_image_file_name }}
                             <input type="checkbox" name="bn_image_del" value="1" id="bn_image_del"> <label for="bn_image_del">삭제</label>
                             <div class="banner_or_img">
-                                <img src="{{ base_url ~ banner.bn_image }}" alt="배너 이미지" width="{{ banner.bn_image_width }}">
+                                <img src="{{ base_url ~ banner.bn_image }}" alt="배너 이미지" width="{{ image_width }}">
                             </div>
                             {% endif %}
                         </td>
@@ -46,12 +46,12 @@
                     <tr>
                         <th scope="row">모바일 이미지</th>
                         <td>
-                            <input type="file" name="mobile_image_file">
+                            <input type="file" name="bn_mobile_image_file">
                             {% if banner.bn_mobile_image %}
                             {{ banner.bn_image_file_name }}
                             <input type="checkbox" name="bn_mobile_image_del" value="1" id="bn_mobile_image_del"> <label for="bn_mobile_image_del">삭제</label>
                             <div class="banner_or_img"></div>
-                                <img src="{{ base_url ~ banner.bn_mobile_image }}" alt="모바일 배너 이미지" width="{{ banner.bn_mobile_image_width }}">
+                                <img src="{{ base_url ~ banner.bn_mobile_image }}" alt="모바일 배너 이미지" width="{{ mobile_image_width }}">
                             </div>
                             {% endif %}
                         </td>

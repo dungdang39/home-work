@@ -51,6 +51,9 @@ final class FlashExtension extends AbstractExtension
         if (is_array($default)) {
             $default = array_key_exists($key, $default) ? $default[$key] : null;
         }
+        if (is_object($default)) {
+            $default = property_exists($default, $key) ? $default->$key : null;
+        }
 
         return $old[$key] ?? $default;
     }
