@@ -118,7 +118,7 @@ class FileService
      * @param string $path 파일 경로
      * @return void
      */
-    public function deleteByDb(Request $request, string $path): void
+    public function deleteByDb(Request $request, ?string $path = null): void
     {
         if (!empty($path)) {
             $this->delete(UriHelper::getBasePath($request) . $path);
