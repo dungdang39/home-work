@@ -6,6 +6,7 @@ use App\Admin\Controller\PermissionController;
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\LoginController;
 use App\Admin\Controller\DashboardController;
+use App\Admin\Controller\MainPageController;
 use App\Admin\Controller\MenuController;
 use App\Admin\Controller\NotificationController;
 use App\Admin\Controller\SocialController;
@@ -116,7 +117,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 메인화면 설정
             $group->group('/mainpage', function (RouteCollectorProxy $group) {
-
+                $group->get('', [MainPageController::class, 'index'])->setName('admin.design.mainpage');
+                $group->post('', [MainPageController::class, 'update'])->setName('admin.design.mainpage.update');
             });
 
             // 메뉴 설정
