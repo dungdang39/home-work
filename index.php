@@ -2,37 +2,22 @@
 
 /**
  * Slim Framework를 사용한 애플리케이션 진입점
- * @todo https://php-di.org/를 참고해서 코드 분리
  */
 
 use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
-use App\Admin\Service\ThemeService;
-use App\Config\ConfigService;
+use Bootstrap\TwigConfig;
+use Bootstrap\ContainerConfig;
+use Bootstrap\RouterConfig;
 use Core\Environment;
-use Core\Extension\CsrfExtension;
-use Core\Extension\FlashExtension;
-use Core\FileService;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
-use Core\Image\Strategies\ImageStrategyInterface;
-use Core\Image\Strategies\ImageStrategyV2;
-use Core\Image\Strategies\ImageStrategyV3;
+use Core\Validator\Installation;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\App;
-use Slim\Csrf\Guard;
-use Slim\Exception\HttpBadRequestException;
-use Slim\Exception\HttpForbiddenException;
-use Slim\Factory\ServerRequestCreatorFactory;
-use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
-use Twig\Extra\Html\HtmlExtension;
-use Twig\Extra\Intl\IntlExtension;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -40,8 +25,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-validateIsInstalled(__DIR__);
+// 설치 여부 확인
+Installation::validate(__DIR__);
 
+// 환경 설정 로드
 Environment::load(__DIR__, ["only_env" => true]);
 
 /**
@@ -55,39 +42,10 @@ include_once(__DIR__ . '/lib/common.lib.php');
 $container = new Container();
 $app = Bridge::create($container);
 $responseFactory = $app->getResponseFactory();
+$container->set('responseFactory', $responseFactory);
 
 // Container 설정
-$container->set(Request::class, function () {
-    $serverRequestCreator = ServerRequestCreatorFactory::create();
-    return $serverRequestCreator->createServerRequestFromGlobals();
-});
-
-$container->set('csrf', function () use ($responseFactory) {
-    $guard = new Guard($responseFactory);
-    $guard->setFailureHandler(function (Request $request, RequestHandler $handler) {
-        // Post Data 크기가 post_max_size보다 클 경우, CSRF 검증 값이 정상적으로 전달되지 않아
-        // CSRF 검증 실패로 처리되는 문제가 있어 해당 위치에 post_max_size 체크를 추가함.
-        $content_length = $request->getServerParams()['CONTENT_LENGTH'] ?? 0;
-        $post_max_size = (int)ini_get('post_max_size');
-        $post_max_size_byte = $post_max_size * 1024 * 1024; // MB -> Byte
-        if ($content_length >= $post_max_size_byte) {
-            throw new HttpBadRequestException($request, "Post Data는 최대 {$post_max_size}MB까지 전송 가능합니다.");
-        }
-
-        throw new HttpForbiddenException($request, 'CSRF 검증 실패. 새로고침 후 다시 시도하세요.');
-    });
-    return $guard;
-});
-
-$container->set('flash', fn() => new Messages($_SESSION));
-
-$container->set(ImageStrategyInterface::class, function () {
-    $version = getPackageVersion('intervention/image');
-    if (version_compare($version, '3.0.0', '<')) {
-        return new ImageStrategyV2();
-    }
-    return new ImageStrategyV3();
-});
+ContainerConfig::configure($container);
 
 // 미들웨어 설정
 $app->addRoutingMiddleware();
@@ -111,11 +69,7 @@ $errorMiddleware = $app->addErrorMiddleware($app_debug, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 // Twig 설정
-$twig = setupTwig();
-$twig->addExtension(new CsrfExtension($container->get('csrf')));
-$twig->addExtension(new FlashExtension($container->get('flash')));
-$twig->addExtension(new HtmlExtension());
-$twig->addExtension(new IntlExtension());
+$twig = TwigConfig::configure($container);
 $app->add(TwigMiddleware::create($app, $twig));
 
 // 기본 경로 설정
@@ -123,79 +77,9 @@ $request = $request->withAttribute('base_path', str_replace('\\', '/', __DIR__))
 $app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
 
 // 라우트 설정
-setupRoutes($app);
+RouterConfig::configure($app);
 
 // 앱 실행 및 커스텀 응답
 $response = $app->handle($request);
 $responseEmitter = new ResponseEmitter();
 $responseEmitter->emit($response);
-
-/**
- * 설치 여부 확인
- * - .env 설정 파일들이 존재하지 않으면 설치 페이지로 이동
- */
-function validateIsInstalled($path)
-{
-    $env_files = Environment::$option['names'];
-
-    foreach ($env_files as $env) {
-        $env_path = $path . '/' . $env;
-        if (!file_exists($env_path)) {
-            header('Location: install/index.php');
-            exit;
-        }
-    }
-}
-
-/**
- * Twig 및 테마 설정 함수
- */
-function setupTwig()
-{
-    $theme_dir = __DIR__ . '/' . ThemeService::DIRECTORY;
-    ThemeService::setBaseDir($theme_dir);
-
-    $config_service = new ConfigService();
-    $file_service = new FileService();
-    $theme_service = new ThemeService($file_service);
-    $theme = $config_service->getTheme();
-
-    if (!$theme_service->existsTheme($theme)) {
-        $theme = ThemeService::DEFAULT_THEME;
-        $config_service->update(['cf_theme' => $theme]);
-    }
-    
-    $template_dir = str_replace('\\', '/', "$theme_dir/$theme");
-
-    $cache_dir = __DIR__ . "/data/cache/twig";
-    createDirectory($cache_dir);
-
-    return Twig::create($template_dir, ['cache' => $cache_dir, 'auto_reload' => true]);
-}
-
-/**
- * 라우트 설정 함수
- */
-function setupRoutes(App $app)
-{
-    $route_files = glob(__DIR__ . "/app/*/Router/*.php");
-    foreach ($route_files as $file) {
-        include_once $file;
-    }
-    $route_cache = $_ENV['APP_ROUTE_CACHE'] ?? false;
-    if (filter_var($route_cache, FILTER_VALIDATE_BOOLEAN)) {
-        $cache_dir = __DIR__ . "/data/cache/API";
-        createDirectory($cache_dir);
-        $app->getRouteCollector()->setCacheFile("$cache_dir/router-cache.php");
-    }
-}
-
-/**
- * 디렉토리 생성 함수
- */
-function createDirectory($dir, $permissions = 0755)
-{
-    if (!is_dir($dir)) {
-        @mkdir($dir, $permissions);
-    }
-}

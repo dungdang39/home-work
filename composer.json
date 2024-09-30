@@ -31,6 +31,8 @@
         "psr-4": {
             "API\\": "api/",
             "App\\": "app/",
+            "Bootstrap\\": "bootstrap/",
+            "Extend\\": "extend/",
             "Core\\": "core/",
             "Install\\": "install/"
         },

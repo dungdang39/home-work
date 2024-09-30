@@ -13,6 +13,20 @@ class FileService
     public const PERMISSION = 0755;
 
     /**
+     * 파일 디렉토리 생성
+     * @param string $directory
+     * @return void
+     */
+    public static function createDirectory(string $directory, $permission = self::PERMISSION): void
+    {
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, $permission, true) && !is_dir($directory)) {
+                throw new \RuntimeException(sprintf('디렉토리를 생성할 수 없습니다: %s', $directory));
+            }
+        }
+    }
+
+    /**
      * 주어진 바이트 길이의 랜덤한 16진수 문자열을 생성
      * @param int $length 바이트 길이
      * @return string 랜덤한 16진수 문자열
@@ -61,20 +75,6 @@ class FileService
     }
 
     /**
-     * 파일 디렉토리 생성
-     * @param string $directory
-     * @return void
-     */
-    public function createDirectory(string $directory): void
-    {
-        if (!is_dir($directory)) {
-            if (!mkdir($directory, self::PERMISSION, true) && !is_dir($directory)) {
-                throw new \RuntimeException(sprintf('디렉토리를 생성할 수 없습니다: %s', $directory));
-            }
-        }
-    }
-
-    /**
      * 파일 업로드
      * 
      * @param Request $request 요청 객체
@@ -89,7 +89,7 @@ class FileService
         }
 
         $directory = $this->getUploadDir($request, $folder);
-        
+
         $this->createDirectory($directory);
 
         $filename = $this->moveUploadedFile($directory, $file, $basename);
