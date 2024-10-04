@@ -97,3 +97,10 @@
         </span>
     </nav>
 {% endmacro %}
+
+{% macro member_icon(member) %}
+    {% set base_image = '/img/no_profile.gif' %}
+    {% set member_image = member.mb_image ?? base_image %}
+
+    <img src="{{ base_url ~ member_image }}" width="22" height="22" alt="{{ member.mb_nick }}" onerror="this.src='{{ base_url ~ base_image }}'">
+{% endmacro %}

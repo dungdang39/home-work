@@ -5,13 +5,16 @@ namespace App\Member\Controller;
 use App\Member\MemberConfigService;
 use App\Member\MemberService;
 use App\Member\Model\CreateMemberRequest;
+use App\Member\Model\DeleteMemberListRequest;
 use App\Member\Model\MemberMemoRequest;
 use App\Member\Model\MemberSearchRequest;
 use App\Member\Model\MemberRequest;
+use App\Member\Model\UpdateMemberListRequest;
 use Core\BaseController;
 use Core\FileService;
 use Core\ImageService;
 use Core\Validator\Validator;
+use DI\Container;
 use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -19,17 +22,20 @@ use Slim\Views\Twig;
 
 class MemberController extends BaseController
 {
+    private Container $container;
     private FileService $file_service;
     private ImageService $image_service;
     private MemberService $service;
     private MemberConfigService $config_service;
 
     public function __construct(
+        Container $container,
         FileService $file_service,
         ImageService $image_service,
         MemberService $service,
         MemberConfigService $config_service,
     ) {
+        $this->container = $container;
         $this->file_service = $file_service;
         $this->image_service = $image_service;
         $this->service = $service;
@@ -186,14 +192,6 @@ class MemberController extends BaseController
     }
 
     /**
-     * 회원 삭제 (리스트)
-     */
-    public function deleteList(Request $request, Response $response): Response
-    {
-        return $this->redirectRoute($request, $response, 'admin.member.manage');
-    }
-
-    /**
      * 회원정보 조회
      */
     public function getMemberInfo(Response $response, string $mb_id): Response
@@ -223,5 +221,85 @@ class MemberController extends BaseController
         return $response->withJson([
             'message' => $message,
         ], 200);
+    }
+
+    /**
+     * 회원 정보 일괄 수정
+     */
+    public function updateList(Request $request, Response $response, UpdateMemberListRequest $data): Response
+    {
+        $config = $request->getAttribute('config');
+        $login_member = $request->getAttribute('login_member');
+        $errors = [];
+
+        foreach ($data->members as $mb_id => $list_data) {
+            $member_info = $this->service->getMember($mb_id);
+            if (!$member_info) {
+                $errors[] = "{$mb_id} : 회원정보가 존재하지 않습니다.";
+                continue;
+            }
+            if ($member_info['mb_id'] === $login_member['mb_id']) {
+                $errors[] = "{$mb_id} : 로그인 중인 관리자는 수정할 수 없습니다.";
+                continue;
+            }
+            if (!is_super_admin($config, $login_member['mb_id']) && $member_info['mb_level'] >= $login_member['mb_level']) {
+                $errors[] = "{$mb_id} : 자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.";
+                continue;
+            }
+
+            if ($member_info['mb_leave_date'] && $list_data['mb_leave_date']) {
+                unset($list_data['mb_leave_date']);
+            }
+            if ($member_info['mb_intercept_date'] && $list_data['mb_intercept_date']) {
+                unset($list_data['mb_intercept_date']);
+            }
+
+            $this->service->update($mb_id, $list_data);
+        }
+
+        if ($errors) {
+            $this->container->get('flash')->addMessage('errors', $errors);
+        }
+
+        return $this->redirectRoute($request, $response, 'admin.member.manage', [], $request->getQueryParams());
+    }
+
+    /**
+     * 회원 정보 일괄 삭제
+     */
+    public function deleteList(Request $request, Response $response, DeleteMemberListRequest $data): Response
+    {
+        $config = $request->getAttribute('config');
+        $login_member = $request->getAttribute('login_member');
+        $errors = [];
+
+        foreach ($data->members as $mb_id) {
+            $member_info = $this->service->getMember($mb_id);
+
+            if (!$member_info) {
+                $errors[] = "{$mb_id} : 회원정보가 존재하지 않습니다.";
+                continue;
+            }
+            if ($member_info['mb_id'] === $login_member['mb_id']) {
+                $errors[] = "{$mb_id} : 로그인 중인 관리자는 삭제할 수 없습니다.";
+                continue;
+            }
+            if (is_super_admin($config, $member_info['mb_id'])) {
+                $errors[] = "{$mb_id} : 최고 관리자는 삭제할 수 없습니다.";
+                continue;
+            }
+            if (!is_super_admin($config, $login_member['mb_id']) && $member_info['mb_level'] >= $login_member['mb_level']) {
+                $errors[] = "{$mb_id} : 자신보다 권한이 높거나 같은 회원은 삭제할 수 없습니다.";
+                continue;
+            }
+
+            $this->service->deleteMember($member_info);
+        }
+
+        if ($errors) {
+            $this->container->get('flash')->addMessage('errors', $errors);
+        }
+
+        return $this->redirectRoute($request, $response, 'admin.member.manage');
     }
 }

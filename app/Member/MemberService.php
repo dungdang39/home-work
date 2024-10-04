@@ -231,6 +231,33 @@ class MemberService
         return $members[0];
     }
 
+    public function deleteMember(array $member): void
+    {
+        // 이미 삭제된 회원은 제외
+        if ($member['mb_leave_date']) {
+            return;
+        }
+        // 회원정보 빈 값으로 업데이트
+        $this->update($member['mb_id'], [
+            'mb_password' => '',
+            'mb_level' => 1,
+            'mb_email' => '',
+            'mb_leave_date' => date('Ymd'),
+            'mb_memo' => date('Ymd') . " 삭제함\n" . $member['mb_memo']
+        ]);
+        // @todo
+        // 추천 포인트 반환
+        // 포인트 테이블에서 삭제
+        // 그룹접근가능 삭제
+        // 쪽지 삭제
+        // 스크랩 삭제
+        // 관리권한 삭제
+        // 그룹관리자인 경우 그룹관리자를 공백으로
+        // 게시판관리자인 경우 게시판관리자를 공백으로
+        // 소셜로그인에서 삭제 또는 해제
+        // 프로필 이미지 삭제
+    }
+
     // ========================================
     // Database Queries
     // ========================================
