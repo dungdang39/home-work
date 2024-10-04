@@ -446,7 +446,7 @@
                         "am_order": 0,
                         "children": [
                             {
-                                "am_name": "기본회원설정",
+                                "am_name": "기본환경설정",
                                 "am_route": "admin.member.config.basic",
                                 "am_order": 0,
                                 "children": []

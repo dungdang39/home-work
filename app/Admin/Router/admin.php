@@ -140,6 +140,9 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
                 $group->get('/basic', [MemberConfigController::class, 'index'])->setName('admin.member.config.basic');
                 $group->put('/basic', [MemberConfigController::class, 'update'])->setName('admin.member.config.basic.update');
+
+                $group->get('/notification', [MemberConfigController::class, 'indexNotification'])->setName('admin.member.config.notification');
+                $group->put('/notification', [MemberConfigController::class, 'updateNotification'])->setName('admin.member.config.notification.update');
             });
 
             // 1:1문의

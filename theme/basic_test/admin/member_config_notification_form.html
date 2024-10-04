@@ -1,0 +1,191 @@
+{% extends "/admin/_layout.html" %}
+{% from "macro.html" import anchor, checked, info, selected %}
+
+{% set title = '회원 > 회원설정 > 알림/푸시 설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <form name="form_member_config_notification" id="form_member_config_notification" method="post" action="{{ url_for('admin.member.config.notification.update') }}"
+        onsubmit="return validate_member_config_form(this);">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
+
+        <section>
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">가입 시 회원에게</th>
+                            <td>
+                                <label for="member_signup_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="member_signup_notify_1" name="member_signup_notify" value="1" {{ checked(1, old('member_signup_notify', member_config)) }}>
+                                <label for="member_signup_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="member_signup_notify_0" name="member_signup_notify" value="0" {{ checked(0, old('member_signup_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">가입 시 회원에게 발송유형</th>
+                            <td>
+                                <select name="member_signup_send_type" id="member_signup_send_type">
+                                    <option value="both" {{ selected('both', old('member_signup_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('member_signup_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('member_signup_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">가입 시 회원에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('가입 시 회원에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="member_signup_preset" id="member_signup_preset" rows="5" class="frm_input">
+                                    {{- old('member_signup_preset', member_config) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">탈퇴 시 회원에게</th>
+                            <td>
+                                <label for="member_leave_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="member_leave_notify_1" name="member_leave_notify" value="1" {{ checked(1, old('member_leave_notify', member_config)) }}>
+                                <label for="member_leave_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="member_leave_notify_0" name="member_leave_notify" value="0" {{ checked(0, old('member_leave_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">탈퇴 시 회원에게 발송유형</th>
+                            <td>
+                                <select name="member_leave_send_type" id="member_leave_send_type">
+                                    <option value="both" {{ selected('both', old('member_leave_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('member_leave_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('member_leave_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">탈퇴 시 회원에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('탈퇴 시 회원에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="member_leave_preset" id="member_leave_preset" rows="5" class="frm_input">
+                                    {{- old('member_leave_preset', member_config) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">가입 시 운영진에게</th>
+                            <td>
+                                <label for="admin_signup_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="admin_signup_notify_1" name="admin_signup_notify" value="1" {{ checked(1, old('admin_signup_notify', member_config)) }}>
+                                <label for="admin_signup_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="admin_signup_notify_0" name="admin_signup_notify" value="0" {{ checked(0, old('admin_signup_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">가입 시 운영진에게 발송유형</th>
+                            <td>
+                                <select name="admin_signup_send_type" id="admin_signup_send_type">
+                                    <option value="both" {{ selected('both', old('admin_signup_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('admin_signup_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('admin_signup_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">가입 시 운영진에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('가입 시 운영진에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="admin_signup_preset" id="admin_signup_preset" rows="5" class="frm_input">{{- old('admin_signup_preset', member_config) -}}</textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">탈퇴 시 운영진에게</th>
+                            <td>
+                                <label for="admin_leave_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="admin_leave_notify_1" name="admin_leave_notify" value="1" {{ checked(1, old('admin_leave_notify', member_config)) }}>
+                                <label for="admin_leave_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="admin_leave_notify_0" name="admin_leave_notify" value="0" {{ checked(0, old('admin_leave_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">탈퇴 시 운영진에게 발송유형</th>
+                            <td>
+                                <select name="admin_leave_send_type" id="admin_leave_send_type">
+                                    <option value="both" {{ selected('both', old('admin_leave_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('admin_leave_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('admin_leave_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">탈퇴 시 운영진에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('탈퇴 시 운영진에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="admin_leave_preset" id="admin_leave_preset" rows="5" class="frm_input">{{- old('admin_leave_preset', member_config) -}}</textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">가입 시 최고관리자에게</th>
+                            <td>
+                                <label for="superadmin_signup_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="superadmin_signup_notify_1" name="superadmin_signup_notify" value="1" {{ checked(1, old('superadmin_signup_notify', member_config)) }}>
+                                <label for="superadmin_signup_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="superadmin_signup_notify_0" name="superadmin_signup_notify" value="0" {{ checked(0, old('superadmin_signup_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">가입 시 최고관리자에게 발송유형</th>
+                            <td>
+                                <select name="superadmin_signup_send_type" id="superadmin_signup_send_type">
+                                    <option value="both" {{ selected('both', old('superadmin_signup_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('superadmin_signup_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('superadmin_signup_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">가입 시 최고관리자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('가입 시 최고관리자에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="superadmin_signup_preset" id="superadmin_signup_preset" rows="5" class="frm_input">{{- old('superadmin_signup_preset', member_config) -}}</textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">탈퇴 시 최고관리자에게</th>
+                            <td>
+                                <label for="superadmin_leave_notify_1" class="rules_label">사용</label>
+                                <input type="radio" id="superadmin_leave_notify_1" name="superadmin_leave_notify" value="1" {{ checked(1, old('superadmin_leave_notify', member_config)) }}>
+                                <label for="superadmin_leave_notify_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="superadmin_leave_notify_0" name="superadmin_leave_notify" value="0" {{ checked(0, old('superadmin_leave_notify', member_config)) }}>
+                            </td>
+                            <th scope="row">탈퇴 시 최고관리자에게 발송유형</th>
+                            <td>
+                                <select name="superadmin_leave_send_type" id="superadmin_leave_send_type">
+                                    <option value="both" {{ selected('both', old('superadmin_leave_send_type', member_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('superadmin_leave_send_type', member_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('superadmin_leave_send_type', member_config)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">탈퇴 시 최고관리자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('탈퇴 시 최고관리자에게 발송할 알림 내용을 입력하세요.') }}
+                                <textarea name="superadmin_leave_preset" id="superadmin_leave_preset" rows="5" class="frm_input">{{- old('superadmin_leave_preset', member_config) -}}</textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    /**
+     * 회원 알림/푸시 설정 폼 유효성 검사
+     */
+    function validate_member_config_notification_form(form) {
+        return true;
+    }
+</script>
+{% endblock content %}
