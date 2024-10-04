@@ -197,6 +197,7 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_email_verified_at` datetime DEFAULT NULL COMMENT '메일인증 완료 일시',
   `mb_email_verified_code` varchar(255) NOT NULL DEFAULT '' COMMENT '메일 인증 코드(일회용)',
   `mb_memo` text DEFAULT NULL COMMENT '메모',
+  `mb_memo_create_at` datetime DEFAULT NULL COMMENT '메모 등록일시',
   `mb_lost_certify` varchar(255) NOT NULL DEFAULT '' COMMENT '비밀번호 분실 시 인증 코드',
   `mb_mailling` tinyint(1) NOT NULL DEFAULT 0 COMMENT '메일 수신 여부',
   `mb_sms` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'SMS 수신 여부',

@@ -5,6 +5,7 @@ namespace App\Member\Controller;
 use App\Member\MemberConfigService;
 use App\Member\MemberService;
 use App\Member\Model\CreateMemberRequest;
+use App\Member\Model\MemberMemoRequest;
 use App\Member\Model\MemberSearchRequest;
 use App\Member\Model\MemberRequest;
 use Core\BaseController;
@@ -79,14 +80,13 @@ class MemberController extends BaseController
      */
     public function insert(Request $request, Response $response, CreateMemberRequest $data): Response
     {
-        // @todo 아이디, 이메일, 닉네임 중복 검사 추가
-
-        $data->mb_image_file->getFilePath();
-
-        $folder = $this->service::DIRECTORY;
-        $width = $this->service::IMAGE_WIDTH;
-        $height = $this->service::IMAGE_HEIGHT;
-        $data->mb_image = $this->image_service->upload($request, $folder, $data->mb_image_file, $width, $height) ?: null;
+        $data->mb_image = $this->image_service->upload(
+            $request,
+            MemberService::DIRECTORY,
+            $data->mb_image_file,
+            MemberService::IMAGE_WIDTH,
+            MemberService::IMAGE_HEIGHT
+        ) ?: null;
 
         unset($data->mb_image_file);
 
@@ -118,7 +118,6 @@ class MemberController extends BaseController
         $login_member = $request->getAttribute('login_member');
         $member = $this->service->getMember($mb_id);
 
-        // @todo 아이디, 이메일, 닉네임 중복 검사 추가
         if (!is_super_admin($config, $login_member['mb_id']) && $member['mb_level'] >= $login_member['mb_level']) {
             throw new Exception('자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.', 403);
         }
@@ -143,17 +142,20 @@ class MemberController extends BaseController
             }
         }
 
-        $folder = $this->service::DIRECTORY;
-        $width = $this->service::IMAGE_WIDTH;
-        $height = $this->service::IMAGE_HEIGHT;
         if ($data->mb_image_del || Validator::isUploadedFile($data->mb_image_file)) {
             $this->file_service->deleteByDb($request, $member['mb_image']);
-            $data->mb_image = $this->image_service->upload($request, $folder, $data->mb_image_file, $width, $height);
+            $data->mb_image = $this->image_service->upload(
+                $request,
+                MemberService::DIRECTORY,
+                $data->mb_image_file,
+                MemberService::IMAGE_WIDTH,
+                MemberService::IMAGE_HEIGHT
+            );
         }
         unset($data->mb_image_del);
         unset($data->mb_image_file);
 
-        $this->service->updateMember($member['mb_id'], get_object_vars($data));
+        $this->service->updateMember($member, $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.member.manage.view', ['mb_id' => $member['mb_id']]);
     }
@@ -201,6 +203,25 @@ class MemberController extends BaseController
         return $response->withJson([
             'message' => "회원정보 조회가 완료되었습니다.",
             'member' => $member
+        ], 200);
+    }
+
+    /**
+     * 회원 메모 수정
+     */
+    public function updateMemo(Request $request, Response $response, MemberMemoRequest $data, string $mb_id): Response
+    {
+        $member = $this->service->getMember($mb_id);
+
+        $message = "메모가 수정되었습니다.";
+        if ($data->mb_memo === '') {
+            $message = "메모가 삭제되었습니다.";
+        }
+
+        $this->service->update($member['mb_id'], $data->publics());
+
+        return $response->withJson([
+            'message' => $message,
         ], 200);
     }
 }

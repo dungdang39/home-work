@@ -84,3 +84,25 @@ function delete_confirm(href)
         }
     });
 }
+
+async function get_member_info(mb_id) {
+    return new Promise((resolve, reject) => {
+        if (!mb_id || String(mb_id).trim() === "") {
+            alert("유효하지 않은 회원 ID입니다.");
+            return;
+        }
+
+        $.ajax({
+            url: member_info_url.replace('__REPLACE_ID__', mb_id),
+            type: "get",
+            success: function (data) {
+                resolve(data.member);
+            },
+            error: function (xhr, status, error) {
+                let result = xhr.responseJSON;
+                alert(xhr.status + ' ' + error + ': ' + result.error.message);
+                reject(null);
+            }
+        });
+    });
+}

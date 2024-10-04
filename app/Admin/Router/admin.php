@@ -187,6 +187,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->delete('/list', [MemberController::class, 'deleteList'])->setName('admin.member.manage.delete.list');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.manage.delete');
                 $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.manage.info');
+                $group->put('/{mb_id}/memo', [MemberController::class, 'updateMemo'])->setName('admin.member.manage.memo');
             });
         })->add(AdminMenuPermissionMiddleware::class);
 

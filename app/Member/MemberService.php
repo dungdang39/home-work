@@ -119,18 +119,22 @@ class MemberService
      * @return void
      * @throws Exception 갱신 실패시 Exception 발생
      */
-    public function updateMember(string $mb_id, array $data): void
+    public function updateMember(array $member, array $data): void
     {
-        if (isset($data->mb_nick)) {
-            if ($this->existsMemberByNick($data['mb_nick'], $mb_id)) {
-                throw new Exception("이미 사용중인 닉네임 입니다.", 409);
-            }
+        if (
+            $member['mb_nick'] !== $data['mb_nick']
+            && $this->existsMemberByNick($data['mb_nick'], $member['mb_id'])
+        ) {
+            throw new Exception("이미 사용중인 닉네임 입니다.", 409);
         }
-        if ($this->existsMemberByEmail($data['mb_email'], $mb_id)) {
+        if (
+            $member['mb_email'] !== $data['mb_email']
+            && $this->existsMemberByEmail($data['mb_email'], $member['mb_id'])
+        ) {
             throw new Exception("이미 사용중인 이메일 입니다.", 409);
         }
 
-        $this->update($mb_id, $data);
+        $this->update($member['mb_id'], $data);
     }
 
     /**

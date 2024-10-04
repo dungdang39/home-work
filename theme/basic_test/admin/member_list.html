@@ -4,6 +4,12 @@
 {% set title = "회원 > 회원관리" %}
 {% block title %}{{ title }}{% endblock title %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ theme_url }}/static/remodal/remodal.css">
+<link rel="stylesheet" href="{{ theme_url }}/static/remodal/remodal-default-theme.css">
+<script src="{{ theme_url }}/static/remodal/remodal.js"></script>
+{% endblock head %}
+
 {% block content %}
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
@@ -67,10 +73,10 @@
                         <th scope="col" id="mb_list_name">이름</th>
                         <th scope="col" id="mb_list_nick">닉네임</th>
                         <th scope="col" id="mb_list_deny">레벨</th>
-                        <th scope="col" id="mb_list_grp">그룹</th>
+                        <!-- <th scope="col" id="mb_list_grp">그룹</th> -->
                         <th scope="col" id="mb_list_auth">상태</th>
-                        <th scope="col" id="mb_list_blank"></th>
                         <th scope="col" id="mb_list_memo">메모</th>
+                        <th scope="col" id="mb_list_blank">알림</th>
                         <th scope="col" id="mb_list_mng">관리</th>
                     </tr>
                 </thead>
@@ -109,6 +115,7 @@
                             {% endfor %}
                             </select>
                         </td>
+                        <!--
                         <td headers="mb_list_grp" class="td_mng_m">
                             <select name="group">
                                 <option value="">선택</option>
@@ -117,6 +124,7 @@
                                 <option value="3">그룹3</option>
                             </select>
                         </td>
+                        -->
                         <td headers="mb_list_auth" class="td_mng_m">
                             <select name="group">
                                 <option value="">선택</option>
@@ -125,10 +133,13 @@
                                 <option value="leave" {{ selected('leave', member.status ) }}>탈퇴</option>
                             </select>
                         </td>
-                        <td headers="mb_list_blank" class="td_mng_m"></td>
-                        <td headers="mb_list_memo" class="td_mng_m"></td>
-
-                        <td headers="mb_list_mng" class="td_mng td_mng_m">
+                        <td headers="mb_list_memo" class="td_mng_m">
+                            <button type="button" name="btn_memo" class="btn btn_03" data-mb_id="{{ member.mb_id }}">메모</button>
+                        </td>
+                        <td headers="mb_list_blank" class="td_mng_m">
+                            <button type="button" name="btn_notify" class="btn btn_03" data-mb_id="{{ member.mb_id }}">알림</button>
+                        </td>
+                        <td headers="mb_list_mng" class="td_mng_m">
                             <a href="{{ url_for('admin.member.manage.view', {mb_id: member.mb_id}) }}" class="btn btn_03">관리</a>
                         </td>
                     </tr>
@@ -144,11 +155,141 @@
             <a href="{{ url_for('admin.member.manage.create') }}" id="member_add" class="btn btn_01">회원추가</a>
         </div>
     </form>
-
     {{ renderPagination(pagination, query_params) }}
-
 </div>
+
+<div class="is_rewrite remodal" data-remodal-id="modal_memo" role="dialog" aria-labelledby="modalMemo" aria-describedby="modal1Desc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form name="memo_form">
+        <input type="hidden" name="mb_id" value="">
+
+        <h3>회원아이디 / 이름 / 닉네임</h3>
+        <div name="memo_created_at">
+            <h4 class="copy_title">등록일시</h4>
+            <span></span>
+        </div>
+        <textarea rows="5" style="min-height:unset;"></textarea>
+        <button type="button" id="btn_memo_add" class="btn btn_03">메모 추가</button>
+        <button type="button" id="btn_memo_remove" class="btn btn_02">삭제</button> 
+    </form>
+</div>
+
+<div class="is_rewrite remodal" data-remodal-id="modal_notify" role="dialog" aria-labelledby="modalNotify" aria-describedby="modal2Desc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form name="alarm_form">
+        <h3>회원아이디 / 이름 / 닉네임</h3>
+        <h4 class="copy_title">알림</h4>
+        <textarea rows="5" style="min-height:unset;" placeholder="알림 내용"></textarea>
+        <button type="button" id="btn_send_notify" class="btn btn_03">발송하기</button>
+    </form>
+</div>
+
 <script>
+    const memo_update_url = "{{ url_for('admin.member.manage.memo', {mb_id: '__REPLACE_ID__'}) }}";
+    let modal_memo = $('[data-remodal-id="modal_memo"]');
+    let modal_notify = $('[data-remodal-id="modal_notify"]');
+
+    /**
+     * 메모
+     */
+    $("button[name='btn_memo']").on("click", async function () {
+        let mb_id = $(this).data("mb_id");
+        
+        let member = await get_member_info(mb_id);
+        if (member) {
+            modal_memo.find("h3").text(member.mb_id + " / " + member.mb_name + " / " + member.mb_nick);
+            modal_memo.find("textarea").text(member.mb_memo);
+
+            if (member.mb_memo) {
+                modal_memo.find("[name='memo_created_at'] span").text(member.mb_memo_created_at);
+                modal_memo.find("[name='memo_created_at']").show();
+            } else {
+                modal_memo.find("[name='memo_created_at'] span").text('');
+                modal_memo.find("[name='memo_created_at']").hide();
+            }
+            modal_memo.find("input[name='mb_id']").val(mb_id);
+            modal_memo.remodal().open();
+        }
+    });
+
+    $("#btn_memo_add").on("click", function () {
+        let memo = modal_memo.find("textarea").val();
+        if (memo.length == 0) {
+            alert("메모를 입력하세요.");
+            return;
+        }
+
+        update_memo();
+    });
+
+    $("#btn_memo_remove").on("click", function () {
+        if (!confirm("메모를 삭제하시겠습니까?")) {
+            return;
+        }
+
+        modal_memo.find("textarea").text("");
+        update_memo();
+    });
+
+    async function update_memo() {
+        let mb_id = modal_memo.find("input[name='mb_id']").val();
+
+        $.ajax({
+            url: memo_update_url.replace('__REPLACE_ID__', mb_id),
+            type: "put",
+            data: {
+                mb_memo: modal_memo.find("textarea").val()
+            },
+            beforeSend: function (xhr) {
+                for (let key in csrf) {
+                    if (!csrf[key]) {
+                        alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                        return false;
+                    }
+                    xhr.setRequestHeader(key, csrf[key]);
+                }
+            },
+            success: function (data) {
+                alert(data.message);
+                modal_memo.remodal().close();
+            },
+            error: function (xhr, status, error) {
+                let result = xhr.responseJSON;
+                alert(xhr.status + ' ' + error + ': ' + result.error.message);
+            }
+        });
+    }
+
+    /**
+     * 알림 전송
+     */
+    $("button[name='btn_notify']").on("click", async function () {
+        let mb_id = $(this).data("mb_id");
+        
+        let member = await get_member_info(mb_id);
+        if (member) {
+            modal_notify.find("h3").text(member.mb_id + " / " + member.mb_name + " / " + member.mb_nick);
+            modal_notify.find("input[name='mb_id']").val(mb_id);
+            modal_notify.remodal().open();
+        }
+    });
+
+    $("#btn_send_notify").on("click", function () {
+        let nofify = modal_notify.find("textarea").val();
+        if (nofify.length == 0) {
+            alert("알림 내용을 입력하세요.");
+            return;
+        }
+
+        // @todo 알림 전송
+    });
+
     function validate_form(f) {
         if (!is_checked("chk[]")) {
             alert(document.pressed + " 하실 항목을 하나 이상 선택하세요.");

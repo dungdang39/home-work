@@ -16,6 +16,7 @@
             '{{ csrf.keys.name }}': '{{ csrf.name }}',
             '{{ csrf.keys.value }}': '{{ csrf.value }}'
         };
+        const member_info_url = "{{ url_for('admin.member.manage.info', {mb_id: '__REPLACE_ID__'}) }}";
     </script>
     <script src="{{ base_url }}/js/jquery-1.12.4.min.js?ver=2304171"></script>
     <script src="{{ base_url }}/js/jquery-migrate-1.4.1.min.js?ver=2304171"></script>

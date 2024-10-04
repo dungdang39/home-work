@@ -55,7 +55,7 @@ class MemberRequest
     public function __construct(
         ConfigService $config_service,
         MemberConfigService $member_config_service,
-        Request $request,
+        Request $request
     ) {
         $this->config = $config_service->getConfig();
         $this->member_config = $member_config_service->getMemberConfig();
@@ -96,8 +96,6 @@ class MemberRequest
 
     private function validateNickName()
     {
-        $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
-
         if (!Validator::required($this->mb_nick)) {
             $this->throwException('닉네임을 입력해주세요.');
         }
@@ -107,9 +105,10 @@ class MemberRequest
         if (!Validator::isAlnumko($this->mb_nick)) {
             $this->throwException('닉네임은 한글, 영문, 숫자만 입력하세요.');
         }
-        if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
-            $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
-        }
+        // $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
+        // if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
+        //     $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
+        // }
     }
 
     private function validateEmail()
