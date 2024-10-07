@@ -346,6 +346,33 @@ CREATE TABLE IF NOT EXISTS `new_notification_setting` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_point`
+--
+
+DROP TABLE IF EXISTS `new_point`;
+CREATE TABLE IF NOT EXISTS `new_point` (
+  `po_id` int(11) NOT NULL AUTO_INCREMENT,
+  `mb_id` varchar(60) NOT NULL DEFAULT '' COMMENT '회원 아이디',
+  `po_content` varchar(255) NOT NULL DEFAULT '' COMMENT '포인트 내용',
+  `po_point` int(11) NOT NULL DEFAULT 0 COMMENT '포인트',
+  `po_use_point` int(11) NOT NULL DEFAULT 0 COMMENT '사용된 포인트',
+  `po_expired` tinyint(1) NOT NULL DEFAULT 0 COMMENT '포인트 만료 여부',
+  `po_expire_date` date DEFAULT NULL COMMENT '포인트 만료날짜',
+  `po_mb_point` int(11) NOT NULL DEFAULT 0 COMMENT '회원의 포인트 합계',
+  `po_rel_table` varchar(20) NOT NULL DEFAULT '' COMMENT '연관 table',
+  `po_rel_id` varchar(60) NOT NULL DEFAULT '' COMMENT '연관 id',
+  `po_rel_action` varchar(100) NOT NULL DEFAULT '' COMMENT '연관 action',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+  PRIMARY KEY (`po_id`),
+  KEY `index1` (`mb_id`,`po_rel_table`,`po_rel_id`,`po_rel_action`),
+  KEY `index2` (`po_expire_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_popup`
 --
 DROP TABLE IF EXISTS `new_popup`;

@@ -16,6 +16,7 @@ use App\Content\ContentController;
 use App\Faq\FaqController;
 use App\Member\Controller\MemberConfigController;
 use App\Member\Controller\MemberController;
+use App\Member\Controller\PointController;
 use App\Popup\Controller\PopupController;
 use App\Qa\Controller\QaConfigController;
 use App\Qa\Controller\QaController;
@@ -174,10 +175,11 @@ $app->group('admin', function (RouteCollectorProxy $group) {
 
             // 포인트 관리
             $group->group('/point', function (RouteCollectorProxy $group) {
-                $group->get('[/{po_id}]', [MemberController::class, 'index'])->setName('admin.member.point');
-                $group->post('', [MemberController::class, 'insert'])->setName('admin.member.point.insert');
-                $group->post('/{po_id}', [MemberController::class, 'update'])->setName('admin.member.point.update');
-                $group->delete('/{po_id}', [MemberController::class, 'delete'])->setName('admin.member.point.delete');
+                $group->get('', [PointController::class, 'index'])->setName('admin.member.point');
+                $group->post('', [PointController::class, 'insert'])->setName('admin.member.point.insert');
+                $group->put('/{po_id}', [PointController::class, 'update'])->setName('admin.member.point.update');
+                $group->delete('/{po_id}', [PointController::class, 'delete'])->setName('admin.member.point.delete');
+                $group->post('/list/delete', [PointController::class, 'deleteList'])->setName('admin.member.point.delete.list');
             });
 
             // 회원관리

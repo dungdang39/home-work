@@ -9,6 +9,7 @@ use Slim\Http\ServerRequest as Request;
 
 class MemberService
 {
+    public const TABLE_NAME = 'member';
     public const DIRECTORY = 'member';
     public const IMAGE_WIDTH = 60;
     public const IMAGE_HEIGHT = 60;
@@ -23,7 +24,8 @@ class MemberService
         Request $request,
         
     ) {
-        $this->table = $_ENV['DB_PREFIX'] . 'member';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+
         $this->mconfig_service = $mconfig_service;
         $this->request = $request;
     }
