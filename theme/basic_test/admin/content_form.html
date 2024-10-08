@@ -61,12 +61,24 @@
                         <th scope="row"><label for="head_image_file">상단이미지</label></th>
                         <td>
                             <input type="file" name="head_image_file" id="head_image_file">
+                            {% if content.head_image %}
+                            {{ content.head_image_name }}
+                            <input type="checkbox" name="head_image_del" value="1" id="head_image_del">
+                            <label for="head_image_del">삭제</label>
+                                <img src="{{ base_url ~ content.head_image }}" alt="상단 이미지" width="200">
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="foot_image_file">하단이미지</label></th>
                         <td>
                             <input type="file" name="foot_image_file" id="foot_image_file">
+                            {% if content.foot_image %}
+                            {{ content.foot_image_name }}
+                            <input type="checkbox" name="foot_image_del" value="1" id="foot_image_del">
+                            <label for="foot_image_del">삭제</label>
+                                <img src="{{ base_url ~ content.foot_image }}" alt="하단 이미지" width="200">
+                            {% endif %}
                         </td>
                     </tr>
                 </tbody>

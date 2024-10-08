@@ -17,22 +17,19 @@ use Slim\Views\Twig;
  */
 class TemplateMiddleware
 {
-    private ConfigService $config_service;
     private UriHelper $uri_helper;
 
     public function __construct(
-        ConfigService $config_service,
         UriHelper $uri_helper
     ) {
-        $this->config_service = $config_service;
         $this->uri_helper = $uri_helper;
     }
 
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         $base_url = $this->uri_helper->getBaseUrl($request);
-        $config = $this->config_service->getConfig();
-        $theme = $this->config_service->getTheme();
+        $config = ConfigService::getConfig();
+        $theme = ConfigService::getTheme();
         $theme_path = '/' . ThemeService::DIRECTORY . '/' . $theme;
 
         // 템플릿 전역변수 설정

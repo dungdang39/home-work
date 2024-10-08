@@ -6,11 +6,12 @@ use Core\Database\Db;
 
 class MenuService
 {
+    public const TABLE_NAME = 'menu';
     private string $table;
 
     public function __construct()
     {
-        $this->table = $_ENV['DB_PREFIX'] . 'menu';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
     /**
@@ -18,12 +19,10 @@ class MenuService
      * @param bool $is_mobile
      * @return array
      */
-    private function fetchMenu($is_mobile = false)
+    private function fetchMenu()
     {
         $query = "SELECT * FROM {$this->table} WHERE me_use = 1";
-        if ($is_mobile) {
-            $query .= " AND me_mobile_use = 1";
-        }
+
         return Db::getInstance()->run($query)->fetchAll();
     }
 
@@ -57,17 +56,16 @@ class MenuService
 
     /**
      * 메뉴 정보를 가져옵니다.
-     * @param $is_mobile
      * @return array
      *
      * @todo cache 적용
      */
-    public function getMenu($is_mobile = false): array
+    public function getMenu(): array
     {
-        $menu_data = $this->fetchMenu($is_mobile);
+        $menu_data = $this->fetchMenu();
         if (!$menu_data) {
             return [];
         }
-        return $menu_data; // $this->sortMenu($menu_data);
+        return $this->sortMenu($menu_data);
     }
 }

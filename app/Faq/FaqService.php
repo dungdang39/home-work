@@ -9,15 +9,20 @@ use Slim\Http\ServerRequest as Request;
 
 class FaqService
 {
+    public const CATEGORY_TABLE_NAME = 'faq_category';
+    public const TABLE_NAME = 'faq';
+
     public string $category_table;
     public string $table;
     public Request $request;
 
-    public function __construct(Request $request)
-    {
+    public function __construct(
+        Request $request
+    ) {
         $this->request = $request;
-        $this->category_table = $_ENV['DB_PREFIX'] . 'faq_category';
-        $this->table = $_ENV['DB_PREFIX'] . 'faq';
+
+        $this->category_table = $_ENV['DB_PREFIX'] . self::CATEGORY_TABLE_NAME;
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
     /**
@@ -25,7 +30,7 @@ class FaqService
      * @param array $params  검색 조건
      * @return array
      */
-    public function getFaqCategories(array $params): array
+    public function getFaqCategories(array $params = []): array
     {
         $faq_categories = $this->fetchFaqCategories($params);
         if (empty($faq_categories)) {
@@ -33,7 +38,7 @@ class FaqService
         }
 
         foreach ($faq_categories as &$category) {
-            $category['faq_count'] = $this->fetchFaqCount($category['id']);
+            $category['faq_count'] = $this->fetchFaqsCount($category['id']);
         }
 
         return $faq_categories;
@@ -73,7 +78,7 @@ class FaqService
      */
     public function getFaq(int $id): array
     {
-        $faq = $this->fetchFaq($id);
+        $faq = $this->fetch($id);
 
         if (empty($faq)) {
             throw new HttpNotFoundException($this->request, 'FAQ 항목 정보를 찾을 수 없습니다.');
@@ -89,12 +94,12 @@ class FaqService
     /**
      * FAQ 카테고리 총 갯수 조회
      */
-    public function fetchFaqCategoriesTotalCount(array $params = []): int
+    public function fetchFaqCategoriesCount(array $params = []): int
     {
         $wheres = [];
         $values = [];
 
-        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT COUNT(*) FROM {$this->category_table} {$where}";
 
@@ -104,24 +109,25 @@ class FaqService
     /**
      * FAQ 카테고리 목록 조회
      * 
-     * @param array $params  검색 조건
+     * @param array $params 검색 조건
      * @return array|false
      */
     public function fetchFaqCategories(array $params = [])
     {
         $wheres = [];
         $values = [];
+        $sql_limit = '';
 
         if (isset($params['offset']) && isset($params['limit'])) {
-            $values["offset"] = $params['offset'];
-            $values["limit"] = $params['limit'];
-            $sql_limit = "LIMIT :offset, :limit";
+            $values['offset'] = (int)$params['offset'];
+            $values['limit'] = (int)$params['limit'];
+            $sql_limit = 'LIMIT :offset, :limit';
         }
 
-        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT * FROM {$this->category_table}
-                    {$where}
+                    {$sql_where}
                     ORDER BY `order` ASC, created_at ASC
                     {$sql_limit}";
 
@@ -136,7 +142,7 @@ class FaqService
     public function fetchFaqCategory(int $id)
     {
         $query = "SELECT * FROM {$this->category_table} WHERE id = :id";
-        return Db::getInstance()->run($query, ["id" => $id])->fetch();
+        return Db::getInstance()->run($query, ['id' => $id])->fetch();
     }
 
     /**
@@ -144,10 +150,15 @@ class FaqService
      * @param int $faq_category_id  FAQ 카테고리 ID
      * @return int
      */
-    public function fetchFaqCount(int $faq_category_id): int
+    public function fetchFaqsCount(int $faq_category_id): int
     {
-        $query = "SELECT COUNT(*) FROM {$this->table} WHERE faq_category_id = :faq_category_id";
-        return Db::getInstance()->run($query, ["faq_category_id" => $faq_category_id])->fetchColumn();
+        $query = "SELECT COUNT(*)
+                    FROM {$this->table}
+                    WHERE faq_category_id = :faq_category_id";
+
+        $value = ['faq_category_id' => $faq_category_id];
+
+        return Db::getInstance()->run($query, $value)->fetchColumn();
     }
 
     /**
@@ -156,18 +167,24 @@ class FaqService
      * @param int $faq_category_id  FAQ 카테고리 ID
      * @return array|false
      */
-    public function fetchFaqs(int $faq_category_id)
+    public function fetchFaqs(int $faq_category_id, string $keyword = '')
     {
         $wheres = [];
         $values = [];
 
-        $wheres[] = "faq_category_id = :faq_category_id";
-        $values["faq_category_id"] = $faq_category_id;
+        $wheres[] = 'faq_category_id = :faq_category_id';
+        $values['faq_category_id'] = $faq_category_id;
 
-        $where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        if (isset($keyword) && $keyword !== '') {
+            $wheres[] = '(question LIKE :keyword1 OR answer LIKE :keyword2)';
+            $values['keyword1'] = "%{$keyword}%";
+            $values['keyword2'] = "%{$keyword}%";
+        }
+
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT * FROM {$this->table}
-                    {$where}
+                    {$sql_where}
                     ORDER BY `order` ASC, `created_at` DESC";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -179,10 +196,10 @@ class FaqService
      * @param int $id  FAQ 항목 ID
      * @return array|false
      */
-    public function fetchFaq(int $id)
+    public function fetch(int $id)
     {
         $query = "SELECT * FROM {$this->table} WHERE id = :id";
-        return Db::getInstance()->run($query, ["id" => $id])->fetch();
+        return Db::getInstance()->run($query, ['id' => $id])->fetch();
     }
 
     /**
@@ -218,7 +235,7 @@ class FaqService
      */
     public function update(string $id, array $data): int
     {
-        return Db::getInstance()->update($this->table, $data, ["id" => $id]);
+        return Db::getInstance()->update($this->table, $data, ['id' => $id]);
     }
 
     /**
@@ -230,7 +247,7 @@ class FaqService
      */
     public function updateCategory(int $id, array $data): int
     {
-        return Db::getInstance()->update($this->category_table, $data, ["id" => $id]);
+        return Db::getInstance()->update($this->category_table, $data, ['id' => $id]);
     }
 
     /**
@@ -240,7 +257,7 @@ class FaqService
      */
     public function delete(int $id): int
     {
-        return Db::getInstance()->delete($this->table, ["id" => $id]);
+        return Db::getInstance()->delete($this->table, ['id' => $id]);
     }
 
     /**
@@ -250,7 +267,7 @@ class FaqService
      */
     public function deleteFaqs(int $faq_category_id): int
     {
-        return Db::getInstance()->delete($this->table, ["faq_category_id" => $faq_category_id]);
+        return Db::getInstance()->delete($this->table, ['faq_category_id' => $faq_category_id]);
     }
 
     /**
@@ -261,7 +278,7 @@ class FaqService
      */
     public function deleteCategory(int $id): int
     {
-        return Db::getInstance()->delete($this->category_table, ["id" => $id]);
+        return Db::getInstance()->delete($this->category_table, ['id' => $id]);
     }
 
     // ========================================

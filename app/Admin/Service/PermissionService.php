@@ -65,7 +65,7 @@ class PermissionService
     {
         $wheres = [];
         $values = [];
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT COUNT(*) FROM {$this->table} {$sql_where}";
         return Db::getInstance()->run($query, $values)->fetchColumn();

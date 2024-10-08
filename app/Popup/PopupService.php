@@ -7,11 +7,12 @@ use Exception;
 
 class PopupService
 {
+    public const TABLE_NAME = 'popup';
     private string $table;
 
     public function __construct()
     {
-        $this->table = $_ENV['DB_PREFIX'] . 'popup';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
     /**
@@ -31,7 +32,7 @@ class PopupService
      */
     public function getPopup(int $pu_id): array
     {
-        $popup = $this->fetchPopup($pu_id);
+        $popup = $this->fetch($pu_id);
 
         if (empty($popup)) {
             throw new Exception('팝업 정보를 찾을 수 없습니다.', 404);
@@ -44,17 +45,47 @@ class PopupService
     // Database Queries
     // ========================================
 
-    public function fetchPopupsTotalCount(array $params): int
+    /**
+     * 활성화된 팝업 가져오기
+     * @param string $division  구분 (both, community, shop)
+     * @param string $except_ids  제외할 팝업 ID (쉼표로 구분)
+     * @return mixed
+     */
+    public function fetchActivePopups(string $division = '', string $except_ids = '')
+    {
+        $sql_where = '';
+        if ($except_ids) {
+            $sql_where = "AND pu_id NOT IN ({$except_ids})";
+        }
+
+        $query = "SELECT *
+                    FROM {$this->table}
+                    WHERE pu_division IN ('both', :pu_division) 
+                        AND pu_begin_time <= NOW()
+                        AND pu_end_time >= NOW()
+                        {$sql_where}
+                    ORDER BY pu_id DESC";
+
+        return Db::getInstance()->run($query, ['pu_division' => $division])->fetchAll();
+    }
+
+    /**
+     * 팝업 개수 조회
+     * 
+     * @param array $params  검색 조건
+     * @return int
+     */
+    public function fetchPopupsCount(array $params): int
     {
         $wheres = [];
         $values = [];
         $sql_where = "";
 
         if (!empty($params['pu_device'])) {
-            $sql_where .= "pu_device = :pu_device";
+            $sql_where .= 'pu_device = :pu_device';
             $values['pu_device'] = $params['pu_device'];
         }
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT COUNT(*)
                     FROM {$this->table}
@@ -80,7 +111,7 @@ class PopupService
             $sql_where .= "pu_device = :pu_device";
             $values['pu_device'] = $params['pu_device'];
         }
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         if (isset($params['offset']) && isset($params['limit'])) {
             $values["offset"] = $params['offset'];
@@ -103,7 +134,7 @@ class PopupService
      * @param int $pu_id  팝업 ID
      * @return array|false
      */
-    public function fetchPopup(int $pu_id)
+    public function fetch(int $pu_id)
     {
         $query = "SELECT * FROM {$this->table} WHERE pu_id = :pu_id";
         return Db::getInstance()->run($query, ["pu_id" => $pu_id])->fetch();

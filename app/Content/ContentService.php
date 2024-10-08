@@ -3,22 +3,25 @@
 namespace App\Content;
 
 use Core\Database\Db;
-use Core\Lib\UriHelper;
+use Core\FileService;
 use Exception;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\ServerRequest as Request;
 
 class ContentService
 {
+    public const TABLE_NAME = 'content';
     public const DIRECTORY = 'content';
     public const PERMISSION = 0755;
 
     private string $table;
-    private UriHelper $uri_helper;
+    private FileService $file_service;
 
-    public function __construct(UriHelper $uri_helper)
-    {
-        $this->table = $_ENV['DB_PREFIX'] . 'content';
-        $this->uri_helper = $uri_helper;
+    public function __construct(
+        FileService $file_service,
+    ) {
+        $this->file_service = $file_service;
+
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
     /**
@@ -30,7 +33,11 @@ class ContentService
     {
         $contents = $this->fetchContents($params);
 
-        return $contents ?: [];
+        if (empty($contents)) {
+            return [];
+        }
+
+        return $contents;
     }
 
     /**
@@ -38,7 +45,7 @@ class ContentService
      */
     public function getContent(string $code): array
     {
-        $content = $this->fetchContent($code);
+        $content = $this->fetch($code);
 
         if (empty($content)) {
             throw new Exception('컨텐츠 정보를 찾을 수 없습니다.', 404);
@@ -48,51 +55,17 @@ class ContentService
     }
 
     /**
-     * 컨텐츠 이미지 경로 가져오기
-     * 
+     * 컨텐츠 삭제
      * @param Request $request
-     * @return string
-     */
-    public function getContentPath(Request $request): string
-    {
-        $base_path = $this->uri_helper->getBasePath($request);
-        // @TODO: data 경로도 상수로 빼야함.
-        return $base_path . "/data/" . self::DIRECTORY;
-    }
-
-    /**
-     * 컨텐츠 디렉토리 생성
-     * 
-     * @param Request $request
+     * @param array $content
      * @return void
      */
-    public function makeContentDir(Request $request): void
+    public function deleteContent(Request $request, array $content): void
     {
-        $content_path = $this->getContentPath($request);
-        if (file_exists($content_path)) {
-            return;
-        }
+        $this->file_service->deleteByDb($request, $content['head_image']);
+        $this->file_service->deleteByDb($request, $content['foot_image']);
 
-        @mkdir($content_path, self::PERMISSION);
-        @chmod($content_path, self::PERMISSION);
-    }
-
-    /**
-     * 컨텐츠 이미지 업로드
-     * 
-     * @param Request $request  요청 객체
-     * @param object $data  컨텐츠 데이터
-     * @return void
-     */
-    public function uploadImage(Request $request, object &$data)
-    {
-        $content_path = $this->getContentPath($request);
-        if ($data->head_image_file->getSize() > 0) {
-            $data->head_image = moveUploadedFile($content_path, $data->head_image_file);
-        }
-        if ($data->foot_image_file->getSize() > 0) {
-            $data->foot_image = moveUploadedFile($content_path, $data->foot_image_file);
-        }
+        $this->delete($content['code']);
     }
 
     // ========================================
@@ -104,13 +77,15 @@ class ContentService
      * @param array $params  검색 조건
      * @return int
      */
-    public function fetchContentsTotalCount(array $params = []): int
+    public function fetchContentsCount(array $params = []): int
     {
         $wheres = [];
         $values = [];
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
-        $query = "SELECT COUNT(*) FROM {$this->table} {$sql_where}";
+        $query = "SELECT COUNT(*)
+                    FROM {$this->table}
+                    {$sql_where}";
         return Db::getInstance()->run($query, $values)->fetchColumn();
     }
 
@@ -124,7 +99,7 @@ class ContentService
     {
         $wheres = [];
         $values = [];
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $sql_limit = "";
         if (isset($params['offset']) && isset($params['limit'])) {
@@ -133,7 +108,8 @@ class ContentService
             $sql_limit = "LIMIT :offset, :limit";
         }
 
-        $query = "SELECT * FROM {$this->table}
+        $query = "SELECT *
+                    FROM {$this->table}
                     {$sql_where}
                     ORDER BY created_at DESC
                     {$sql_limit}";
@@ -147,7 +123,7 @@ class ContentService
      * @param string $code  컨텐츠 코드
      * @return array|false
      */
-    public function fetchContent(string $code)
+    public function fetch(string $code)
     {
         $query = "SELECT * FROM {$this->table} WHERE code = :code";
         return Db::getInstance()->run($query, ["code" => $code])->fetch();

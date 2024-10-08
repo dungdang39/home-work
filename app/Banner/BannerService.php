@@ -89,7 +89,7 @@ class BannerService
             $wheres[] = " bn_position = :bn_position";
             $values["bn_position"] = $params['bn_position'];
         }
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         if (isset($params['offset']) && isset($params['limit'])) {
             $values["offset"] = $params['offset'];

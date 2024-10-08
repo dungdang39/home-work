@@ -30,7 +30,7 @@ class PopupController extends BaseController
         $search_params = $search_request->publics();
 
         // 총 데이터 수 조회 및 페이징 정보 설정
-        $total_count = $this->service->fetchPopupsTotalCount($search_params);
+        $total_count = $this->service->fetchPopupsCount($search_params);
         $search_request->setTotalCount($total_count);
     
         // 팝업 목록 조회

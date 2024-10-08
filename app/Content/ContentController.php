@@ -7,6 +7,8 @@ use App\Content\Model\ContentSearchRequest;
 use App\Content\ContentService;
 use App\Content\Model\ContentUpdateRequest;
 use Core\BaseController;
+use Core\FileService;
+use Core\Validator\Validator;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -14,11 +16,14 @@ use Slim\Views\Twig;
 class ContentController extends BaseController
 {
     private ContentService $service;
+    private FileService $file_service;
 
     public function __construct(
         ContentService $service,
+        FileService $file_service
     ) {
         $this->service = $service;
+        $this->file_service = $file_service;
     }
 
     /**
@@ -29,7 +34,7 @@ class ContentController extends BaseController
         $params = $search->publics();
 
         // 총 데이터 수 조회 및 페이징 정보 설정
-        $total_count = $this->service->fetchContentsTotalCount($params);
+        $total_count = $this->service->fetchContentsCount($params);
         $search->setTotalCount($total_count);
         
         // 컨텐츠 목록 조회
@@ -60,10 +65,10 @@ class ContentController extends BaseController
      */
     public function insert(Request $request, Response $response, ContentCreateRequest $data): Response
     {
-        // 파일 업로드 처리
-        $this->service->makeContentDir($request);
-        $this->service->uploadImage($request, $data);
-        // 파일 필드 제거
+        $folder = $this->service::DIRECTORY;
+        $data->head_image = $this->file_service->upload($request, $folder, $data->head_image_file) ?: null;
+        $data->foot_image = $this->file_service->upload($request, $folder, $data->foot_image_file) ?: null;
+
         unset($data->head_image_file);
         unset($data->foot_image_file);
 
@@ -93,10 +98,18 @@ class ContentController extends BaseController
     {
         $content = $this->service->getContent($code);
 
-        // @todo: 기존 이미지 파일 삭제 처리
-        $this->service->makeContentDir($request);
-        $this->service->uploadImage($request, $data);
-        // 파일 필드 제거
+        $folder = $this->service::DIRECTORY;
+        if ($data->head_image_del || Validator::isUploadedFile($data->head_image_file)) {
+            $this->file_service->deleteByDb($request, $content['head_image']);
+            $data->head_image = $this->file_service->upload($request, $folder, $data->head_image_file);
+        }
+        if ($data->foot_image_del || Validator::isUploadedFile($data->foot_image_file)) {
+            $this->file_service->deleteByDb($request, $content['foot_image']);
+            $data->foot_image = $this->file_service->upload($request, $folder, $data->foot_image_file);
+        }
+
+        unset($data->head_image_del);
+        unset($data->foot_image_del);
         unset($data->head_image_file);
         unset($data->foot_image_file);
 
@@ -108,12 +121,11 @@ class ContentController extends BaseController
     /**
      * 컨텐츠 삭제
      */
-    public function delete(Response $response, string $code): Response
+    public function delete(Request $request, Response $response, string $code): Response
     {
         $content = $this->service->getContent($code);
 
-        // @todo: 이미지 파일 삭제 처리
-        $this->service->delete($content['code']);
+        $this->service->deleteContent($request, $content);
 
         return $response->withJson(['message' => '컨텐츠가 삭제되었습니다.']);
     }

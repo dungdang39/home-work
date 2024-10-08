@@ -53,11 +53,10 @@ class MemberRequest
     private array $config;
 
     public function __construct(
-        ConfigService $config_service,
         MemberConfigService $member_config_service,
         Request $request
     ) {
-        $this->config = $config_service->getConfig();
+        $this->config = ConfigService::getConfig();
         $this->member_config = $member_config_service->getMemberConfig();
 
         $this->initializeFromRequest($request);

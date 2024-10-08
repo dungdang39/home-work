@@ -17,8 +17,10 @@ class ContentUpdateRequest
     public ?string $foot_include_file;
     public ?string $head_image;
     public ?string $foot_image;
-    public ?UploadedFile $head_image_file = null;
-    public ?UploadedFile $foot_image_file = null;
+    public ?int $head_image_del = 0;
+    public ?int $foot_image_del = 0;
+    public ?UploadedFile $head_image_file;
+    public ?UploadedFile $foot_image_file;
 
     public function __construct(Request $request)
     {

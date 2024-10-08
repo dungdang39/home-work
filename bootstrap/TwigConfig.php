@@ -28,8 +28,7 @@ class TwigConfig
         self::initializeThemeDirectory();
 
         $config_service = $container->get(ConfigService::class);
-        $file_service = $container->get(FileService::class);
-        $theme_service = new ThemeService($file_service);
+        $theme_service = new ThemeService();
         $theme = $config_service->getTheme();
 
         if (!$theme_service->existsTheme($theme)) {

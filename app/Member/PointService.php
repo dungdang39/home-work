@@ -458,7 +458,7 @@ class PointService
             $values["keyword"] = "%{$params['keyword']}%";
         }
 
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT SUM(po_point) 
                     FROM {$this->table}
@@ -482,7 +482,7 @@ class PointService
             $values["keyword"] = "%{$params['keyword']}%";
         }
 
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT COUNT(*)
                     FROM {$this->table}
@@ -512,7 +512,7 @@ class PointService
             $sql_limit = "LIMIT :offset, :limit";
         }
 
-        $sql_where = $wheres ? "WHERE " . implode(' AND ', $wheres) : "";
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT point.*, member.mb_name, member.mb_nick, member.mb_image
                     FROM {$this->table} as point
