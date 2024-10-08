@@ -119,7 +119,11 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             // 메인화면 설정
             $group->group('/mainpage', function (RouteCollectorProxy $group) {
                 $group->get('', [MainPageController::class, 'index'])->setName('admin.design.mainpage');
-                $group->post('', [MainPageController::class, 'update'])->setName('admin.design.mainpage.update');
+                $group->post('', [MainPageController::class, 'insert'])->setName('admin.design.mainpage.insert');
+                $group->get('/{id}', [MainPageController::class, 'get'])->setName('admin.design.mainpage.get');
+                $group->post('/{id}', [MainPageController::class, 'update'])->setName('admin.design.mainpage.update');
+                $group->post('/list/update', [MainPageController::class, 'updateList'])->setName('admin.design.mainpage.list.update');
+                $group->delete('/{id}', [MainPageController::class, 'delete'])->setName('admin.design.mainpage.delete');
             });
 
             // 메뉴 설정

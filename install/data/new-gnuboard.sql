@@ -160,6 +160,29 @@ CREATE TABLE IF NOT EXISTS `new_faq_category` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_mainpage`
+--
+DROP TABLE IF EXISTS `new_mainpage`;
+CREATE TABLE IF NOT EXISTS `new_mainpage` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `section` varchar(255) NOT NULL DEFAULT '' COMMENT '섹션 타입',
+  `section_title` varchar(255) NOT NULL DEFAULT '' COMMENT '섹션 타이틀',
+  `display_count` int(11) NOT NULL DEFAULT 0 COMMENT '표시할 항목 수(컬럼 수)',
+  `hide_title` tinyint(1) NOT NULL DEFAULT 0 COMMENT '타이틀 숨김 여부',
+  `auto_swipe` tinyint(1) NOT NULL DEFAULT 0 COMMENT '배너 자동 넘김(배너 전용)',
+  `max_item` int(11) NOT NULL DEFAULT 0 COMMENT '최대 상품 수 (쇼핑카테고리, 기획전 전용)',
+  `row_item` int(11) NOT NULL DEFAULT 0 COMMENT '한줄 최소 상품 수 (쇼핑카테고리, 기획전 전용)',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '사용 여부(기획전 전용)',
+  `display_boards` varchar(255) DEFAULT NULL COMMENT '출력할 게시판(커뮤니티 최신글 전용)',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_member`
 --
 DROP TABLE IF EXISTS `new_member`;

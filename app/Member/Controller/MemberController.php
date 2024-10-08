@@ -233,7 +233,7 @@ class MemberController extends BaseController
         $errors = [];
 
         foreach ($data->members as $mb_id => $list_data) {
-            $member_info = $this->service->getMember($mb_id);
+            $member_info = $this->service->fetchMemberById($mb_id);
             if (!$member_info) {
                 $errors[] = "{$mb_id} : 회원정보가 존재하지 않습니다.";
                 continue;

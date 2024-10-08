@@ -1,0 +1,49 @@
+<form id="form_banner" method="post" action="{{ url_for('admin.design.mainpage.insert') }}" style="display:none;">
+    {{ csrf.field|raw }}
+    <input type="hidden" name="section" value="banner">
+
+    <div class="tbl_frm01 tbl_wrap">
+        <h2 class="h2_frm">배너</h2>
+        <table>
+            <colgroup>
+                <col class="grid_4">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="">컬럼 수<strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <select name="display_count">
+                            <option value="">컬럼 수 선택</option>
+                            <option value="1">1단</option>
+                            <option value="2">2단</option>
+                            <option value="3">3단</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="section_title">타이틀<strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <input type="text" name="section_title" class="frm_input frm_input_full" placeholder="섹션 타이틀">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="hide_title">타이틀 숨김</label></th>
+                    <td>
+                        <input type="checkbox" name="hide_title" value="1">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="auto_swipe">스와이프 (자동넘김)</label></th>
+                    <td>
+                        <input type="checkbox" name="auto_swipe" value="1">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <button type="button" class="btn_02 btn cancel_section">취소</button>
+            <button type="submit" class="btn_submit btn">추가</button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,98 @@
+<form id="form_community" method="post" action="{{ url_for('admin.design.mainpage.insert') }}" onsubmit="return validate_comunity_form();" style="display:none;">
+    {{ csrf.field|raw }}
+    <input type="hidden" name="section" value="community">
+    <input type="hidden" name="display_boards">
+
+    <div class="tbl_frm01 tbl_wrap">
+        <h2 class="h2_frm">커뮤니티 최신글</h2>
+        <table>
+            <colgroup>
+                <col class="grid_4">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="">컬럼 수<strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <select name="display_count">
+                            <option value="">컬럼 수 선택</option>
+                            <option value="1">1단</option>
+                            <option value="2">2단</option>
+                            <option value="3">3단</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="section_title">타이틀<strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <input type="text" name="section_title" class="frm_input frm_input_full" placeholder="게시판 타이틀">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="hide_title">타이틀 숨김</label></th>
+                    <td>
+                        <input type="checkbox" name="hide_title" value="1" checked>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="auto_swipe">스와이프 (자동넘김)</label></th>
+                    <td>
+                        <input type="checkbox" name="auto_swipe" value="1">
+                    </td>
+                </tr>
+                <tr class="tr_board">
+                    <th scope="row">게시판 선택</th>
+                    <td>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <button type="button" class="btn_02 btn cancel_section">취소</button>
+            <button type="submit" class="btn_submit btn">추가</button>
+        </div>
+    </div>
+    
+    <script>
+        $("#form_community select[name='display_count']").on('change', function() {
+            let display_count = $(this).val();
+    
+            // display_count의 수만큼 tr_board의 selectbox를 생성
+            let $tr_board = $("#form_community .tr_board");
+            $tr_board.find('select').remove();
+    
+            for (let i = 0; i < display_count; i++) {
+                let $select = $("<select name='select_board[]'>");
+                $select.append("<option value=''>게시판 선택</option>");
+                $select.append("<option value='1'>게시판1</option>");
+                $select.append("<option value='2'>게시판2</option>");
+                $select.append("<option value='3'>게시판3</option>");
+                $select.append("</select>");
+                $tr_board.find('td').append($select);
+            }
+        });
+
+        function validate_comunity_form() {
+            // select_board[]의 값이 있는지 확인 후 쉼표로 구분하여 hidden input에 저장
+            let $select_board = $("#form_community select[name='select_board[]']");
+            let select_board = [];
+
+            $select_board.each(function() {
+                let value = $(this).val();
+                if (value) {
+                    select_board.push(value);
+                }
+            });
+
+            if (select_board.length == 0) {
+                alert("게시판을 선택하세요.");
+                return false;
+            }
+
+            $("#form_community input[name='display_boards']").val(select_board.join(','));
+            
+            return true;
+        }
+    </script>
+</form>
+    
