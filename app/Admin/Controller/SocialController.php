@@ -2,11 +2,11 @@
 
 namespace App\Admin\Controller;
 
-use App\Admin\Model\CreateSocialProviderRequest;
-use App\Admin\Model\UpdateSocialProviderRequest;
-use App\Admin\Service\SocialService;
+use App\Social\Model\CreateSocialProviderRequest;
+use App\Social\Model\UpdateSocialProviderRequest;
+use App\Social\SocialService;
 use Core\BaseController;
-use Exception;
+use Core\Exception\HttpConflictException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -26,10 +26,14 @@ class SocialController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
-        $providers = $this->service->getProviders();
+        $socials = $this->service->getSocials();
+
+        $exclude = array_column($socials, 'provider');
+        $available_socials = $this->service->getAvailableSocials($exclude);
 
         $response_data = [
-            "providers" => $providers
+            "socials" => $socials,
+            "available_socials" => $available_socials,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/social_form.html', $response_data);
@@ -37,17 +41,14 @@ class SocialController extends BaseController
 
     /**
      * 소셜 로그인 추가
-     * @todo 제공하지 않는 소셜로그인은 등록되지 않도록 검증 추가
-     * @todo 애플 로그인을 추가할 경우 `social_provider_config` 테이블에 필드를 추가해야함.
-     * @todo 애플 로그인 외의 다른 소셜로그인에 추가 필드가 필요한지 확인
      */
     public function insert(Request $request, Response $response, CreateSocialProviderRequest $data): Response
     {
-        if ($this->service->isExistProvider($data->provider_key)) {
-            throw new Exception('이미 등록된 소셜 로그인입니다.');
+        if ($this->service->exists($data->provider)) {
+            throw new HttpConflictException($request, '이미 등록된 소셜 로그인입니다.');
         }
 
-        $this->service->createProvider($data->publics());
+        $this->service->createSocial($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
@@ -57,9 +58,7 @@ class SocialController extends BaseController
      */
     public function update(Request $request, Response $response, UpdateSocialProviderRequest $data): Response
     {
-        foreach ($data->providers as $key => $value) {
-            $this->service->update($key, $value);
-        }
+        $this->service->updateSocials($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.setting.api.social');
     }
@@ -67,12 +66,12 @@ class SocialController extends BaseController
     /**
      * 소셜 로그인 삭제
      */
-    public function delete(Request $request, Response $response): Response
+    public function delete(Response $response, string $provider): Response
     {
-        $request_body = $request->getParsedBody();
+        $social = $this->service->getSocial($provider);
 
-        $this->service->deleteProvider($request_body['provider_key']);
+        $this->service->deleteSocial($social['provider']);
 
-        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
+        return $response->withJson(['message' => "소셜 로그인 정보가 삭제되었습니다."]);
     }
 }

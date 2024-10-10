@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Model;
+namespace App\Social\Model;
 
 use Core\Traits\SchemaHelperTrait;
 use Slim\Http\ServerRequest as Request;
@@ -12,7 +12,7 @@ class UpdateSocialProviderRequest
     /**
      * @var array
      */
-    public array $providers = [];
+    public array $socials = [];
 
     /**
      * SocialUpdateRequest constructor.
@@ -20,7 +20,6 @@ class UpdateSocialProviderRequest
     public function __construct(Request $request)
     {
         $this->initializeFromRequest($request);
-        
     }
 
     protected function validate()
@@ -33,11 +32,11 @@ class UpdateSocialProviderRequest
      */
     private function ensureDefaults()
     {
-        foreach ($this->providers as &$provider) {
-            if (!isset($provider['is_enabled'])) {
-                $provider['is_enabled'] = 0;
+        foreach ($this->socials as &$data) {
+            if (!isset($data['is_enabled'])) {
+                $data['is_enabled'] = 0;
             } else {
-                $provider['is_enabled'] = (int)$provider['is_enabled'];
+                $data['is_enabled'] = (int)$data['is_enabled'];
             }
         }
     }

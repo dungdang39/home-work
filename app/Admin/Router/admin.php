@@ -73,8 +73,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->group('/social', function (RouteCollectorProxy $group) {
                     $group->get('', [SocialController::class, 'index'])->setName('admin.setting.api.social');
                     $group->post('', [SocialController::class, 'insert'])->setName('admin.setting.api.social.insert');
-                    $group->post('/update', [SocialController::class, 'update'])->setName('admin.setting.api.social.update');
-                    $group->post('/delete', [SocialController::class, 'delete'])->setName('admin.setting.api.social.delete');
+                    $group->put('/update', [SocialController::class, 'update'])->setName('admin.setting.api.social.update');
+                    $group->delete('/{provider}', [SocialController::class, 'delete'])->setName('admin.setting.api.social.delete');
                 });
 
                 // 알림/메시징/메일 설정
