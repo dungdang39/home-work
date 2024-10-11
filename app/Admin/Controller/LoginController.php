@@ -5,34 +5,46 @@ namespace App\Admin\Controller;
 use App\Admin\Model\LoginRequest;
 use App\Admin\Service\LoginService;
 use App\Member\MemberService;
+use App\Social\SocialService;
 use Core\AppConfig;
+use Core\BaseController;
 use Exception;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 use Slim\Routing\RouteContext;
 
-class LoginController
+class LoginController extends BaseController
 {
     private LoginService $service;
     private MemberService $member_service;
+    private SocialService $social_service;
 
     public function __construct(
         LoginService $service,
-        MemberService $member_service
+        MemberService $member_service,
+        SocialService $social_service
     ) {
         $this->service = $service;
         $this->member_service = $member_service;
+        $this->social_service = $social_service;
     }
 
     public function adminLoginPage(Request $request, Response $response): Response
     {
+        $login_member = $request->getAttribute('login_member');
+        if ($login_member) {
+            return $this->redirectRoute($request, $response, 'admin.dashboard');
+        }
+
+        $socials = $this->social_service->getEnabledSocials();
+
+        $response_data = [
+            'socials' => $socials
+        ];
         $view = Twig::fromRequest($request);
-
-        // 이미 로그인 중이라면 리다이렉트
-        // @todo 로그인 체크
-
-        return $view->render($response, '/admin/login.html');
+        return $view->render($response, '/admin/login.html', $response_data);
     }
 
     public function Login(Request $request, Response $response, LoginRequest $data): Response
@@ -54,11 +66,10 @@ class LoginController
                 // run_event('password_is_wrong', 'login', $member);
                 throw new Exception('아이디 또는 패스워드가 일치하지 않습니다.');
             }
-
             if (($member['mb_intercept_date'] && $member['mb_intercept_date'] <= date("Ymd"))
                 || ($member['mb_leave_date'] && $member['mb_leave_date'] <= date("Ymd"))
             ) {
-                throw new Exception('탈퇴 또는 차단된 회원이므로 로그인하실 수 없습니다.');
+                throw new HttpForbiddenException($request, '탈퇴 또는 차단된 회원이므로 로그인하실 수 없습니다.');
             }
 
             // 메일인증 설정이 되어 있다면
@@ -154,7 +165,6 @@ class LoginController
                 $this->member_service->updatePasswordRehash($member['mb_id'], $data->mb_password);
             }
         } catch (Exception $e) {
-            // alert($e->getMessage());
             throw new Exception($e->getMessage());
         }
 

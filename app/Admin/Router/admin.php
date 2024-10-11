@@ -20,10 +20,12 @@ use App\Member\Controller\PointController;
 use App\Popup\Controller\PopupController;
 use App\Qa\Controller\QaConfigController;
 use App\Qa\Controller\QaController;
+use App\Social\Controller\SocialLoginController;
+use Core\Middleware\AdminAuthMiddleware;
 use Core\Middleware\AdminMenuPermissionMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
-use Core\Middleware\LoginAuthMiddleware;
+use Core\Middleware\LoginMemberMiddleware;
 use Core\Middleware\SuperAdminAuthMiddleware;
 use Core\Middleware\TemplateMiddleware;
 use Slim\App;
@@ -38,7 +40,9 @@ $app->group('admin', function (RouteCollectorProxy $group) {
     // 로그인
     $group->get('/login', [LoginController::class, 'adminLoginPage'])->setName('admin.login');
     $group->post('/login', [LoginController::class, 'Login'])->setName('login');
-
+    // 소셜 로그인
+    $group->get('/login/social/{provider}', [SocialLoginController::class, 'socialLogin'])->setName('login.social');
+    $group->get('/login/social/{provider}/callback', [SocialLoginController::class, 'socialLoginCallback'])->setName('login.social.callback');
     // 로그아웃
     $group->get('/logout', [LoginController::class, 'Logout'])->setName('logout');
 
@@ -235,7 +239,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         });
     })
         ->add(AdminMenuMiddleware::class)
-        ->add(LoginAuthMiddleware::class);
+        ->add(AdminAuthMiddleware::class);
 })
+    ->add(LoginMemberMiddleware::class)
     ->add(TemplateMiddleware::class)
     ->add(ConfigMiddleware::class);

@@ -27,6 +27,35 @@ class SocialService
     }
 
     /**
+     * 소셜 로그인 설정 정보 가져오기
+     * - Hybridauth\Hybridauth 클래스의 설정 형식으로 변환
+     * 
+     * @param Request $request
+     * @param array $social
+     * @return array
+     */
+    public function getSocialConfig(Request $request, array $social): array
+    {
+        $social['keys'] = $this->getSocialKeysToHybridauth($social['provider']);
+
+        $class = $this->getClassName($social['provider'] . 'Config');
+        return $class::getConfig($request, $social);
+    }
+
+    /**
+     * 활성화된 소셜 로그인 제공자 목록 조회
+     * @return array
+     */
+    public function getEnabledSocials(): array
+    {
+        $providers = $this->fetchSocials(['is_enabled' => 1]);
+        if (!$providers) {
+            return [];
+        }
+        return $providers;
+    }
+
+    /**
      * 등록 가능한 소셜 로그인 제공자 목록 조회
      * @param array $exclude  제외할 소셜 로그인 제공자 목록
      * @return array
@@ -34,18 +63,18 @@ class SocialService
     public function getAvailableSocials(array $exclude = []): array
     {
         $providers = [];
-        $fs = new \FilesystemIterator(__DIR__ . '/Provider/');
+        $fs = new \FilesystemIterator(__DIR__ . '/Provider/Config/');
         /** @var \SplFileInfo $file */
         foreach ($fs as $file) {
             if (!$file->isDir()) {
-                $provider = strtok($file->getFilename(), '.');
+                $class_name = strtok($file->getFilename(), '.');
+                $class = $this->getClassName($class_name);
 
-                if (in_array(strtolower($provider), $exclude)) {
-                    continue;
-                }
-
-                $class = $this->getSocialClass($provider);
                 if (class_exists($class)) {
+                    $provider = $class::getProvider();
+                    if ($provider !== '' && in_array(strtolower($provider), $exclude)) {
+                        continue;
+                    }
                     $providers[$provider]['name'] = $class::getProviderName() ?? $provider;
                     $providers[$provider]['keys'] = $class::getKeys() ?? [];
                 }
@@ -68,7 +97,7 @@ class SocialService
         foreach ($providers as &$provider) {
             $provider['keys'] = $this->fetchProviderKeys($provider['provider']) ?: [];
             foreach ($provider['keys'] as &$key) {
-                $class = $this->getSocialClass($provider['provider']);
+                $class = $this->getClassName($provider['provider'] . 'Config');
                 $key['name'] = $class::getKeyName($key['key']);
             }
         }
@@ -92,6 +121,20 @@ class SocialService
     }
 
     /**
+     * 소셜 로그인 제공자 키 정보를 Hybridauth 형식으로 변환
+     * @param string $provider 소셜 로그인 제공자
+     * @return array
+     */
+    public function getSocialKeysToHybridauth(string $provider): array
+    {
+        $keys = $this->fetchProviderKeys($provider);
+        if (!$keys) {
+            return [];
+        }
+        return array_column($keys, 'value', 'key');
+    }
+
+    /**
      * 소셜 로그인 제공자 및 키 정보 추가 
      * @param array $data 추가할 데이터
      * @return void
@@ -101,7 +144,7 @@ class SocialService
     {
         Db::getInstance()->getPdo()->beginTransaction();
 
-        $class = $this->getSocialClass($data['provider']);
+        $class = $this->getClassName($data['provider'] . 'Config');
         $provider = strtolower($data['provider']);
 
         $value = [
@@ -168,13 +211,14 @@ class SocialService
     }
 
     /**
-     * 소셜 로그인 제공자 클래스 조회
-     * @param string $provider 소셜로그인 제공자
-     * @return string
+     * 소셜 로그인 제공자 클래스의 네임스페이스를 반환
+     * 
+     * @param string $class_name 소셜 로그인 제공자 이름
+     * @return string 제공자 설정 클래스의 네임스페이스 경로
      */
-    private function getSocialClass(string $provider)
+    private function getClassName(string $class_name)
     {
-        return sprintf('App\\Social\\Provider\\%s', ucfirst($provider));
+        return sprintf('App\\Social\\Provider\\Config\\%s', ucfirst($class_name));
     }
 
     // ========================================
@@ -185,9 +229,23 @@ class SocialService
      * 소셜 로그인 제공자 목록정보 조회
      * @return array|false
      */
-    public function fetchSocials()
+    public function fetchSocials(array $params = [])
     {
-        return Db::getInstance()->run("SELECT * FROM {$this->table}")->fetchAll();
+        $wheres = [];
+        $values = [];
+
+        if (isset($params['is_enabled'])) {
+            $wheres[] = 'is_enabled = :is_enabled';
+            $values['is_enabled'] = $params['is_enabled'];
+        }
+
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+
+        $query = "SELECT *
+                    FROM {$this->table}
+                    {$sql_where}";
+
+        return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
     /**

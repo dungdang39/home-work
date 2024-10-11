@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>관리자 로그인</title>
+    <link rel="stylesheet" href="{{ theme_url }}/static/css/style.css">
+    {% include '/admin/alert.html' ignore missing %}
 </head>
 <body>
     <form id="form_login" action="{{ url_for('login') }}" METHOD="post">
@@ -21,7 +23,25 @@
             </div>
         </div>
     </form>
+
     <!-- 소셜 로그인 영역 -->
+    <div id="sns_login" class="login-sns sns-wrap-32 sns-wrap-over" style="width:20%;">
+        <h3>소셜계정으로 로그인</h3>
+        <div class="sns-wrap">
+            {% with %}
+            {% for social in socials %}
+                {% set provider=social.provider %}
+                {% set name=social.provider_name %}
+                <a href="{{ url_for('login.social', {provider : provider}) }}"
+                        class="sns-icon social_link sns-{{ provider }}" title="{{ name }}">
+                    <span class="ico"></span>
+                    <span class="txt">{{ name }}<i> 로그인</i></span>
+                </a>
+            {% endfor %}
+            {% endwith %}
+        </div>
+    </div>
+
     <!-- 비회원 주문조회 개인정보 수집 영역 -->
     <!-- 비회원 주문조회 영역 -->
     <script>
@@ -36,5 +56,3 @@
     </script>
 </body>
 </html>
-
-
