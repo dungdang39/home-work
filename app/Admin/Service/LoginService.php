@@ -11,6 +11,20 @@ class LoginService
     public function __construct() {
     }
 
+    public function login(string $mb_id): void
+    {
+        $_SESSION['ss_mb_id'] = $mb_id;
+        // $this->service->set_member_key_session($member);
+    }
+
+    /**
+     * FLASH XSS 공격에 대응하기 위하여 회원의 고유키 생성
+     */
+    public function set_member_key_session(array $member): void
+    {
+        $_SESSION['ss_mb_key'] = md5($member['created_at'] . $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
+    }
+
     /**
      * 패스워드 체크
      * - 그누보드5의 암호화 방식을 사용하는 경우 이전 암호화 방식으로 체크
@@ -72,16 +86,5 @@ class LoginService
     {
         $row = Db::getInstance()->run("SELECT PASSWORD('{$password}') as pw")->fetch();
         return $row['pw'];
-    }
-
-    public function set_member_key_session(array $member): void
-    {
-        $_SESSION['ss_mb_key'] = $this->create_member_key($member);
-    }
-
-    public function create_member_key(array $member): string
-    {
-        $ip = $_SERVER['REMOTE_ADDR'];
-        return md5($member['created_at'] . $ip . $_SERVER['HTTP_USER_AGENT']);
     }
 }

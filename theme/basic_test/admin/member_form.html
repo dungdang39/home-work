@@ -41,6 +41,15 @@
                             <td>
                             {% if member %}
                                 {{ member.mb_id }}
+                                {% for social in socials %}
+                                <span class="sns-wrap-32 sns-wrap-over">
+                                    <span class="sns-icon sns-{{ social.provider }}" title="{{ social.provider_name }}"
+                                        data-url="{{ url_for('admin.member.manage.social.unlink', {'mb_id': social.mb_id, 'provider': social.provider}) }}">
+                                        <span class="ico"></span>
+                                        <span class="txt"></span>
+                                    </span>
+                                </span>
+                                {% endfor %}
                             {% else %}
                                 <input type="text" name="mb_id" value="{{ old('mb_id', member) }}" id="mb_id" class="frm_input required alnum_" size="15" maxlength="20" required>
                             {% endif %}
@@ -314,6 +323,15 @@
 
         return true;
     }
+
+    $(function(){
+        $('.sns-icon').on('click', function() {
+            let url = $(this).data('url');
+            let message = $(this).attr('title') + ' 계정을 연결해제하시겠습니까?';
+
+            delete_confirm(url, message);
+        });
+    });
 
     /**
      * @todo 해당 코드가 banner_form.html에도 있으므로 중복을 제거할 필요가 있음

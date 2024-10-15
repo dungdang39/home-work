@@ -10,6 +10,7 @@ use App\Member\Model\MemberMemoRequest;
 use App\Member\Model\MemberSearchRequest;
 use App\Member\Model\MemberRequest;
 use App\Member\Model\UpdateMemberListRequest;
+use App\Social\SocialProfileService;
 use Core\BaseController;
 use Core\FileService;
 use Core\ImageService;
@@ -27,6 +28,7 @@ class MemberController extends BaseController
     private ImageService $image_service;
     private MemberService $service;
     private MemberConfigService $config_service;
+    private SocialProfileService $social_service;
 
     public function __construct(
         Container $container,
@@ -34,12 +36,14 @@ class MemberController extends BaseController
         ImageService $image_service,
         MemberService $service,
         MemberConfigService $config_service,
+        SocialProfileService $social_service
     ) {
         $this->container = $container;
         $this->file_service = $file_service;
         $this->image_service = $image_service;
         $this->service = $service;
         $this->config_service = $config_service;
+        $this->social_service = $social_service;
     }
 
     /**
@@ -108,8 +112,11 @@ class MemberController extends BaseController
     {
         $member = $this->service->getMember($mb_id);
 
+        $socials = $this->social_service->getMemberSocialProfiles($mb_id);
+
         $response_data = [
             "member" => $member,
+            "socials" => $socials,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/member_form.html', $response_data);
