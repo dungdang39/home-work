@@ -136,7 +136,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->get('/{type}', [MenuController::class, 'getUrls'])->setName('admin.design.menu.urls');
                 $group->post('', [MenuController::class, 'insert'])->setName('admin.design.menu.insert');
                 $group->put('/{me_id}', [MenuController::class, 'update'])->setName('admin.design.menu.update');
-                $group->delete('', [MenuController::class, 'delete'])->setName('admin.design.menu.delete');
+                $group->delete('/{me_id}', [MenuController::class, 'delete'])->setName('admin.design.menu.delete');
                 $group->post('/list/update', [MenuController::class, 'updateList'])->setName('admin.design.menu.list.update');
             })->add(AdminMenuPermissionMiddleware::class);
         });

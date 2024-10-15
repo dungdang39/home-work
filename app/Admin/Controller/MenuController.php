@@ -31,7 +31,7 @@ class MenuController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
-        $menus = $this->service->getMenu();
+        $menus = $this->service->getMenus();
 
         $response_data = [
             'menus' => $menus,
@@ -41,7 +41,7 @@ class MenuController extends BaseController
     }
 
     /**
-     * 
+     * 메뉴 추가 폼 > 구분 별 URL 반환
      */
     public function getUrls(Request $request, Response $response, string $type): Response
     {
@@ -76,12 +76,33 @@ class MenuController extends BaseController
         return $response->withJson($data, 200);
     }
 
+    /**
+     * 메뉴 일괄수정
+     */
     public function updateList(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
-        
-        $this->service->updateList($data);
+
+        foreach ($data['me_id'] as $key => $value) {
+            if (empty($value)) {
+                $this->service->createMenu($data, $key);
+            } else {
+                $this->service->updateMenu($data, $key);
+            }
+        }
 
         return $this->redirectRoute($request, $response, 'admin.design.menu');
+    }
+
+    /**
+     * 메뉴 삭제
+     */
+    public function delete(Request $request, Response $response, string $me_id): Response
+    {
+        $menu = $this->service->getMenu($me_id);
+
+        $this->service->deleteMenu($menu);
+
+        return $response->withJson(['message' => '메뉴가 삭제되었습니다.']);
     }
 }

@@ -18,6 +18,13 @@
                 <col>
             </colgroup>
             <tbody>
+                <tr id="area_parent_menu" style="display:none;">
+                    <th scope="row">상위메뉴</th>
+                    <td>
+                        <input type="hidden" id="me_parent_id" name="me_parent_id" value="">
+                        <span id="parent_menu"></span>
+                    </td>
+                </tr>
                 <tr id="area_select_type">
                     <th scope="row"><label for="menu_type">구분<strong class="sound_only">필수</strong></label></th>
                     <td>
@@ -70,9 +77,9 @@
                     <th scope="row"><label for="menu_type">새탭</label></th>
                     <td>
                         <label for="me_target_1" class="rules_label">사용</label>
-                        <input name="me_target" id="me_target_1" type="radio" value="1">
+                        <input name="me_target" id="me_target_1" type="radio" value="_blank">
                         <label for="me_target_0" class="rules_label">사용안함</label>
-                        <input name="me_target" id="me_target_0" type="radio" value="0" checked>
+                        <input name="me_target" id="me_target_0" type="radio" value="_self" checked>
                     </td>
                 </tr>
                 <tr id="add_sub">
@@ -106,31 +113,45 @@
                 <caption>메뉴설정 목록</caption>
                 <thead>
                     <tr>
-                        <th scope="col">메뉴</th>
-                        <th scope="col">링크</th>
-                        <th scope="col">순서</th>
-                        <th scope="col">관리</th>
+                        <th scope="col" width="70%">메뉴</th>
+                        <th scope="col" width="30%">관리</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for menu in menus %}
-                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }} menu_list menu_group_10">
-                        <input type="text" name="me_order[]" value="0" id="me_order_0" class="tbl_input" size="5">
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }} menu_list">
+                        <input type="hidden" name="me_id[]" value="{{ menu.me_id }}">
+                        <input type="hidden" name="me_parent_id[]" value="{{ menu.me_parent_id }}">
+                        <input type="hidden" name="me_order[]" value="{{ menu.me_order }}">
+                        <input type="hidden" name="me_link[]" value="{{ menu.me_link }}">
+                        <input type="hidden" name="me_target[]" value="{{ menu.me_target }}">
                         <td class="td_category">
-                            <input type="hidden" name="code[]" value="10">
-                            <label for="me_name_0" class="sound_only">메뉴<strong class="sound_only">필수</strong></label>
-                            <input type="text" name="me_name[]" value="메인페이지" id="me_name_0" class="required tbl_input full_input" required>
-                        </td>
-                        <td>
-                            <label for="me_link_0" class="sound_only">링크<strong class="sound_only">필수</strong></label>
-                            <input type="text" name="me_link[]" value="" id="me_link_0" class="required tbl_input full_input" required>
+                            <input type="text" name="me_name[]" value="{{ menu.me_name }}" class="required tbl_input full_input" required>
                         </td>
                         <td class="td_mng td_mng_l">
-                            <button type="button" class="btn_add_submenu btn_03 ">추가</button>
-                            <button type="button" class="btn_del_menu btn_02">삭제</button>
+                            <button type="button" class="btn_add_submenu btn_03">추가</button>
+                            <button type="button" class="btn_del_menu btn_02" data-href="{{ url_for('admin.design.menu.delete', {'me_id': menu.me_id}) }}">삭제</button>
                             <button type="button" class="btn_del_menu btn_04">이동</button>
                         </td>
                     </tr>
+
+                    {% for sub_menu in menu.sub_menu %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }} menu_list">
+                        <input type="hidden" name="me_id[]" value="{{ sub_menu.me_id }}">
+                        <input type="hidden" name="me_parent_id[]" value="{{ sub_menu.me_parent_id }}">
+                        <input type="hidden" name="me_order[]" value="{{ sub_menu.me_order }}">
+                        <input type="hidden" name="me_link[]" value="{{ sub_menu.me_link }}">
+                        <input type="hidden" name="me_target[]" value="{{ sub_menu.me_target }}">
+                        <td class="td_category sub_menu_class">
+                            <input type="text" name="me_name[]" value="{{ sub_menu.me_name }}" class="required tbl_input full_input" required>
+                        </td>
+                        <td class="td_mng td_mng_l">
+                            <button type="button" class="btn_add_submenu btn_03">추가</button>
+                            <button type="button" class="btn_del_menu btn_02" data-href="{{ url_for('admin.design.menu.delete', {'me_id': sub_menu.me_id}) }}">삭제</button>
+                            <button type="button" class="btn_del_menu btn_04">이동</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
                     {% endfor %}
                 </tbody>
             </table>
@@ -161,6 +182,10 @@
 
         // 1단계 추가 버튼 클릭
         $btn_add_menu.on("click", function () {
+            $("#area_parent_menu").hide();
+            $("#parent_menu").text('');
+            $("#me_parent_id").val('');
+
             $menu_type.val("");
             $area_select_type.show();
             $area_select_url.hide();
@@ -200,7 +225,7 @@
                     $menu_url.empty();
                     let html = '<option value="">선택하세요.</option>';
                     data.forEach(function(item) {
-                        let data_route = "{{ url_for('content', {'code': '__REPLACE_ID__'}) }}";
+                        let data_route = "{{ full_url_for('content', {'code': '__REPLACE_ID__'}) }}";
                         let data_url = data_route.replace('__REPLACE_ID__', item.id);
 
                         html += '<option value="' + item.id + '" data-url="' + data_url + '" data-title="' + item.title + '">';
@@ -239,7 +264,30 @@
 
         // 메뉴 추가 버튼 클릭
         $("#btn_menu_add").on("click", function () {
+            let html = "";
+            let parent_id = $("#me_parent_id").val();
+            let link = $menu_url.find("option:selected").data("url");
+            let order = $("#me_order").val();
+            let name = $menu_url.find("option:selected").text();
+            let target = $("input[name='me_target']:checked").val();
 
+            html += '<tr class="bg' + ($("#menulist tr.menu_list").length % 2) + ' menu_list">';
+            html += '   <input type="hidden" name="me_id[]" value="">';
+            html += '   <input type="hidden" name="me_parent_id[]" value="' + parent_id + '">';
+            html += '   <input type="hidden" name="me_order[]" value="' + order + '">';
+            html += '   <input type="hidden" name="me_link[]" value="' + link + '">';
+            html += '   <input type="hidden" name="me_target[]" value="' + target + '">';
+            html += '   <td class="td_category">';
+            html += '       <input type="text" name="me_name[]" value="' + name + '" class="required tbl_input full_input" required>';
+            html += '   </td>';
+            html += '   <td class="td_mng td_mng_l">';
+            html += '       <button type="button" class="btn_add_submenu btn_03">추가</button>';
+            html += '       <button type="button" class="btn_del_menu btn_02">삭제</button>';
+            html += '       <button type="button" class="btn_del_menu btn_04">이동</button>';
+            html += '   </td>';
+            html += '</tr>';
+
+            $("#menulist tbody").append(html);
         });
         // 메뉴 취소 버튼 클릭
         $("#btn_menu_cancel").on("click", function () {
@@ -249,64 +297,25 @@
             $form_menu_info.hide();
         });
 
+        // 하위메뉴 추가 버튼 클릭
         $(document).on("click", ".btn_add_submenu", function () {
-            var code = $(this).closest("tr").find("input[name='code[]']").val().substr(0, 2);
-            add_submenu(code);
+            $("#area_parent_menu").show();
+            $("#parent_menu").text($(this).closest("tr").find("input[name='me_name[]']").val());
+            $("#me_parent_id").val($(this).closest("tr").find("input[name='me_id[]']").val());
+
+            $menu_type.val("");
+            $area_select_type.show();
+            $area_select_url.hide();
+            $form_menu_info.hide();
         });
 
+        // 메뉴 삭제 버튼 클릭
         $(document).on("click", ".btn_del_menu", function () {
-            if (!confirm("메뉴를 삭제하시겠습니까?\n메뉴 삭제후 메뉴설정의 확인 버튼을 눌러 메뉴를 저장해 주세요."))
-                return false;
-
-            var $tr = $(this).closest("tr");
-            if ($tr.find("td.sub_menu_class").length > 0) {
-                $tr.remove();
-            } else {
-                var code = $(this).closest("tr").find("input[name='code[]']").val().substr(0, 2);
-                $("tr.menu_group_" + code).remove();
-            }
-
-            if ($("#menulist tr.menu_list").length < 1) {
-                var list = "<tr id=\"empty_menu_list\"><td colspan=\"7\" class=\"empty_table\">자료가 없습니다.</td></tr>\n";
-                $("#menulist table tbody").append(list);
-            } else {
-                $("#menulist tr.menu_list").each(function (index) {
-                    $(this).removeClass("bg0 bg1")
-                        .addClass("bg" + (index % 2));
-                });
-            }
+            let href = $(this).data("href");
+            let message = "메뉴를 삭제하시겠습니까?\n삭제 메뉴의 하위메뉴도 모두 삭제됩니다.";
+            delete_confirm(href, message);
         });
     });
-
-    function add_menu() {
-        var max_code = base_convert(0, 10, 36);
-        $("#menulist tr.menu_list").each(function () {
-            var me_code = $(this).find("input[name='code[]']").val().substr(0, 2);
-            if (max_code < me_code)
-                max_code = me_code;
-        });
-
-        var url = "./menu_form.php?code=" + max_code + "&new=new";
-        window.open(url, "add_menu", "left=100,top=100,width=550,height=650,scrollbars=yes,resizable=yes");
-        return false;
-    }
-
-    function add_submenu(code) {
-        var url = "./menu_form.php?code=" + code;
-        window.open(url, "add_menu", "left=100,top=100,width=550,height=650,scrollbars=yes,resizable=yes");
-        return false;
-    }
-
-    function base_convert(number, frombase, tobase) {
-        //  discuss at: http://phpjs.org/functions/base_convert/
-        // original by: Philippe Baumann
-        // improved by: Rafał Kukawski (http://blog.kukawski.pl)
-        //   example 1: base_convert('A37334', 16, 2);
-        //   returns 1: '101000110111001100110100'
-
-        return parseInt(number + '', frombase | 0)
-            .toString(tobase | 0);
-    }
 
     function validate_form(f) {
 
