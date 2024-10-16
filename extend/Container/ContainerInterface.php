@@ -1,5 +1,7 @@
 <?php
 
+namespace Extend\Container;
+
 use DI\Container;
 
 interface ContainerInterface

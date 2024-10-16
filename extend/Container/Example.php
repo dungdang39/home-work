@@ -2,7 +2,7 @@
 
 namespace Extend\Container;
 
-use ContainerInterface;
+use Extend\Container\ContainerInterface;
 use DI\Container;
 
 class Example implements ContainerInterface
