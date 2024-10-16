@@ -66,7 +66,7 @@ class MemberRequest
     {
         $this->validateNickName();
         $this->validateEmail();
-        $this->mb_email = get_email_address($this->mb_email);
+        $this->mb_email = getEmailAddress($this->mb_email);
 
         if (
             $this->member_config['required_phone']
@@ -80,7 +80,7 @@ class MemberRequest
     protected function afterValidate(): void
     {
         $this->processPassword();
-        $this->mb_hp = hyphen_hp_number($this->mb_hp);
+        $this->mb_hp = addHyphenPhoneNumber($this->mb_hp);
     }
 
     private function validateName()

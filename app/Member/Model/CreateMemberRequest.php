@@ -89,7 +89,7 @@ class CreateMemberRequest
         $this->mb_id_hash = createMemberIdHash($this->mb_id);
         $this->mb_password = password_hash($this->mb_password, PASSWORD_DEFAULT);
         $this->mb_nick_date = date('Y-m-d');
-        $this->mb_hp = hyphen_hp_number($this->mb_hp);
+        $this->mb_hp = addHyphenPhoneNumber($this->mb_hp);
         $this->mb_signup_ip = $_SERVER['REMOTE_ADDR'];
         if (!$this->member_config['use_email_certify']) {
             $this->mb_email_verified_at = date('Y-m-d H:i:s');

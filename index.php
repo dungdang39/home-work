@@ -21,6 +21,8 @@ use Slim\Views\TwigMiddleware;
 
 require __DIR__ . '/vendor/autoload.php';
 
+define('_GNUBOARD_', true);
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -30,13 +32,6 @@ Installation::validate(__DIR__);
 
 // 환경 설정 로드
 Environment::load(__DIR__, ["only_env" => true]);
-
-/**
- * @todo: 추후 common.lib.php 코드 내부 내용을 개선하여
- * composer autoload로 로드하도록 수정할 예정이므로 제거할 것
- */
-define('_GNUBOARD_', true);
-include_once(__DIR__ . '/lib/common.lib.php');
 
 // Slim App 생성
 $container = new Container();

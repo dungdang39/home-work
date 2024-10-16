@@ -203,7 +203,7 @@ class MemberService
         if (!$member) {
             throw new Exception('회원정보가 존재하지 않습니다.', 404);
         }
-        if (!check_password($data->password, $member['mb_password'])) {
+        if (!password_verify($data->password, $member['mb_password'])) {
             throw new Exception('비밀번호가 일치하지 않습니다.', 403);
         }
         if (substr($member['mb_email_certify'], 0, 1) != '0') {

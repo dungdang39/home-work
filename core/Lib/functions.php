@@ -56,7 +56,6 @@ if (!function_exists('convertDataSizeUnit')) {
     }
 }
 
-
 /**
  * 패키지 버전 가져오기
  * @param string $packageName 패키지명
@@ -71,5 +70,35 @@ if (!function_exists('getPackageVersion')) {
             }
         }
         return null;
+    }
+}
+
+/**
+ * 휴대폰번호의 숫자만 취한 후 중간에 하이픈(-)을 넣는다.
+ * - common.lib.php 의 hyphen_hp_number() 함수
+ * @param string $hp 휴대폰번호
+ * @return string 하이픈이 추가된 휴대폰번호
+ */
+if (!function_exists('addHyphenPhoneNumber')) {
+    
+    function addHyphenPhoneNumber($hp): string
+    {
+        $hp = preg_replace("/[^0-9]/", "", $hp);
+        return preg_replace("/([0-9]{3})([0-9]{3,4})([0-9]{4})$/", "\\1-\\2-\\3", $hp);
+    }
+}
+
+/**
+ * 이메일 주소 추출
+ * - common.lib.php 의 get_email_address() 함수
+ * @param string $email 이메일 주소
+ * @return string 추출된 이메일 주소
+ */
+if (!function_exists('getEmailAddress')) {
+    function getEmailAddress(string $email): string
+    {
+        preg_match("/[0-9a-z._-]+@[a-z0-9._-]{4,}/i", $email, $matches);
+
+        return isset($matches[0]) ? $matches[0] : '';
     }
 }
