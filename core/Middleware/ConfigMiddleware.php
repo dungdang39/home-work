@@ -2,7 +2,7 @@
 
 namespace Core\Middleware;
 
-use App\Config\ConfigService;
+use App\Base\Service\ConfigService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;

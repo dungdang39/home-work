@@ -2,7 +2,7 @@
 
 namespace Core\Middleware;
 
-use App\Admin\Service\AdminMenuService;
+use App\Base\Service\AdminMenuService;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;

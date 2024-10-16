@@ -2,8 +2,8 @@
 
 namespace Core\Middleware;
 
-use App\Admin\Service\ThemeService;
-use App\Config\ConfigService;
+use App\Base\Service\ThemeService;
+use App\Base\Service\ConfigService;
 use Core\AppConfig;
 use Core\Lib\UriHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
