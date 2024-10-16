@@ -49,7 +49,7 @@ class ThemeController extends BaseController
             'logo_footer_width' => $this->image_service->getImageWidth($request, $config['logo_footer']),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/theme_form.html', $response_data);
+        return $view->render($response, '/admin/design/theme_form.html', $response_data);
     }
 
     /**

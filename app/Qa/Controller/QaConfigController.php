@@ -5,7 +5,6 @@ namespace App\Qa\Controller;
 use App\Qa\Model\QaConfigRequest;
 use App\Qa\Service\QaConfigService;
 use Core\BaseController;
-use Exception;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -32,7 +31,7 @@ class QaConfigController extends BaseController
             "qa_config" => $qa_config,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/qa_config_form.html', $response_data);
+        return $view->render($response, '/admin/member/qa/config_form.html', $response_data);
     }
 
     /**

@@ -29,7 +29,7 @@ class NotificationController extends BaseController
             "notifications" => $notifications
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/notification_form.html', $response_data);
+        return $view->render($response, '/admin/config/api/notification_form.html', $response_data);
     }
 
     /**

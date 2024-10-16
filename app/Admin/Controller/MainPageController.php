@@ -42,7 +42,7 @@ class MainPageController extends BaseController
             'sections' => $sections,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/mainpage_form.html', $response_data);
+        return $view->render($response, '/admin/design/mainpage/form.html', $response_data);
     }
 
     /**

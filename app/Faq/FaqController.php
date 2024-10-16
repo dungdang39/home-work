@@ -44,7 +44,7 @@ class FaqController extends BaseController
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/faq_category_list.html', $response_data);
+        return $view->render($response, '/admin/content/faq/category_list.html', $response_data);
     }
 
     /**
@@ -96,7 +96,7 @@ class FaqController extends BaseController
             "total_count" => count($faqs),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/faq_list.html', $response_data);
+        return $view->render($response, '/admin/content/faq/list.html', $response_data);
     }
 
     /**
@@ -110,7 +110,7 @@ class FaqController extends BaseController
             "faq_category" => $faq_category,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/faq_form.html', $response_data);
+        return $view->render($response, '/admin/content/faq/form.html', $response_data);
     }
 
     /**
@@ -136,7 +136,7 @@ class FaqController extends BaseController
             "faq" => $faq,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/faq_form.html', $response_data);
+        return $view->render($response, '/admin/content/faq/form.html', $response_data);
     }
 
     /**

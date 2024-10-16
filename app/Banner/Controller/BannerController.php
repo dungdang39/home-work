@@ -41,7 +41,7 @@ class BannerController extends BaseController
             "grouped_banners" => $grouped_banners,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/banner_list.html', $response_data);
+        return $view->render($response, '/admin/design/banner/list.html', $response_data);
     }
 
     /**
@@ -50,7 +50,7 @@ class BannerController extends BaseController
     public function create(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/banner_form.html');
+        return $view->render($response, '/admin/design/banner/form.html');
     }
 
     /**
@@ -80,7 +80,7 @@ class BannerController extends BaseController
             'mobile_image_width' => $this->image_service->getImageWidth($request, $banner->bn_mobile_image)
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/banner_form.html', $response_data);
+        return $view->render($response, '/admin/design/banner/form.html', $response_data);
     }
 
     /**

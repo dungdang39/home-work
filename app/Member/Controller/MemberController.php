@@ -73,7 +73,7 @@ class MemberController extends BaseController
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_list.html', $response_data);
+        return $view->render($response, '/admin/member/list.html', $response_data);
     }
 
     /**
@@ -82,7 +82,7 @@ class MemberController extends BaseController
     public function create(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_form.html');
+        return $view->render($response, '/admin/member/form.html');
     }
 
     /**
@@ -119,7 +119,7 @@ class MemberController extends BaseController
             "socials" => $socials,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_form.html', $response_data);
+        return $view->render($response, '/admin/member/form.html', $response_data);
     }
 
     /**

@@ -31,7 +31,7 @@ class MemberConfigController extends BaseController
             "member_config" => $member_config,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_config_form.html', $response_data);
+        return $view->render($response, '/admin/member/config/form.html', $response_data);
     }
 
     /**
@@ -62,7 +62,7 @@ class MemberConfigController extends BaseController
             "member_config" => $member_config,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_config_notification_form.html', $response_data);
+        return $view->render($response, '/admin/member/config/notification_form.html', $response_data);
     }
 
     /**
