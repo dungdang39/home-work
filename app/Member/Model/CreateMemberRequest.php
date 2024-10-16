@@ -15,6 +15,7 @@ class CreateMemberRequest
 
     // 기본 정보
     public string $mb_id;
+    public string $mb_id_hash = '';
     public string $mb_password;
     public int $mb_level;
 
@@ -85,6 +86,7 @@ class CreateMemberRequest
 
     protected function afterValidate()
     {
+        $this->mb_id_hash = createMemberIdHash($this->mb_id);
         $this->mb_password = password_hash($this->mb_password, PASSWORD_DEFAULT);
         $this->mb_nick_date = date('Y-m-d');
         $this->mb_hp = hyphen_hp_number($this->mb_hp);

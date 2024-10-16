@@ -78,7 +78,8 @@ class PermissionController extends BaseController
      */
     public function update(Response $response, UpdatePermissionRequest $data, string $mb_id, string $admin_menu_id): Response
     {
-        $permission = $this->service->getPermission($mb_id, $admin_menu_id);
+        $member = $this->member_service->getMember($mb_id);
+        $permission = $this->service->getPermission($member['mb_id'], $admin_menu_id);
 
         $this->service->update(
             $permission['mb_id'],
@@ -94,7 +95,8 @@ class PermissionController extends BaseController
      */
     public function delete(Response $response, string $mb_id, string $admin_menu_id): Response
     {
-        $permission = $this->service->getPermission($mb_id, $admin_menu_id);
+        $member = $this->member_service->getMember($mb_id);
+        $permission = $this->service->getPermission($member['mb_id'], $admin_menu_id);
 
         $this->service->delete($permission['mb_id'], $permission['admin_menu_id']);
 

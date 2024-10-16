@@ -189,6 +189,7 @@ DROP TABLE IF EXISTS `new_member`;
 CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `mb_id` varchar(60) NOT NULL COMMENT '아이디',
+  `mb_id_hash` varchar(64) NOT NULL DEFAULT '' COMMENT '아이디 해시 (sha256)',
   `mb_password` varchar(255) NOT NULL DEFAULT '' COMMENT '비밀번호',
   `mb_name` varchar(50) NOT NULL DEFAULT '' COMMENT '회원 실명',
   `mb_nick` varchar(100) NOT NULL COMMENT '회원 닉네임',

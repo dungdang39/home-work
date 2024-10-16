@@ -76,7 +76,11 @@ class MemberService
      */
     public function getMember(string $mb_id): array
     {
-        $member = $this->fetchMemberById($mb_id);
+        if (isHashedMemberId($mb_id)) {
+            $member = $this->fetchMemberByHash($mb_id);
+        } else {
+            $member = $this->fetchMemberById($mb_id);
+        }
 
         if (!$member) {
             throw new HttpNotFoundException($this->request, '회원정보가 존재하지 않습니다.');
@@ -371,6 +375,24 @@ class MemberService
         $stmt = Db::getInstance()->run($query, ['mb_id' => $mb_id]);
         $cache[$mb_id] = $stmt->fetch();
         return $cache[$mb_id];
+    }
+
+    /**
+     * 회원정보를 해시값으로 조회
+     * @param string $hash 회원아이디 해시값
+     * @return array|false
+     */
+    public function fetchMemberByHash(string $hash)
+    {
+        static $cache = [];
+        if (isset($cache[$hash])) {
+            return $cache[$hash];
+        }
+
+        $query = "SELECT * FROM `{$this->table}` WHERE mb_id_hash = :mb_id_hash";
+        $stmt = Db::getInstance()->run($query, ['mb_id_hash' => $hash]);
+        $cache[$hash] = $stmt->fetch();
+        return $cache[$hash];
     }
 
     /**

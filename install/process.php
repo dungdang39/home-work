@@ -90,6 +90,7 @@ try {
         // 최고관리자
         $member = $default_values['member'];
         $member['fields']['mb_id'] = $form['admin_id'];
+        $member['fields']['mb_id_hash'] = createMemberIdHash($form['admin_id']);
         $member['fields']['mb_password'] = password_hash($form['admin_pass'], PASSWORD_DEFAULT);
         $member['fields']['mb_name'] = $form['admin_name'];
         $member['fields']['mb_nick'] = $form['admin_name'];
