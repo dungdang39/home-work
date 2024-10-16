@@ -2,6 +2,7 @@
 
 namespace Core\Traits;
 
+use Closure;
 use Core\Exception\UploadException;
 use Core\Validator\Validator;
 use Exception;
@@ -20,13 +21,19 @@ trait SchemaHelperTrait
      * - PHP 7.1 부터 사용 가능
      * - ReflectionClass를 사용한 방법보다 약 3배 빠름.
      * 
-     * @todo 적절한 이름인가 고민 필요
+     * @todo 적절한 이름인가 고민 필요.
+     * @todo 파일삭제를 체크하는 체크박스 매개변수는 직접 처리해야하는 문제는 해결 필요.
      * @see https://stackoverflow.com/questions/13124072
      * @return array
      */
     public function publics(): array
     {
-        return \Closure::fromCallable("get_object_vars")->__invoke($this);
+        $props = Closure::fromCallable("get_object_vars")->__invoke($this);
+
+        // UploadedFile 타입의 속성 제거
+        return array_filter($props, function ($value) {
+            return !$value instanceof UploadedFile;
+        });
     }
 
     /**
