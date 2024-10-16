@@ -26,7 +26,7 @@
         </select>
     </form>
 
-    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.setting.permission.delete-list') }}"
+    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.config.permission.delete-list') }}"
         onsubmit="return validate_form_permission_list(this);">
         <input type="hidden" name="page" value="{{ pagination.page }}">
         {{ csrf.field|raw }}
@@ -89,11 +89,11 @@
 
                             <button type="button" class="btn_save btn_submit btn"
                                 data-index="{{ index }}"
-                                data-url="{{ url_for('admin.setting.permission.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                data-url="{{ url_for('admin.config.permission.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
                                 저장
                             </button>
                             <button type="button" class="btn_delete btn_02 btn"
-                                data-url="{{ url_for('admin.setting.permission.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                data-url="{{ url_for('admin.config.permission.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
                                 삭제
                             </button>  
                         </td>
@@ -117,7 +117,7 @@
             <p>도움말</p>
         </div>
 
-        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.setting.permission.insert') }}" method="post"
+        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.config.permission.insert') }}" method="post"
             autocomplete="off" onsubmit="return validate_form_permission(this);">
             {{ csrf.field|raw }}
 

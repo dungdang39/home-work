@@ -47,6 +47,6 @@ class NotificationController extends BaseController
             $this->service->updateSetting($key, $value);
         }
 
-        return $this->redirectRoute($request, $response, 'admin.setting.api.notification');
+        return $this->redirectRoute($request, $response, 'admin.config.api.notification');
     }
 }

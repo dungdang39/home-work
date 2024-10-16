@@ -50,7 +50,7 @@ class SocialController extends BaseController
 
         $this->service->createSocial($data->publics());
 
-        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
+        return $this->redirectRoute($request, $response, 'admin.config.api.social');
     }
 
     /**
@@ -60,7 +60,7 @@ class SocialController extends BaseController
     {
         $this->service->updateSocials($data->publics());
 
-        return $this->redirectRoute($request, $response, 'admin.setting.api.social');
+        return $this->redirectRoute($request, $response, 'admin.config.api.social');
     }
 
     /**

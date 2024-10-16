@@ -13,7 +13,7 @@
         <h2 class="h2_frm">소셜로그인 설정</h2>
 
         <form name="form_social" id="form_social" method="post"
-            action="{{ url_for('admin.setting.api.social.update') }}" onsubmit="return validate_social_form(this);">
+            action="{{ url_for('admin.config.api.social.update') }}" onsubmit="return validate_social_form(this);">
             {{ csrf.field|raw }}
             <input type="hidden" name="_METHOD" value="PUT">
 
@@ -65,7 +65,7 @@
         <h2 class="h2_frm">새로운 소셜로그인 추가</h2>
 
         <form name="form_add_social" id="form_add_social" method="post"
-            action="{{ url_for('admin.setting.api.social.insert') }}" onsubmit="return validate_add_form(this);">
+            action="{{ url_for('admin.config.api.social.insert') }}" onsubmit="return validate_add_form(this);">
             {{ csrf.field|raw }}
             <div class="tbl_frm01 tbl_wrap">
                 <table>
@@ -139,7 +139,7 @@
     }
 
     function delete_social(provider) {
-        let url = "{{ url_for('admin.setting.api.social.delete', {provider: '__REPLACE_ID__'}) }}";
+        let url = "{{ url_for('admin.config.api.social.delete', {provider: '__REPLACE_ID__'}) }}";
         delete_confirm(url.replace('__REPLACE_ID__', provider));
     }
 </script>

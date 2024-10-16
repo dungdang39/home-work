@@ -70,7 +70,7 @@ class PermissionController extends BaseController
 
         $this->service->insert($data->publics());
 
-        return $this->redirectRoute($request, $response, 'admin.setting.permission');
+        return $this->redirectRoute($request, $response, 'admin.config.permission');
     }
 
     /**

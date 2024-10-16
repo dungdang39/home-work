@@ -58,7 +58,7 @@
                             <th scope="row"><label for="qa_use_sms">SMS 알림</label></th>
                             <td>
                                 {{ info('휴대폰 입력을 사용하실 경우 문의글 등록시 등록자가 답변등록시 SMS 알림 수신을 선택할 수 있도록 합니다.
-                                    SMS 알림을 사용하기 위해서는 기본환경설정 &gt; <a href="' ~ url_for('admin.setting.api.notification') ~ '#anchor_sms">SMS 설정</a> 을 하셔야 합니다.
+                                    SMS 알림을 사용하기 위해서는 기본환경설정 &gt; <a href="' ~ url_for('admin.config.api.notification') ~ '#anchor_sms">SMS 설정</a> 을 하셔야 합니다.
                                 ', false) }}
                                 <label for="qa_use_sms_1" class="rules_label">사용</label>
                                 <input name="qa_use_sms" id="qa_use_sms_1" type="radio" value="1" {{ checked(1, old('qa_use_sms', qa_config)) }}>

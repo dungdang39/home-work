@@ -45,6 +45,6 @@ class ConfigController extends BaseController
     {
         $this->service->update($data->publics());
 
-        return $this->redirectRoute($request, $response, 'admin.setting.config');
+        return $this->redirectRoute($request, $response, 'admin.config.basic');
     }
 }

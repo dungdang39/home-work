@@ -52,39 +52,39 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         $group->get('[/dashboard]', [DashboardController::class, 'index'])->setName('admin.dashboard');
 
         // 기본환경
-        $group->group('/setting', function (RouteCollectorProxy $group) {
+        $group->group('/config', function (RouteCollectorProxy $group) {
 
             // 기본환경 설정
-            $group->group('/config', function (RouteCollectorProxy $group) {
-                $group->get('', [ConfigController::class, 'index'])->setName('admin.setting.config');
-                $group->put('', [ConfigController::class, 'update'])->setName('admin.setting.config.update');
+            $group->group('/basic', function (RouteCollectorProxy $group) {
+                $group->get('', [ConfigController::class, 'index'])->setName('admin.config.basic');
+                $group->put('', [ConfigController::class, 'update'])->setName('admin.config.basic.update');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 운영진 설정
             $group->group('/permission', function (RouteCollectorProxy $group) {
-                $group->get('', [PermissionController::class, 'index'])->setName('admin.setting.permission');
-                $group->post('', [PermissionController::class, 'insert'])->setName('admin.setting.permission.insert');
-                $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'update'])->setName('admin.setting.permission.update');
-                $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'delete'])->setName('admin.setting.permission.delete');
-                $group->delete('/list', [PermissionController::class, 'delete_list'])->setName('admin.setting.permission.delete-list');
+                $group->get('', [PermissionController::class, 'index'])->setName('admin.config.permission');
+                $group->post('', [PermissionController::class, 'insert'])->setName('admin.config.permission.insert');
+                $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'update'])->setName('admin.config.permission.update');
+                $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'delete'])->setName('admin.config.permission.delete');
+                $group->delete('/list', [PermissionController::class, 'delete_list'])->setName('admin.config.permission.delete-list');
             })->add(SuperAdminAuthMiddleware::class);
 
             // API연동 설정
             $group->group('/api', function (RouteCollectorProxy $group) {
-                $group->redirect('', 'api/social')->setName('admin.setting.api');
+                $group->redirect('', 'api/social')->setName('admin.config.api');
 
                 // 소셜 로그인
                 $group->group('/social', function (RouteCollectorProxy $group) {
-                    $group->get('', [SocialController::class, 'index'])->setName('admin.setting.api.social');
-                    $group->post('', [SocialController::class, 'insert'])->setName('admin.setting.api.social.insert');
-                    $group->put('/update', [SocialController::class, 'update'])->setName('admin.setting.api.social.update');
-                    $group->delete('/{provider}', [SocialController::class, 'delete'])->setName('admin.setting.api.social.delete');
+                    $group->get('', [SocialController::class, 'index'])->setName('admin.config.api.social');
+                    $group->post('', [SocialController::class, 'insert'])->setName('admin.config.api.social.insert');
+                    $group->put('/update', [SocialController::class, 'update'])->setName('admin.config.api.social.update');
+                    $group->delete('/{provider}', [SocialController::class, 'delete'])->setName('admin.config.api.social.delete');
                 });
 
                 // 알림/메시징/메일 설정
                 $group->group('/notification', function (RouteCollectorProxy $group) {
-                    $group->get('', [NotificationController::class, 'index'])->setName('admin.setting.api.notification');
-                    $group->put('/update', [NotificationController::class, 'update'])->setName('admin.setting.api.notification.update');
+                    $group->get('', [NotificationController::class, 'index'])->setName('admin.config.api.notification');
+                    $group->put('/update', [NotificationController::class, 'update'])->setName('admin.config.api.notification.update');
                 });
 
             })->add(SuperAdminAuthMiddleware::class);

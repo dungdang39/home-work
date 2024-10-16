@@ -349,35 +349,35 @@
         "values": [
             {
                 "am_name": "기본환경",
-                "am_route": "admin.setting",
+                "am_route": "admin.config",
                 "am_order": 0,
                 "children": [
                     {
                         "am_name": "기본환경설정",
-                        "am_route": "admin.setting.config",
+                        "am_route": "admin.config.basic",
                         "am_order": 0,
                         "children": []
                     },
                     {
                         "am_name": "운영진설정",
-                        "am_route": "admin.setting.permission",
+                        "am_route": "admin.config.permission",
                         "am_order": 1,
                         "children": []
                     },
                     {
                         "am_name": "API연동설정",
-                        "am_route": "admin.setting.api",
+                        "am_route": "admin.config.api",
                         "am_order": 2,
                         "children": [
                             {
                                 "am_name": "소셜로그인",
-                                "am_route": "admin.setting.api.social",
+                                "am_route": "admin.config.api.social",
                                 "am_order": 0,
                                 "children": []
                             },
                             {
                                 "am_name": "알림/메시징/메일",
-                                "am_route": "admin.setting.api.notification",
+                                "am_route": "admin.config.api.notification",
                                 "am_order": 1,
                                 "children": []
                             }
@@ -386,13 +386,13 @@
                     },
                     {
                         "am_name": "캐시파일 일괄 삭제",
-                        "am_route": "admin.setting.remove-cache",
+                        "am_route": "admin.config.remove-cache",
                         "am_order": 3,
                         "children": []
                     },
                     {
                         "am_name": "플러그인 관리",
-                        "am_route": "admin.setting.plugin",
+                        "am_route": "admin.config.plugin",
                         "am_order": 4,
                         "children": []
                     }

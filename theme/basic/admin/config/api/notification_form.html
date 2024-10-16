@@ -12,7 +12,7 @@
 
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
-    <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.setting.api.notification.update') }}" onsubmit="return validate_form(this);">
+    <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.config.api.notification.update') }}" onsubmit="return validate_form(this);">
         {{ csrf.field|raw }}
         <input type="hidden" name="_METHOD" value="PUT">
 
