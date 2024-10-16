@@ -4,7 +4,7 @@ namespace App\Admin\Service;
 
 class ThemeService
 {
-    public const DEFAULT_THEME = 'basic_test';
+    public const DEFAULT_THEME = 'basic';
     public const DIRECTORY = 'theme';
     private const SCREENSHOT = 'screenshot.png';
     private const DEFAULT_SCREENSHOT_PATH = '/img/theme_no_screenshot.jpg';
