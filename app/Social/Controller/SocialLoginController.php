@@ -3,6 +3,7 @@
 namespace App\Social\Controller;
 
 use App\Admin\Service\LoginService;
+use App\Member\MemberService;
 use App\Social\SocialProfileService;
 use App\Social\SocialService;
 use Core\BaseController;
@@ -15,15 +16,18 @@ use Slim\Http\ServerRequest as Request;
 class SocialLoginController extends BaseController
 {
     private LoginService $login_service;
+    private MemberService $member_service;
     private SocialService $service;
     private SocialProfileService $profile_service;
 
     public function __construct(
         LoginService $login_service,
+        MemberService $member_service,
         SocialService $service,
         SocialProfileService $profile_service
     ) {
         $this->login_service = $login_service;
+        $this->member_service = $member_service;
         $this->service = $service;
         $this->profile_service = $profile_service;
     }
@@ -117,14 +121,9 @@ class SocialLoginController extends BaseController
         return $this->redirectRoute($request, $response, 'admin.dashboard');
     }
 
-    public function LinkSocialMember(Request $request, Response $response)
+    public function linkSocial(Request $request, Response $response)
     {
         // @todo
-    }
-
-    public function UnlinkSocialMember(Request $request, Response $response)
-    {
-        
     }
     
     /**
@@ -132,7 +131,9 @@ class SocialLoginController extends BaseController
      */
     public function unlinkSocial(Request $request, Response $response, string $mb_id, string $provider): Response
     {
-        $this->profile_service->unlink($provider, $mb_id);
+        $member = $this->member_service->getMember($mb_id);
+
+        $this->profile_service->unlink($provider, $member['mb_id']);
 
         return $response->withJson([
             'message' => '소셜 연결이 해제되었습니다.',

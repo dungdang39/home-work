@@ -85,10 +85,8 @@ class SocialProfileService
         $wheres = [];
         $values = [];
 
-        if (isset($where['mb_id'])) {
-            $wheres[] = 'mb_id = :mb_id';
-            $values['mb_id'] = $mb_id;
-        }
+        $wheres[] = 'mb_id = :mb_id';
+        $values['mb_id'] = $mb_id;
 
         $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
