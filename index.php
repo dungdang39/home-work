@@ -8,8 +8,8 @@ use API\Middleware\JsonBodyParserMiddleware;
 use API\ResponseEmitter\ResponseEmitter;
 use Bootstrap\TwigConfig;
 use Bootstrap\ContainerConfig;
+use Bootstrap\EnvLoader;
 use Bootstrap\RouterConfig;
-use Core\Environment;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use Core\Validator\Installation;
@@ -31,7 +31,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 Installation::validate(__DIR__);
 
 // 환경 설정 로드
-Environment::load(__DIR__, ["only_env" => true]);
+EnvLoader::load(["only_env" => true]);
 
 // Slim App 생성
 $container = new Container();

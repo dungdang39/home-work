@@ -14,8 +14,7 @@ use DI\Container;
 
 class TwigConfig
 {
-    private const THEME_DIRECTORY = __DIR__ . '/../' . ThemeService::DIRECTORY;
-    private const CACHE_DIRECTORY = __DIR__ . '/../data/cache/twig';
+    private const CACHE_DIRECTORY = '/data/cache/twig';
 
     /**
      * Twig 설정을 구성합니다.
@@ -25,7 +24,10 @@ class TwigConfig
      */
     public static function configure(Container $container): Twig
     {
-        self::initializeThemeDirectory();
+        $theme_directory = dirname(__DIR__) . '/' . ThemeService::DIRECTORY;
+        $cache_directory = dirname(__DIR__) . self::CACHE_DIRECTORY;
+
+        self::initializeThemeDirectory($theme_directory);
 
         $config_service = $container->get(ConfigService::class);
         $theme_service = new ThemeService();
@@ -36,11 +38,11 @@ class TwigConfig
             $config_service->update(['cf_theme' => $theme]);
         }
 
-        $template_dir = str_replace('\\', '/', self::THEME_DIRECTORY . "/$theme");
+        $template_dir = str_replace('\\', '/', "{$theme_directory}/{$theme}");
 
-        FileService::createDirectory(self::CACHE_DIRECTORY);
+        FileService::createDirectory($cache_directory);
 
-        $twig = Twig::create($template_dir, ['cache' => self::CACHE_DIRECTORY, 'auto_reload' => true]);
+        $twig = Twig::create($template_dir, ['cache' => $cache_directory, 'auto_reload' => true]);
         self::addExtensions($twig, $container);
 
         return $twig;
@@ -51,9 +53,9 @@ class TwigConfig
      * 
      * @return void
      */
-    private static function initializeThemeDirectory(): void
+    private static function initializeThemeDirectory(string $theme_directory): void
     {
-        ThemeService::setBaseDir(self::THEME_DIRECTORY);
+        ThemeService::setBaseDir($theme_directory);
     }
 
     /**

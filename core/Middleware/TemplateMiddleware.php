@@ -9,7 +9,6 @@ use Core\Lib\UriHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\App;
 use Slim\Views\Twig;
 
 /**

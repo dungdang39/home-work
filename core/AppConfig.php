@@ -16,7 +16,7 @@ class AppConfig
         'BASE_URL' => '',
         'BASE_PATH' => '',
 
-        'DEBUG' => false,
+        'APP_DEBUG' => false,
         'DB_ENGINE' => 'InnoDB',
         'DB_CHARSET' => 'utf8',
 
@@ -115,6 +115,8 @@ class AppConfig
     {
         $this->config['BASE_PATH'] = dirname(__DIR__);
         $this->config['BASE_URL'] = $_ENV['APP_URL'] ?? $this->base_url();
+        $this->loadFromEnv();
+
         $this->config = array_merge($this->config, $customConfig);
     }
 
@@ -140,7 +142,11 @@ class AppConfig
     {
         foreach ($_ENV as $key => $value) {
             if (array_key_exists($key, $this->config)) {
-                $this->config[$key] = $value;
+                if ($value === 'false' or $value === 'true') {
+                    $this->config[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                } else {
+                    $this->config[$key] = $value;
+                }
             }
         }
     }
