@@ -22,10 +22,10 @@ header('X-Robots-Tag: noindex');
 // 서비스 및 템플릿 로드
 $install_service = new InstallService();
 $template = $install_service->loadTemplate();
-$validate_service = new InstallValidateService($template);
+$validate_service = new InstallValidateService();
 
 // 설치 가능 여부 체크
-$error = $validate_service->validateInstall();
+$error = $validate_service->validateInstall($template);
 if ($error) {
     echo $error;
     exit;

@@ -12,14 +12,12 @@ class InstallValidateService
 {
     public const ENV_FILE = '.env';
 
-    private Environment $templates;
     private string $base_path;
     private string $data_dir;
     private string $data_path;
 
-    public function __construct(Environment $templates)
+    public function __construct()
     {
-        $this->templates = $templates;
         $this->base_path = AppConfig::getInstance()->get('BASE_PATH');
         $this->data_dir = AppConfig::getInstance()->get('DATA_DIR');
         $this->data_path = $this->base_path . "/" . $this->data_dir;
@@ -29,27 +27,27 @@ class InstallValidateService
      * 설치 가능 여부 체크
      * @return string Error Type(파일 이름)
      */
-    public function validateInstall(): string
+    public function validateInstall(Environment $templates): string
     {
         $error_data = [
             "env_file" => "/" . self::ENV_FILE,
             "data_dir" => $this->data_dir,
         ];
         if ($this->isInstalled()) {
-            return $this->templates->render("error/installed.html", $error_data);
+            return $templates->render("error/installed.html", $error_data);
         }
         if (!$this->isDataDirExists()) {
-            return $this->templates->render("error/data_directory.html", $error_data);
+            return $templates->render("error/data_directory.html", $error_data);
         }
         if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             $sapi_type = php_sapi_name();
             if (substr($sapi_type, 0, 3) == 'cgi') {
                 if (!$this->isDataDirWritableFromCgi()) {
-                    return $this->templates->render("error/permission_705.html", $error_data);
+                    return $templates->render("error/permission_705.html", $error_data);
                 }
             } else {
                 if (!$this->isDataDirWritable()) {
-                    return $this->templates->render("error/permission_707.html", $error_data);
+                    return $templates->render("error/permission_707.html", $error_data);
                 }
             }
         }

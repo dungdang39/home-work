@@ -11,11 +11,12 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // 서비스 및 템플릿 로드
 $install_service = new InstallService();
+$validate_service = new InstallValidateService();
+
 $template = $install_service->loadTemplate();
-$validate_service = new InstallValidateService($template);
 
 // 설치 가능 여부 체크
-$error = $validate_service->validateInstall();
+$error = $validate_service->validateInstall($template);
 if ($error) {
     echo $error;
     exit;

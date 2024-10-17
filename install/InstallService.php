@@ -12,7 +12,7 @@ use Twig\Loader\FilesystemLoader;
  */
 class InstallService
 {
-    public const template_dir = '/install/template';
+    public const TEMPLATE_DIR = '/install/template';
 
     /**
      * 템플릿 로드
@@ -22,7 +22,7 @@ class InstallService
     {
         $app_config = AppConfig::getInstance();
 
-        $loader = new FilesystemLoader($app_config->get('BASE_PATH') . self::template_dir . '/');
+        $loader = new FilesystemLoader($app_config->get('BASE_PATH') . self::TEMPLATE_DIR . '/');
         $twig = new Environment($loader);
         $twig->addGlobal('app_name', $app_config->get('APP_NAME'));
         $twig->addGlobal('base_url', $app_config->get('BASE_URL'));
