@@ -2,6 +2,7 @@
 
 namespace Core\Handlers;
 
+use Core\AppConfig;
 use Core\Exception\Renderers\JsonErrorRenderer;
 use Core\Extension\FlashExtension;
 use DI\Container;
@@ -62,7 +63,8 @@ class HttpErrorHandler extends SlimErrorHandler
             $this->statusCode = 500;
         }
 
-        // 기본 응답 형식이 HTML이고 GET 요청이 아닌 경우
+        // 기본 응답 형식이 HTML 형식이고 GET 요청이 아닌 경우
+        // GET 요청인 경우, Referer로 인해 무한 리다이렉트가 발생할 수 있음
         if ($this->contentType === 'text/html' && $this->request->getMethod() !== 'GET') {
             if ($this->exception instanceof PDOException) {
                 $message = 'DB operator error' . ($this->displayErrorDetails ? ': ' . $this->exception->getMessage() : '');
@@ -79,7 +81,7 @@ class HttpErrorHandler extends SlimErrorHandler
 
             $referer = $this->request->getHeaderLine('Referer');
             if (empty($referer) || !filter_var($referer, FILTER_VALIDATE_URL)) {
-                $referer = '/'; // 기본값으로 루트 설정
+                $referer = AppConfig::getInstance()->get('BASE_URL') ?? '/';
             }
 
             return $response->withRedirect($referer);
