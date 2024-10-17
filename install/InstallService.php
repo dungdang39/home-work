@@ -2,6 +2,7 @@
 
 namespace Install;
 
+use Bootstrap\EnvLoader;
 use Core\AppConfig;
 use Core\Database\Db;
 use Twig\Environment;
@@ -77,10 +78,10 @@ class InstallService
     public function createEnvFile(array $form): void
     {
         $app_config = AppConfig::getInstance();
-        $key = get_random_token_string(16);
+        $key = getRandomTokenString(16);
         $url = $app_config->get('BASE_URL');
 
-        $env_file = fopen($app_config->get('BASE_PATH') . '/.env', 'w');
+        $env_file = fopen($app_config->get('BASE_PATH') . '/' . EnvLoader::ENV_FILE, 'w');
         $env_content = <<<EOD
         APP_ENV=production
         APP_DEBUG=false

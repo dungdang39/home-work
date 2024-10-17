@@ -11,15 +11,11 @@ use Install\InstallService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-define("_GNUBOARD_", true);
 session_start();
 
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 header('Connection: keep-alive');
-
-include_once('../lib/pbkdf2.compat.php');
-include_once('../lib/common.lib.php');
 
 try {
     // 설치 정보 설정
@@ -125,6 +121,8 @@ try {
         foreach ($faq_category['values'] as $category) {
             Db::getInstance()->insert($prefix . $faq_category['table'], $category['fields']);
         }
+        */
+        /*
         // 게시판 그룹 설정
         $group = $default_values['group'];
         Db::getInstance()->insert($prefix . $group['table'], $group['fields']);
@@ -161,7 +159,7 @@ try {
         }
         */
     }
-
+    /*
     // 영카트 기본설정
     if ($form['shop_install']) {
         $shop_default = $default_values['shop_default'];
@@ -170,6 +168,7 @@ try {
             $shop_default['fields']
         );
     }
+    */
 
     send_message("create_data", "DB 데이터 설정 완료");
 

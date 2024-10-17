@@ -8,8 +8,10 @@ use Dotenv\Repository\RepositoryBuilder;
 
 class EnvLoader
 {
+    public const ENV_FILE = '.env';
+
     public static array $option = [
-        "names" => ['.env'],
+        "names" => [self::ENV_FILE],
         "only_env" => false
     ];
 

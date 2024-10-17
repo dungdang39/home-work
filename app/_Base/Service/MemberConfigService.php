@@ -6,12 +6,16 @@ use Core\Database\Db;
 
 class MemberConfigService
 {
+    public const TABLE_NAME = 'member_config';
     private string $table;
-    private array $member_config = [];
+    private array $member_config = [
+        'use_point' => false,
+        'point_term' => 0,
+    ];
 
     public function __construct()
     {
-        $this->table = $_ENV['DB_PREFIX'] . 'member_config';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
     // ========================================

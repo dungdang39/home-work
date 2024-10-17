@@ -35,6 +35,7 @@
                         <span>TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
                     </td>
                 </tr>
+                <!--
                 <tr>
                     <th scope="row"><label for="shop_table_prefix">영카트 TABLE 접두사</label></th>
                     <td>
@@ -42,6 +43,7 @@
                         <span>쇼핑몰TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
                     </td>
                 </tr>
+                -->
                 <tr>
                     <th scope="row"><label for="reinstall">{{ app_name ~ version }} 재설치</label></th>
                     <td><input name="reinstall" type="checkbox" value="1" id="reinstall"> 재설치</td>
@@ -97,6 +99,7 @@
         const requiredFields = [
             { field: f.mysql_host, message: 'MySQL Host 를 입력하십시오.' },
             { field: f.mysql_user, message: 'MySQL User 를 입력하십시오.' },
+            { field: f.mysql_pass, message: 'MySQL PASSWORD 를 입력하십시오.' },
             { field: f.mysql_db, message: 'MySQL DB 를 입력하십시오.' },
             { field: f.admin_id, message: '최고관리자 ID 를 입력하십시오.' },
             { field: f.admin_pass, message: '최고관리자 비밀번호를 입력하십시오.' },
@@ -142,14 +145,14 @@
 
         if (window.jQuery) {
             const jqxhr = jQuery.post("ajax.form_check.php", $(f).serialize(), function(data) {
-                if (data.error) {
-                    alert(data.error);
-                } else if (data.exists) {
-                    if (confirm(data.exists)) {
+                if (data.type == 'success') {
+                    f.submit();
+                } else if (data.type == 'confirm') {
+                    if (confirm(data.message)) {
                         f.submit();
                     }
-                } else if (data.success) {
-                    f.submit();
+                } else {
+                    alert(data.message);
                 }
             }, "json");
 

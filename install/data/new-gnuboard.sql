@@ -5,15 +5,15 @@
 --
 DROP TABLE IF EXISTS `new_admin_menu`;
 CREATE TABLE IF NOT EXISTS `new_admin_menu` (
-  `am_id` int(11) unsigned unsigned NOT NULL AUTO_INCREMENT,
-  `am_parent_id` int(11) unsigned unsigned DEFAULT NULL COMMENT '부모 ID',
+  `am_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `am_parent_id` int(11) unsigned DEFAULT NULL COMMENT '부모 ID',
   `am_name` varchar(255) NOT NULL COMMENT '관리자 메뉴 이름',
   `am_route` varchar(255) DEFAULT NULL COMMENT '라우터 이름',
   `am_order` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '정렬순서',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`am_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='관리자 메뉴';
 
 
 -- --------------------------------------------------------
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `new_admin_menu_permission` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`mb_id`,`admin_menu_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='관리자 메뉴 권한';
 
 
 -- --------------------------------------------------------
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `new_banner` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`bn_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='배너 정보';
 
 
 -- --------------------------------------------------------
@@ -93,8 +93,15 @@ CREATE TABLE IF NOT EXISTS `new_config` (
   `cf_add_css` text DEFAULT NULL COMMENT '추가 CSS',
   `cf_add_meta` text DEFAULT NULL COMMENT '추가 메타 데이터',
   `cf_theme` varchar(100) DEFAULT NULL COMMENT '테마',
+  `logo_header` varchar(255) DEFAULT NULL COMMENT '상단로고 이미지',
+  `logo_footer` varchar(255) DEFAULT NULL COMMENT '하단로고 이미지',
+  `layout_community` varchar(30) DEFAULT NULL COMMENT '커뮤니티 레이아웃',
+  `layout_member` varchar(30) DEFAULT NULL COMMENT '회원 레이아웃',
+  `layout_shop` varchar(30) DEFAULT NULL COMMENT '쇼핑몰 레이아웃',
+  `layout_content` varchar(30) DEFAULT NULL COMMENT '컨텐츠 레이아웃',
+  `cf_use_mainpage` tinyint(1) NOT NULL DEFAULT 0 COMMENT '메인화면 설정 사용여부',
   PRIMARY KEY (`cf_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 기본환경설정';
 
 
 -- --------------------------------------------------------
@@ -117,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `new_content` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`code`),
   KEY `seo_title_index` (`seo_title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='컨텐츠 정보';
 
 
 -- --------------------------------------------------------
@@ -137,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `new_faq` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`),
   KEY `idx_faq_category_id` (`faq_category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='FAQ 정보';
 
 
 -- --------------------------------------------------------
@@ -154,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `new_faq_category` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='FAQ 카테고리';
 
 
 -- --------------------------------------------------------
@@ -177,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `new_mainpage` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='메인페이지 설정';
 
 
 -- --------------------------------------------------------
@@ -236,7 +243,27 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   UNIQUE KEY `mb_id` (`mb_id`),
   KEY `mb_last_login_at` (`mb_last_login_at`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 정보';
+
+
+-- gnuboard7.new_member_social_profiles definition
+
+CREATE TABLE `new_member_social_profiles` (
+  `mp_no` int(11) NOT NULL AUTO_INCREMENT,
+  `mb_id` varchar(255) NOT NULL DEFAULT '' COMMENT '회원 아이디',
+  `provider` varchar(50) NOT NULL DEFAULT '' COMMENT '소셜 제공자',
+  `object_sha` varchar(45) NOT NULL DEFAULT '' COMMENT '소셜 객체 식별자',
+  `identifier` varchar(255) NOT NULL DEFAULT '' COMMENT '소셜 식별자',
+  `profileurl` varchar(255) NOT NULL DEFAULT '' COMMENT '프로필 URL',
+  `photourl` varchar(255) NOT NULL DEFAULT '' COMMENT '프로필 이미지 URL',
+  `displayname` varchar(150) NOT NULL DEFAULT '' COMMENT '표시 이름',
+  `description` varchar(255) NOT NULL DEFAULT '' COMMENT '설명',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '등록일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  UNIQUE KEY `mp_no` (`mp_no`),
+  KEY `mb_id` (`mb_id`),
+  KEY `provider` (`provider`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 소셜 프로필 정보';
 
 
 -- --------------------------------------------------------
@@ -304,7 +331,7 @@ CREATE TABLE IF NOT EXISTS `new_member_config` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 설정';
 
 
 -- --------------------------------------------------------
@@ -327,7 +354,7 @@ CREATE TABLE IF NOT EXISTS `new_menu` (
   PRIMARY KEY (`me_id`),
   KEY `me_parent_id` (`me_parent_id`),
   KEY `me_order` (`me_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 메뉴 정보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='메뉴 정보';
 
 
 -- --------------------------------------------------------
@@ -345,7 +372,7 @@ CREATE TABLE IF NOT EXISTS `new_notification` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`),
   UNIQUE KEY `type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='알림 설정';
 
 
 -- --------------------------------------------------------
@@ -364,7 +391,7 @@ CREATE TABLE IF NOT EXISTS `new_notification_setting` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='알림 설정에 대한 값';
 
 
 -- --------------------------------------------------------
@@ -391,7 +418,7 @@ CREATE TABLE IF NOT EXISTS `new_point` (
   PRIMARY KEY (`po_id`),
   KEY `index1` (`mb_id`,`po_rel_table`,`po_rel_id`,`po_rel_action`),
   KEY `index2` (`po_expire_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='포인트 정보';
 
 
 -- --------------------------------------------------------
@@ -417,7 +444,7 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`pu_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='팝업 관리';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='팝업 정보';
 
 
 -- --------------------------------------------------------
@@ -443,7 +470,7 @@ CREATE TABLE IF NOT EXISTS `new_qa_config` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`qa_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 설정 관리';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 설정';
 
 
 -- --------------------------------------------------------
@@ -458,8 +485,8 @@ CREATE TABLE IF NOT EXISTS `new_social_provider` (
   `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '소셜 로그인 활성화 여부',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
-  PRIMARY KEY (`provider`),
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`provider`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='소셜 로그인';
 
 -- --------------------------------------------------------
 
@@ -474,4 +501,4 @@ CREATE TABLE IF NOT EXISTS `new_social_provider_key` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`provider`, `name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='소셜 로그인 별 키 정보';

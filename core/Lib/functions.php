@@ -3,6 +3,51 @@
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
+ * 배열의 모든 요소에 콜백 함수를 적용
+ * @param callable $fn 콜백 함수
+ * @param mixed 
+ * @return mixed 콜백 함수가 적용된 변수
+ */
+if (!function_exists('array_map_deep')) {
+    function array_map_deep($fn, $array)
+    {
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                if (is_array($value)) {
+                    $array[$key] = array_map_deep($fn, $value);
+                } else {
+                    $array[$key] = call_user_func($fn, $value);
+                }
+            }
+        } else {
+            $array = call_user_func($fn, $array);
+        }
+
+        return $array;
+    }
+}
+
+/**
+ * 랜덤 토큰 문자열 생성
+ * @param int $length 토큰 길이
+ * @return string 랜덤 토큰 문자열
+ */
+if (!function_exists('get_random_token_string')) {
+    function getRandomTokenString(int $length = 6)
+    {
+        if (function_exists('random_bytes')) {
+            return bin2hex(random_bytes($length));
+        }
+
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $output = substr(str_shuffle($characters), 0, $length);
+
+        return bin2hex($output);
+    }
+}
+
+
+/**
  * 회원 아이디 해시 생성
  * - 해시값이 변경되지 않아야 하므로 hash_hmac 대신 hash 사용
  * @param string $mb_id 회원 아이디
@@ -62,7 +107,8 @@ if (!function_exists('convertDataSizeUnit')) {
  * @return string|null 패키지 버전
  */
 if (!function_exists('getPackageVersion')) {
-    function getPackageVersion($package_name) {
+    function getPackageVersion($package_name)
+    {
         $composer_lock = json_decode(file_get_contents('./composer.lock'), true);
         foreach ($composer_lock['packages'] as $package) {
             if ($package['name'] === $package_name) {
@@ -80,7 +126,7 @@ if (!function_exists('getPackageVersion')) {
  * @return string 하이픈이 추가된 휴대폰번호
  */
 if (!function_exists('addHyphenPhoneNumber')) {
-    
+
     function addHyphenPhoneNumber($hp): string
     {
         $hp = preg_replace("/[^0-9]/", "", $hp);

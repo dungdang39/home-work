@@ -63,7 +63,7 @@ class SocialService
     public function getAvailableSocials(array $exclude = []): array
     {
         $providers = [];
-        $fs = new \FilesystemIterator(__DIR__ . '/Provider/Config/');
+        $fs = new \FilesystemIterator(dirname(__DIR__) . '/Social/Provider/Config/');
         /** @var \SplFileInfo $file */
         foreach ($fs as $file) {
             if (!$file->isDir()) {
@@ -98,7 +98,7 @@ class SocialService
             $provider['keys'] = $this->fetchProviderKeys($provider['provider']) ?: [];
             foreach ($provider['keys'] as &$key) {
                 $class = $this->getClassName($provider['provider'] . 'Config');
-                $key['name'] = $class::getKeyName($key['key']);
+                $key['name'] = $class::getKeyName($key['name']);
             }
         }
 
@@ -131,7 +131,7 @@ class SocialService
         if (!$keys) {
             return [];
         }
-        return array_column($keys, 'value', 'key');
+        return array_column($keys, 'value', 'name');
     }
 
     /**
@@ -155,10 +155,10 @@ class SocialService
 
         Db::getInstance()->insert($this->table, $value);
 
-        foreach ($data['keys'] as $key => $value) {
+        foreach ($data['keys'] as $name => $value) {
             $key_value = [
                 'provider' => $provider,
-                'key' => $key,
+                'name' => $name,
                 'value' => $value
             ];
             Db::getInstance()->insert($this->key_table, $key_value);
@@ -181,8 +181,8 @@ class SocialService
             $this->update($provider, ['is_enabled' => $value['is_enabled']]);
 
             if (isset($value['keys'])) {
-                foreach ($value['keys'] as $key => $val) {
-                    $this->updateKeys($provider, $key, ['value' => $val]);
+                foreach ($value['keys'] as $name => $val) {
+                    $this->updateKeys($provider, $name, ['value' => $val]);
                 }
             }
         }
@@ -306,9 +306,9 @@ class SocialService
      * @param array $data  업데이트할 데이터
      * @return int  업데이트된 행 수
      */
-    public function updateKeys(string $provider, string $key, array $data): int
+    public function updateKeys(string $provider, string $name, array $data): int
     {
-        return Db::getInstance()->update($this->key_table, $data, ['provider' => $provider, 'key' => $key]);
+        return Db::getInstance()->update($this->key_table, $data, ['provider' => $provider, 'name' => $name]);
     }
 
     /**
