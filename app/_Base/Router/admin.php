@@ -107,6 +107,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [BannerController::class, 'insert'])->setName('admin.design.banner.insert');
                 $group->get('/{bn_id}', [BannerController::class, 'view'])->setName('admin.design.banner.view');
                 $group->put('/{bn_id}', [BannerController::class, 'update'])->setName('admin.design.banner.update');
+                $group->put('/{bn_id}/enabled', [BannerController::class, 'toggleEnabled'])->setName('admin.design.banner.enabled');
                 $group->delete('/{bn_id}', [BannerController::class, 'delete'])->setName('admin.design.banner.delete');
             })->add(AdminMenuPermissionMiddleware::class);
 

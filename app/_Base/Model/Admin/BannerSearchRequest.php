@@ -6,5 +6,5 @@ use Core\Model\PaginationRequest;
 
 class BannerSearchRequest extends PaginationRequest
 {
-    public ?string $bn_position;
+    public ?int $bn_position;
 }

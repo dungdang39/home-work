@@ -10,33 +10,37 @@ use Slim\Http\ServerRequest as Request;
 
 class BannerService
 {
+    public const TABLE_NAME = 'banner';
     public const DIRECTORY = 'banner';
     public const MAX_WIDTH = 750;
 
     private string $table;
     private FileService $file_service;
+    private MainPageService $mainpage_service;
 
     public function __construct(
         FileService $file_service,
+        MainPageService $mainpage_service
     ) {
-        $this->table = $_ENV['DB_PREFIX'] . 'banner';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
         $this->file_service = $file_service;
+        $this->mainpage_service = $mainpage_service;
     }
 
     /**
      * 배너 목록정보 가져오기
      */
-    public function getGroupedBanners(array $params): array
+    public function getBanners(array $params): array
     {
         $banners = $this->fetchBanners($params);
-
-        // bn_position으로 그룹핑
-        $grouped_banners = [];
-        foreach ($banners as $banner) {
-            $grouped_banners[$banner['bn_position']][] = $banner;
+        if (empty($banners)) {
+            return [];
+        }
+        foreach ($banners as &$banner) {
+            $banner['is_within_date'] = $this->isWithinDate($banner['bn_start_datetime'], $banner['bn_end_datetime']);
         }
 
-        return $grouped_banners;
+        return $banners;
     }
 
     /**
@@ -65,6 +69,21 @@ class BannerService
         $this->file_service->deleteByDb($request, $banner->bn_mobile_image);
 
         $this->delete($banner->bn_id);
+    }
+
+    /**
+     * 배너가 현재 날짜에 포함되는지 확인
+     * @param string $start_date  시작일
+     * @param string $end_date  종료일
+     * @return bool
+     */
+    public function isWithinDate(?string $start_date, ?string $end_date): bool
+    {
+        if (empty($start_date) && empty($end_date)) {
+            return false;
+        }
+        $now = date('Y-m-d H:i:s');
+        return $start_date <= $now || $now <= $end_date;
     }
 
     // ========================================
@@ -97,8 +116,9 @@ class BannerService
             $sql_limit = "LIMIT :offset, :limit";
         }
 
-        $query = "SELECT *
-                    FROM {$this->table}
+        $query = "SELECT banner.*, main.id as main_id, main.section_title
+                    FROM {$this->table} banner
+                    LEFT JOIN {$this->mainpage_service->table} main ON main.id = banner.bn_position
                     {$sql_where}
                     ORDER BY bn_order, created_at DESC
                     {$sql_limit}";

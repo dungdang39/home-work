@@ -73,10 +73,10 @@
                     <tr>
                         <th scope="row"><label for="bn_position">출력위치</label></th>
                         <td>
-                            {{ info('선택항목 확인 필요') }}
                             <select name="bn_position" id="bn_position">
-                                <option value="left">왼쪽</option>
-                                <option value="main">메인</option>
+                                {% for position in positions %}
+                                <option value="{{ position.id }}" {{ selected(position.id, banner.bn_position) }}>{{ position.section_title }}</option>
+                                {% endfor %}
                             </select>
                         </td>
                     </tr>

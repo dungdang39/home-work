@@ -6,6 +6,7 @@ use App\Base\Service\BannerService;
 use App\Base\Model\Admin\BannerCreateRequest;
 use App\Base\Model\Admin\BannerSearchRequest;
 use App\Base\Model\Admin\BannerUpdateRequest;
+use App\Base\Service\MainPageService;
 use Core\BaseController;
 use Core\FileService;
 use Core\ImageService;
@@ -19,26 +20,42 @@ class BannerController extends BaseController
     private BannerService $service;
     private FileService $file_service;
     private ImageService $image_service;
+    private MainPageService $mainpage_service;
 
     public function __construct(
         BannerService $service,
         FileService $file_service,
-        ImageService $image_service
+        ImageService $image_service,
+        MainPageService $mainpage_service
     ) {
         $this->service = $service;
         $this->file_service = $file_service;
         $this->image_service = $image_service;
+        $this->mainpage_service = $mainpage_service;
     }
 
     /**
      * 배너 목록 페이지
      */
-    public function index(Request $request, Response $response, BannerSearchRequest $search_request): Response
+    public function index(Request $request, Response $response, BannerSearchRequest $search): Response
     {
-        $grouped_banners = $this->service->getGroupedBanners($search_request->publics());
+        // 검색 조건 설정
+        $params = $search->publics();
+        
+        $positions = $this->mainpage_service->getBannerPositions();
+        $banners = $this->service->getBanners($params);
+
+        foreach ($positions as $key => $position) {
+            foreach ($banners as $banner) {
+                if ($position['id'] === $banner['bn_position']) {
+                    $positions[$key]['banners'][] = $banner;
+                }
+            }
+        }
 
         $response_data = [
-            "grouped_banners" => $grouped_banners,
+            "positions" => $positions,
+            "search" => $search,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/design/banner/list.html', $response_data);
@@ -49,8 +66,13 @@ class BannerController extends BaseController
      */
     public function create(Request $request, Response $response): Response
     {
+        $positions = $this->mainpage_service->getBannerPositions();
+
+        $response_data = [
+            'positions' => $positions,
+        ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/banner/form.html');
+        return $view->render($response, '/admin/design/banner/form.html', $response_data);
     }
 
     /**
@@ -73,8 +95,10 @@ class BannerController extends BaseController
     public function view(Request $request, Response $response, string $bn_id): Response
     {
         $banner = $this->service->getBanner($bn_id);
+        $positions = $this->mainpage_service->getBannerPositions();
 
         $response_data = [
+            'positions' => $positions,
             'banner' => $banner,
             'image_width' => $this->image_service->getImageWidth($request, $banner->bn_image),
             'mobile_image_width' => $this->image_service->getImageWidth($request, $banner->bn_mobile_image)
@@ -121,11 +145,24 @@ class BannerController extends BaseController
     /**
      * 배너 전시순서 변경
      */
-    public function update_order(Request $request, Response $response): Response
+    public function updateListOrder(Request $request, Response $response): Response
     {
         // $request_body = $request->getParsedBody();
         // $this->service->updateOrder($request_body);
 
         return $this->redirectRoute($request, $response, 'admin.design.banner');
+    }
+
+    /**
+     * 배너 활성화/비활성화 전환
+     */
+    public function toggleEnabled(Request $request, Response $response, int $bn_id): Response
+    {
+        $banner = $this->service->getBanner($bn_id);
+        $is_enabled = (bool)$banner->bn_is_enabled;
+
+        $this->service->update($banner->bn_id, ['bn_is_enabled' => !$is_enabled]);
+
+        return $response->withJson(['message' => '배너가 ' . ($is_enabled ? '비' : '') . '활성화되었습니다.']);
     }
 }

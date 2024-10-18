@@ -9,8 +9,8 @@ use Slim\Http\ServerRequest as Request;
 class MainPageService
 {
     public const TABLE_NAME = 'mainpage';
-
-    private string $table;
+    
+    public string $table;
     private Request $request;
 
     public function __construct(
@@ -48,6 +48,19 @@ class MainPageService
         return $section;
     }
 
+    /**
+     * 메인페이지 설정 > 배너 섹션 목록 조회
+     * @return array
+     */
+    public function getBannerPositions()
+    {
+        $positions = $this->fetchSections(['section' => 'banner', 'is_enabled' => 1]);
+        if (empty($positions)) {
+            return [];
+        }
+        return $positions;
+    }
+
     // ========================================
     // Database Queries
     // ========================================
@@ -56,10 +69,21 @@ class MainPageService
      * 메인페이지 섹션 목록 조회
      * @return array|false
      */
-    public function fetchSections()
+    public function fetchSections(array $params = [])
     {
-        $query = "SELECT * FROM {$this->table}";
-        return Db::getInstance()->run($query)->fetchAll();
+        $wheres = [];
+        $values = [];
+
+        if (!empty($params['section'])) {
+            $wheres[] = 'section = :section';
+            $values['section'] = $params['section'];
+        }
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+
+        $query = "SELECT *
+                    FROM {$this->table}
+                    {$sql_where}";
+        return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
     /**
