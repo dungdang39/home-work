@@ -1,5 +1,6 @@
 <?php
 
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
@@ -146,5 +147,42 @@ if (!function_exists('getEmailAddress')) {
         preg_match("/[0-9a-z._-]+@[a-z0-9._-]{4,}/i", $email, $matches);
 
         return isset($matches[0]) ? $matches[0] : '';
+    }
+}
+
+
+/**
+ * 실제 IP 주소 가져오기
+ * @param Request $request
+ * @return string IP 주소
+ */
+if (!function_exists('getRealIp')) {
+    function getRealIp(Request $request) {
+        $server_params = $request->getServerParams();
+
+        // X-Forwarded-For 헤더에 IP가 포함된 경우 확인 (프록시 사용 가능성)
+        if (!empty($server_params['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $server_params['HTTP_X_FORWARDED_FOR'];
+        } 
+        // Cloudflare 등에서 사용하는 헤더 확인
+        elseif (!empty($server_params['HTTP_CF_CONNECTING_IP'])) {
+            $ip = $server_params['HTTP_CF_CONNECTING_IP'];
+        }
+        // 프록시 서버의 경우도 포함
+        elseif (!empty($server_params['HTTP_CLIENT_IP'])) {
+            $ip = $server_params['HTTP_CLIENT_IP'];
+        }
+        // 기본적으로 REMOTE_ADDR 사용
+        else {
+            $ip = $server_params['REMOTE_ADDR'];
+        }
+
+        // X-Forwarded-For가 여러 개의 IP를 가질 경우, 첫 번째 IP 추출
+        if (strpos($ip, ',') !== false) {
+            $ipArray = explode(',', $ip);
+            $ip = trim($ipArray[0]);
+        }
+
+        return $ip;
     }
 }

@@ -30,9 +30,13 @@ class Sanitizer
      * 문자열을 "\n"으로 나누고, 중복을 제거한 후 다시 합쳐서 반환하는 함수.
      * 주로 textarea에서 사용자가 입력한 금지어나 차단 도메인을 정리할 때 사용
      * @param string $text
-     * @return string
+     * @return string|null
      */
-    public static function removeDuplicateLines(string $text) {
+    public static function removeDuplicateLines(?string $text) {
+        if (!$text) {
+            return null;
+        }
+
         $lines = explode("\n", $text);
         $trimmed_lines = array_map('trim', $lines); // 각 줄에서 공백 제거
         $unique_lines = array_unique(array_filter($trimmed_lines)); // 중복 제거 및 빈 줄 필터링

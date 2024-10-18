@@ -1,7 +1,15 @@
 {
     "config": {
         "table": "config",
-        "fields": {}
+        "values": [
+            {
+                "scope": "config",
+                "name": "use_mainpage",
+                "value": "false",
+                "type": "boolean",
+                "description": "메인화면 설정 사용여부"
+            }
+        ]
     },
     "group": {
         "table": "group",
@@ -488,12 +496,6 @@
                         "am_name": "포인트 관리",
                         "am_route": "admin.member.point",
                         "am_order": 3,
-                        "children": []
-                    },
-                    {
-                        "am_name": "예치금 관리",
-                        "am_route": null,
-                        "am_order": 4,
                         "children": []
                     }
                 ]

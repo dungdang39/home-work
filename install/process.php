@@ -5,6 +5,7 @@
  * @TODO: 설치 처리 코드를 캡슐화
  */
 
+use App\Base\Service\ThemeService;
 use Core\AppConfig;
 use Core\Database\Db;
 use Install\InstallService;
@@ -77,12 +78,15 @@ try {
     if ($form['reinstall'] || $is_exists_table === false) {
         // 기본환경설정
         $config = $default_values['config'];
-        $config['fields']['cf_site_title'] = $app_config->get('APP_NAME');
-        $config['fields']['cf_admin'] = $form['admin_id'];
-        $config['fields']['cf_privacy_officer_name'] = $app_config->get('APP_NAME');
-        $config['fields']['cf_privacy_officer_email'] = $form['admin_email'];
-        Db::getInstance()->insert($prefix . $config['table'], $config['fields']);
-        
+        insertConfig($prefix . $config['table'], 'site_title', $app_config->get('APP_NAME'), 'string', '사이트 제목', 'config');
+        insertConfig($prefix . $config['table'], 'super_admin', $form['admin_id'], 'string', '최고관리자 아이디', 'config');
+        insertConfig($prefix . $config['table'], 'privacy_officer_name', $form['admin_name'], 'string', '개인정보 보호 책임자 이름', 'config');
+        insertConfig($prefix . $config['table'], 'privacy_officer_email', $form['admin_email'], 'string', '개인정보 보호 책임자 이메일', 'config');
+        insertConfig($prefix . $config['table'], 'theme', ThemeService::DEFAULT_THEME, 'string', '테마', 'config');
+        foreach ($config['values'] as $value) {
+            Db::getInstance()->insert($prefix . $config['table'], $value);
+        }
+
         // 최고관리자
         $member = $default_values['member'];
         $member['fields']['mb_id'] = $form['admin_id'];
@@ -231,7 +235,19 @@ function send_message($id, $message)
     flush();
 }
 
-function insertAdminMenu($table, $menu, $parent_id = null) {
+function insertConfig(string $table, string $name, string $value, string $type, ?string $description = null, ?string $scope = null)
+{
+    Db::getInstance()->insert($table, [
+        'scope' => $scope,
+        'name' => $name,
+        'value' => $value,
+        'type' => $type,
+        'description' => $description
+    ]);
+}
+
+function insertAdminMenu($table, $menu, $parent_id = null)
+{
     $db = Db::getInstance();
 
     foreach ($menu as $item) {
@@ -241,7 +257,7 @@ function insertAdminMenu($table, $menu, $parent_id = null) {
             $item['am_parent_id'] = $parent_id;
         }
         $insert_id = $db->insert($table, $item);
-    
+
         if (isset($children) && !empty($children)) {
             insertAdminMenu($table, $children, $insert_id);
         }
@@ -249,7 +265,8 @@ function insertAdminMenu($table, $menu, $parent_id = null) {
 }
 
 
-function insertNotification($table, $noti, $parent_id = null) {
+function insertNotification($table, $noti, $parent_id = null)
+{
     $db = Db::getInstance();
 
     foreach ($noti as $item) {
@@ -261,7 +278,7 @@ function insertNotification($table, $noti, $parent_id = null) {
         } else {
             $insert_id = $db->insert($table, $item);
         }
-    
+
         if (isset($children) && !empty($children)) {
             insertNotification($table, $children, $insert_id);
         }

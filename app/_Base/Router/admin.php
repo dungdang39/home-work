@@ -21,10 +21,10 @@ use App\Base\Controller\Admin\PopupController;
 use App\Base\Controller\Admin\QaConfigController;
 use App\Base\Controller\Admin\QaController;
 use App\Base\Controller\Admin\SocialLoginController;
-use Core\Middleware\AdminAuthMiddleware;
 use Core\Middleware\AdminMenuPermissionMiddleware;
 use Core\Middleware\AdminMenuMiddleware;
 use Core\Middleware\ConfigMiddleware;
+use Core\Middleware\LoginAuthMiddleware;
 use Core\Middleware\LoginMemberMiddleware;
 use Core\Middleware\SuperAdminAuthMiddleware;
 use Core\Middleware\TemplateMiddleware;
@@ -241,7 +241,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         });
     })
         ->add(AdminMenuMiddleware::class)
-        ->add(AdminAuthMiddleware::class);
+        ->add(LoginAuthMiddleware::class);
 })
     ->add(LoginMemberMiddleware::class)
     ->add(TemplateMiddleware::class)

@@ -5,7 +5,6 @@
  */
 
 use API\Database\Db;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -408,36 +407,4 @@ function getConfig()
 function get_good_word(string $good_type)
 {
     return $good_type === 'good' ? '추천' : '비추천';
-}
-
-/**
- * 실제 IP 주소 가져오기
- */
-function getRealIp(Request $request) {
-    $server_params = $request->getServerParams();
-
-    // X-Forwarded-For 헤더에 IP가 포함된 경우 확인 (프록시 사용 가능성)
-    if (!empty($server_params['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $server_params['HTTP_X_FORWARDED_FOR'];
-    } 
-    // Cloudflare 등에서 사용하는 헤더 확인
-    elseif (!empty($server_params['HTTP_CF_CONNECTING_IP'])) {
-        $ip = $server_params['HTTP_CF_CONNECTING_IP'];
-    }
-    // 프록시 서버의 경우도 포함
-    elseif (!empty($server_params['HTTP_CLIENT_IP'])) {
-        $ip = $server_params['HTTP_CLIENT_IP'];
-    }
-    // 기본적으로 REMOTE_ADDR 사용
-    else {
-        $ip = $server_params['REMOTE_ADDR'];
-    }
-
-    // X-Forwarded-For가 여러 개의 IP를 가질 경우, 첫 번째 IP 추출
-    if (strpos($ip, ',') !== false) {
-        $ipArray = explode(',', $ip);
-        $ip = trim($ipArray[0]);
-    }
-
-    return $ip;
 }

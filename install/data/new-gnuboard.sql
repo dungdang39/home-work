@@ -67,41 +67,16 @@ CREATE TABLE IF NOT EXISTS `new_banner` (
 --
 DROP TABLE IF EXISTS `new_config`;
 CREATE TABLE IF NOT EXISTS `new_config` (
-  `cf_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `cf_site_title` varchar(255) NOT NULL DEFAULT '' COMMENT '사이트 제목',
-  `cf_site_description` text NOT NULL COMMENT '사이트 설명',
-  `cf_site_keyword` text NOT NULL COMMENT '사이트 키워드 (쉼표로 구분)',
-  `cf_admin` varchar(60) NOT NULL DEFAULT '' COMMENT '최고관리자 아이디',
-  `cf_privacy_officer_name` varchar(100) DEFAULT NULL COMMENT '개인정보 보호 책임자 이름',
-  `cf_privacy_officer_email` varchar(100) DEFAULT NULL COMMENT '개인정보 보호 책임자 이메일',
-  `cf_use_shop` tinyint(1) NOT NULL DEFAULT 0 COMMENT '쇼핑몰 사용 여부',
-  `cf_use_community` tinyint(1) NOT NULL DEFAULT 0 COMMENT '커뮤니티 사용 여부',
-  `cf_company_name` varchar(255) DEFAULT NULL COMMENT '회사명',
-  `cf_biz_reg_no` varchar(20) DEFAULT NULL COMMENT '사업자 등록 번호',
-  `cf_ceo_name` varchar(100) DEFAULT NULL COMMENT '대표자 이름',
-  `cf_main_phone_number` varchar(20) DEFAULT NULL COMMENT '대표 전화번호',
-  `cf_fax_number` varchar(20) DEFAULT NULL COMMENT '팩스 번호',
-  `cf_ecom_reg_no` varchar(50) DEFAULT NULL COMMENT '통신판매업신고번호',
-  `cf_add_telecom_no` varchar(50) DEFAULT NULL COMMENT '부가통신사업자번호',
-  `cf_biz_zip_code` varchar(10) DEFAULT NULL COMMENT '사업장 우편번호',
-  `cf_biz_address` varchar(255) DEFAULT NULL COMMENT '사업장 주소',
-  `cf_biz_address_detail` varchar(255) DEFAULT NULL COMMENT '사업장 상세 주소',
-  `cf_biz_address_etc` varchar(255) DEFAULT NULL COMMENT '참고 항목',
-  `cf_possible_ip` text DEFAULT NULL COMMENT '허용된 IP',
-  `cf_intercept_ip` text DEFAULT NULL COMMENT '차단된 IP',
-  `cf_add_script` text DEFAULT NULL COMMENT '추가 스크립트',
-  `cf_add_css` text DEFAULT NULL COMMENT '추가 CSS',
-  `cf_add_meta` text DEFAULT NULL COMMENT '추가 메타 데이터',
-  `cf_theme` varchar(100) DEFAULT NULL COMMENT '테마',
-  `logo_header` varchar(255) DEFAULT NULL COMMENT '상단로고 이미지',
-  `logo_footer` varchar(255) DEFAULT NULL COMMENT '하단로고 이미지',
-  `layout_community` varchar(30) DEFAULT NULL COMMENT '커뮤니티 레이아웃',
-  `layout_member` varchar(30) DEFAULT NULL COMMENT '회원 레이아웃',
-  `layout_shop` varchar(30) DEFAULT NULL COMMENT '쇼핑몰 레이아웃',
-  `layout_content` varchar(30) DEFAULT NULL COMMENT '컨텐츠 레이아웃',
-  `cf_use_mainpage` tinyint(1) NOT NULL DEFAULT 0 COMMENT '메인화면 설정 사용여부',
-  PRIMARY KEY (`cf_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 기본환경설정';
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `scope` varchar(255) NOT NULL DEFAULT 'other' COMMENT '환경설정 포함 범위',
+  `name` varchar(255) NOT NULL COMMENT '환경설정 이름',
+  `value` text NOT NULL DEFAULT '' COMMENT '환경설정 값',
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`scope`, `name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 환경설정';
 
 
 -- --------------------------------------------------------

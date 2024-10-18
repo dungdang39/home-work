@@ -14,30 +14,30 @@ class UpdateConfigRequest
 {
     use SchemaHelperTrait;
 
-    public string $cf_site_title = '';
-    public string $cf_site_description = '';
-    public string $cf_site_keyword = '';
-    public string $cf_admin = '';
-    public string $cf_privacy_officer_name = '';
-    public string $cf_privacy_officer_email = '';
-    public int $cf_use_shop = 0;
-    public int $cf_use_community = 0;
-    public string $cf_company_name = '';
-    public string $cf_biz_reg_no = '';
-    public string $cf_ceo_name = '';
-    public string $cf_main_phone_number;
-    public ?string $cf_fax_number = null;
-    public string $cf_ecom_reg_no = '';
-    public ?string $cf_add_telecom_no = null;
-    public string $cf_biz_zip_code = '';
-    public string $cf_biz_address = '';
-    public ?string $cf_biz_address_detail = null;
-    public ?string $cf_biz_address_etc = null;
-    public string $cf_possible_ip = '';
-    public string $cf_intercept_ip = '';
-    public string $cf_add_script = '';
-    public string $cf_add_css = '';
-    public string $cf_add_meta = '';
+    public string $site_title = '';
+    public string $site_description = '';
+    public string $site_keyword = '';
+    public string $super_admin = '';
+    public string $privacy_officer_name = '';
+    public string $privacy_officer_email = '';
+    public ?int $use_shop = 0;
+    public ?int $use_community = 0;
+    public ?string $company_name = null;
+    public ?string $biz_reg_no = null;
+    public ?string $ceo_name = null;
+    public ?string $main_phone_number = null;
+    public ?string $fax_number = null;
+    public ?string $ecom_reg_no = null;
+    public ?string $add_telecom_no = null;
+    public ?string $biz_zip_code = null;
+    public ?string $biz_address = null;
+    public ?string $biz_address_detail = null;
+    public ?string $biz_address_etc = null;
+    public ?string $possible_ip = null;
+    public ?string $intercept_ip = null;
+    public ?string $add_script = null;
+    public ?string $add_css = null;
+    public ?string $add_meta = null;
 
     private Request $request;
 
@@ -49,27 +49,27 @@ class UpdateConfigRequest
 
     protected function validate()
     {
-        $this->checkInterceptIp($this->cf_intercept_ip);
+        $this->checkInterceptIp($this->intercept_ip);
     }
 
     protected function afterValidate(): void
     {
-        Sanitizer::cleanXssAll($this, ['cf_add_script', 'cf_add_css', 'cf_add_meta']);
-        $this->cf_possible_ip = Sanitizer::removeDuplicateLines($this->cf_possible_ip);
-        $this->cf_intercept_ip = Sanitizer::removeDuplicateLines($this->cf_intercept_ip);
+        Sanitizer::cleanXssAll($this, ['add_script', 'add_css', 'add_meta']);
+        $this->possible_ip = Sanitizer::removeDuplicateLines($this->possible_ip);
+        $this->intercept_ip = Sanitizer::removeDuplicateLines($this->intercept_ip);
     }
 
     /**
      * 현재 IP가 차단되는지 검사.
-     * @param string $cf_intercept_ip 차단 IP
+     * @param string $intercept_ip 차단 IP
      * @throws Exception   
      * @return void
      */
-    private function checkInterceptIp(string $cf_intercept_ip): void
+    private function checkInterceptIp(?string $intercept_ip = null): void
     {
-        if (!empty($cf_intercept_ip)) {
+        if (!empty($intercept_ip)) {
             $remote_addr = getRealIp($this->request);
-            $patterns = explode("\n", trim($cf_intercept_ip));
+            $patterns = explode("\n", trim($intercept_ip));
 
             foreach ($patterns as $pattern) {
                 $pattern = trim($pattern);

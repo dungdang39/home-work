@@ -28,11 +28,13 @@ class ConfigController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
+        $configs = $this->service->getConfigs('config');
         $admins = $this->member_service->fetchMemberByLevel(10);
 
         $response_data = [
-            "admins" => $admins,
-            "current_ip" => getRealIp($request)
+            'configs' => $configs,
+            'admins' => $admins,
+            'current_ip' => getRealIp($request)
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/config/form.html', $response_data);
@@ -41,9 +43,25 @@ class ConfigController extends BaseController
     /**
      * 기본환경 설정 업데이트
      */
-    public function update(Request $request, Response $response, UpdateConfigRequest $data): Response
+    public function update(Request $request, Response $response, UpdateConfigRequest $request_data): Response
     {
-        $this->service->update($data->publics());
+        $datas = $request_data->publics();
+        $configs = $this->service->getConfigs('config');
+
+        foreach ($datas as $name => $value) {
+            if (is_null($value)) {
+                continue;
+            }
+            if (array_key_exists($name, $configs)) {
+                $this->service->update('config', $name, $value);
+            } else {
+                $this->service->insert([
+                    'scope' => 'config',
+                    'name' => $name,
+                    'value' => $value,
+                ]);
+            }
+        }
 
         return $this->redirectRoute($request, $response, 'admin.config.basic');
     }

@@ -9,64 +9,120 @@ class ConfigService
 {
     public const TABLE_NAME = 'config';
 
-    private static ?array $config = null;
-    private string $table;
+    protected array $cache = [];
+
+    protected string $table;
 
     public function __construct()
     {
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
-    /**
-     * 기본환경설정 정보 가져오기
-     * @return array
-     */
-    public static function getConfig(): array
+    public function getConfigs(string $scope): array
     {
-        if (self::$config === null) {
-            self::$config = self::fetch();
+        $configs = $this->cache[$scope] = $this->fetchConfigsByScope($scope);
+
+        $result = [];
+        foreach ($configs as $config) {
+            $result[$config['name']] = $config['value'];
         }
 
-        return self::$config;
+        return $result;
     }
 
     /**
      * 현재 적용중인 테마 조회
      * @return string
      */
-    public static function getTheme(): string
+    public function getTheme(): string
     {
-        $config = self::getConfig();
-        return !empty($config['cf_theme']) ? $config['cf_theme'] : ThemeService::DEFAULT_THEME;
+        return self::getConfig('config', 'theme') ?: ThemeService::DEFAULT_THEME;
     }
 
     /**
-     * 기본환경설정 조회
+     * 환경설정 값 조회
+     * @param string $scope 설정 범위
+     * @param string $name 설정 이름
+     * @param mixed $default 기본값
+     * @return mixed 설정 값
+     */
+    public function getConfig(string $scope, string $name, $default = null)
+    {
+        if (isset($this->cache[$scope][$name])) {
+            return $this->cache[$scope][$name];
+        }
+
+        $config = $this->fetch($scope, $name);
+
+        if ($config) {
+            $this->cache[$scope][$name] = $config['value'];
+            return $config['value'];
+        }
+
+        return $default;
+    }
+
+    /**
+     * 최고 관리자 여부 확인
+     * @param string|null $mb_id 회원 아이디
+     * @return bool
+     */
+    public function isSuperAdmin(?string $mb_id = null): bool
+    {
+        if (is_null($mb_id)) {
+            return false;
+        }
+        return $this->getConfig('config', 'super_admin') === $mb_id;
+    }
+
+    // ========================================
+    // Database Queries
+    // ========================================
+
+    /**
+     * 환경설정 목록 조회
+     */
+    protected function fetchConfigsByScope(string $scope): array
+    {
+        $query = "SELECT * FROM {$this->table} WHERE scope = :scope";
+        $values = ['scope' => $scope];
+        return Db::getInstance()->run($query, $values)->fetchAll();
+    }
+
+    /**
+     * 환경설정 1건 조회
+     * @param string $scope 설정 범위
+     * @param string $name 설정 이름
      * @return array|false
      */
-    private static function fetch()
+    protected function fetch(string $scope, string $name)
     {
-        $table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
-        $query = "SELECT * FROM {$table}";
-        return Db::getInstance()->run($query)->fetch();
+        $query = "SELECT * FROM {$this->table} WHERE scope = :scope AND name = :name";
+        $values = ['scope' => $scope, 'name' => $name];
+        return Db::getInstance()->run($query, $values)->fetch();
     }
 
     /**
-     * 기본환경설정 정보 업데이트
+     * 환경설정 정보 추가
      * @param array $data
      * @return int
      */
-    public function update(array $data): int
+    public function insert(array $data): int
     {
-        return Db::getInstance()->update($this->table, $data);
+        return Db::getInstance()->insert($this->table, $data);
     }
 
     /**
-     * 설정 캐시를 초기화합니다.
-     * @return void
+     * 환경설정 정보 수정
+     * @param array $data
+     * @return int
      */
-    public static function clearCache(): void
+    public function update(string $scope, string $name, string $value): int
     {
-        self::$config = null;
+        return Db::getInstance()->update(
+            $this->table,
+            ['value' => $value],
+            ['scope' => $scope, 'name' => $name]
+        );
     }
 }
