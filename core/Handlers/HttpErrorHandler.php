@@ -76,8 +76,8 @@ class HttpErrorHandler extends SlimErrorHandler
             $response = $this->responseFactory->createResponse($this->statusCode);
 
             $flash = $this->container->get('flash');
-            $flash->addMessage(FlashExtension::OLD_FLASH_KEY, $this->request->getParsedBody());
-            $flash->addMessage(FlashExtension::ERROR_FLASH_KEY, $message);
+            $flash->setOld($this->request->getParsedBody());
+            $flash->setMessage($message);
 
             $referer = $this->request->getHeaderLine('Referer');
             if (empty($referer) || !filter_var($referer, FILTER_VALIDATE_URL)) {

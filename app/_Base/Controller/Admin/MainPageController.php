@@ -9,7 +9,7 @@ use App\Base\Service\MainPageService;
 use App\Base\Service\ConfigService;
 use Core\BaseController;
 use Core\Exception\HttpConflictException;
-use Core\Extension\FlashExtension;
+use Core\Lib\FlashMessage;
 use DI\Container;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -17,7 +17,7 @@ use Slim\Views\Twig;
 
 class MainPageController extends BaseController
 {
-    private Container $container;
+    private FlashMessage $flash;
     private ConfigService $config_service;
     private MainPageService $service;
 
@@ -26,7 +26,7 @@ class MainPageController extends BaseController
         ConfigService $config_service,
         MainPageService $service,
     ) {
-        $this->container = $container;
+        $this->flash = $container->get('flash');
         $this->config_service = $config_service;
         $this->service = $service;
     }
@@ -56,8 +56,7 @@ class MainPageController extends BaseController
 
         $this->service->insert($data->publics());
 
-        $this->container->get('flash')->addMessage(FlashExtension::ERROR_FLASH_KEY, '저장되었습니다.');
-
+        $this->flash->setMessage('저장되었습니다.');
         return $this->redirectRoute($request, $response, 'admin.design.mainpage');
     }
 
@@ -85,8 +84,7 @@ class MainPageController extends BaseController
 
         $this->service->update($id, $data->publics());
 
-        $this->container->get('flash')->addMessage(FlashExtension::ERROR_FLASH_KEY, '저장되었습니다.');
-
+        $this->flash->setMessage('저장되었습니다.');
         return $this->redirectRoute($request, $response, 'admin.design.mainpage');
     }
 
@@ -112,8 +110,7 @@ class MainPageController extends BaseController
 
         $this->config_service->update('design', 'use_mainpage', $data->use_mainpage);
 
-        $this->container->get('flash')->addMessage(FlashExtension::ERROR_FLASH_KEY, $errors ?: '저장되었습니다.');
-
+        $this->flash->setMessage($errors ?: '저장되었습니다.');
         return $this->redirectRoute($request, $response, 'admin.design.mainpage');
     }
 

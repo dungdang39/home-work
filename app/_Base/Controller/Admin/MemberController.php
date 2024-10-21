@@ -14,6 +14,7 @@ use App\Base\Service\SocialProfileService;
 use Core\BaseController;
 use Core\FileService;
 use Core\ImageService;
+use Core\Lib\FlashMessage;
 use Core\Validator\Validator;
 use DI\Container;
 use Exception;
@@ -23,9 +24,9 @@ use Slim\Views\Twig;
 
 class MemberController extends BaseController
 {
-    private Container $container;
     private ConfigService $config_service;
     private FileService $file_service;
+    private FlashMessage $flash;
     private ImageService $image_service;
     private MemberService $service;
     private SocialProfileService $social_service;
@@ -38,9 +39,9 @@ class MemberController extends BaseController
         MemberService $service,
         SocialProfileService $social_service
     ) {
-        $this->container = $container;
         $this->config_service = $config_service;
         $this->file_service = $file_service;
+        $this->flash = $container->get('flash');
         $this->image_service = $image_service;
         $this->service = $service;
         $this->social_service = $social_service;
@@ -216,15 +217,10 @@ class MemberController extends BaseController
     {
         $member = $this->service->getMember($mb_id);
 
-        $message = "메모가 수정되었습니다.";
-        if ($data->mb_memo === '') {
-            $message = "메모가 삭제되었습니다.";
-        }
-
         $this->service->update($member['mb_id'], $data->publics());
 
         return $response->withJson([
-            'message' => $message,
+            'message' => '메모가 ' . ($data->mb_memo === '') ? '삭제' : '수정' . '되었습니다.',
         ], 200);
     }
 
@@ -263,10 +259,7 @@ class MemberController extends BaseController
             $this->service->update($mb_id, $list_data);
         }
 
-        if ($errors) {
-            $this->container->get('flash')->addMessage('errors', $errors);
-        }
-
+        $this->flash->setMessage($errors);
         return $this->redirectRoute($request, $response, 'admin.member.manage', [], $request->getQueryParams());
     }
 
@@ -302,10 +295,7 @@ class MemberController extends BaseController
             $this->service->deleteMember($member_info);
         }
 
-        if ($errors) {
-            $this->container->get('flash')->addMessage('errors', $errors);
-        }
-
+        $this->flash->setMessage($errors);
         return $this->redirectRoute($request, $response, 'admin.member.manage');
     }
 }

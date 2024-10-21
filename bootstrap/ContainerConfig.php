@@ -5,13 +5,13 @@ namespace Bootstrap;
 use Core\Image\Strategies\ImageStrategyInterface;
 use Core\Image\Strategies\ImageStrategyV2;
 use Core\Image\Strategies\ImageStrategyV3;
+use Core\Lib\FlashMessage;
 use DI\Container;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Csrf\Guard;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Factory\ServerRequestCreatorFactory;
-use Slim\Flash\Messages;
 
 class ContainerConfig
 {
@@ -45,7 +45,8 @@ class ContainerConfig
         });
 
         // Flash 메시지 설정
-        $container->set('flash', fn() => new Messages($_SESSION));
+        // 기본적으로 세션을 사용하므로 설정 이전에 세션을 시작해야 함
+        $container->set('flash', fn() => new FlashMessage());
 
         // Image처리 전략 설정
         $container->set(ImageStrategyInterface::class, function () {

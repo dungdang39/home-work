@@ -6,18 +6,15 @@
 
 namespace Core\Extension;
 
+use Core\Lib\FlashMessage;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
-use Slim\Flash\Messages;
 
 final class FlashExtension extends AbstractExtension
 {
-    public const ERROR_FLASH_KEY = 'errors';
-    public const OLD_FLASH_KEY = 'old';
+    protected FlashMessage $flash;
 
-    protected $flash;
-
-    public function __construct(Messages $flash)
+    public function __construct(FlashMessage $flash)
     {
         $this->flash = $flash;
     }
@@ -26,8 +23,9 @@ final class FlashExtension extends AbstractExtension
     {
         return [
             new TwigFunction('old', [$this, 'old']),
-            new TwigFunction('errors', [$this, 'errors']),
-            new TwigFunction('error_first_message', [$this, 'error_first_message']),
+            new TwigFunction('messages', [$this, 'messages']),
+            new TwigFunction('first_message', [$this, 'first_message']),
+            new TwigFunction('confirm_message', [$this, 'confirm_message']),
         ];
     }
 
@@ -41,7 +39,7 @@ final class FlashExtension extends AbstractExtension
      */
     public function old(string $key = null, $default = null)
     {
-        $old = $this->flash->getFirstMessage(self::OLD_FLASH_KEY);
+        $old = $this->flash->getFirstMessage($this->flash::KEY_OLD);
 
         // $key가 null인 경우, 전체 $old 배열을 반환
         if ($key === null) {
@@ -60,36 +58,55 @@ final class FlashExtension extends AbstractExtension
 
 
     /**
-     * 이전 요청에서 오류 메시지 목록 반환
-     * @return array  오류 메시지 목록
+     * 이전 요청에서 메시지 목록 반환
+     * @return array 메시지 목록
      */
-    public function errors()
+    public function messages()
     {
-        $errors = $this->flash->getFirstMessage(self::ERROR_FLASH_KEY, []);
+        $messages = $this->flash->getFirstMessage($this->flash::KEY_MESSAGE, []);
 
-        if (!is_array($errors)) {
-            return [$errors];
+        if (!is_array($messages)) {
+            return [$messages];
         }
 
-        return $errors;
+        return $messages;
     }
 
     /**
-     * 이전 요청에서 첫 번째 오류 메시지 반환
-     * @return string  오류 메시지
+     * 이전 요청에서 첫 번째 메시지 반환
+     * @return string  메시지
      */
-    public function error_first_message(): string
+    public function first_message(): string
     {
-        $errors = $this->flash->getFirstMessage(self::ERROR_FLASH_KEY, []);
+        $messages = $this->flash->getFirstMessage($this->flash::KEY_MESSAGE, []);
 
-        if (is_array($errors) && count($errors) > 0) {
-            return $errors[0];
+        if (is_array($messages) && count($messages) > 0) {
+            return $messages[0];
         }
 
-        if (is_string($errors)) {
-            return $errors;
+        if (is_string($messages)) {
+            return $messages;
         }
 
         return '';
+    }
+
+    /**
+     * 이전 요청에서 확인 메시지 및 url 배열 반환
+     * @return array 메시지 및 url 배열
+     */
+    public function confirm_message(): array
+    {
+        $message = '';
+        $url = $this->flash->getFirstMessage($this->flash::KEY_CONFIRM_URL, '');
+
+        $messages = $this->flash->getFirstMessage($this->flash::KEY_CONFIRM, []);
+        if (is_array($messages) && count($messages) > 0) {
+            $message = $messages[0];
+        } else if (is_string($messages)) {
+            $message = $messages;
+        }
+
+        return ['message' => $message, 'url' => $url];
     }
 }

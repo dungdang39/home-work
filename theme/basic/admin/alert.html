@@ -1,8 +1,17 @@
 {% with %}
-{% set message = error_first_message() %}
+{% set message = first_message() %}
+{% set confirm = confirm_message() %}
     {% if message %}
     <script>
         alert("{{ message|e('js') }}");
+    </script>
+    {% endif %}
+
+    {% if confirm.message %}
+    <script>
+        if (confirm("{{ confirm.message|e('js') }}")) {
+            location.href = "{{ confirm.url|e('js') }}";
+        }
     </script>
     {% endif %}
 {% endwith %}
