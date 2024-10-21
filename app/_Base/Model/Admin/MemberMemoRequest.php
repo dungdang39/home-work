@@ -12,7 +12,6 @@ class MemberMemoRequest
     public ?string $mb_memo = '';
     public ?string $mb_memo_created_at;
 
-    private array $member_config;
     private array $config;
 
     public function __construct(

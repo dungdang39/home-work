@@ -82,7 +82,7 @@ try {
         insertConfig($prefix . $config['table'], 'super_admin', $form['admin_id'], 'string', '최고관리자 아이디', 'config');
         insertConfig($prefix . $config['table'], 'privacy_officer_name', $form['admin_name'], 'string', '개인정보 보호 책임자 이름', 'config');
         insertConfig($prefix . $config['table'], 'privacy_officer_email', $form['admin_email'], 'string', '개인정보 보호 책임자 이메일', 'config');
-        insertConfig($prefix . $config['table'], 'theme', ThemeService::DEFAULT_THEME, 'string', '테마', 'config');
+        insertConfig($prefix . $config['table'], 'theme', ThemeService::DEFAULT_THEME, 'string', '테마', 'design');
         foreach ($config['values'] as $value) {
             Db::getInstance()->insert($prefix . $config['table'], $value);
         }

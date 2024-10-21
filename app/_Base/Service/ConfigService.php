@@ -10,7 +10,6 @@ class ConfigService
     public const TABLE_NAME = 'config';
 
     protected array $cache = [];
-
     protected string $table;
 
     public function __construct()
@@ -18,13 +17,18 @@ class ConfigService
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
-    public function getConfigs(string $scope): array
+    public function getConfigs(?string $scope = null): array
     {
-        $configs = $this->cache[$scope] = $this->fetchConfigsByScope($scope);
+        if ($scope !== null && isset($this->cache[$scope])) {
+            return $this->cache[$scope];
+        }
+
+        $configs = $this->fetchConfigs($scope);
 
         $result = [];
         foreach ($configs as $config) {
             $result[$config['name']] = $config['value'];
+            $this->cache[$config['scope']][$config['name']] = $config['value'];
         }
 
         return $result;
@@ -36,7 +40,7 @@ class ConfigService
      */
     public function getTheme(): string
     {
-        return self::getConfig('config', 'theme') ?: ThemeService::DEFAULT_THEME;
+        return self::getConfig('design', 'theme') ?: ThemeService::DEFAULT_THEME;
     }
 
     /**
@@ -55,7 +59,6 @@ class ConfigService
         $config = $this->fetch($scope, $name);
 
         if ($config) {
-            $this->cache[$scope][$name] = $config['value'];
             return $config['value'];
         }
 
@@ -75,6 +78,28 @@ class ConfigService
         return $this->getConfig('config', 'super_admin') === $mb_id;
     }
 
+    /**
+     * 환경설정 정보 추가 또는 수정
+     * @param string $scope 설정 범위
+     * @param array $data 설정 정보
+     * @return void
+     */
+    public function upsertConfigs(string $scope, array $data)
+    {
+        $configs = $this->getConfigs($scope);
+
+        foreach ($data as $name => $value) {
+            if (is_null($value)) {
+                continue;
+            }
+            if (array_key_exists($name, $configs)) {
+                $this->update($scope, $name, $value);
+            } else {
+                $this->insert($scope, $name, $value);
+            }
+        }
+    }
+
     // ========================================
     // Database Queries
     // ========================================
@@ -82,10 +107,17 @@ class ConfigService
     /**
      * 환경설정 목록 조회
      */
-    protected function fetchConfigsByScope(string $scope): array
+    protected function fetchConfigs(?string $scope = null): array
     {
-        $query = "SELECT * FROM {$this->table} WHERE scope = :scope";
-        $values = ['scope' => $scope];
+        $wheres = [];
+        $values = [];
+        if (isset($scope)) {
+            $wheres[] = 'scope = :scope';
+            $values['scope'] = $scope;
+        }
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+
+        $query = "SELECT * FROM {$this->table} {$sql_where}";
         return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
@@ -104,21 +136,36 @@ class ConfigService
 
     /**
      * 환경설정 정보 추가
-     * @param array $data
+     * @param string $scope
+     * @param string $name
+     * @param mixed $value
      * @return int
      */
-    public function insert(array $data): int
+    public function insert(string $scope, string $name, $value): int
     {
-        return Db::getInstance()->insert($this->table, $data);
+        if (gettype($value) === 'boolean') {
+            $value = $value ? 1 : 0;
+        }
+
+        return Db::getInstance()->insert(
+            $this->table,
+            ['scope' => $scope, 'name' => $name, 'value' => $value]
+        );
     }
 
     /**
      * 환경설정 정보 수정
-     * @param array $data
+     * @param string $scope
+     * @param string $name
+     * @param mixed $value
      * @return int
      */
-    public function update(string $scope, string $name, string $value): int
+    public function update(string $scope, string $name, $value): int
     {
+        if (gettype($value) === 'boolean') {
+            $value = $value ? 1 : 0;
+        }
+
         return Db::getInstance()->update(
             $this->table,
             ['value' => $value],

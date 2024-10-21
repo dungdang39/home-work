@@ -11,24 +11,22 @@ class PointService
     public const TABLE_NAME = 'point';
     public string $table;
 
+    private Request $request;
+    private MemberService $member_service;
     private bool $use_point = true;
     private int $point_term = 0;
-    private MemberService $member_service;
-    private Request $request;
 
     public function __construct(
+        Request $request,
+        ConfigService $config_service,
         MemberService $member_service,
-        MemberConfigService $member_config_service,
-        Request $request
     ) {
-        $member_config = $member_config_service->getMemberConfig();
-        $this->use_point = (bool)$member_config['use_point'];
-        $this->point_term = (int)$member_config['point_term'];
-
-        $this->member_service = $member_service;
-        $this->request = $request;
-
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+
+        $this->request = $request;
+        $this->member_service = $member_service;
+        $this->use_point = (bool)$config_service->getConfig('member', 'use_point', false);
+        $this->point_term = (int)$config_service->getConfig('member', 'point_term', 0);
     }
 
     // ========================================

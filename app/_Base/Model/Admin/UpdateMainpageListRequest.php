@@ -9,7 +9,7 @@ class UpdateMainpageListRequest
 {
     use SchemaHelperTrait;
 
-    public ?int $cf_use_mainpage = 0;
+    public ?int $use_mainpage = 0;
     public ?array $ids = [];
     public ?array $section_title = [];
 

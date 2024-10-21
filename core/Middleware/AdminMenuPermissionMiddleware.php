@@ -4,7 +4,6 @@ namespace Core\Middleware;
 
 use App\Base\Service\ConfigService;
 use App\Base\Service\PermissionService;
-use Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;

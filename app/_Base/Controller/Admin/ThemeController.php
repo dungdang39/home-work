@@ -39,14 +39,16 @@ class ThemeController extends BaseController
      */
     public function index(Request $request, Response $response): Response
     {
-        $config = $request->getAttribute('config');
+        $configs = $this->config_service->getConfigs('design');
+        $logo_header = $configs['logo_header'] ?? '';
+        $logo_footer = $configs['logo_footer'] ?? '';
 
         $response_data = [
-            'config' => $config,
-            'current_theme' => $config['cf_theme'],
+            'configs' => $configs,
+            'current_theme' => $this->config_service->getTheme(),
             'themes' => $this->service->getInstalledThemes(),
-            'logo_header_width' => $this->image_service->getImageWidth($request, $config['logo_header']),
-            'logo_footer_width' => $this->image_service->getImageWidth($request, $config['logo_footer']),
+            'logo_header_width' => $this->image_service->getImageWidth($request, $logo_header),
+            'logo_footer_width' => $this->image_service->getImageWidth($request, $logo_footer),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '/admin/design/theme_form.html', $response_data);
@@ -61,7 +63,7 @@ class ThemeController extends BaseController
             throw new HttpNotFoundException($request, '선택하신 테마가 설치되어 있지 않습니다.');
         }
 
-        $this->config_service->update(['cf_theme' => $theme]);
+        $this->config_service->update('design', 'theme', $theme);
 
         return $response->withJson(['message' => '테마가 변경되었습니다.']);
     }
@@ -71,7 +73,7 @@ class ThemeController extends BaseController
      */
     public function reset(Response $response): Response
     {
-        $this->config_service->update(['cf_theme' => '']);
+        $this->config_service->update('design', 'theme', '');
 
         return $response->withJson(['message' => '테마가 사용안함 처리되었습니다.']);
     }
@@ -81,15 +83,15 @@ class ThemeController extends BaseController
      */
     public function updateInfo(Request $request, Response $response, UpdateThemeConfigRequest $data): Response
     {
-        $config = $request->getAttribute('config');
+        $configs = $request->getAttribute('configs');
 
         $folder = $this->service::DIRECTORY;
         if ($data->logo_header_del || Validator::isUploadedFile($data->logo_header_file)) {
-            $this->file_service->deleteByDb($request, $config['logo_header']);
+            $this->file_service->deleteByDb($request, $configs['logo_header'] ?? null);
             $data->logo_header = $this->file_service->upload($request, $folder, $data->logo_header_file);
         }
         if ($data->logo_footer_del || Validator::isUploadedFile($data->logo_footer_file)) {
-            $this->file_service->deleteByDb($request, $config['logo_footer']);
+            $this->file_service->deleteByDb($request, $configs['logo_footer'] ?? null);
             $data->logo_footer = $this->file_service->upload($request, $folder, $data->logo_footer_file);
         }
         // 파일 필드 제거
@@ -98,7 +100,7 @@ class ThemeController extends BaseController
         unset($data->logo_header_file);
         unset($data->logo_footer_file);
 
-        $this->config_service->update($data->publics());
+        $this->config_service->upsertConfigs('design', $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.design.theme');
     }

@@ -3,7 +3,6 @@
 namespace App\Base\Model\Admin;
 
 use App\Base\Service\ConfigService;
-use App\Base\Service\MemberConfigService;
 use Core\Traits\SchemaHelperTrait;
 use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
@@ -49,15 +48,13 @@ class MemberRequest
     // 회원 이미지 파일
     public ?UploadedFile $mb_image_file;
 
-    private array $member_config;
-    private array $config;
+    private array $configs;
 
     public function __construct(
-        MemberConfigService $member_config_service,
-        Request $request
+        Request $request,
+        ConfigService $config_service
     ) {
-        $this->config = ConfigService::getConfig();
-        $this->member_config = $member_config_service->getMemberConfig();
+        $this->configs = $config_service->getConfigs('member');
 
         $this->initializeFromRequest($request);
     }
@@ -69,8 +66,8 @@ class MemberRequest
         $this->mb_email = getEmailAddress($this->mb_email);
 
         if (
-            $this->member_config['required_phone']
-            && ($this->member_config['use_phone'] || $this->member_config['auth_service'])
+            $this->configs['phone_input_required']
+            && ($this->configs['telephone_input_enabled'] || $this->configs['identity_verification_service'])
         ) {
             $this->validateHp();
         }
@@ -104,7 +101,7 @@ class MemberRequest
         if (!Validator::isAlnumko($this->mb_nick)) {
             $this->throwException('닉네임은 한글, 영문, 숫자만 입력하세요.');
         }
-        // $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
+        // $prohibit_words = isset($this->configs['prohibit_word']) ? explode("\n", $this->configs['prohibit_word']) : [];
         // if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
         //     $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
         // }
@@ -112,7 +109,7 @@ class MemberRequest
 
     private function validateEmail()
     {
-        $prohibit_domains = explode("\n", $this->member_config['prohibit_domain']);
+        $prohibit_domains = isset($this->configs['prohibit_domain']) ? explode("\n", $this->configs['prohibit_domain']) : [];
 
         if (!Validator::required($this->mb_email)) {
             $this->throwException('이메일 주소를 입력해주세요.');

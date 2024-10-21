@@ -16,17 +16,17 @@ class MemberService
 
     public string $table;
 
-    private MemberConfigService $mconfig_service;
     private Request $request;
+    private ConfigService $config_service;
 
     public function __construct(
-        MemberConfigService $mconfig_service,
         Request $request,
+        ConfigService $config_service
     ) {
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
 
-        $this->mconfig_service = $mconfig_service;
         $this->request = $request;
+        $this->config_service = $config_service;
     }
 
     // ========================================
@@ -97,8 +97,6 @@ class MemberService
      */
     public function createMember(array $data): int
     {
-        $config = $this->mconfig_service->getMemberConfig();
-
         if ($this->fetchMemberById($data['mb_id'])) {
             throw new Exception('이미 사용중인 회원아이디 입니다.', 409);
         }
@@ -108,7 +106,8 @@ class MemberService
         if ($this->existsMemberByEmail($data['mb_email'], $data['mb_id'])) {
             throw new Exception('이미 사용중인 이메일 입니다.', 409);
         }
-        if ($config['use_recommend'] && $data['mb_recommend']) {
+        $recommend_enabled = $this->config_service->getConfig('member', 'recommend_enabled', false);
+        if ($recommend_enabled && isset($data['mb_recommend']) && $data['mb_recommend']) {
             if (!$this->fetchMemberById($data['mb_recommend'])) {
                 throw new Exception('추천인이 존재하지 않습니다.', 404);
             }

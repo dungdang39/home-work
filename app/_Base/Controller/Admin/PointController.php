@@ -2,27 +2,27 @@
 
 namespace App\Base\Controller\Admin;
 
-use App\Base\Service\MemberConfigService;
 use App\Base\Model\Admin\CreatePointRequest;
 use App\Base\Model\Admin\DeletePointListRequest;
 use App\Base\Model\Admin\PointSearchRequest;
+use App\Base\Service\ConfigService;
 use App\Base\Service\PointService;
 use Core\BaseController;
-use Exception;
+use Slim\Exception\HttpBadRequestException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 
 class PointController extends BaseController
 {
-    private array $member_config;
+    private ConfigService $config_service;
     private PointService $service;
 
     public function __construct(
-        MemberConfigService $member_config_service,
+        ConfigService $config_service,
         PointService $service,
     ) {
-        $this->member_config = $member_config_service->getMemberConfig();
+        $this->config_service = $config_service;
         $this->service = $service;
     }
 
@@ -41,7 +41,7 @@ class PointController extends BaseController
         $points = $this->service->getPoints($search_params);
 
         $response_data = [
-            'point_term' => (int)$this->member_config['point_term'],
+            'point_term' => (int)$this->config_service->getConfig('member', 'point_term', 0),
             'total_point' => $this->service->fetchTotalPoint(),
             'points' => $points,
             'total_count' => $total_count,
@@ -58,8 +58,8 @@ class PointController extends BaseController
      */
     public function insert(Request $request, Response $response, CreatePointRequest $data): Response
     {
-        if (empty($this->member_config['use_point'])) {
-            throw new Exception('포인트 사용 설정이 되어 있지 않습니다.', 400);
+        if (empty($this->config_service->getConfig('member', 'use_point', false))) {
+            throw new HttpBadRequestException($request, '포인트 사용 설정이 되어 있지 않습니다.');
         }
 
         $this->service->addPoint(
@@ -83,10 +83,10 @@ class PointController extends BaseController
         $point = $this->service->getPoint($po_id);
 
         if ($point['po_expired']) {
-            throw new Exception('이미 만료처리된 포인트입니다.', 400);
+            throw new HttpBadRequestException($request, '이미 만료처리된 포인트입니다.');
         }
         if ($point['po_expire_date'] < date('Y-m-d')) {
-            throw new Exception('만료일이 지난 포인트입니다.', 400);
+            throw new HttpBadRequestException($request, '만료일이 지난 포인트입니다.');
         }
 
         $this->service->expirePoint($point);

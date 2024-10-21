@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_email_verified_at` datetime DEFAULT NULL COMMENT '메일인증 완료 일시',
   `mb_email_verified_code` varchar(255) NOT NULL DEFAULT '' COMMENT '메일 인증 코드(일회용)',
   `mb_memo` text DEFAULT NULL COMMENT '메모',
-  `mb_memo_create_at` datetime DEFAULT NULL COMMENT '메모 등록일시',
+  `mb_memo_created_at` datetime DEFAULT NULL COMMENT '메모 등록일시',
   `mb_lost_certify` varchar(255) NOT NULL DEFAULT '' COMMENT '비밀번호 분실 시 인증 코드',
   `mb_mailling` tinyint(1) NOT NULL DEFAULT 0 COMMENT '메일 수신 여부',
   `mb_sms` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'SMS 수신 여부',
@@ -239,74 +239,6 @@ CREATE TABLE `new_member_social_profiles` (
   KEY `mb_id` (`mb_id`),
   KEY `provider` (`provider`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 소셜 프로필 정보';
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `new_member_config`
---
-DROP TABLE IF EXISTS `new_member_config`;
-CREATE TABLE IF NOT EXISTS `new_member_config` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '설정 ID',
-  `use_address` tinyint(1) NOT NULL DEFAULT 0 COMMENT '주소 입력 사용여부',
-  `required_address` tinyint(1) NOT NULL DEFAULT 0 COMMENT '주소 입력 필수여부',
-  `use_signature` tinyint(1) NOT NULL DEFAULT 0 COMMENT '서명 입력 사용여부',
-  `required_signature` tinyint(1) NOT NULL DEFAULT 0 COMMENT '서명 입력 필수여부',
-  `use_telephone` tinyint(1) NOT NULL DEFAULT 0 COMMENT '전화번호 입력 사용여부',
-  `required_telephone` tinyint(1) NOT NULL DEFAULT 0 COMMENT '전화번호 입력 필수여부',
-  `use_phone` tinyint(1) NOT NULL DEFAULT 0 COMMENT '휴대폰 입력 사용여부',
-  `required_phone` tinyint(1) NOT NULL DEFAULT 0 COMMENT '휴대폰 입력 필수여부',
-  `signup_level` int(11) NOT NULL DEFAULT 0 COMMENT '회원가입 시, 회원 레벨',
-  `signup_point` int(11) NOT NULL DEFAULT 0 COMMENT '회원가입 시, 지급 포인트',
-  `use_member_image` tinyint(1) NOT NULL DEFAULT 0 COMMENT '회원 이미지 사용 여부',
-  `upload_permission_level` int(11) NOT NULL DEFAULT 0 COMMENT '회원 이미지 업로드 제한 레벨',
-  `member_image_size` int(11) NOT NULL DEFAULT 0 COMMENT '회원 이미지 제한 크기',
-  `member_image_width` int(11) NOT NULL DEFAULT 0 COMMENT '회원 이미지 너비',
-  `member_image_height` int(11) NOT NULL DEFAULT 0 COMMENT '회원 이미지 높이',
-  `use_recommend` tinyint(1) NOT NULL DEFAULT 0 COMMENT '추천인 사용 여부',
-  `recommend_point` int(11) NOT NULL DEFAULT 0 COMMENT '추천인 지급 포인트',
-  `prohibit_word` text DEFAULT NULL COMMENT '금지단어 (엔터로 구분)',
-  `prohibit_domain` text DEFAULT NULL COMMENT '금지 도메인 (엔터로 구분)',
-  `signup_terms` text DEFAULT NULL COMMENT '가입 약관',
-  `privacy_policy` text DEFAULT NULL COMMENT '개인정보 처리방침',
-  `retention_period` int(11) NOT NULL DEFAULT 0 COMMENT '회원 탈퇴 후, 개인정보 보존 기간',
-  `use_email_certify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '이메일 인증 사용 여부',
-  `use_authentication` tinyint(1) NOT NULL DEFAULT 0 COMMENT '본인인증 사용 여부',
-  `is_auth_production` tinyint(1) NOT NULL DEFAULT 0 COMMENT '본인인증 실제 적용 여부',
-  `authentication_required` tinyint(1) NOT NULL DEFAULT 0 COMMENT '본인인증 필수 여부',
-  `auth_service` varchar(255) DEFAULT NULL COMMENT '인증 서비스',
-  `cert_service` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'KG이니시스 통합인증 암호화',
-  `cert_kg_mid` varchar(255) DEFAULT NULL COMMENT 'KG이니시스 통합인증 MID',
-  `cert_kg_cd` varchar(255) DEFAULT NULL COMMENT 'KG이니시스 통합인증 API KEY',
-  `cert_kcp_cd` varchar(255) DEFAULT NULL COMMENT 'NHN KCP 사이트코드',
-  `cert_limit` int(11) NOT NULL DEFAULT 0 COMMENT '본인인증 제한 횟수(일 단위)',
-  `use_point` tinyint(1) NOT NULL DEFAULT 0 COMMENT '포인트 사용 여부',
-  `point_term` int(11) NOT NULL DEFAULT 0 COMMENT '포인트 유효 기간(일 단위)',
-  `login_point` int(11) NOT NULL DEFAULT 0 COMMENT '로그인 시 지급 포인트',
-  `memo_send_point` int(11) NOT NULL DEFAULT 0 COMMENT '쪽지 전송에 필요한 포인트',
-  `member_signup_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '가입 시 회원에게 알림 여부',
-  `member_signup_send_type` varchar(255) DEFAULT NULL COMMENT '가입 시 회원에게 발송유형',
-  `member_signup_preset` text DEFAULT NULL COMMENT '가입 시 회원에게 알림 프리셋',
-  `member_leave_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '탈퇴 시 회원에게 알림 여부',
-  `member_leave_send_type` varchar(255) DEFAULT NULL COMMENT '탈퇴 시 회원에게 발송유형',
-  `member_leave_preset` text DEFAULT NULL COMMENT '탈퇴 시 회원에게 알림 프리셋',
-  `admin_signup_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '가입 시 운영진에게 알림 여부',
-  `admin_signup_send_type` varchar(255) DEFAULT NULL COMMENT '가입 시 운영진에게 발송유형',
-  `admin_signup_preset` text DEFAULT NULL COMMENT '가입 시 운영진에게 알림 프리셋',
-  `admin_leave_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '탈퇴 시 운영진에게 알림 여부',
-  `admin_leave_send_type` varchar(255) DEFAULT NULL COMMENT '탈퇴 시 운영진에게 발송유형',
-  `admin_leave_preset` text DEFAULT NULL COMMENT '탈퇴 시 운영진에게 알림 프리셋',
-  `superadmin_signup_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '가입 시 최고관리자에게 알림 여부',
-  `superadmin_signup_send_type` varchar(255) DEFAULT NULL COMMENT '가입 시 최고관리자에게 발송유형',
-  `superadmin_signup_preset` text DEFAULT NULL COMMENT '가입 시 최고관리자에게 알림 프리셋',
-  `superadmin_leave_notify` tinyint(1) NOT NULL DEFAULT 0 COMMENT '탈퇴 시 최고관리자에게 알림 여부',
-  `superadmin_leave_send_type` varchar(255) DEFAULT NULL COMMENT '탈퇴 시 최고관리자에게 발송유형',
-  `superadmin_leave_preset` text DEFAULT NULL COMMENT '탈퇴 시 최고관리자에게 알림 프리셋',
-  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 설정';
 
 
 -- --------------------------------------------------------

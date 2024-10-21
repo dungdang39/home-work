@@ -89,8 +89,11 @@ class Validator
      * @param mixed $value
      * @param array $prohibit_words
      */
-    public static function isProhibitedWord($value, array $prohibit_words): bool
+    public static function isProhibitedWord($value, array $prohibit_words = []): bool
     {
+        if (!$prohibit_words) {
+            return true;
+        }
         return in_array($value, $prohibit_words);
     }
 
@@ -152,8 +155,12 @@ class Validator
      * @param array $prohibit_domains
      * @return bool
      */
-    public static function isProhibitedDomain($value, array $prohibit_domains): bool
+    public static function isProhibitedDomain($value, array $prohibit_domains = []): bool
     {
+        if (!$prohibit_domains) {
+            return true;
+        }
+
         $email_array = explode('@', $value);
         if (!isset($email_array[1])) {
             return false;

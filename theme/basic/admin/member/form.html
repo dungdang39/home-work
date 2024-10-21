@@ -283,16 +283,16 @@
                             <th scope="row">IP</th>
                             <td colspan="3">{{ member.mb_signup_ip }}</td>
                         </tr>
-                            {% if member_config.use_email_certify %}
+                            {% if configs.email_verification_enabled %}
                             <tr>
                                 <th scope="row">인증일시</th>
                                 <td colspan="3">
-                                    {% if not mb_email_verified_at %}
-                                        <?php echo help('회원님이 메일을 수신할 수 없는 경우 등에 직접 인증처리를 하실 수 있습니다.') ?>
-                                        <input type="checkbox" name="passive_certify" id="passive_certify">
-                                        <label for="passive_certify">수동인증</label>
+                                    {% if not member.mb_email_verified_at %}
+                                        {{ info('회원님이 메일을 수신할 수 없는 경우 등에 직접 인증처리를 하실 수 있습니다.') }}
+                                        <input type="checkbox" name="mb_email_verified_at" id="mb_email_verified_at" value="">
+                                        <label for="mb_email_verified_at">수동인증</label>
                                     {% else %}
-                                        {{ mb_email_verified_at }}
+                                        {{ member.mb_email_verified_at }}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -361,6 +361,19 @@
                 mbInterceptTime.value = formattedDate;
             } else {
                 mbInterceptTime.value = mbInterceptTime.defaultValue;
+            }
+        });
+
+        const setEmailVerifiedTime = document.getElementById('mb_email_verified_at');
+    
+        setEmailVerifiedTime.addEventListener('change', function () {
+            if (this.checked) {
+                const futureDate = new Date();
+                futureDate.setDate(futureDate.getDate());
+                const formattedDate = formatDate(futureDate);
+                this.value = formattedDate;
+            } else {
+                this.value = this.defaultValue;
             }
         });
 

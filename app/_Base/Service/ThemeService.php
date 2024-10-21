@@ -96,7 +96,8 @@ class ThemeService
             'version' => '',
             'detail' => '',
             'license' => '',
-            'license_uri' => ''
+            'license_uri' => '',
+            'is_default' => $theme === self::DEFAULT_THEME,
         ];
 
         $theme_dir = $this->getBaseDir() . '/' . $theme;

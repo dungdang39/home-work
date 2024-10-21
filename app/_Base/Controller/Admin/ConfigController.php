@@ -43,25 +43,9 @@ class ConfigController extends BaseController
     /**
      * 기본환경 설정 업데이트
      */
-    public function update(Request $request, Response $response, UpdateConfigRequest $request_data): Response
+    public function update(Request $request, Response $response, UpdateConfigRequest $data): Response
     {
-        $datas = $request_data->publics();
-        $configs = $this->service->getConfigs('config');
-
-        foreach ($datas as $name => $value) {
-            if (is_null($value)) {
-                continue;
-            }
-            if (array_key_exists($name, $configs)) {
-                $this->service->update('config', $name, $value);
-            } else {
-                $this->service->insert([
-                    'scope' => 'config',
-                    'name' => $name,
-                    'value' => $value,
-                ]);
-            }
-        }
+        $this->service->upsertConfigs('config', $data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.config.basic');
     }

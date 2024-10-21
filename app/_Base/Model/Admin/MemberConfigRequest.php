@@ -14,22 +14,22 @@ class MemberConfigRequest
     use SchemaHelperTrait;
 
     // 회원가입 입력 설정
-    public ?bool $use_address = false;
-    public ?bool $required_address = false;
-    public ?bool $use_signature = false;
-    public ?bool $required_signature = false;
-    public ?bool $use_telephone = false;
-    public ?bool $required_telephone = false;
-    public ?bool $use_phone = false;
-    public ?bool $required_phone = false;
+    public ?bool $address_input_enabled = false;
+    public ?bool $address_input_required = false;
+    public ?bool $signature_input_enabled = false;
+    public ?bool $signature_input_required = false;
+    public ?bool $telephone_input_enabled = false;
+    public ?bool $telephone_input_required = false;
+    public ?bool $phone_input_enabled = false;
+    public ?bool $phone_input_required = false;
     public ?int $signup_level = 2;
     public ?int $signup_point = 0;
-    public ?bool $use_member_image = false;
-    public ?int $upload_permission_level;
-    public ?int $member_image_size = 0;
+    public ?bool $member_image_enabled = false;
+    public ?int $member_image_upload_level;
+    public ?int $member_image_max_size = 0;
     public ?int $member_image_width = 0;
     public ?int $member_image_height = 0;
-    public ?bool $use_recommend = false;
+    public ?bool $recommend_enabled = false;
     public ?int $recommend_point = 0;
     public ?string $prohibit_word = '';
     public ?string $prohibit_domain = '';
@@ -40,16 +40,16 @@ class MemberConfigRequest
     public ?int $retention_period = 0;
 
     // 인증 설정
-    public ?bool $use_email_certify = false;
-    public ?bool $use_authentication = false;
-    public ?bool $is_auth_production = false;
-    public ?bool $authentication_required = false;
-    public ?string $auth_service;
-    public ?bool $cert_service = false;
-    public ?string $cert_kg_mid;
-    public ?string $cert_kg_cd;
-    public ?string $cert_kcp_cd;
-    public ?int $cert_limit = 0;
+    public ?bool $email_verification_enabled = false;
+    public ?bool $identity_verification_enabled = false;
+    public ?bool $identity_verification_product = false;
+    public ?bool $identity_verification_required = false;
+    public ?string $identity_verification_service;
+    public ?bool $kg_sso_encryption_enabled = false;
+    public ?string $kg_mid;
+    public ?string $kg_api_key;
+    public ?string $kcp_site_code;
+    public ?int $identity_verification_limit = 0;
 
     // 포인트 설정
     public ?bool $use_point = false;

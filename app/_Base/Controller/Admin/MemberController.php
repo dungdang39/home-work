@@ -2,7 +2,6 @@
 
 namespace App\Base\Controller\Admin;
 
-use App\Base\Service\MemberConfigService;
 use App\Base\Service\MemberService;
 use App\Base\Model\Admin\CreateMemberRequest;
 use App\Base\Model\Admin\DeleteMemberListRequest;
@@ -10,6 +9,7 @@ use App\Base\Model\Admin\MemberMemoRequest;
 use App\Base\Model\Admin\MemberSearchRequest;
 use App\Base\Model\Admin\MemberRequest;
 use App\Base\Model\Admin\UpdateMemberListRequest;
+use App\Base\Service\ConfigService;
 use App\Base\Service\SocialProfileService;
 use Core\BaseController;
 use Core\FileService;
@@ -24,25 +24,25 @@ use Slim\Views\Twig;
 class MemberController extends BaseController
 {
     private Container $container;
+    private ConfigService $config_service;
     private FileService $file_service;
     private ImageService $image_service;
     private MemberService $service;
-    private MemberConfigService $config_service;
     private SocialProfileService $social_service;
 
     public function __construct(
         Container $container,
+        ConfigService $config_service,
         FileService $file_service,
         ImageService $image_service,
         MemberService $service,
-        MemberConfigService $config_service,
         SocialProfileService $social_service
     ) {
         $this->container = $container;
+        $this->config_service = $config_service;
         $this->file_service = $file_service;
         $this->image_service = $image_service;
         $this->service = $service;
-        $this->config_service = $config_service;
         $this->social_service = $social_service;
     }
 
@@ -51,9 +51,6 @@ class MemberController extends BaseController
      */
     public function index(Request $request, Response $response, MemberSearchRequest $search_request): Response
     {
-        // 회원 설정 조회
-        $member_config = $this->config_service->getMemberConfig();
-
         // 검색 조건 설정
         $search_params = $search_request->publics();
 
@@ -65,7 +62,6 @@ class MemberController extends BaseController
         $members = $this->service->getMembers($search_params);
 
         $response_data = [
-            "member_config" => $member_config,
             "members" => $members,
             "total_count" => $total_count,
             "search" => $search_request,
@@ -127,29 +123,32 @@ class MemberController extends BaseController
      */
     public function update(Request $request, Response $response, MemberRequest $data, string $mb_id): Response
     {
-        $config = $request->getAttribute('config');
         $login_member = $request->getAttribute('login_member');
+        $login_id = $login_member['mb_id'];
         $member = $this->service->getMember($mb_id);
 
-        if (!is_super_admin($config, $login_member['mb_id']) && $member['mb_level'] >= $login_member['mb_level']) {
+        $is_super_admin_login_member = $this->config_service->isSuperAdmin($login_id);
+        $is_super_admin_member = $this->config_service->isSuperAdmin($mb_id);
+
+        if (!$is_super_admin_login_member && $member['mb_level'] >= $login_member['mb_level']) {
             throw new Exception('자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.', 403);
         }
         if (
-            !is_super_admin($config, $login_member['mb_id'])
-            && is_super_admin($config, $member['mb_id'])
+            !$is_super_admin_login_member
+            && $is_super_admin_member
         ) {
             throw new Exception('최고관리자의 비밀번호를 수정할수 없습니다.', 403);
         }
         if (
-            $login_member['mb_id'] === $member['mb_id']
+            $login_id === $mb_id
             && $member['mb_level'] != $data->mb_level
         ) {
             throw new Exception('로그인 중인 관리자 레벨은 수정할 수 없습니다.', 403);
         }
         if ($data->mb_leave_date || $data->mb_intercept_date) {
             if (
-                $login_member['mb_id'] === $member['mb_id']
-                || is_super_admin($config, $member['mb_id'])
+                $login_id === $mb_id
+                || $is_super_admin_member
             ) {
                 throw new Exception('해당 관리자의 탈퇴 일자 또는 접근 차단 일자를 수정할 수 없습니다.', 403);
             }
@@ -179,15 +178,14 @@ class MemberController extends BaseController
      */
     public function delete(Request $request, Response $response, string $mb_id): Response
     {
-        $config = $request->getAttribute('config');
-        $member = $this->service->getMember($mb_id);
         $login_member = $request->getAttribute('login_member');
+        $member = $this->service->getMember($mb_id);
 
-        if ($member === $login_member) {
+        if ($member['mb_id'] === $login_member['mb_id']) {
             throw new Exception('로그인 중인 관리자는 삭제할 수 없습니다.', 403);
         }
-        if (is_super_admin($config, $member['mb_id'])) {
-            throw new Exception('최고 관리자는 삭제할 수 없습니다.', 403);
+        if ($this->config_service->isSuperAdmin($mb_id)) {
+            throw new Exception('최고관리자는 삭제할 수 없습니다.', 403);
         }
         if ($member['mb_level'] >= $login_member['mb_level']) {
             throw new Exception('자신보다 권한이 높거나 같은 회원은 삭제할 수 없습니다.', 403);
@@ -235,8 +233,9 @@ class MemberController extends BaseController
      */
     public function updateList(Request $request, Response $response, UpdateMemberListRequest $data): Response
     {
-        $config = $request->getAttribute('config');
         $login_member = $request->getAttribute('login_member');
+        $is_super_admin_login_member = $this->config_service->isSuperAdmin($login_member['mb_id']);
+
         $errors = [];
 
         foreach ($data->members as $mb_id => $list_data) {
@@ -249,7 +248,7 @@ class MemberController extends BaseController
                 $errors[] = "{$mb_id} : 로그인 중인 관리자는 수정할 수 없습니다.";
                 continue;
             }
-            if (!is_super_admin($config, $login_member['mb_id']) && $member_info['mb_level'] >= $login_member['mb_level']) {
+            if (!$is_super_admin_login_member && $member_info['mb_level'] >= $login_member['mb_level']) {
                 $errors[] = "{$mb_id} : 자신보다 권한이 높거나 같은 회원은 수정할 수 없습니다.";
                 continue;
             }
@@ -276,8 +275,8 @@ class MemberController extends BaseController
      */
     public function deleteList(Request $request, Response $response, DeleteMemberListRequest $data): Response
     {
-        $config = $request->getAttribute('config');
         $login_member = $request->getAttribute('login_member');
+
         $errors = [];
 
         foreach ($data->members as $mb_id) {
@@ -291,11 +290,11 @@ class MemberController extends BaseController
                 $errors[] = "{$mb_id} : 로그인 중인 관리자는 삭제할 수 없습니다.";
                 continue;
             }
-            if (is_super_admin($config, $member_info['mb_id'])) {
+            if ($this->config_service->isSuperAdmin($member_info['mb_id'])) {
                 $errors[] = "{$mb_id} : 최고 관리자는 삭제할 수 없습니다.";
                 continue;
             }
-            if (!is_super_admin($config, $login_member['mb_id']) && $member_info['mb_level'] >= $login_member['mb_level']) {
+            if (!$this->config_service->isSuperAdmin($login_member['mb_id']) && $member_info['mb_level'] >= $login_member['mb_level']) {
                 $errors[] = "{$mb_id} : 자신보다 권한이 높거나 같은 회원은 삭제할 수 없습니다.";
                 continue;
             }

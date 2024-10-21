@@ -25,10 +25,10 @@
                         <tr>
                             <th scope="row">메인 화면 사용</th>
                             <td>
-                                <label for="cf_use_mainpage_1" class="rules_label">사용</label>
-                                <input name="cf_use_mainpage" id="cf_use_mainpage_1" type="radio" value="1" {{ checked(1, old('cf_use_mainpage', config)) }}>
-                                <label for="cf_use_mainpage_0" class="rules_label">사용안함</label>
-                                <input name="cf_use_mainpage" id="cf_use_mainpage_0" type="radio" value="0" {{ checked(0, old('cf_use_mainpage', config), true) }}>
+                                <label for="use_mainpage_1" class="rules_label">사용</label>
+                                <input name="use_mainpage" id="use_mainpage_1" type="radio" value="1" {{ checked(1, old('use_mainpage', configs)) }}>
+                                <label for="use_mainpage_0" class="rules_label">사용안함</label>
+                                <input name="use_mainpage" id="use_mainpage_0" type="radio" value="0" {{ checked(0, old('use_mainpage', configs), true) }}>
                             </td>
                         </tr>
                     </tbody>
@@ -97,11 +97,11 @@
                             <select id="select_section">
                                 <option value="">섹션 선택</option>
                                 <option value="banner">배너</option>
-                                {% if config.cf_use_shop %}
+                                {% if configs.use_shop %}
                                 <option value="shop_category">쇼핑 카테고리</option>
                                 <option value="event">기획전</option>
                                 {% endif %}
-                                {% if config.cf_use_community %}
+                                {% if configs.use_community %}
                                 <option value="community">커뮤니티 최신글</option>
                                 {% endif %}
                             </select>

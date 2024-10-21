@@ -3,7 +3,6 @@
 namespace App\Base\Model\Admin;
 
 use App\Base\Service\ConfigService;
-use App\Base\Service\MemberConfigService;
 use Core\Traits\SchemaHelperTrait;
 use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
@@ -50,15 +49,13 @@ class CreateMemberRequest
     // 회원 이미지 파일
     public ?UploadedFile $mb_image_file;
 
-    private array $member_config;
-    private array $config;
+    private array $configs;
 
     public function __construct(
-        MemberConfigService $member_config_service,
         Request $request,
+        ConfigService $config_service
     ) {
-        $this->config = ConfigService::getConfig();
-        $this->member_config = $member_config_service->getMemberConfig();
+        $this->configs = $config_service->getConfigs('member');
 
         $this->initializeFromRequest($request);
     }
@@ -75,9 +72,10 @@ class CreateMemberRequest
         $this->validateName();
         $this->validateNickName();
         $this->validateEmail();
+
         if (
-            $this->member_config['required_phone']
-            && ($this->member_config['use_phone'] || $this->member_config['auth_service'])
+            $this->configs['phone_input_required']
+            && ($this->configs['telephone_input_enabled'] || $this->configs['identity_verification_service'])
         ) {
             $this->validateHp();
         }
@@ -91,7 +89,7 @@ class CreateMemberRequest
         $this->mb_nick_date = date('Y-m-d');
         $this->mb_hp = addHyphenPhoneNumber($this->mb_hp);
         $this->mb_signup_ip = $_SERVER['REMOTE_ADDR'];
-        if (!$this->member_config['use_email_certify']) {
+        if (empty($this->configs['email_verification_enabled']) || !$this->configs['email_verification_enabled']) {
             $this->mb_email_verified_at = date('Y-m-d H:i:s');
         }
     }
@@ -99,7 +97,7 @@ class CreateMemberRequest
     private function validateMemberId()
     {
         $min_length = 4;
-        $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
+        $prohibit_words = isset($this->configs['prohibit_word']) ? explode("\n", $this->configs['prohibit_word']) : [];
 
         if (!Validator::required($this->mb_id)) {
             $this->throwException('아이디를 입력해주세요.');
@@ -149,15 +147,15 @@ class CreateMemberRequest
         if (!Validator::isAlnumko($this->mb_nick)) {
             $this->throwException('닉네임은 한글, 영문, 숫자만 입력하세요.');
         }
-        // $prohibit_words = explode("\n", $this->member_config['prohibit_word']);
-        // if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
-        //     $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
-        // }
+        $prohibit_words = isset($this->configs['prohibit_word']) ? explode("\n", $this->configs['prohibit_word']) : [];
+        if (Validator::isProhibitedWord($this->mb_nick, $prohibit_words)) {
+            $this->throwException('이미 예약된 단어로 사용할 수 없는 닉네임 입니다.');
+        }
     }
 
     private function validateEmail()
     {
-        $prohibit_domains = explode("\n", $this->member_config['prohibit_domain']);
+        $prohibit_domains = isset($this->configs['prohibit_domain']) ? explode("\n", $this->configs['prohibit_domain']) : [];
 
         if (!Validator::required($this->mb_email)) {
             $this->throwException('이메일 주소를 입력해주세요.');

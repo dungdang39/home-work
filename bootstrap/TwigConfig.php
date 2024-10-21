@@ -30,12 +30,12 @@ class TwigConfig
         self::initializeThemeDirectory($theme_directory);
 
         $config_service = $container->get(ConfigService::class);
-        $theme_service = new ThemeService();
+        $theme_service = $container->get(ThemeService::class);
         $theme = $config_service->getTheme();
 
         if (!$theme_service->existsTheme($theme)) {
             $theme = ThemeService::DEFAULT_THEME;
-            $config_service->update(['cf_theme' => $theme]);
+            $config_service->update('design', 'theme', $theme);
         }
 
         $template_dir = str_replace('\\', '/', "{$theme_directory}/{$theme}");

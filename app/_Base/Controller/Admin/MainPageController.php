@@ -110,7 +110,7 @@ class MainPageController extends BaseController
             $this->service->update($id, $list_data);
         }
 
-        $this->config_service->update(['cf_use_mainpage' => $data->cf_use_mainpage]);
+        $this->config_service->update('design', 'use_mainpage', $data->use_mainpage);
 
         $this->container->get('flash')->addMessage(FlashExtension::ERROR_FLASH_KEY, $errors ?: '저장되었습니다.');
 

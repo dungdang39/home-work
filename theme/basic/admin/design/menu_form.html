@@ -30,10 +30,10 @@
                     <td>
                         <select id="menu_type" name="menu_type">
                             <option value="">대상선택</option>
-                            {% if config.cf_use_shop %}
+                            {% if configs.use_shop %}
                             <option value="shop_category">쇼핑 카테고리</option>
                             {% endif %}
-                            {% if config.cf_use_community %}
+                            {% if configs.use_community %}
                             <option value="community_group">커뮤니티 게시판 그룹</option>
                             <option value="community_board">커뮤니티 게시판</option>
                             {% endif %}
