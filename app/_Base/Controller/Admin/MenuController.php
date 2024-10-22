@@ -37,7 +37,7 @@ class MenuController extends BaseController
             'menus' => $menus,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/menu_form.html', $response_data);
+        return $view->render($response, '@admin/design/menu_form.html', $response_data);
     }
 
     /**

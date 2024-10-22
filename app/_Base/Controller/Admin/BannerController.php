@@ -58,7 +58,7 @@ class BannerController extends BaseController
             "search" => $search,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/banner/list.html', $response_data);
+        return $view->render($response, '@admin/design/banner/list.html', $response_data);
     }
 
     /**
@@ -72,7 +72,7 @@ class BannerController extends BaseController
             'positions' => $positions,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/banner/form.html', $response_data);
+        return $view->render($response, '@admin/design/banner/form.html', $response_data);
     }
 
     /**
@@ -104,7 +104,7 @@ class BannerController extends BaseController
             'mobile_image_width' => $this->image_service->getImageWidth($request, $banner->bn_mobile_image)
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/banner/form.html', $response_data);
+        return $view->render($response, '@admin/design/banner/form.html', $response_data);
     }
 
     /**

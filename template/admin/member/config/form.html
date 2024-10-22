@@ -1,0 +1,448 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
+
+{% set title = '회원 > 회원설정 > 기본환경설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+{% set sub_menus = {
+    'signup' : '회원가입 입력 설정',
+    'privacy': '개인정보처리',
+    'auth': '인증 설정',
+    'point': '포인트 설정'
+} %}
+
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <form name="form_member_config" id="form_member_config" method="post" action="{{ url_for('admin.member.config.basic.update') }}"
+        onsubmit="return validate_member_config_form(this);">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
+
+        <section id="anchor_signup">
+            <h2 class="h2_frm">{{ sub_menus.signup }}</h2>
+            {{ anchor(sub_menus, 'signup') }}
+
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ sub_menus.signup }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">주소 입력</th>
+                            <td>
+                                <input type="checkbox" name="address_input_enabled" value="1" id="address_input_enabled" {{ checked(1, old('address_input_enabled', configs)) }}>
+                                <label for="address_input_enabled">사용</label>
+                                <input type="checkbox" name="address_input_required" value="1" id="address_input_required" {{ checked(1, old('address_input_required', configs)) }}>
+                                <label for="address_input_required">필수입력</label>
+                            </td>
+                            <th scope="row">서명 입력</th>
+                            <td>
+                                <input type="checkbox" name="signature_input_enabled" value="1" id="signature_input_enabled" {{ checked(1, old('signature_input_enabled', configs)) }}>
+                                <label for="signature_input_enabled">사용</label>
+                                <input type="checkbox" name="signature_input_required" value="1" id="signature_input_required" {{ checked(1, old('signature_input_required', configs)) }}>
+                                <label for="signature_input_required">필수입력</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">전화번호 입력</th>
+                            <td>
+                                <input type="checkbox" name="telephone_input_enabled" value="1" id="telephone_input_enabled" {{ checked(1, old('telephone_input_enabled', configs)) }}>
+                                <label for="telephone_input_enabled">사용</label>
+                                <input type="checkbox" name="telephone_input_required" value="1" id="telephone_input_required" {{ checked(1, old('telephone_input_required', configs)) }}>
+                                <label for="telephone_input_required">필수입력</label>
+                            </td>
+                            <th scope="row">휴대폰번호 입력</th>
+                            <td>
+                                <input type="checkbox" name="phone_input_enabled" value="1" id="phone_input_enabled" {{ checked(1, old('phone_input_enabled', configs)) }}>
+                                <label for="phone_input_enabled">사용</label>
+                                <input type="checkbox" name="phone_input_required" value="1" id="phone_input_required" {{ checked(1, old('phone_input_required', configs)) }}>
+                                <label for="phone_input_required">필수입력</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="signup_level">회원가입 레벨</label></th>
+                            <td>
+                                <select id="signup_level" name="signup_level">
+                                {% for i in range(1, 9) %}
+                                    <option value="{{ i }}" {{ selected(i, old('signup_level', configs)) }}>
+                                        {{ i }}
+                                    </option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                            <th scope="row"><label for="signup_point">회원가입 포인트</label></th>
+                            <td>
+                                <input type="text" id="signup_point" name="signup_point" class="frm_input"
+                                    value="{{ old('signup_point', configs) }}" size="5"> 점
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row"><label for="member_image_enabled">회원이미지 사용</label></th>
+                            <td>
+                                <label for="member_image_enabled_1" class="rules_label">사용</label>
+                                <input name="member_image_enabled" id="member_image_enabled_1" type="radio" value="1" {{ checked(1, old('member_image_enabled', configs)) }}>
+                                <label for="member_image_enabled_0" class="rules_label">사용안함</label>
+                                <input name="member_image_enabled" id="member_image_enabled_0" type="radio" value="0" {{ checked(0, old('member_image_enabled', configs)) }}>
+                            </td>
+                            <th scope="row"><label for="member_image_upload_level">회원 이미지 업로드 권한</label></th>
+                            <td>
+                                <select id="member_image_upload_level" name="member_image_upload_level">
+                                {% for i in range(2, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('image_upload_level', configs)) }}>
+                                        {{ i }}
+                                    </option>
+                                {% endfor %}
+                                </select>
+                                이상
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="member_image_max_size">회원이미지 용량</label></th>
+                            <td>
+                                <input type="text" name="member_image_max_size" value="{{ old('member_image_max_size', configs) }}" id="member_image_max_size" class="frm_input" size="10"> byte 이하
+                            </td>
+                            <th scope="row">회원이미지 사이즈</th>
+                            <td>
+                                <label for="member_image_width">가로</label>
+                                <input type="text" name="member_image_width" value="{{ old('member_image_width', configs) }}" id="member_image_width"
+                                    class="frm_input" size="2">
+                                <label for="member_image_height">세로</label>
+                                <input type="text" name="member_image_height" value="{{ old('member_image_height', configs) }}" id="member_image_height"
+                                    class="frm_input" size="2">
+                                픽셀 이하
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="recommend_enabled">추천인 사용</label></th>
+                            <td>
+                                <label for="recommend_enabled_1" class="rules_label">사용</label>
+                                <input name="recommend_enabled" id="recommend_enabled_1" type="radio" value="1" {{ checked(1, old('recommend_enabled', configs)) }}>
+                                <label for="recommend_enabled_0" class="rules_label">사용안함</label>
+                                <input name="recommend_enabled" id="recommend_enabled_0" type="radio" value="0" {{ checked(0, old('recommend_enabled', configs)) }}>
+                            </td>
+                            <th scope="row"><label for="recommend_point">추천인 포인트</label></th>
+                            <td>
+                                <input type="text" name="recommend_point" value="{{ old('recommend_point', configs) }}" id="recommend_point" class="frm_input"> 점
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="prohibit_word">아이디,닉네임 금지단어</label></th>
+                            <td>
+                                {{ info('회원아이디, 닉네임으로 사용할 수 없는 단어를 정합니다. 엔터로 구분') }}
+                                <textarea name="prohibit_word" id="prohibit_word" rows="5">
+                                    {{- old('prohibit_word', configs) -}}
+                                </textarea>
+                            </td>
+                            <th scope="row"><label for="prohibit_email">입력 금지 메일</label></th>
+                            <td>
+                                {{ info('입력 받지 않을 도메인을 지정합니다. 엔터로 구분 ex) hotmail.com') }}
+                                <textarea name="prohibit_domain" id="prohibit_domain" rows="5">
+                                    {{- old('prohibit_domain', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="signup_terms">회원가입약관</label></th>
+                            <td colspan="3">
+                                <textarea name="signup_terms" id="signup_terms" rows="10">
+                                    {{- old('signup_terms', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="privacy_policy">개인정보처리방침</label></th>
+                            <td colspan="3">
+                                <textarea id="privacy_policy" name="privacy_policy" rows="10">
+                                    {{- old('privacy_policy', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="anchor_privacy">
+            <h2 class="h2_frm">{{ sub_menus.privacy }}</h2>
+            {{ anchor(sub_menus, 'privacy') }}
+
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ sub_menus.privacy }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row" id="th310"><label for="retention_period">회원탈퇴후 삭제일</label></th>
+                            <td colspan="3">
+                                <select name="retention_period" id="retention_period">
+                                    <option value="0" {{ selected(0, old('retention_period', configs)) }}>탈퇴후 즉시 삭제</option>
+                                    {% for i in range(1, 5) %}
+                                    <option value="{{ i }}" {{ selected(i, old('retention_period', configs)) }}>{{ i }}년</option>
+                                    {% endfor %}
+                                    <option value="9999" {{ selected(9999, old('retention_period', configs)) }}>영구보관</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="anchor_auth">
+            <h2 class="h2_frm">{{ sub_menus.auth }}</h2>
+            {{ anchor(sub_menus, 'auth') }}
+
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ sub_menus.auth }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="email_verification_enabled">메일인증 사용</label></th>
+                            <td>
+                                {{ info('메일에 배달된 인증 주소를 클릭하여야 회원으로 인정합니다.
+                                ( SNS를 이용한 소셜로그인 한 회원은 회원메일인증을 하지 않습니다. 일반회원에게만 해당됩니다. )') }}
+                                <label for="email_verification_enabled_1" class="rules_label">사용</label>
+                                <input name="email_verification_enabled" id="email_verification_enabled_1" type="radio" value="1" {{ checked(1, old('email_verification_enabled', configs)) }}>
+                                <label for="email_verification_enabled_0" class="rules_label">사용안함</label>
+                                <input name="email_verification_enabled" id="email_verification_enabled_0" type="radio" value="0" {{ checked(0, old('email_verification_enabled', configs)) }}>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">본인인증</th>
+                            <td>
+                                <label for="identity_verification_enabled_1" class="rules_label">사용</label>
+                                <input name="identity_verification_enabled" id="identity_verification_enabled_1" type="radio" value="1" {{ checked(1, old('identity_verification_enabled', configs)) }}>
+                                <label for="identity_verification_enabled_0" class="rules_label">사용안함</label>
+                                <input name="identity_verification_enabled" id="identity_verification_enabled_0" type="radio" value="0" {{ checked(0, old('identity_verification_enabled', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">본인인증 테스트</th>
+                            <td>
+                                <label for="identity_verification_product_0" class="rules_label">테스트</label>
+                                <input name="identity_verification_product" id="identity_verification_product_0" type="radio" value="0" {{ checked(0, old('identity_verification_product', configs)) }}>
+                                <label for="identity_verification_product_1" class="rules_label">실제 사용</label>
+                                <input name="identity_verification_product" id="identity_verification_product_1" type="radio" value="1" {{ checked(1, old('identity_verification_product', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">본인인증 필수</th>
+                            <td>
+                                {{ info('회원가입 때 본인확인을 필수로 할지 설정합니다.\n필수로 설정하시면 본인확인을 하지 않은 경우 회원가입이 안됩니다.') }}
+                                <label for="identity_verification_required_0" class="rules_label">선택</label>
+                                <input name="identity_verification_required" id="identity_verification_required_0" type="radio" value="0" {{ checked(0, old('identity_verification_required', configs)) }}>
+                                <label for="identity_verification_required_1" class="rules_label">필수</label>
+                                <input name="identity_verification_required" id="identity_verification_required_1" type="radio" value="1" {{ checked(1, old('identity_verification_required', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="identity_verification_service">본인인증 서비스</label></th>
+                            <td>
+                                <select name="identity_verification_service" id="identity_verification_service" onchange="updateAuthService()">
+                                    <option value="">선택하세요</option>
+                                    <option value="kg" {{ selected('kg', old('identity_verification_service', configs)) }}>KG이니시스 통합인증(간편인증)</option>
+                                    <option value="kcp" {{ selected('kcp', old('identity_verification_service', configs)) }}>NHN KCP 휴대폰 본인확인</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="kg_service" style="display: none;">
+                            <th scope="row">KG이니시스 통합인증 암호화</th>
+                            <td>
+                                <label for="kg_sso_encryption_enabled_1" class="rules_label">사용</label>
+                                <input name="kg_sso_encryption_enabled" id="kg_sso_encryption_enabled_1" type="radio" value="1" {{ checked(1, old('kg_sso_encryption_enabled', configs)) }}>
+                                <label for="kg_sso_encryption_enabled_0" class="rules_label">사용안함</label>
+                                <input name="kg_sso_encryption_enabled" id="kg_sso_encryption_enabled_0" type="radio" value="0" {{ checked(0, old('kg_sso_encryption_enabled', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr class="kg_service" style="display: none;">
+                            <th scope="row" class="cert_service"><label for="kg_mid">KG이니시스 간편인증 MID</label>
+                            </th>
+                            <td class="cert_service">
+                                <span class="sitecode">SRA</span>
+                                <input type="text" name="kg_mid" value="{{ old('kg_mid', configs) }}" id="kg_mid" class="frm_input" size="10" minlength="7" maxlength="7">
+                                <a href="http://sir.kr/main/service/inicis_cert_form.php" target="_blank" class="btn_frmline">
+                                    KG이니시스 통합인증(간편인증) 신청페이지
+                                </a>
+                            </td>
+                        </tr>
+                        <tr class="kg_service" style="display: none;">
+                            <th scope="row" class="cert_service"><label for="kg_api_key">KG이니시스 통합인증 API KEY</label></th>
+                            <td class="cert_service">
+                                <input type="password" name="kg_api_key" value="{{ old('kg_api_key', configs) }}" id="kg_api_key" class="frm_input" size="40" minlength="32" maxlength="32">
+                                <!-- @todo 최고관리자 조건 추가 & 개발자모드에서도 key 확인 못하도록 ? 처리(파악 필요) -->
+                                <button type="button" class="btn_frmline" onclick="toggleApiKey();">API KEY 확인</button>
+                            </td>
+                        </tr>
+                        <tr class="kcp_service" style="display: none;">
+                            <th scope="row" class="cert_service"><label for="kcp_site_code">NHN KCP 사이트코드</label>
+                            </th>
+                            <td class="cert_service">
+                                {{ info('SM으로 시작하는 5자리 사이트 코드중 뒤의 3자리만 입력해 주십시오.
+                                서비스에 가입되어 있지 않다면, 본인확인 서비스 신청페이지에서 서비스 신청 후 사이트코드를 발급 받으실 수 있습니다.') }}
+                                <span class="sitecode">SM</span>
+                                <input type="text" name="kcp_site_code" value="{{ old('kcp_site_code', configs) }}" id="kcp_site_code" class="frm_input" size="3">
+                                <a href="http://sir.kr/main/service/p_cert.php" target="_blank" class="btn_frmline">
+                                    NHN KCP 휴대폰 본인확인 서비스 신청페이지
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="cert_service"><label for="identity_verification_limit">본인확인 이용제한</label></th>
+                            <td class="cert_service">
+                                <span class="frm_info">
+                                    
+                                </span>
+                                {{ info('1일 단위 본인인증을 시도할 수 있는 최대횟수를 지정합니다. (0으로 설정 시 무한으로 인증시도 가능)
+                                아이핀/휴대폰/간편인증에서 개별 적용됩니다.') }}
+                                <input type="text" name="identity_verification_limit" value="{{ old('identity_verification_limit', configs) }}" id="identity_verification_limit" class="frm_input" size="3"> 회
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="anchor_point">
+            <h2 class="h2_frm">{{ sub_menus.point }}</h2>
+            {{ anchor(sub_menus, 'point') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ sub_menus.point }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="point_enabled">포인트 사용</label></th>
+                            <td>
+                                <input type="checkbox" name="point_enabled" value="1" id="point_enabled" {{ checked(1, old('point_enabled', configs)) }}>
+                                사용
+                            </td>
+                            <th scope="row"><label for="point_term">포인트 유효기간</label></th>
+                            <td>
+                                {{ info('기간을 0으로 설정시 포인트 유효기간이 적용되지 않습니다.') }}
+                                <input type="text" name="point_term" value="{{ old('point_term', configs) }}" id="point_term" required class="required frm_input" size="5"> 일
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="login_point">로그인시 포인트<strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                {{ info('회원이 로그인시 하루에 한번만 적립') }}
+                                <input type="text" name="login_point" value="{{ old('login_point', configs) }}" id="login_point" required class="required frm_input" size="5"> 점
+                            </td>
+                            <th scope="row"><label for="memo_send_point">쪽지보낼시 차감 포인트<strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                {{ info('양수로 입력하십시오. 0점은 쪽지 보낼시 포인트를 차감하지 않습니다.') }}
+                                <input type="text" name="memo_send_point" value="{{ old('memo_send_point', configs) }}" id="memo_send_point" required class="required frm_input" size="5"> 점
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        updateAuthService();
+    });
+
+    /**
+     * 회원 설정 폼 유효성 검사
+     * @todo 체크박스가 체크되지 않은 경우 숨겨진 input을 추가하는 방법을 공통으로 사용하도록 개선 필요
+     */
+    function validate_member_config_form(form) {
+        // 폼 내의 모든 체크박스를 찾습니다.
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach(function(checkbox) {
+            // 체크박스가 체크되지 않았다면 숨겨진 input을 추가합니다.
+            if (!checkbox.checked) {
+                let hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = checkbox.name;
+                hiddenInput.value = '0';
+                form.appendChild(hiddenInput);
+            }
+        });
+
+        return true;
+    }
+
+    function updateAuthService() {
+        var authService = document.getElementById('identity_verification_service').value;
+        
+        // Hide all service-specific rows
+        document.querySelectorAll('tr[class="kg_service"]').forEach(function(row) {
+            row.style.display = 'none';
+        });
+        document.querySelectorAll('tr[class="kcp_service"]').forEach(function(row) {
+            row.style.display = 'none';
+        });
+        
+        // Show rows based on selected auth service
+        if (authService === 'kg') {
+            document.querySelectorAll('tr[class="kg_service"]').forEach(function(row) {
+                row.style.display = '';
+            });
+        } else if (authService === 'kcp') {
+            document.querySelectorAll('tr[class="kcp_service"]').forEach(function(row) {
+                row.style.display = '';
+            });
+        }
+    }
+
+    function toggleApiKey() {
+        var apiKeyInput = document.getElementById('kg_api_key');
+        
+        if (apiKeyInput.type === 'password') {
+            apiKeyInput.type = 'text';
+            this.textContent = 'API KEY 숨기기';
+        } else {
+            apiKeyInput.type = 'password';
+            this.textContent = 'API KEY 확인';
+        }
+    }
+</script>
+{% endblock content %}

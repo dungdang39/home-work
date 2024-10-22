@@ -1,0 +1,310 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import checked, renderPagination, selected %}
+
+{% set title = '기본환경 > 운영진설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+
+    <div class="local_desc01 local_desc">
+        <strong>개발해야할 기능</strong>
+        <p>1. 목록 > 검색 개선 및 일괄삭제</p>
+        <p>2. 운영진 추가 > 검색 (레이어팝업)</p>
+    </div>
+
+    <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
+        <label for="stx" class="sound_only">
+            회원아이디<strong class="sound_only"> 필수</strong>
+        </label>
+        <input type="text" id="search_text" name="search_text" class="frm_input required" value="{{ search.search_text }}" required>
+        <input type="submit" value="검색" id="fsearch_submit" class="btn_submit">
+        <select name="limit" id="limit">
+            <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
+            <option value="30" {{ selected(30, pagination.limit) }}>30개씩 보기</option>
+        </select>
+    </form>
+
+    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.config.permission.delete-list') }}"
+        onsubmit="return validate_form_permission_list(this);">
+        <input type="hidden" name="page" value="{{ pagination.page }}">
+        {{ csrf.field|raw }}
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>운영진 권한 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            <label for="chkall" class="sound_only">현재 페이지 회원 전체</label>
+                            <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
+                        </th>
+                        <th scope="col">
+                            <a href="#">회원아이디</a>
+                        </th>
+                        <th scope="col">
+                            <a href="#">이름</a>
+                        </th>
+                        <th scope="col">
+                            <a href="#">닉네임</a>
+                        </th>
+                        <th scope="col">관리자메뉴</th>
+                        <th scope="col">권한</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for permission in permissions %}
+                    {% set index = loop.index0 %}
+                    <tr class="bg{{ cycle(['0', '1'], index) }}">
+                        <td class="td_chk">
+                            <input type="hidden" name="admin_menu_id[{{ index }}]" value="{{ permission.admin_menu_id }}">
+                            <input type="hidden" name="mb_id[{{ index }}]" value="{{ permission.mb_id }}">
+                            <label for="chk_{{ index }}" class="sound_only">{{ permission.mb_nick }}님 권한</label>
+                            <input type="checkbox" name="chk[]" value="{{ index }}" id="chk_{{ index }}">
+                        </td>
+                        <td class="td_auth"><a href="?sfl=a.mb_id&amp;stx=test">{{ permission.mb_id }}</a></td>
+                        <td>{{ permission.mb_name }}</td>
+                        <td class="td_auth_mbnick">
+                            <span class="sv_wrap">
+                                <a href="#" class="sv_member" title="test 자기소개" target="_blank" rel="nofollow">
+                                    <span class="profile_img">
+                                        <img src="{{ base_url }}/img/no_profile.gif" alt="no_profile" width="22" height="22">
+                                    </span>
+                                    {{ permission.mb_nick }}
+                                </a>
+                            </span>
+                        </td>
+                        <td>
+                            {{ permission.am_name }}
+                            {% if not permission.am_parent_id %} 전체{% endif %}
+                        </td>
+                        <td style="width:400px;">
+                            <input type="checkbox" name="read[{{ index }}]" value="1" {{ checked(1, permission.read) }}>
+                            <label for="read">조회</label>
+                            <input type="checkbox" name="write[{{ index }}]" value="1" {{ checked(1, permission.write) }}>
+                            <label for="write">추가/수정</label>
+                            <input type="checkbox" name="delete[{{ index }}]" value="1" {{ checked(1, permission.delete) }}>
+                            <label for="delete">삭제</label>
+
+                            <button type="button" class="btn_save btn_submit btn"
+                                data-index="{{ index }}"
+                                data-url="{{ url_for('admin.config.permission.update', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                저장
+                            </button>
+                            <button type="button" class="btn_delete btn_02 btn"
+                                data-url="{{ url_for('admin.config.permission.delete', {mb_id: permission.mb_id, admin_menu_id: permission.admin_menu_id}) }}">
+                                삭제
+                            </button>  
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_list01 btn_list">
+            <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
+                class="btn btn_02">
+        </div>
+        {{ renderPagination(pagination, query_params) }}
+    </form>
+
+    <section id="add_admin">
+        <h2 class="h2_frm">운영진추가</h2>
+
+        <div class="local_desc01 local_desc">
+            <p>도움말</p>
+        </div>
+
+        <form name="form_pemission" id="form_pemission" class="local_sch" action="{{ url_for('admin.config.permission.insert') }}" method="post"
+            autocomplete="off" onsubmit="return validate_form_permission(this);">
+            {{ csrf.field|raw }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr id="select_admin">
+                            <th scope="row"><label for="search_mb_id">운영진추가<strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <input type="text" name="search_mb_id" id="search_mb_id" class="required frm_input" required>
+                                <button type="button" id="btn_search_id" class="btn_sch2">검색</button>
+                                <button type="button" id="btn_add_admin" class="btn_submit btn">추가</button>
+                            </td>
+                        </tr>
+
+                        <tr id="select_permission" style="display:none;">
+                            <th scope="row">운영진추가</th>
+                            <td>
+                                <span id="admin_info"></span>
+                                <input type="hidden" name="mb_id" id="mb_id" value="">
+
+                                <select id="admin_menu_id" name="admin_menu_id" class="required" required>
+                                    <option value="">선택하세요</option>
+                                    {% for menu in admin_menus %}
+                                    <optgroup label="{{ menu.am_name }}">
+                                        <option value="{{ menu.am_id }}">{{ menu.am_name }} 전체</option>
+                                        {% for child in menu.children %}
+                                        <option value="{{ child.am_id }}">{{ child.am_name }}</option>
+                                        {% if child.children %}
+                                            {% for child2 in child.children %}
+                                                <option value="{{ child2.am_id }}">└ {{ child2.am_name }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endfor %}
+                                </select>
+
+                                <input type="checkbox" id="read" name="read" value="1">
+                                <label for="read">조회</label>
+                                <input type="checkbox" id="write" name="write" value="1">
+                                <label for="write">추가/수정</label>
+                                <input type="checkbox" id="delete" name="delete" value="1">
+                                <label for="delete">삭제</label>
+
+                                <input type="submit" value="저장" class="btn_submit btn">
+                                <button type="button" id="btn_cancel" class="btn_02 btn">취소</button>  
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    $btn_search_id = $("#btn_search_id");
+    $btn_add_admin = $("#btn_add_admin");
+    $btn_cancel = $("#btn_cancel");
+
+    $area_admin = $("#select_admin");
+    $area_permission = $("#select_permission");
+    $area_admin_info = $("#admin_info");
+
+    $input_mb_id = $("#mb_id");
+    $input_search_mb_id = $("#search_mb_id");
+    $select_menu = $("#au_menu");
+    $check_read = $("#read");
+    $check_write = $("#write");
+    $check_delete = $("#delete");
+
+    $(function () {
+        // 운영진 추가 버튼 클릭
+        $btn_add_admin.click(function () {
+            let member_id = $input_search_mb_id.val();
+            if (member_id == "") {
+                alert("운영진을 추가할 회원아이디를 입력해주세요.");
+                return;
+            }
+
+            let route = "{{ url_for('admin.member.manage.info', {mb_id: '__REPLACE_ID__'}) }}";
+            let url = route.replace('__REPLACE_ID__', member_id);
+
+            $.ajax({
+                url: url,
+                type: "get",
+                success: function (data) {
+                    $input_mb_id.val(data.member.mb_id);
+                    $area_admin_info.text(data.member.mb_id + " (" + data.member.mb_nick + ") ");
+
+                    $area_admin.hide();
+                    $area_permission.show();
+                },
+                error: function (xhr, status, error) {
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
+                }
+            });
+        });
+
+        // 취소버튼 클릭
+        $btn_cancel.click(function () {
+            $area_admin.show();
+            $area_permission.hide();
+
+            $input_mb_id.val("");
+            $area_admin_info.text("");
+            $select_menu.val("");
+            $check_read.prop("checked", false);
+            $check_write.prop("checked", false);
+            $check_delete.prop("checked", false);
+        });
+
+         // 저장 버튼 클릭 이벤트 핸들러
+         $('.btn_save').click(function (e) {
+            // 필요한 데이터 수집
+            let url = $(this).data('url');
+            let index = $(this).data('index');
+            let send_data = {
+                "read": $("input[name='read[" + index + "]']").is(":checked") ? 1 : 0,
+                "write": $("input[name='write[" + index + "]']").is(":checked") ? 1 : 0,
+                "delete": $("input[name='delete[" + index + "]']").is(":checked") ? 1 : 0
+            };
+
+            $.ajax({
+                url: url,
+                type: "PUT",
+                data: send_data,
+                beforeSend: function (xhr) {
+                    for (let key in csrf) {
+                        if (!csrf[key]) {
+                            alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                            return false;
+                        }
+                        xhr.setRequestHeader(key, csrf[key]);
+                    }
+                },
+                success: function (response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
+                }
+            });
+        });
+
+        // 삭제 버튼 클릭 이벤트 핸들러
+        $('.btn_delete').click(function (e) {
+            delete_confirm($(this).data('url'));
+        });
+    })
+
+    function validate_form_permission() {
+        if ($select_menu.val() == "") {
+            alert("메뉴를 선택해주세요.");
+            return false;
+        }
+        if ($check_read.is(":checked") == false 
+            && $check_write.is(":checked") == false
+            && $check_delete.is(":checked") == false) {
+            alert("권한을 선택해주세요.");
+            return false;
+        }
+    }
+
+    function validate_form_permission_list(f) {
+        alert("선택삭제 기능 확인 중");
+        return false;
+        if (!is_checked("chk[]")) {
+            alert(document.pressed + " 하실 항목을 하나 이상 선택하세요.");
+            return false;
+        }
+
+        if (document.pressed == "선택삭제") {
+            if (!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}

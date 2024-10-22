@@ -50,7 +50,7 @@ class PointController extends BaseController
             'query_params' => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member/point_form.html', $response_data);
+        return $view->render($response, '@admin/member/point_form.html', $response_data);
     }
 
     /**

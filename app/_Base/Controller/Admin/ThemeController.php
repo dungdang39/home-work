@@ -51,7 +51,7 @@ class ThemeController extends BaseController
             'logo_footer_width' => $this->image_service->getImageWidth($request, $logo_footer),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/theme_form.html', $response_data);
+        return $view->render($response, '@admin/design/theme_form.html', $response_data);
     }
 
     /**
@@ -83,9 +83,10 @@ class ThemeController extends BaseController
      */
     public function updateInfo(Request $request, Response $response, UpdateThemeConfigRequest $data): Response
     {
+        $app_config = $request->getAttribute('app_config');
         $configs = $request->getAttribute('configs');
 
-        $folder = $this->service::DIRECTORY;
+        $folder = $app_config->get('THEME_DIR');
         if ($data->logo_header_del || Validator::isUploadedFile($data->logo_header_file)) {
             $this->file_service->deleteByDb($request, $configs['logo_header'] ?? null);
             $data->logo_header = $this->file_service->upload($request, $folder, $data->logo_header_file);

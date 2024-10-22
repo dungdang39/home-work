@@ -44,7 +44,7 @@ class PopupController extends BaseController
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/popup/list.html', $response_data);
+        return $view->render($response, '@admin/design/popup/list.html', $response_data);
     }
 
     /**
@@ -53,7 +53,7 @@ class PopupController extends BaseController
     public function create(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/popup/form.html');
+        return $view->render($response, '@admin/design/popup/form.html');
     }
 
     /**
@@ -77,7 +77,7 @@ class PopupController extends BaseController
             "popup" => $popup,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/design/popup/form.html', $response_data);
+        return $view->render($response, '@admin/design/popup/form.html', $response_data);
     }
 
     /**

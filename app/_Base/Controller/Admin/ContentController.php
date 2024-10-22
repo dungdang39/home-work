@@ -48,7 +48,7 @@ class ContentController extends BaseController
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/content/list.html', $response_data);
+        return $view->render($response, '@admin/content/list.html', $response_data);
     }
 
     /**
@@ -57,7 +57,7 @@ class ContentController extends BaseController
     public function create(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/content/form.html');
+        return $view->render($response, '@admin/content/form.html');
     }
 
     /**
@@ -88,7 +88,7 @@ class ContentController extends BaseController
             "content" => $content,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/content/form.html', $response_data);
+        return $view->render($response, '@admin/content/form.html', $response_data);
     }
 
     /**

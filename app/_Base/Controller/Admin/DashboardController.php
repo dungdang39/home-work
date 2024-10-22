@@ -8,11 +8,9 @@ use Slim\Views\Twig;
 
 class DashboardController
 {
-    public function __construct() {}
-
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/dashboard.html');
+        return $view->render($response, '@admin/dashboard.html');
     }
 }

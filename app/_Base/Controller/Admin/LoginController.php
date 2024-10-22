@@ -44,7 +44,7 @@ class LoginController extends BaseController
             'socials' => $socials
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/login.html', $response_data);
+        return $view->render($response, '@admin/login.html', $response_data);
     }
 
     public function Login(Request $request, Response $response, LoginRequest $data): Response

@@ -31,7 +31,7 @@ class QaConfigController extends BaseController
             "qa_config" => $qa_config,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member/qa/config_form.html', $response_data);
+        return $view->render($response, '@admin/member/qa/config_form.html', $response_data);
     }
 
     /**

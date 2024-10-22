@@ -36,7 +36,7 @@ class SocialController extends BaseController
             "available_socials" => $available_socials,
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/config/api/social_form.html', $response_data);
+        return $view->render($response, '@admin/config/api/social_form.html', $response_data);
     }
 
     /**

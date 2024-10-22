@@ -1,0 +1,100 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, checked, info %}
+
+{% set title = '기본환경 > API연동설정 > 알림/메시징/메일' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+{% set sub_menus = {'enabled' : '사용 설정'} %}
+{% for noti in notifications %}
+    {% set sub_menus = sub_menus | merge({ (noti.type): noti.name }) %}
+{% endfor %}
+
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.config.api.notification.update') }}" onsubmit="return validate_form(this);">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
+
+        <section id="anchor_enabled">
+            <h2 class="h2_frm">{{ sub_menus.enabled }}</h2>
+            {{ anchor(sub_menus, 'enabled') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ sub_menus.enabled }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    {% with %}
+                    {% for noti in notifications %}
+                    {% set type = noti.type %}
+                        <tr>
+                            <th scope="row">{{ noti.name }} 사용</th>
+                            <td colspan="3">
+                                <label for="{{ type }}_is_enabled_1" class="rules_label">사용</label>
+                                <input type="radio" id="{{ type }}_is_enabled_1" name="notification[{{ type }}][is_enabled]" value="1" {{ checked(1, noti.is_enabled) }}>
+                                <label for="{{ type }}_is_enabled_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="{{ type }}_is_enabled_0" name="notification[{{ type }}][is_enabled]" value="0" {{ checked(0, noti.is_enabled) }}>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {% with %}
+        {% for noti in notifications %}
+        {% set type = noti.type %}
+        <section id="anchor_{{ type }}">
+            <h2 class="h2_frm">{{ noti.name }} 설정</h2>
+            {{ anchor(sub_menus, type) }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ noti.name }} 설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        {% for setting in noti.settings %}
+                        {% set key = setting.setting_key|trim %}
+                        {% set name = setting.setting_name %}
+                        {% set value = setting.setting_value %}
+                        {% set attr_id = type ~ '_' ~ key  %}
+                        <tr>
+                            <th scope="row"><label for="{{ attr_id }}">{{ name }}</label></th>
+                            <td>
+                                {{ info(setting.setting_description) }}
+                                <input type="text" id="{{ attr_id }}" name="settings[{{ key }}]" class="frm_input" value="{{ value }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% include "@admin/config/api/include/" ~ type ~ ".html" ignore missing %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endfor %}
+        {% endwith %}
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function validate_form(f) {
+        return true;
+    }
+</script>
+{% endblock content %}

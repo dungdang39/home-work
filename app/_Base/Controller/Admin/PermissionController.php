@@ -54,7 +54,7 @@ class PermissionController extends BaseController
             "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/config/permission_form.html', $response_data);
+        return $view->render($response, '@admin/config/permission_form.html', $response_data);
     }
 
     /**

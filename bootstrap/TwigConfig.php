@@ -11,10 +11,11 @@ use Twig\Extra\Intl\IntlExtension;
 use Core\Extension\CsrfExtension;
 use Core\Extension\FlashExtension;
 use DI\Container;
+use Twig\Loader\FilesystemLoader;
 
 class TwigConfig
 {
-    private const CACHE_DIRECTORY = '/data/cache/twig';
+    private const CACHE_DIRECTORY = 'data/cache/twig';
 
     /**
      * Twig 설정을 구성합니다.
@@ -24,28 +25,41 @@ class TwigConfig
      */
     public static function configure(Container $container): Twig
     {
-        $theme_directory = dirname(__DIR__) . '/' . ThemeService::DIRECTORY;
-        $cache_directory = dirname(__DIR__) . self::CACHE_DIRECTORY;
+        self::initializeThemeDirectory(ThemeService::DIRECTORY);
 
-        self::initializeThemeDirectory($theme_directory);
+        $theme = self::getTheme($container);
 
+        FileService::createDirectory(self::CACHE_DIRECTORY);
+
+        $twig = Twig::create(
+            [
+                'admin' => ThemeService::ADMIN_DIRECTORY,
+                FilesystemLoader::MAIN_NAMESPACE => ThemeService::DIRECTORY . '/' . $theme,
+            ],
+            [
+                'cache' => self::CACHE_DIRECTORY,
+                'auto_reload' => true
+            ]
+        );
+        self::addExtensions($twig, $container);
+
+        return $twig;
+    }
+
+    private static function getTheme(Container $container): string
+    {
         $config_service = $container->get(ConfigService::class);
         $theme_service = $container->get(ThemeService::class);
         $theme = $config_service->getTheme();
 
-        if (!$theme_service->existsTheme($theme)) {
-            $theme = ThemeService::DEFAULT_THEME;
-            $config_service->update('design', 'theme', $theme);
+        if ($theme_service->existsTheme($theme)) {
+            return $theme;
         }
 
-        $template_dir = str_replace('\\', '/', "{$theme_directory}/{$theme}");
+        $config_service->update('design', 'theme', $theme);
 
-        FileService::createDirectory($cache_directory);
+        return ThemeService::DEFAULT_THEME;
 
-        $twig = Twig::create($template_dir, ['cache' => $cache_directory, 'auto_reload' => true]);
-        self::addExtensions($twig, $container);
-
-        return $twig;
     }
 
     /**

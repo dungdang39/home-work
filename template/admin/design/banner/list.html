@@ -1,0 +1,130 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import selected %}
+
+{% set title = "디자인/UI > 배너관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <div class="local_ov01 local_ov">
+        <form name="flist" class="local_sch01 local_sch">
+            <label for="bn_position" class="sound_only">검색</label>
+            <select name="bn_position" id="bn_position">
+                <option value="" selected="selected">위치 전체</option>
+                {% for position in positions %}
+                <option value="{{ position.id }}" {{ selected(position.id, search.bn_position) }}>{{ position.section_title }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="submit" value="검색" class="btn_submit">
+        </form>
+    </div>
+
+    <div class="btn_fixed_top">
+        <a href="#" class="btn_01 btn">전시순서 저장</a>
+        <a href="{{ url_for('admin.design.banner.create') }}" class="btn_01 btn">배너추가</a>
+    </div>
+    
+    {% for position in positions %}
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>{{ position.section_title }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col" colspan="8" id="th_id">{{ position.section_title }}</th>
+                </tr>
+                <tr>
+                    <th scope="col">배너 이미지</th>
+                    <th scope="col">타이틀</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">새창여부</th>
+                    <th scope="col">조회수</th>
+                    <th scope="col">시작/종료일시</th>
+                    <th scope="col">활성화</th>
+                    <th scope="col">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for banner in position.banners %}
+                <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                    <td headers="th_dvc" width="200px;">
+                        <a href="{{ url_for('admin.design.banner.view', {'bn_id': banner.bn_id}) }}">
+                            <img src="{{ base_url ~ banner.bn_image }}" width="200" height="auto" alt="{{ banner.bn_alt }}" titke="{{ banner.bn_title }}">
+                        </a>
+                    </td>
+                    <td headers="th_loc" width="200px;">
+                        {{ banner.bn_title }}
+                    </td>
+                    <td headers="th_odr" width="200px;">
+                        {{ banner.bn_url }}
+                    </td>
+                    <td headers="th_odr" class="td_num">
+                        {{ banner.bn_target == '_blank' ? "새창" : "현재창" }}
+                    </td>
+                    <td headers="th_loc" class="td_num">
+                        {{ banner.bn_hit }}
+                    </td>
+                    <td headers="th_st" class="td_datetime">
+                        {{ banner.bn_start_datetime is empty ? "" : banner.bn_start_datetime|date("Y.m.d") }}
+                        ~
+                        {{ banner.bn_end_datetime is empty ? "" : banner.bn_end_datetime|date("Y.m.d") }}
+                    </td>
+                    <td headers="th_loc" class="td_num">
+                        {{ banner.bn_is_enabled ? "활성화" : "비활성화" }}
+                    </td>
+                    <td headers="th_mng" width="200px;">
+                        <a href="{{ url_for('admin.design.banner.view', {'bn_id': banner.bn_id}) }}" class="btn btn_03">수정</a>
+                        {% if banner.is_within_date %}
+                            {% if banner.bn_is_enabled %}
+                            <button type="button" class="is_enabled btn btn_02" data-url="{{ url_for('admin.design.banner.enabled', {'bn_id': banner.bn_id}) }}">즉시종료</button>
+                            {% else %}
+                            <button type="button" class="is_enabled btn btn_03" data-url="{{ url_for('admin.design.banner.enabled', {'bn_id': banner.bn_id}) }}">재시작</button>
+                            {% endif %}
+                            {% endif %}
+                        <a href="{{ url_for('admin.design.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_02">삭제</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    $(function() {
+        $('.is_enabled').on('click', function() {
+            let status = $(this).text();
+            if (!confirm('배너를 ' + status + '하시겠습니까?')) {
+                return false;
+            }
+
+            $.ajax({
+                type: "PUT",
+                url: $(this).data('url'),
+                beforeSend: function (xhr) {
+                    for (let key in csrf) {
+                        if (!csrf[key]) {
+                            alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                            return false;
+                        }
+                        xhr.setRequestHeader(key, csrf[key]);
+                    }
+                },
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if (data.message) {
+                        alert(data.message);
+                    }
+                    document.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    let result = xhr.responseJSON;
+                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

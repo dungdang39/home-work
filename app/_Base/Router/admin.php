@@ -27,7 +27,6 @@ use Core\Middleware\ConfigMiddleware;
 use Core\Middleware\LoginAuthMiddleware;
 use Core\Middleware\LoginMemberMiddleware;
 use Core\Middleware\SuperAdminAuthMiddleware;
-use Core\Middleware\TemplateMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -244,5 +243,4 @@ $app->group('admin', function (RouteCollectorProxy $group) {
         ->add(LoginAuthMiddleware::class);
 })
     ->add(LoginMemberMiddleware::class)
-    ->add(TemplateMiddleware::class)
     ->add(ConfigMiddleware::class);

@@ -1,0 +1,146 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import checked %}
+
+{% set title = '기본환경 > API연동설정 > 소셜로그인' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+
+    <!-- 소셜 로그인 설정 섹션 -->
+    <section id="anchor_social">
+        <h2 class="h2_frm">소셜로그인 설정</h2>
+
+        <form name="form_social" id="form_social" method="post"
+            action="{{ url_for('admin.config.api.social.update') }}" onsubmit="return validate_social_form(this);">
+            {{ csrf.field|raw }}
+            <input type="hidden" name="_METHOD" value="PUT">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>소셜로그인 설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    {% for social in socials %}
+                        {% set name=social.provider_name %}
+                        {% set provider=social.provider %}
+                        <tr>
+                            <th scope="row">{{ name }} 로그인</th>
+                            <td colspan="3">
+                                <input type="checkbox" name="socials[{{ provider }}][is_enabled]" value="1" {{ checked(1, social.is_enabled) }}> 사용
+                                <button type="button" class="btn btn-danger" onclick="delete_social('{{ provider }}');">삭제</button>
+                            </td>
+                        </tr>
+                        {% for key in social.keys %}
+                        {% if loop.first or loop.index0 is divisible by(2) %}
+                        <tr>
+                            {% endif %}
+                            <th scope="row">{{ name ~ ' ' ~ key.name }}</th>
+                            <td>
+                                <input type="text" name="socials[{{ provider }}][keys][{{ key.key }}]"
+                                    value="{{ key.value }}" class="frm_input" size="40">
+                            </td>
+                            {% if loop.last or loop.index is divisible by(2) %}
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn_confirm">
+                <button type="submit" class="btn_submit">저장</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 새로운 소셜 로그인 추가 섹션 -->
+    <section id="add_new_provider">
+        <h2 class="h2_frm">새로운 소셜로그인 추가</h2>
+
+        <form name="form_add_social" id="form_add_social" method="post"
+            action="{{ url_for('admin.config.api.social.insert') }}" onsubmit="return validate_add_form(this);">
+            {{ csrf.field|raw }}
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>새로운 소셜로그인 추가</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">서비스 선택</th>
+                            <td colspan="3">
+                                <select name="provider">
+                                    <option value="">선택하세요</option>
+                                    {% for provider, info in available_socials %}
+                                    <option value="{{ provider }}" data-keys="{{ info.keys|json_encode() }}"
+                                        data-name="{{ info.name }}">
+                                        {{ info.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody id="area_keys">
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn_confirm">
+                <button type="submit" class="btn_submit">추가</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    $(function () {
+        $('select[name="provider"]').on('change', function () {
+            let selected = $(this).find('option:selected');
+            let provider = selected.val();
+            let keys = selected.data('keys');
+            let name = selected.data('name');
+
+            $("#area_keys").empty();
+            if (!provider || !keys) return;
+
+            if (keys) {
+                let html = '';
+                let count = 0;
+                $.each(keys, function (key, label) {
+                    html += (count % 2 === 0 ? '<tr>' : '') +
+                        `<th scope="row">${name} ${label}</th>
+                        <td><input type="text" name="keys[${key}]" class="frm_input" size="40"></td>` +
+                        (count % 2 === 1 ? '</tr>' : '');
+                    count++;
+                });
+
+                $("#area_keys").append(html);
+            }
+        });
+    });
+
+    function validate_social_form(form) {
+        return true;
+    }
+
+    function validate_add_form(form) {
+        return true;
+    }
+
+    function delete_social(provider) {
+        let url = "{{ url_for('admin.config.api.social.delete', {provider: '__REPLACE_ID__'}) }}";
+        delete_confirm(url.replace('__REPLACE_ID__', provider));
+    }
+</script>
+{% endblock content %}

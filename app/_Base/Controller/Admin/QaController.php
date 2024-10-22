@@ -32,7 +32,7 @@ class QaController extends BaseController
         $response_data = [
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_list.html', $response_data);
+        return $view->render($response, '@admin/member_list.html', $response_data);
     }
 
     /**
@@ -41,7 +41,7 @@ class QaController extends BaseController
     public function create(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_form.html');
+        return $view->render($response, '@admin/member_form.html');
     }
 
     /**
@@ -58,7 +58,7 @@ class QaController extends BaseController
     public function view(Request $request, Response $response, $qa_id): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/member_form.html');
+        return $view->render($response, '@admin/member_form.html');
     }
 
     /**

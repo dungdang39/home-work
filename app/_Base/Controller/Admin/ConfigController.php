@@ -37,7 +37,7 @@ class ConfigController extends BaseController
             'current_ip' => getRealIp($request)
         ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '/admin/config/form.html', $response_data);
+        return $view->render($response, '@admin/config/form.html', $response_data);
     }
 
     /**
