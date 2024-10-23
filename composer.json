@@ -37,6 +37,7 @@
             "Core\\": "core/",
             "Install\\": "install/"
         },
+        "classmap": ["plugin/"],
         "files": [
             "api/functions.php",
             "core/Lib/functions.php"

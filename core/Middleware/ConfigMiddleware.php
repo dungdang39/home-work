@@ -33,8 +33,6 @@ class ConfigMiddleware
         $theme = $this->service->getTheme();
         $base_url = $this->uri_helper->getBaseUrl($request);
 
-        ;
-
         // 템플릿 전역변수 설정
         $view = Twig::fromRequest($request);
         $view->getEnvironment()->addGlobal('app_config', AppConfig::getInstance());

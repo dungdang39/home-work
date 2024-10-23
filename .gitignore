@@ -22,3 +22,4 @@ pma/
 vendor/
 composer.lock
 .env
+plugin/*

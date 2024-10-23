@@ -17,6 +17,25 @@ class ConfigService
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
+    /**
+     * 현재 적용중인 테마 조회
+     * @return string
+     */
+    public function getTheme(): string
+    {
+        return self::getConfig('design', 'theme') ?: ThemeService::DEFAULT_THEME;
+    }
+
+    /**
+     * 활성화된 플러그인 목록 조회
+     * @return array
+     */
+    public function getActivePlugins(): array
+    {
+        $active_plugins = $this->getConfig('config', 'active_plugins');
+        return isset($active_plugins) ? explode(',', $active_plugins) : [];
+    }
+
     public function getConfigs(?string $scope = null): array
     {
         if ($scope !== null && isset($this->cache[$scope])) {
@@ -35,15 +54,6 @@ class ConfigService
     }
 
     /**
-     * 현재 적용중인 테마 조회
-     * @return string
-     */
-    public function getTheme(): string
-    {
-        return self::getConfig('design', 'theme') ?: ThemeService::DEFAULT_THEME;
-    }
-
-    /**
      * 환경설정 값 조회
      * @param string $scope 설정 범위
      * @param string $name 설정 이름
@@ -57,7 +67,6 @@ class ConfigService
         }
 
         $config = $this->fetch($scope, $name);
-
         if ($config) {
             return $config['value'];
         }
@@ -98,6 +107,17 @@ class ConfigService
                 $this->insert($scope, $name, $value);
             }
         }
+    }
+
+    /**
+     * 환경설정 정보 삭제
+     * @param string $scope 설정 범위
+     * @param string $name 설정 이름
+     * @return int 삭제된 행 수
+     */
+    public function deleteConfig(string $scope, string $name): int
+    {
+        return $this->delete($scope, $name);
     }
 
     // ========================================
@@ -171,5 +191,18 @@ class ConfigService
             ['value' => $value],
             ['scope' => $scope, 'name' => $name]
         );
+    }
+
+    /**
+     * 환경설정 정보 삭제
+     * @param string $scope
+     * @param string $name
+     * @return int
+     */
+    public function delete(string $scope, string $name): int
+    {
+        $query = "DELETE FROM {$this->table} WHERE scope = :scope AND name = :name";
+        $values = ['scope' => $scope, 'name' => $name];
+        return Db::getInstance()->run($query, $values)->rowCount();
     }
 }

@@ -1,0 +1,132 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import selected %}
+
+{% set title = "기본환경 > 플러그인 관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <div class="local_desc01 local_desc">
+        <strong>플러그인 업로드</strong>
+        <p>플러그인을 업로드하시려면 아래 버튼을 클릭하여 플러그인 파일을 선택한 후 업로드 버튼을 클릭하세요.</p>
+        <p>
+            <input type="file" name="plugin_file" id="plugin_file" class="file" accept=".zip">
+            <button type="button" id="plugin_upload" class="btn btn_02">업로드</button>
+        </p>
+    </div>
+
+    <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
+        <label for="stx" class="sound_only">
+            플러그인 이름<strong class="sound_only"> 필수</strong>
+        </label>
+        <select name="status">
+            <option value="">전체</option>
+            <option value="active" {{ selected(search.status, 'active') }}>활성화</option>
+            <option value="inactive" {{ selected(search.status, 'inactive') }}>비활성화</option>
+        </select>
+        <input type="text" id="search_text" name="search_text" class="frm_input" value="{{ search.search_text }}">
+        <input type="submit" value="검색" id="fsearch_submit" class="btn_submit">
+    </form>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>{{ title }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col" colspan="2">플러그인</th>
+                    <th scope="col">상세정보</th>
+                    <th scope="col">상태</th>
+                    <th scope="col">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plugin in plugins %}
+                <tr class="bg{{ plugin.is_active ? 1 : 0}}">
+                    <td headers="th_dvc" style="width:200px;">
+                        {{ plugin.name }}
+                        <br>
+                        {{ plugin.plugin_uri }}
+                    </td>
+                    <td headers="th_loc" style="width:200px;">
+                        <img src="{{ base_url ~ plugin.icon }}" width="100" height="100" alt="{{ plugin.name }}">
+                    </td>
+                    <td headers="th_odr">
+                        {{ plugin.description }}
+                        <br>
+                        버전 : {{ plugin.version }} | 작성자 : {{ plugin.author }}
+                    </td>
+                    <td headers="th_loc" class="td_type">
+                        {{ plugin.is_active ? "활성화" : "비활성화" }}
+                    </td>
+                    <td headers="th_mng" class="td_id">
+                        {% if plugin.is_active %}
+                        <button type="button" class="btn btn_02 btn_deactivate"
+                                data-url="{{ url_for('admin.config.plugin.deactivate', {'plugin': plugin.plugin}) }}">
+                            {{- '비활성화' -}}
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn_03 btn_activate"
+                                data-url="{{ url_for('admin.config.plugin.activate', {'plugin': plugin.plugin}) }}">
+                            {{- '활성화' -}}
+                        </button>
+                        <a href="{{ url_for('admin.config.plugin.uninstall', {'plugin': plugin.plugin}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_01">삭제</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 모든 비활성화 및 활성화 버튼을 선택
+        const buttons = document.querySelectorAll('.btn_deactivate, .btn_activate');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                let status = this.textContent.trim();
+                if (!confirm('플러그인을 ' + status + '하시겠습니까?')) {
+                    return false;
+                }
+
+                // AJAX 요청
+                const url = this.getAttribute('data-url');
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                
+                // CSRF 토큰 설정
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.message) {
+                            alert(data.message);
+                        }
+                        document.location.reload();
+                    } else {
+                        const result = JSON.parse(xhr.responseText);
+                        alert(xhr.status + ' ' + xhr.statusText + ': ' + result.error.message);
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    alert('요청 중 오류가 발생했습니다.');
+                };
+
+                // CSRF 토큰 추가
+                for (let key in csrf) {
+                    if (!csrf[key]) {
+                        alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                        return false;
+                    }
+                    xhr.setRequestHeader(key, csrf[key]);
+                }
+
+                xhr.send(); // 요청 전송
+            });
+        });
+    });
+</script>
+{% endblock content %}

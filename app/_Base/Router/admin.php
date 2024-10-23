@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Login\Router;
+namespace App\Base\Router;
 
 use App\Base\Controller\Admin\LoginController;
 use App\Base\Controller\Admin\MainPageController;
@@ -16,6 +16,7 @@ use App\Base\Controller\Admin\ContentController;
 use App\Base\Controller\Admin\FaqController;
 use App\Base\Controller\Admin\MemberConfigController;
 use App\Base\Controller\Admin\MemberController;
+use App\Base\Controller\Admin\PluginController;
 use App\Base\Controller\Admin\PointController;
 use App\Base\Controller\Admin\PopupController;
 use App\Base\Controller\Admin\QaConfigController;
@@ -87,6 +88,20 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 });
 
             })->add(SuperAdminAuthMiddleware::class);
+            
+            // 캐시파일 관리
+            $group->group('/cache', function (RouteCollectorProxy $group) {
+                // $group->get('', [PermissionController::class, 'index'])->setName('admin.config.cache');
+                // $group->delete('', [PermissionController::class, 'delete_list'])->setName('admin.config.cache.delete');
+            });
+
+            // 플러그인 관리
+            $group->group('/plugin', function (RouteCollectorProxy $group) {
+                $group->get('', [PluginController::class, 'index'])->setName('admin.config.plugin');
+                $group->post('/{plugin}/activate', [PluginController::class, 'activate'])->setName('admin.config.plugin.activate');
+                $group->post('/{plugin}/deactivate', [PluginController::class, 'deactivate'])->setName('admin.config.plugin.deactivate');
+                $group->delete('/{plugin}/uninstall', [PluginController::class, 'uninstall'])->setName('admin.config.plugin.uninstall');
+            });
         });
 
         // 디자인/UI

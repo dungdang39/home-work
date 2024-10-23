@@ -2,12 +2,14 @@
 
 namespace Bootstrap;
 
+use App\Base\Service\ConfigService;
 use Slim\App;
 use Core\FileService;
 
 class RouterConfig
 {
     private const ROUTER_DIRECTORY = '/app/*/Router/*.php';
+    private const PLUGIN_ROUTER_DIRECTORY = '/plugin/{plugin}/router/*.php';
     private const CACHE_DIRECTORY = '/data/cache/API';
 
     /**
@@ -19,6 +21,7 @@ class RouterConfig
     public static function configure(App $app): void
     {
         self::includeRouteFiles($app);
+        self::includePluginRouteFiles($app);
         self::setupRouteCache($app);
     }
 
@@ -34,6 +37,25 @@ class RouterConfig
             $include = include_once $file;
             if (is_callable($include)) {
                 $include($app);
+            }
+        }
+    }
+
+    /**
+     * 플러그인 라우트 파일을 포함합니다.
+     * 
+     * @return void
+     */
+    private static function includePluginRouteFiles(App $app): void
+    {
+        $config_service = $app->getContainer()->get(ConfigService::class);
+        $active_plugins = $config_service->getActivePlugins();
+
+        foreach ($active_plugins as $plugin) {
+            $plugin_dir = str_replace('{plugin}', $plugin, self::PLUGIN_ROUTER_DIRECTORY);
+            $route_files = glob(dirname(__DIR__) . $plugin_dir);
+            foreach ($route_files as $file) {
+                include_once $file;
             }
         }
     }

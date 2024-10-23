@@ -34,6 +34,7 @@ class TwigConfig
         $twig = Twig::create(
             [
                 'admin' => ThemeService::ADMIN_DIRECTORY,
+                'plugin' => ThemeService::PLUGIN_DIRECTORY,
                 FilesystemLoader::MAIN_NAMESPACE => ThemeService::DIRECTORY . '/' . $theme,
             ],
             [

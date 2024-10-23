@@ -9,7 +9,7 @@
 </body>
 <script>
     document.getElementById('btn').addEventListener('click', function() {
-        location.href = './admin/login';
+        location.href = "{{ url_for('admin.login') }}";
     });
 </script>
 </html>

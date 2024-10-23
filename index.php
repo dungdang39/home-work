@@ -12,10 +12,12 @@ use Bootstrap\EnvLoader;
 use Bootstrap\RouterConfig;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
+use Core\PluginService;
 use Core\Validator\Installation;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\TwigMiddleware;
 
@@ -47,6 +49,8 @@ $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 $app->add(new JsonBodyParserMiddleware());
 $app->add(new MethodOverrideMiddleware());
+$app->add(new ContentLengthMiddleware());
+$app->add(new ContentLengthMiddleware());
 $app->add('csrf');
 
 // Request를 Container에서 가져오기
@@ -73,6 +77,9 @@ $app->setBasePath(str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']) . "/");
 
 // 라우트 설정
 RouterConfig::configure($app);
+
+// 플러그인 설정파일 로드
+PluginService::runActivePlugins($app);
 
 // 앱 실행 및 커스텀 응답
 $response = $app->handle($request);

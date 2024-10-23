@@ -6,6 +6,7 @@ class ThemeService
 {
     public const DEFAULT_THEME = 'basic';
     public const ADMIN_DIRECTORY = 'template/admin';
+    public const PLUGIN_DIRECTORY = 'plugin';
     public const DIRECTORY = 'template/theme';
     private const SCREENSHOT = 'screenshot.png';
     private const DEFAULT_SCREENSHOT_PATH = '/img/theme_no_screenshot.jpg';
