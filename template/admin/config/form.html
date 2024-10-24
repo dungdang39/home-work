@@ -89,24 +89,6 @@
                                 <input type="text" name="privacy_officer_email" value="{{ old('privacy_officer_email', configs) }}" id="privacy_officer_email" required class="required email frm_input" size="40">
                             </td>
                         </tr>
-                        <tr>
-                            <th scope="row">쇼핑몰 사용</th>
-                            <td colspan="3">
-                                <label for="use_shop_1" class="rules_label">사용</label>
-                                <input name="use_shop" id="use_shop_1" type="radio" value="1" {{ checked(1, old('use_shop', configs)) }}>
-                                <label for="use_shop_0" class="rules_label">사용안함</label>
-                                <input name="use_shop" id="use_shop_0" type="radio" value="0" {{ checked(0, old('use_shop', configs), true) }}>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">커뮤니티 사용</th>
-                            <td colspan="3">
-                                <label for="use_community_1" class="rules_label">사용</label>
-                                <input name="use_community" id="use_community_1" type="radio" value="1" {{ checked(1, old('use_community', configs)) }}>
-                                <label for="use_community_0" class="rules_label">사용안함</label>
-                                <input name="use_community" id="use_community_0" type="radio" value="0" {{ checked(0, old('use_community', configs), true) }}>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -158,20 +140,16 @@
                             <th scope="row"><label for="biz_zip_code">사업장 우편번호</label></th>
                             <td>
                                 <input type="text" name="biz_zip_code" id="biz_zip_code" class="frm_input" value="{{ old('biz_zip_code', configs) }}">
-                                <button type="button" class="btn_frmline" onclick="win_zip('form_config', 'biz_zip_code', 'biz_address', 'biz_address_detail', 'biz_address_etc', '');">주소찾기</button><br>
+                                <button type="button" class="btn_frmline" onclick="win_zip('form_config', 'biz_zip_code', 'biz_address', 'biz_address_detail', '');">주소찾기</button><br>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="biz_address">사업장 기본주소</label></th>
-                            <td><input type="text" name="biz_address" id="biz_address" class="frm_input" value="{{ old('biz_address', configs) }}" placeholder="기본주소"></td>
+                            <td><input type="text" name="biz_address" id="biz_address" class="frm_input" value="{{ old('biz_address', configs) }}" placeholder="기본주소" size="100"></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="biz_address_detail">사업장 상세주소</label></th>
-                            <td><input type="text" name="biz_address_detail" id="biz_address_detail" class="frm_input" value="{{ old('biz_address_detail', configs) }}" placeholder="상세주소"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="biz_address_etc">참고항목</label></th>
-                            <td><input type="text" name="biz_address_etc" id="biz_address_etc" class="frm_input" value="{{ old('biz_address_etc', configs) }}" readonly></td>
+                            <td><input type="text" name="biz_address_detail" id="biz_address_detail" class="frm_input" value="{{ old('biz_address_detail', configs) }}" placeholder="상세주소" size="100"></td>
                         </tr>
                     </tbody>
                 </table>

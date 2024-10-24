@@ -4,6 +4,7 @@ namespace App\Base\Model\Admin;
 
 use Core\Traits\SchemaHelperTrait;
 use Core\Validator\Sanitizer;
+use Core\Validator\Validator;
 use Exception;
 use Slim\Http\ServerRequest as Request;
 
@@ -49,6 +50,10 @@ class UpdateConfigRequest
 
     protected function validate()
     {
+        $this->validateRequired('site_title', '사이트 제목');
+        $this->validateRequired('super_admin', '최고관리자');
+        $this->validateRequired('privacy_officer_name', '개인정보관리 책임자명');
+        $this->validateRequired('privacy_officer_email', '개인정보관리 메일 주소');
         $this->checkInterceptIp($this->intercept_ip);
     }
 
@@ -57,6 +62,17 @@ class UpdateConfigRequest
         Sanitizer::cleanXssAll($this, ['add_script', 'add_css', 'add_meta']);
         $this->possible_ip = Sanitizer::removeDuplicateLines($this->possible_ip);
         $this->intercept_ip = Sanitizer::removeDuplicateLines($this->intercept_ip);
+        $this->biz_zip_code = substr($this->biz_zip_code, 0, 5);
+    }
+
+    /**
+     * 필수 입력 사항 검사
+     */
+    private function validateRequired(string $field, string $label): void
+    {
+        if (!Validator::required($this->$field)) {
+            $this->throwException("{$label}은(는) 필수 입력 사항입니다.");
+        }
     }
 
     /**

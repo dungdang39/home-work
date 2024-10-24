@@ -36,6 +36,11 @@ class ConfigService
         return isset($active_plugins) ? explode(',', $active_plugins) : [];
     }
 
+    /**
+     * 환경설정 목록 조회
+     * @param string|null $scope 설정 범위
+     * @return array 설정 목록
+     */
     public function getConfigs(?string $scope = null): array
     {
         if ($scope !== null && isset($this->cache[$scope])) {

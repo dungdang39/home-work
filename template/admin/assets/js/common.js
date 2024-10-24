@@ -354,7 +354,7 @@ var win_homepage = function(href) {
 /**
  * 우편번호 창
  **/
-var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_addr3, frm_jibeon) {
+var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_jibeon) {
     if(typeof daum === "undefined"){
         alert("KAKAO 우편번호 서비스 postcode.v2.js 파일이 로드되지 않았습니다.");
         return false;
@@ -401,8 +401,7 @@ var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_addr3, frm_j
 
         of[frm_zip].value = data.zonecode;
 
-        of[frm_addr1].value = fullAddr;
-        of[frm_addr3].value = extraAddr;
+        of[frm_addr1].value = fullAddr + extraAddr;
 
         if(of[frm_jibeon] !== undefined){
             of[frm_jibeon].value = data.userSelectedType;

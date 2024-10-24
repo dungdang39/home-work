@@ -38,6 +38,9 @@ trait SchemaHelperTrait
 
     /**
      * Request 객체로부터 속성 설정 및 유효성 검사
+     * - Request 객체의 Query, Body, File 데이터를 클래스 속성에 매핑
+     * - beforeValidate, validate, afterValidate 메서드를 오버라이드하여 유효성 검사 수행
+     * - 유효성 검사 실패 시 Exception 발생
      * @param Request $request Request 객체
      * @return void
      * @throws Exception  유효성 검사 실패 시 예외 발생
