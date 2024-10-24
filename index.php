@@ -5,7 +5,6 @@
  */
 
 use API\Middleware\JsonBodyParserMiddleware;
-use API\ResponseEmitter\ResponseEmitter;
 use Bootstrap\TwigConfig;
 use Bootstrap\ContainerConfig;
 use Bootstrap\EnvLoader;
@@ -16,7 +15,7 @@ use Core\PluginService;
 use Core\Validator\Installation;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\ServerRequest as Request;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\TwigMiddleware;
@@ -80,7 +79,5 @@ RouterConfig::configure($app);
 // 플러그인 설정파일 로드
 PluginService::runActivePlugins($app);
 
-// 앱 실행 및 커스텀 응답
-$response = $app->handle($request);
-$responseEmitter = new ResponseEmitter();
-$responseEmitter->emit($response);
+// 앱 실행
+$app->run($request);

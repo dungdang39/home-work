@@ -7,7 +7,7 @@ use Core\Image\Strategies\ImageStrategyV2;
 use Core\Image\Strategies\ImageStrategyV3;
 use Core\Lib\FlashMessage;
 use DI\Container;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\ServerRequest as Request;
 use Slim\Csrf\Guard;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpForbiddenException;

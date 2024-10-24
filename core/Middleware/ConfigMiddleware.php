@@ -6,9 +6,10 @@ use App\Base\Service\ConfigService;
 use App\Base\Service\ThemeService;
 use Core\AppConfig;
 use Core\Lib\UriHelper;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
+use DI\Container;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\Http\ServerRequest as Request;
+use Slim\Http\Response;
 use Slim\Views\Twig;
 
 /**
@@ -16,13 +17,16 @@ use Slim\Views\Twig;
  */
 class ConfigMiddleware
 {
+    private Container $container;
     private ConfigService $service;
     private UriHelper $uri_helper;
 
     public function __construct(
+        Container $container,
         ConfigService $service,
-        UriHelper $uri_helper
+        UriHelper $uri_helper,
     ) {
+        $this->container = $container;
         $this->service = $service;
         $this->uri_helper = $uri_helper;
     }
@@ -44,6 +48,9 @@ class ConfigMiddleware
         // Request에 설정 추가
         $request = $request->withAttribute('app_config', AppConfig::getInstance());
         $request = $request->withAttribute('configs', $configs);
+
+        // 컨테이너에 Request 설정 추가
+        $this->container->set(Request::class, $request);
 
         return $handler->handle($request);
     }
