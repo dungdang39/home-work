@@ -7,14 +7,17 @@
 {% block content %}
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
-    <div class="local_desc01 local_desc">
-        <strong>플러그인 업로드</strong>
-        <p>플러그인을 업로드하시려면 아래 버튼을 클릭하여 플러그인 파일을 선택한 후 업로드 버튼을 클릭하세요.</p>
-        <p>
-            <input type="file" name="plugin_file" id="plugin_file" class="file" accept=".zip">
-            <button type="button" id="plugin_upload" class="btn btn_02">업로드</button>
-        </p>
-    </div>
+    <form id="plugin_form" action="{{ url_for('admin.config.plugin.install') }}" method="post" enctype="multipart/form-data">
+        {{ csrf.field|raw }}
+        <div class="local_desc01 local_desc">
+            <strong>플러그인 업로드</strong>
+            <p>압축파일 형식의 플러그인을 직접 업로드할 수 있습니다.</p>
+            <p>
+                <input type="file" id="plugin_file" name="plugin_file" class="file" accept=".zip">
+                <button type="button" id="plugin_upload" class="btn btn_02" disabled>업로드</button>
+            </p>
+        </div>
+    </form>
 
     <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
         <label for="stx" class="sound_only">
@@ -57,18 +60,18 @@
                         버전 : {{ plugin.version }} | 작성자 : {{ plugin.author }}
                     </td>
                     <td headers="th_loc" class="td_type">
-                        {{ plugin.is_active ? "활성화" : "비활성화" }}
+                        {{ plugin.is_active ? "사용 중" : "미사용" }}
                     </td>
                     <td headers="th_mng" class="td_id">
                         {% if plugin.is_active %}
                         <button type="button" class="btn btn_02 btn_deactivate"
                                 data-url="{{ url_for('admin.config.plugin.deactivate', {'plugin': plugin.plugin}) }}">
-                            {{- '비활성화' -}}
+                            {{- '중지' -}}
                         </button>
                         {% else %}
                         <button type="button" class="btn btn_03 btn_activate"
                                 data-url="{{ url_for('admin.config.plugin.activate', {'plugin': plugin.plugin}) }}">
-                            {{- '활성화' -}}
+                            {{- '사용' -}}
                         </button>
                         <a href="{{ url_for('admin.config.plugin.uninstall', {'plugin': plugin.plugin}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_01">삭제</a>
                         {% endif %}
@@ -82,13 +85,44 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 모든 비활성화 및 활성화 버튼을 선택
         const buttons = document.querySelectorAll('.btn_deactivate, .btn_activate');
+        const uploadForm = document.getElementById('plugin_form');
+        const uploadFile = document.getElementById('plugin_file');
+        const uploadButton = document.getElementById('plugin_upload');
 
+        // 파일 선택 시 이벤트 리스너 추가
+        uploadFile.addEventListener('change', function() {
+            const uploadButton = document.getElementById('plugin_upload');
+            if (this.files.length > 0) {
+                uploadButton.classList.remove('btn_02');
+                uploadButton.classList.add('btn_03');
+                uploadButton.disabled = false;
+            } else {
+                uploadButton.classList.remove('btn_03');
+                uploadButton.classList.add('btn_02');
+                uploadButton.disabled = true;
+            }
+        });
+
+        // 파일 업로드 버튼 클릭 시 이벤트 리스너 추가
+        uploadButton.addEventListener('click', function() {
+            if (plugin_file.files.length === 0) {
+                alert('플러그인 파일을 선택하세요.');
+                return;
+            }
+            uploadForm.submit();
+        });
+
+        // 모든 비활성화 및 활성화 버튼을 선택
         buttons.forEach(button => {
             button.addEventListener('click', function() {
                 let status = this.textContent.trim();
-                if (!confirm('플러그인을 ' + status + '하시겠습니까?')) {
+                let message = '플러그인을 ' + status + '하시겠습니까?';
+                if (status === '중지') {
+                    message = '플러그인을 중지하시면 관련된 기능이 즉시 중지되며, 복구가 불가능할 수 있습니다.\n\n그래도 ' + message; 
+                }
+
+                if (!confirm(message)) {
                     return false;
                 }
 

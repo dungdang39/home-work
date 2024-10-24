@@ -12,6 +12,7 @@ class PluginService
     public const PLUGIN_DIR = __DIR__ . '/../plugin';
     public const PLUGIN_DATA_FILE = 'plugin.json';
     public const PLUGIN_ICON_FILE = 'icon.png';
+    public const REQUIRED_INSTALL = ['index.php', 'plugin.json', 'router/'];
 
     public $default_data = array(
 		'name' => 'Plugin Name',
@@ -142,14 +143,73 @@ class PluginService
     }
 
     /**
+     * 플러그인 파일 압축 해제
+     */
+    public function extractPlugin($uploaded_file): bool
+    {
+        $plugin_folder_name = pathinfo($uploaded_file->getClientFilename(), PATHINFO_FILENAME);
+        $plugin_folder_path = self::PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_folder_name;
+        $zip_file_path = $uploaded_file->getFilePath();
+        $file_extension = getExtension($uploaded_file);
+
+        if (is_dir($plugin_folder_path)) {
+            throw new \Exception('플러그인 폴더가 이미 존재합니다.');
+        }
+
+        switch ($file_extension) {
+            case 'zip':
+                return $this->extractZip($zip_file_path, $plugin_folder_path);
+
+            case 'tar':
+            case 'gz':
+            case 'tgz':
+                return $this->extractTar($zip_file_path, $plugin_folder_path);
+
+            default:
+                throw new \Exception('지원되지 않는 압축 파일 형식입니다.');
+        }
+    }
+
+    /**
+     * 필수 파일 확인
+     */
+    public function checkRequiredFiles($plugin_folder_path): bool
+    {
+        foreach (self::REQUIRED_INSTALL as $file) {
+            if (!file_exists($plugin_folder_path . DIRECTORY_SEPARATOR . $file)) {
+                $this->removePlugin($plugin_folder_path);
+                throw new \Exception($file . ' 파일이 누락되었습니다.');
+            }
+        }
+        return true;
+    }
+
+    /**
      * 플러그인 삭제
-     * @param string $plugin
+     * @param string $dir
      * @return void
      */
-    public function uninstallPlugin(string $plugin)
+    public function removePlugin(string $dir)
     {
-        $this->deactivatePlugin($plugin);
-        $this->removePlugin(join(DIRECTORY_SEPARATOR, [self::PLUGIN_DIR, $plugin]));
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object === '.' || $object === '..') {
+                continue;
+            }
+
+            $object_path = $dir . DIRECTORY_SEPARATOR . $object;
+            if (is_dir($object_path)) {
+                $this->removePlugin($object_path);
+            } else {
+                unlink($object_path);
+            }
+        }
+
+        rmdir($dir);
     }
 
     /**
@@ -222,31 +282,25 @@ class PluginService
         return true;
     }
 
-    /**
-     * 플러그인 삭제
-     * @param string $dir
-     * @return void
-     */
-    private function removePlugin(string $dir)
+    private function extractZip($zip_file_path, $plugin_folder_path): bool
     {
-        if (!is_dir($dir)) {
-            return;
+        $zip = new \ZipArchive;
+        if ($zip->open($zip_file_path) === TRUE) {
+            $zip->extractTo($plugin_folder_path);
+            $zip->close();
+            return true;
         }
+        throw new \Exception('ZIP 파일을 해제할 수 없습니다.');
+    }
 
-        $objects = scandir($dir);
-        foreach ($objects as $object) {
-            if ($object === '.' || $object === '..') {
-                continue;
-            }
-
-            $object_path = $dir . DIRECTORY_SEPARATOR . $object;
-            if (is_dir($object_path)) {
-                $this->removePlugin($object_path);
-            } else {
-                unlink($object_path);
-            }
+    private function extractTar($zip_file_path, $plugin_folder_path): bool
+    {
+        try {
+            $phar = new \PharData($zip_file_path);
+            $phar->extractTo($plugin_folder_path, null, true);
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception('압축 파일을 해제할 수 없습니다: ' . $e->getMessage());
         }
-
-        rmdir($dir);
     }
 }

@@ -50,7 +50,6 @@ $app->addBodyParsingMiddleware();
 $app->add(new JsonBodyParserMiddleware());
 $app->add(new MethodOverrideMiddleware());
 $app->add(new ContentLengthMiddleware());
-$app->add(new ContentLengthMiddleware());
 $app->add('csrf');
 
 // Request를 Container에서 가져오기

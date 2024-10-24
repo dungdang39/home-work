@@ -98,6 +98,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             // 플러그인 관리
             $group->group('/plugin', function (RouteCollectorProxy $group) {
                 $group->get('', [PluginController::class, 'index'])->setName('admin.config.plugin');
+                $group->post('/install', [PluginController::class, 'install'])->setName('admin.config.plugin.install');
                 $group->post('/{plugin}/activate', [PluginController::class, 'activate'])->setName('admin.config.plugin.activate');
                 $group->post('/{plugin}/deactivate', [PluginController::class, 'deactivate'])->setName('admin.config.plugin.deactivate');
                 $group->delete('/{plugin}/uninstall', [PluginController::class, 'uninstall'])->setName('admin.config.plugin.uninstall');

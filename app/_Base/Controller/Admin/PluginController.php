@@ -2,9 +2,12 @@
 
 namespace App\Base\Controller\Admin;
 
+use App\Base\Model\Admin\InstallPluginRequest;
 use App\Base\Model\Admin\SearchPluginRequest;
 use Core\BaseController;
+use Core\Lib\FlashMessage;
 use Core\PluginService;
+use DI\Container;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -14,11 +17,14 @@ use Slim\Views\Twig;
  */
 class PluginController extends BaseController
 {
+    protected FlashMessage $flash;
     protected PluginService $service;
 
     public function __construct(
+        Container $container,
         PluginService $service
     ) {
+        $this->flash = $container->get('flash');
         $this->service = $service;
     }
 
@@ -70,8 +76,27 @@ class PluginController extends BaseController
 
         return $response->withJson([
             'result' => 'success',
-            'message' => '플러그인이 비활성화되었습니다.',
+            'message' => '플러그인 사용이 중지되었습니다.',
         ]);
+    }
+
+    /**
+     * 플러그인 설치
+     */
+    public function install(Request $request, Response $response, InstallPluginRequest $request_data): Response
+    {
+        $uploaded_file = $request_data->plugin_file;
+
+        $this->service->extractPlugin($uploaded_file);
+
+        $plugin_folder_name = pathinfo($uploaded_file->getClientFilename(), PATHINFO_FILENAME);
+        $plugin_folder_path = $this->service::PLUGIN_DIR . '/' . $plugin_folder_name;
+        
+        $this->service->checkRequiredFiles($plugin_folder_path);
+        
+        $this->flash->setMessage('플러그인이 설치되었습니다.');
+
+        return $this->redirectRoute($request, $response, 'admin.config.plugin');
     }
 
     /**
@@ -80,7 +105,8 @@ class PluginController extends BaseController
     public function uninstall(Request $request, Response $response, string $plugin): Response
     {
         $plugin_data = $this->service->getPlugin($plugin);
-        $this->service->uninstallPlugin($plugin_data['plugin']);
+        $this->service->deactivatePlugin($plugin_data['plugin']);
+        $this->service->removePlugin(join(DIRECTORY_SEPARATOR, [$this->service::PLUGIN_DIR, $plugin_data['plugin']]));
 
         return $response->withJson([
             'result' => 'success',

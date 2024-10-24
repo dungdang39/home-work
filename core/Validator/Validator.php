@@ -203,6 +203,23 @@ class Validator
     }
 
     /**
+     * 압축파일 유효성 검사
+     * @param UploadedFile $file  업로드 파일
+     * @return bool
+     */
+    public static function isArchive(UploadedFile $file)
+    {
+        if (!self::validMimeType($file, self::$mime_types['archive'])) {
+            return false;
+        }
+        if (!self::validExtension($file, self::$extensions['archive'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 파일 Mime Type 허용 검사
      */
     public static function allowedMimeType(UploadedFile $file): bool
