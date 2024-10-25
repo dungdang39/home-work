@@ -390,6 +390,7 @@ CREATE TABLE IF NOT EXISTS `new_social_provider` (
   `provider` varchar(50) NOT NULL COMMENT '서비스 공급자 (예: naver, facebook)',
   `provider_name` varchar(100) NOT NULL COMMENT '서비스 이름 (예: 네이버, 페이스북)',
   `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '소셜 로그인 활성화 여부',
+  `is_test` tinyint(1) NOT NULL DEFAULT 0 COMMENT '테스트/연동 중 여부',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`provider`)

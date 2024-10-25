@@ -32,21 +32,29 @@
                         {% set provider=social.provider %}
                         <tr>
                             <th scope="row">{{ name }} 로그인</th>
-                            <td colspan="3">
+                            <td>
                                 <input type="checkbox" name="socials[{{ provider }}][is_enabled]" value="1" {{ checked(1, social.is_enabled) }}> 사용
                                 <button type="button" class="btn btn-danger" onclick="delete_social('{{ provider }}');">삭제</button>
                             </td>
+                            <th scope="row">테스트/연동 중</th>
+                            <td>
+                                <input type="checkbox" name="socials[{{ provider }}][is_test]" value="1" {{ checked(1, social.is_test) }}>
+                            </td>
                         </tr>
                         {% for key in social.keys %}
+                        {% set input_type = (key.name == 'secret') ? 'password' : 'text' %}
                         {% if loop.first or loop.index0 is divisible by(2) %}
                         <tr>
-                            {% endif %}
-                            <th scope="row">{{ name ~ ' ' ~ key.name }}</th>
+                        {% endif %}
+                            <th scope="row">{{ name ~ ' ' ~ key.display_name }}</th>
                             <td>
-                                <input type="text" name="socials[{{ provider }}][keys][{{ key.key }}]"
+                                <input type="{{ input_type }}" name="socials[{{ provider }}][keys][{{ key.key }}]"
                                     value="{{ key.value }}" class="frm_input" size="40">
+                                {% if key.name == 'secret' %}
+                                <button type="button" class="btn btn_02 btn_display_secret">보기</button>
+                                {% endif %}
                             </td>
-                            {% if loop.last or loop.index is divisible by(2) %}
+                        {% if loop.last or loop.index is divisible by(2) %}
                         </tr>
                         {% endif %}
                         {% endfor %}
@@ -104,6 +112,22 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 비밀번호 보기/숨기기
+        document.querySelectorAll('.btn_display_secret').forEach(button => {
+            button.addEventListener('click', function(event) {
+                const input = event.target.previousElementSibling;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    event.target.textContent = '숨기기';
+                } else {
+                    input.type = 'password';
+                    event.target.textContent = '보기';
+                }
+            });
+        });
+    });
+
     $(function () {
         $('select[name="provider"]').on('change', function () {
             let selected = $(this).find('option:selected');
@@ -124,6 +148,9 @@
                         (count % 2 === 1 ? '</tr>' : '');
                     count++;
                 });
+                html += `<tr><th scope="row">테스트/연동 중</th>
+                        <td><input type="checkbox" name="is_test" value="1"></td>
+                        </tr>`
 
                 $("#area_keys").append(html);
             }
@@ -131,6 +158,23 @@
     });
 
     function validate_social_form(form) {
+        const checkboxes = form.querySelectorAll('input[type="checkbox"][name^="socials"][name$="[is_enabled]"]');
+        let confirmChange = false;
+        let disabledProviders = [];
+    
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked === false && checkbox.defaultChecked === true) {
+                const providerName = checkbox.closest('tr').querySelector('th').innerText;
+                disabledProviders.push(providerName);
+                confirmChange = true;
+            }
+        });
+    
+        if (confirmChange) {
+            const message = `소셜로그인을 해제하시는 경우 소셜로그인을 이용하는 회원은 더 이상 계정을 이용할 수 없습니다.\n그래도 해제하시겠습니까?\n - ${disabledProviders.join(', ')}`;
+            return confirm(message);
+        }
+    
         return true;
     }
 
@@ -140,7 +184,8 @@
 
     function delete_social(provider) {
         let url = "{{ url_for('admin.config.api.social.delete', {provider: '__REPLACE_ID__'}) }}";
-        delete_confirm(url.replace('__REPLACE_ID__', provider));
+        const message = '소셜로그인을 해제하시는 경우 소셜로그인을 이용하는 회원은 더 이상 계정을 이용할 수 없습니다.\n그래도 해제하시겠습니까?';
+        delete_confirm(url.replace('__REPLACE_ID__', provider), message);
     }
 </script>
 {% endblock content %}

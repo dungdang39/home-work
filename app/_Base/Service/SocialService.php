@@ -98,7 +98,7 @@ class SocialService
             $provider['keys'] = $this->fetchProviderKeys($provider['provider']) ?: [];
             foreach ($provider['keys'] as &$key) {
                 $class = $this->getClassName($provider['provider'] . 'Config');
-                $key['name'] = $class::getKeyName($key['name']);
+                $key['display_name'] = $class::getKeyName($key['name']);
             }
         }
 
@@ -151,6 +151,7 @@ class SocialService
             'provider' => $provider,
             'provider_name' => $class::getProviderName(),
             'is_enabled' => 1,
+            'is_test' => $data['is_test']
         ];
 
         Db::getInstance()->insert($this->table, $value);
@@ -178,7 +179,7 @@ class SocialService
         Db::getInstance()->getPdo()->beginTransaction();
 
         foreach ($data['socials'] as $provider => $value) {
-            $this->update($provider, ['is_enabled' => $value['is_enabled']]);
+            $this->update($provider, ['is_enabled' => $value['is_enabled'], 'is_test' => $value['is_test']]);
 
             if (isset($value['keys'])) {
                 foreach ($value['keys'] as $name => $val) {

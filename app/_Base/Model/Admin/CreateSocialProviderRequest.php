@@ -11,6 +11,7 @@ class CreateSocialProviderRequest
     use SchemaHelperTrait;
 
     public string $provider;
+    public ?int $is_test = 0;
     public array $keys = [];
 
     public function __construct(Request $request)

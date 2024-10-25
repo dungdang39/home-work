@@ -38,6 +38,11 @@ class UpdateSocialProviderRequest
             } else {
                 $data['is_enabled'] = (int)$data['is_enabled'];
             }
+            if (!isset($data['is_test'])) {
+                $data['is_test'] = 0;
+            } else {
+                $data['is_test'] = (int)$data['is_test'];
+            }
         }
     }
 }
