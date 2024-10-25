@@ -66,7 +66,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [PermissionController::class, 'insert'])->setName('admin.config.permission.insert');
                 $group->put('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'update'])->setName('admin.config.permission.update');
                 $group->delete('/{mb_id}/{admin_menu_id:[0-9]+}', [PermissionController::class, 'delete'])->setName('admin.config.permission.delete');
-                $group->delete('/list', [PermissionController::class, 'delete_list'])->setName('admin.config.permission.delete-list');
+                $group->post('/list', [PermissionController::class, 'deleteList'])->setName('admin.config.permission.delete.list');
             })->add(SuperAdminAuthMiddleware::class);
 
             // API연동 설정
@@ -210,6 +210,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('', function (RouteCollectorProxy $group) {
                 $group->get('', [MemberController::class, 'index'])->setName('admin.member.manage');
                 $group->get('/create', [MemberController::class, 'create'])->setName('admin.member.manage.create');
+                $group->get('/search', [MemberController::class, 'searchMembers'])->setName('admin.member.manage.search');
                 $group->post('', [MemberController::class, 'insert'])->setName('admin.member.manage.insert');
                 $group->get('/{mb_id}', [MemberController::class, 'view'])->setName('admin.member.manage.view');
                 $group->post('/{mb_id}', [MemberController::class, 'update'])->setName('admin.member.manage.update');

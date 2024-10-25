@@ -4,6 +4,7 @@ namespace App\Base\Service;
 
 use App\Base\Service\MemberService;
 use Core\Database\Db;
+use PDO;
 use Slim\Http\ServerRequest as Request;
 use Slim\Exception\HttpNotFoundException;
 
@@ -12,20 +13,23 @@ use Slim\Exception\HttpNotFoundException;
  */
 class PermissionService
 {
+    public const TABLE_NAME = 'admin_menu_permission';
+
     public string $table;
     private AdminMenuService $admin_menu_service;
     private MemberService $member_service;
     private Request $request;
 
     public function __construct(
+        Request $request,
         AdminMenuService $admin_menu_service,
         MemberService $member_service,
-        Request $request
     ) {
-        $this->table = $_ENV['DB_PREFIX'] . 'admin_menu_permission';
+        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+
+        $this->request = $request;
         $this->admin_menu_service = $admin_menu_service;
         $this->member_service = $member_service;
-        $this->request = $request;
     }
 
     /**
@@ -33,12 +37,17 @@ class PermissionService
      * @param array $params 검색 조건
      * @return array
      */
-    public function getPermissions(array $params): array
+    public function getPermissions(?array $params = []): array
     {
         $permissions = $this->fetchList($params);
         if (empty($permissions)) {
             return [];
         }
+
+        foreach ($permissions as &$permission) {
+            $permission['breadcrumb'] = $this->admin_menu_service->getBreadcrumb($permission['admin_menu_id']);
+        }
+
         return $permissions;
     }
 
@@ -55,20 +64,38 @@ class PermissionService
             throw new HttpNotFoundException($this->request, '관리자메뉴 권한이 존재하지 않습니다.');
         }
         return $permission;
-    }    
+    }
 
     // ========================================
     // Database Queries
     // ========================================
 
-    public function fetchPermissionsTotalCount(array $params = []): int
+    /**
+     * 총 권한 수 조회
+     * @param array $params 검색 조건
+     * @return int
+     */
+    public function fetchPermissionsTotalCount(?array $params = []): int
     {
         $wheres = [];
         $values = [];
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
-        $query = "SELECT COUNT(*) FROM {$this->table} {$sql_where}";
+        $this->addSearchConditions($wheres, $values, $params);
+
+        $sql_where = Db::buildWhere($wheres);
+
+        $query = "SELECT COUNT(*) FROM {$this->table} AS permission {$sql_where}";
         return Db::getInstance()->run($query, $values)->fetchColumn();
+    }
+
+    /**
+     * 관리자 메뉴 권한을 가진 회원 목록 조회
+     * @return array
+     */
+    public function fetchPermissionMembers(): array
+    {
+        $query = "SELECT DISTINCT mb_id FROM {$this->table}";
+        return Db::getInstance()->run($query)->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
@@ -106,7 +133,7 @@ class PermissionService
 
         // WHERE 절에 각 라우트 패턴을 조건으로 추가
         $route_placeholders = Db::makeWhereInPlaceHolder($route_patterns);
-        
+
         // 모든 route_patterns를 values에 추가
         $values = array_merge($values, $route_patterns);
 
@@ -133,23 +160,20 @@ class PermissionService
     public function fetchList(array $params): array
     {
         $values = [];
-        $where = "";
+        $wheres = [];
 
-        if (!empty($params['search_text'])) {
-            $where .= "a.mb_id LIKE :search_text";
-            $values["search_text"] = "%{$params['search_text']}%";
-        }
+        $this->addSearchConditions($wheres, $values, $params);
 
         $values["offset"] = $params['offset'];
         $values["limit"] = $params['limit'];
 
-        $where = $where ? "WHERE {$where}" : "";
-        $query = "SELECT a.*, b.mb_nick, b.mb_name, c.am_name, c.am_parent_id
-                    FROM {$this->table} a
-                    LEFT JOIN {$this->member_service->table} b on a.mb_id = b.mb_id
-                    LEFT JOIN {$this->admin_menu_service->table} c on a.admin_menu_id = c.am_id
-                    {$where}
-                    ORDER BY a.mb_id ASC, c.am_id ASC
+        $sql_where = Db::buildWhere($wheres);
+        $query = "SELECT permission.*, b.mb_nick, b.mb_name, c.am_name, c.am_parent_id
+                    FROM {$this->table} AS permission
+                    LEFT JOIN {$this->member_service->table} b ON permission.mb_id = b.mb_id
+                    LEFT JOIN {$this->admin_menu_service->table} c ON permission.admin_menu_id = c.am_id
+                    {$sql_where}
+                    ORDER BY permission.mb_id ASC, c.am_id ASC
                     LIMIT :offset, :limit";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -197,7 +221,11 @@ class PermissionService
         return (bool)$stmt->fetchColumn();
     }
 
-
+    /**
+     * 권한 추가
+     * @param array $data 추가할 데이터
+     * @return void
+     */
     public function insert(array $data): void
     {
         $query = "INSERT INTO `{$this->table}`
@@ -210,6 +238,13 @@ class PermissionService
         Db::getInstance()->run($query, $data);
     }
 
+    /**
+     * 권한 수정
+     * @param string $mb_id 회원 ID
+     * @param int $admin_menu_id 관리자 메뉴 ID
+     * @param array $data 수정할 데이터
+     * @return int
+     */
     public function update(string $mb_id, int $admin_menu_id, array $data): int
     {
         $values = [
@@ -225,6 +260,12 @@ class PermissionService
         return Db::getInstance()->update($this->table, $values, $where);
     }
 
+    /**
+     * 권한 삭제
+     * @param string $mb_id 회원 ID
+     * @param int $admin_menu_id 관리자 메뉴 ID
+     * @return int
+     */
     public function delete(string $mb_id, int $admin_menu_id): int
     {
         $where = [
@@ -233,5 +274,25 @@ class PermissionService
         ];
 
         return Db::getInstance()->delete($this->table, $where);
+    }
+
+    /**
+     * 검색 조건 추가
+     * @param array $params 검색 조건
+     * @param array $wheres WHERE 절
+     * @param array $values 바인딩 값
+     * @return void
+     */
+    private function addSearchConditions(array &$wheres, array &$values, ?array $params = [])
+    {
+        if (!empty($params['search_text'])) {
+            $wheres[] = "permission.mb_id LIKE :search_text";
+            $values["search_text"] = "%{$params['search_text']}%";
+        }
+
+        if (!empty($params['mb_id'])) {
+            $wheres[] = "permission.mb_id = :mb_id";
+            $values["mb_id"] = "{$params['mb_id']}";
+        }
     }
 }

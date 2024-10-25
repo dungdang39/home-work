@@ -49,6 +49,16 @@ class Db
         return str_repeat('?, ', count($values) - 1) . '?';
     }
 
+    /**
+     * where 절 생성
+     * @param array $wheres
+     * @return string
+     */
+    public static function buildWhere(array $wheres): string
+    {
+        return $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+    }
+
 
     /**
      * PDO 객체를 반환함.

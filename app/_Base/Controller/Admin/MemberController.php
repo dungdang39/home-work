@@ -200,6 +200,21 @@ class MemberController extends BaseController
     /**
      * 회원정보 조회
      */
+    public function searchMembers(Request $request, Response $response): Response
+    {
+        $params['field'] = $request->getQueryParams()['search_type'];
+        $params['keyword'] = $request->getQueryParams()['keyword'];
+        $members = $this->service->getMembers($params);
+
+        return $response->withJson([
+            'message' => "회원정보 조회가 완료되었습니다.",
+            'members' => $members
+        ], 200);
+    }
+
+    /**
+     * 회원정보 조회
+     */
     public function getMemberInfo(Response $response, string $mb_id): Response
     {
         $member = $this->service->getMember($mb_id);

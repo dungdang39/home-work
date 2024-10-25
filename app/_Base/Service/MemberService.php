@@ -310,6 +310,7 @@ class MemberService
     {
         $wheres = [];
         $values = [];
+        $sql_limit = '';
 
         if (isset($params['status'])) {
             if ($params['status'] == 'leave') {

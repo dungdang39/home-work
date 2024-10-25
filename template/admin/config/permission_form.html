@@ -4,31 +4,45 @@
 {% set title = '기본환경 > 운영진설정' %}
 {% block title %}{{ title }}{% endblock title %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
+
+{% endblock head %}
+
 {% block content %}
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
 
     <div class="local_desc01 local_desc">
-        <strong>개발해야할 기능</strong>
-        <p>1. 목록 > 검색 개선 및 일괄삭제</p>
-        <p>2. 운영진 추가 > 검색 (레이어팝업)</p>
+        <strong>도움말 제목</strong>
+        <p>도움말 내용</p>
     </div>
 
     <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
+        <input type="hidden" name="mb_id" value="{{ search.mb_id }}">
         <label for="stx" class="sound_only">
             회원아이디<strong class="sound_only"> 필수</strong>
         </label>
-        <input type="text" id="search_text" name="search_text" class="frm_input required" value="{{ search.search_text }}" required>
-        <input type="submit" value="검색" id="fsearch_submit" class="btn_submit">
+        <a href="{{ url_for('admin.config.permission', {}, {'limit': pagination.limit}) }}"
+            class="btn {{ html_classes({'btn_02': search.mb_id, 'btn_03': not search.mb_id}) }}">
+            전체
+        </a>
+        {% for mb_id in permission_members %}
+        <a href="{{ url_for('admin.config.permission', {}, {'mb_id': mb_id, 'limit': pagination.limit}) }}"
+            class="btn {{ html_classes({'btn_02': search.mb_id != mb_id, 'btn_03': search.mb_id == mb_id}) }}">
+            {{ mb_id }}
+        </a>
+        {% endfor %}
         <select name="limit" id="limit">
             <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
             <option value="30" {{ selected(30, pagination.limit) }}>30개씩 보기</option>
         </select>
     </form>
 
-    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.config.permission.delete-list') }}"
+    <form name="form_permission_list" id="form_permission_list" method="post" action="{{ url_for('admin.config.permission.delete.list', {}, query_params) }}"
         onsubmit="return validate_form_permission_list(this);">
-        <input type="hidden" name="page" value="{{ pagination.page }}">
         {{ csrf.field|raw }}
 
         <div class="tbl_head01 tbl_wrap">
@@ -40,15 +54,9 @@
                             <label for="chkall" class="sound_only">현재 페이지 회원 전체</label>
                             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
                         </th>
-                        <th scope="col">
-                            <a href="#">회원아이디</a>
-                        </th>
-                        <th scope="col">
-                            <a href="#">이름</a>
-                        </th>
-                        <th scope="col">
-                            <a href="#">닉네임</a>
-                        </th>
+                        <th scope="col">회원아이디</th>
+                        <th scope="col">이름</th>
+                        <th scope="col">닉네임</th>
                         <th scope="col">관리자메뉴</th>
                         <th scope="col">권한</th>
                     </tr>
@@ -63,11 +71,15 @@
                             <label for="chk_{{ index }}" class="sound_only">{{ permission.mb_nick }}님 권한</label>
                             <input type="checkbox" name="chk[]" value="{{ index }}" id="chk_{{ index }}">
                         </td>
-                        <td class="td_auth"><a href="?sfl=a.mb_id&amp;stx=test">{{ permission.mb_id }}</a></td>
-                        <td>{{ permission.mb_name }}</td>
+                        <td class="td_auth">
+                            <a href="{{ url_for('admin.config.permission', {}, {'mb_id': permission.mb_id, 'limit': pagination.limit}) }}">
+                                {{ permission.mb_id }}
+                            </a>
+                        </td>
+                        <td class="td_auth">{{ permission.mb_name }}</td>
                         <td class="td_auth_mbnick">
                             <span class="sv_wrap">
-                                <a href="#" class="sv_member" title="test 자기소개" target="_blank" rel="nofollow">
+                                <a href="#" class="sv_member" title="" target="_blank" rel="nofollow">
                                     <span class="profile_img">
                                         <img src="{{ base_url }}/img/no_profile.gif" alt="no_profile" width="22" height="22">
                                     </span>
@@ -76,7 +88,7 @@
                             </span>
                         </td>
                         <td>
-                            {{ permission.am_name }}
+                            {{ permission.breadcrumb }}
                             {% if not permission.am_parent_id %} 전체{% endif %}
                         </td>
                         <td style="width:400px;">
@@ -132,7 +144,7 @@
                             <th scope="row"><label for="search_mb_id">운영진추가<strong class="sound_only">필수</strong></label></th>
                             <td>
                                 <input type="text" name="search_mb_id" id="search_mb_id" class="required frm_input" required>
-                                <button type="button" id="btn_search_id" class="btn_sch2">검색</button>
+                                <button type="button" id="btn_search_modal" class="btn_sch2">검색</button>
                                 <button type="button" id="btn_add_admin" class="btn_submit btn">추가</button>
                             </td>
                         </tr>
@@ -178,6 +190,44 @@
     </section>
 </div>
 
+<div class="is_rewrite remodal" data-remodal-id="modal_search_member" role="dialog" aria-labelledby="modalNotify" aria-describedby="modal2Desc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+
+    <form id="modal_search_form" class="local_sch" method="get" action="{{ url_for('admin.member.manage.search') }}" onsubmit="return false">
+        <div class="search-container">
+            <!-- 검색 입력 폼 -->
+            <div class="search-header">
+                <select id="modal_search_type">
+                    <option value="mb_id">아이디</option>
+                    <option value="mb_name">이름</option>
+                </select>
+                <input type="text" id="modal_search_keyword" class="frm_input" placeholder="검색어" />
+                <button type="button" id="btn_search_member" class="btn_sch2">검색</button>
+            </div>
+            
+            <!-- 검색 전 -->
+            <p id="search_message">회원을 검색해 보세요.</p>
+
+            <!-- 검색 결과 -->
+            <div id="search_results" style="display:none;">
+                <!-- 검색 결과 리스트 -->
+                <ul id="results_list"></ul>
+            </div>
+
+            <!-- 검색 결과 없을 때 -->
+            <p id="no_results" style="display:none;">검색결과가 없습니다.</p>
+            
+            <!-- 하단 버튼 -->
+            <div class="search-footer">
+                <button type="button" class="btn btn_03" data-remodal-action="close" style="float:right">닫기</button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <script>
     $btn_search_id = $("#btn_search_id");
     $btn_add_admin = $("#btn_add_admin");
@@ -195,6 +245,95 @@
     $check_delete = $("#delete");
 
     $(function () {
+        // 목록 출력갯수 변경
+        const form_search = document.getElementById('form_search');
+        const form_search_limit = form_search.querySelector('#limit');
+        form_search_limit.addEventListener('change', function () {
+            form_search.submit();
+        });
+
+        // 검색버튼 클릭
+        const modal_memo = $('[data-remodal-id=modal_search_member]');
+        const btn_search_modal = document.getElementById('btn_search_modal');
+        const modal_search_keyword = document.getElementById('modal_search_keyword');
+        const modal_search_type = document.getElementById('modal_search_type');
+        const search_mb_id = document.getElementById('search_mb_id');
+        btn_search_modal.addEventListener('click', function () {
+            modal_search_keyword.value = search_mb_id.value;
+            modal_memo.remodal().open();
+        });
+
+        const btn_search_member = document.getElementById('btn_search_member');
+        const modal_search_form = document.getElementById('modal_search_form');
+        btn_search_member.addEventListener('click', function () {
+            const searchType = modal_search_type.value;
+            const searchKeyword = modal_search_keyword.value;
+
+            // AJAX 요청
+            const url = modal_search_form.action + '?search_type=' + searchType + '&keyword=' + searchKeyword;
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const data = JSON.parse(xhr.responseText);
+                    console.log(data);
+                    if (data.members.length === 0) {
+                        showNoResults();
+                        return;
+                    }
+
+                    displayResults(data.members);
+                    
+                } else {
+                    const result = JSON.parse(xhr.responseText);
+                    alert(xhr.status + ' ' + xhr.statusText + ': ' + result.error.message);
+                }
+            };
+            
+            xhr.onerror = function() {
+                showNoResults();
+                alert('요청 중 오류가 발생했습니다.');
+            };
+
+            xhr.send();  // AJAX 요청 전송
+        });
+
+        $(document).on('closed', '.remodal', function (e) {
+            hideResults();
+        });
+
+        // 결과 출력 함수
+        function displayResults(results) {
+            const resultsList = document.getElementById('results_list');
+            resultsList.innerHTML = ''; // 기존 내용 초기화
+            
+            results.forEach(result => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span>(아이디 : ${result.mb_id}) ${result.mb_name} (${result.mb_nick})</span>
+                                    <button type="button" class="btn btn_03" onclick="set_admin_info('${result.mb_id}', '${result.mb_name}')">선택</button>`;
+                resultsList.appendChild(listItem);
+            });
+
+            document.getElementById('search_results').style.display = 'block';
+            document.getElementById('no_results').style.display = 'none';
+            document.getElementById('search_message').style.display = 'none';
+        }
+
+        // 검색 결과 없을 때
+        function showNoResults() {
+            document.getElementById('search_results').style.display = 'none';
+            document.getElementById('no_results').style.display = 'block';
+            document.getElementById('search_message').style.display = 'none';
+        }
+
+        // 검색 모달 숨기기
+        function hideResults() {
+            document.getElementById('search_results').style.display = 'none';
+            document.getElementById('no_results').style.display = 'none';
+            document.getElementById('search_message').style.display = 'block';
+        }
+
         // 운영진 추가 버튼 클릭
         $btn_add_admin.click(function () {
             let member_id = $input_search_mb_id.val();
@@ -210,11 +349,7 @@
                 url: url,
                 type: "get",
                 success: function (data) {
-                    $input_mb_id.val(data.member.mb_id);
-                    $area_admin_info.text(data.member.mb_id + " (" + data.member.mb_nick + ") ");
-
-                    $area_admin.hide();
-                    $area_permission.show();
+                    set_admin_info(data.member.mb_id, data.member.mb_name);
                 },
                 error: function (xhr, status, error) {
                     let result = xhr.responseJSON;
@@ -277,6 +412,17 @@
         });
     })
 
+    function set_admin_info(mb_id, mb_name) {
+        $input_mb_id.val(mb_id);
+        $area_admin_info.text(mb_id + " (" + mb_name + ") ");
+
+        $area_admin.hide();
+        $area_permission.show();
+        
+        const modal_memo = $('[data-remodal-id=modal_search_member]');
+        modal_memo.remodal().close();
+    }
+
     function validate_form_permission() {
         if ($select_menu.val() == "") {
             alert("메뉴를 선택해주세요.");
@@ -291,17 +437,12 @@
     }
 
     function validate_form_permission_list(f) {
-        alert("선택삭제 기능 확인 중");
-        return false;
         if (!is_checked("chk[]")) {
             alert(document.pressed + " 하실 항목을 하나 이상 선택하세요.");
             return false;
         }
-
-        if (document.pressed == "선택삭제") {
-            if (!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
-                return false;
-            }
+        if (!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+            return false;
         }
 
         return true;
