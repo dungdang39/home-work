@@ -401,7 +401,8 @@ var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_jibeon) {
 
         of[frm_zip].value = data.zonecode;
 
-        of[frm_addr1].value = fullAddr + extraAddr;
+        of[frm_addr1].value = fullAddr;
+        of[frm_addr2].value = extraAddr;
 
         if(of[frm_jibeon] !== undefined){
             of[frm_jibeon].value = data.userSelectedType;
