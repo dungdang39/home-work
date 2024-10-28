@@ -30,9 +30,9 @@ trait SchemaHelperTrait
     {
         $props = Closure::fromCallable("get_object_vars")->__invoke($this);
 
-        // UploadedFile 타입의 속성 제거
+        // UploadedFile, null 속성 제거
         return array_filter($props, function ($value) {
-            return !$value instanceof UploadedFile;
+            return (!$value instanceof UploadedFile) && !is_null($value);
         });
     }
 

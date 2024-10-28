@@ -27,13 +27,13 @@
                     <tr>
                         <th scope="row"><label for="bn_title">배너 타이틀</label></th>
                         <td>
-                            <input type="text" name="bn_title" size="80" value="{{ old('bn_title', banner) }}" id="bn_title" class="frm_input">
+                            <input type="text" name="bn_title" size="80" value="{{ old('bn_title', banner) }}" id="bn_title" class="frm_input required" required>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">이미지</th>
                         <td>
-                            <input type="file" name="bn_image_file">
+                            <input type="file" name="bn_image_file" class="">
                             {% if banner.bn_image %}
                             {{ banner.bn_image_file_name }}
                             <input type="checkbox" name="bn_image_del" value="1" id="bn_image_del"> <label for="bn_image_del">삭제</label>
@@ -73,7 +73,8 @@
                     <tr>
                         <th scope="row"><label for="bn_position">출력위치</label></th>
                         <td>
-                            <select name="bn_position" id="bn_position">
+                            {{ info('메인화면 설정 > 배너섹션을 추가하면 선택할 수 있습니다.') }}
+                            <select name="bn_position" id="bn_position" class="required" required>
                                 {% for position in positions %}
                                 <option value="{{ position.id }}" {{ selected(position.id, banner.bn_position) }}>{{ position.section_title }}</option>
                                 {% endfor %}
