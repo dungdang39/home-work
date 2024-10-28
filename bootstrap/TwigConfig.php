@@ -10,6 +10,7 @@ use Twig\Extra\Html\HtmlExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Core\Extension\CsrfExtension;
 use Core\Extension\FlashExtension;
+use Core\PluginService;
 use DI\Container;
 use Twig\Loader\FilesystemLoader;
 
@@ -34,7 +35,7 @@ class TwigConfig
         $twig = Twig::create(
             [
                 'admin' => ThemeService::ADMIN_DIRECTORY,
-                'plugin' => ThemeService::PLUGIN_DIRECTORY,
+                'plugin' => PluginService::PLUGIN_DIRECTORY,
                 FilesystemLoader::MAIN_NAMESPACE => ThemeService::DIRECTORY . '/' . $theme,
             ],
             [
@@ -60,7 +61,6 @@ class TwigConfig
         $config_service->update('design', 'theme', $theme);
 
         return ThemeService::DEFAULT_THEME;
-
     }
 
     /**

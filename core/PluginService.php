@@ -9,32 +9,36 @@ use Slim\Http\ServerRequest as Request;
 
 class PluginService
 {
+    public const PLUGIN_DIRECTORY = 'plugin';
     public const PLUGIN_DIR = __DIR__ . '/../plugin';
     public const PLUGIN_DATA_FILE = 'plugin.json';
     public const PLUGIN_ICON_FILE = 'icon.png';
     public const REQUIRED_INSTALL = ['index.php', 'plugin.json', 'router/'];
 
     public $default_data = array(
-		'name' => 'Plugin Name',
-		'plugin_uri' => 'Plugin URI',
-		'version' => 'Version',
-		'description' => 'Description',
-		'author' => 'Author',
-		'author_uri' => 'Author URI',
+        'name' => 'Plugin Name',
+        'plugin_uri' => 'Plugin URI',
+        'version' => 'Version',
+        'description' => 'Description',
+        'author' => 'Author',
+        'author_uri' => 'Author URI',
         'license' => 'License',
-        'license_uri'=> 'License URI',
-	);
+        'license_uri' => 'License URI',
+    );
 
     public array $cache = [];
     private Request $request;
     private ConfigService $config_service;
+    private FileService $file_service;
 
     public function __construct(
         Request $request,
-        ConfigService $config_service
+        ConfigService $config_service,
+        FileService $file_service
     ) {
         $this->request = $request;
-        $this->config_service = $config_service;        
+        $this->config_service = $config_service;
+        $this->file_service = $file_service;
     }
 
     /**
@@ -158,12 +162,12 @@ class PluginService
 
         switch ($file_extension) {
             case 'zip':
-                return $this->extractZip($zip_file_path, $plugin_folder_path);
+                return $this->file_service->extractZip($zip_file_path, $plugin_folder_path);
 
             case 'tar':
             case 'gz':
             case 'tgz':
-                return $this->extractTar($zip_file_path, $plugin_folder_path);
+                return $this->file_service->extractTar($zip_file_path, $plugin_folder_path);
 
             default:
                 throw new \Exception('지원되지 않는 압축 파일 형식입니다.');
@@ -172,44 +176,19 @@ class PluginService
 
     /**
      * 필수 파일 확인
+     * @param string $plugin_folder_path 플러그인 폴더 경로
+     * @return bool
+     * @throws \Exception
      */
-    public function checkRequiredFiles($plugin_folder_path): bool
+    public function checkRequiredFiles(string $plugin_folder_path): bool
     {
         foreach (self::REQUIRED_INSTALL as $file) {
             if (!file_exists($plugin_folder_path . DIRECTORY_SEPARATOR . $file)) {
-                $this->removePlugin($plugin_folder_path);
+                $this->file_service->clearDirectory($plugin_folder_path);
                 throw new \Exception($file . ' 파일이 누락되었습니다.');
             }
         }
         return true;
-    }
-
-    /**
-     * 플러그인 삭제
-     * @param string $dir
-     * @return void
-     */
-    public function removePlugin(string $dir)
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $objects = scandir($dir);
-        foreach ($objects as $object) {
-            if ($object === '.' || $object === '..') {
-                continue;
-            }
-
-            $object_path = $dir . DIRECTORY_SEPARATOR . $object;
-            if (is_dir($object_path)) {
-                $this->removePlugin($object_path);
-            } else {
-                unlink($object_path);
-            }
-        }
-
-        rmdir($dir);
     }
 
     /**
@@ -280,27 +259,5 @@ class PluginService
         }
 
         return true;
-    }
-
-    private function extractZip($zip_file_path, $plugin_folder_path): bool
-    {
-        $zip = new \ZipArchive;
-        if ($zip->open($zip_file_path) === TRUE) {
-            $zip->extractTo($plugin_folder_path);
-            $zip->close();
-            return true;
-        }
-        throw new \Exception('ZIP 파일을 해제할 수 없습니다.');
-    }
-
-    private function extractTar($zip_file_path, $plugin_folder_path): bool
-    {
-        try {
-            $phar = new \PharData($zip_file_path);
-            $phar->extractTo($plugin_folder_path, null, true);
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception('압축 파일을 해제할 수 없습니다: ' . $e->getMessage());
-        }
     }
 }

@@ -110,9 +110,11 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             // 테마
             $group->group('/theme', function (RouteCollectorProxy $group) {
                 $group->get('', [ThemeController::class, 'index'])->setName('admin.design.theme');
+                $group->post('/install', [ThemeController::class, 'install'])->setName('admin.design.theme.install');
                 $group->post('/{theme}', [ThemeController::class, 'update'])->setName('admin.design.theme.update');
                 $group->post('/{theme}/reset', [ThemeController::class, 'reset'])->setName('admin.design.theme.reset');
                 $group->put('/', [ThemeController::class, 'updateInfo'])->setName('admin.design.theme.config.update');
+                $group->delete('/{theme}/uninstall', [ThemeController::class, 'uninstall'])->setName('admin.design.theme.uninstall');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 배너

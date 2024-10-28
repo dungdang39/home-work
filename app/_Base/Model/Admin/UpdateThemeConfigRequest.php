@@ -17,11 +17,6 @@ class UpdateThemeConfigRequest
     public ?string $logo_header;
     public ?string $logo_footer;
 
-    public ?string $layout_community = '';
-    public ?string $layout_member = '';
-    public ?string $layout_shop = '';
-    public ?string $layout_content = '';
-
     public ?UploadedFile $logo_header_file;
     public ?UploadedFile $logo_footer_file;
 

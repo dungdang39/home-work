@@ -2,11 +2,15 @@
 
 namespace App\Base\Service;
 
+use Core\FileService;
+use DI\Container;
+use Slim\Http\ServerRequest as Request;
+use Slim\Psr7\UploadedFile;
+
 class ThemeService
 {
     public const DEFAULT_THEME = 'basic';
     public const ADMIN_DIRECTORY = 'template/admin';
-    public const PLUGIN_DIRECTORY = 'plugin';
     public const DIRECTORY = 'template/theme';
     private const SCREENSHOT = 'screenshot.png';
     private const DEFAULT_SCREENSHOT_PATH = '/img/theme_no_screenshot.jpg';
@@ -28,7 +32,15 @@ class ThemeService
      */
     private static string $base_dir;
 
-    public function __construct() {
+    private Container $container;
+    private FileService $file_service;
+
+    public function __construct(
+        Container $container,
+        FileService $file_service
+    ) {
+        $this->container = $container;
+        $this->file_service = $file_service;
     }
 
     /**
@@ -122,6 +134,58 @@ class ThemeService
     public function existsTheme(string $theme): bool
     {
         return in_array($theme, $this->getThemeDirectories());
+    }
+
+    /**
+     * 테마 파일 압축 해제
+     * @param UploadedFile $uploaded_file 업로드 파일
+     * @return bool
+     */
+    public function extractTheme(UploadedFile $uploaded_file): bool
+    {
+        $base_path = $this->container->get(Request::class)->getAttribute('base_path');
+        $theme_folder_name = pathinfo($uploaded_file->getClientFilename(), PATHINFO_FILENAME);
+        $theme_folder_path = join(DIRECTORY_SEPARATOR, [$base_path, self::DIRECTORY, $theme_folder_name]);
+        $zip_file_path = $uploaded_file->getFilePath();
+        $file_extension = getExtension($uploaded_file);
+
+        if (is_dir($theme_folder_path)) {
+            throw new \Exception('동일한 이름의 테마가 이미 설치되어 있습니다.');
+        }
+
+        switch ($file_extension) {
+            case 'zip':
+                return $this->file_service->extractZip($zip_file_path, $theme_folder_path);
+
+            case 'tar':
+            case 'gz':
+            case 'tgz':
+                return $this->file_service->extractTar($zip_file_path, $theme_folder_path);
+
+            default:
+                throw new \Exception('지원되지 않는 압축 파일 형식입니다.');
+        }
+    }
+
+    /**
+     * 필수 파일 확인
+     * @param string $theme_folder 테마 폴더 경로
+     * @return bool
+     * @throws \Exception
+     */
+    public function checkRequiredFiles(string $theme_folder): bool
+    {
+        $required = [self::INDEX, self::README, self::SCREENSHOT];
+        $base_path = $this->container->get(Request::class)->getAttribute('base_path');
+        $theme_folder_path = join(DIRECTORY_SEPARATOR, [$base_path, self::DIRECTORY, $theme_folder]);
+
+        foreach ($required as $file) {
+            if (!file_exists($theme_folder_path . DIRECTORY_SEPARATOR . $file)) {
+                $this->file_service->clearDirectory($theme_folder_path);
+                throw new \Exception($file . ' 파일이 누락되었습니다.');
+            }
+        }
+        return true;
     }
 
     /**

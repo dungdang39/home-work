@@ -67,6 +67,7 @@ $(function () {
 
     $(".theme_preview").on("click", function () {
         // 버튼에 저장된 데이터 속성 값들을 가져옴
+        const theme = this.dataset.theme;
         const themeName = this.dataset.themeName;
         const themeUri = this.dataset.themeUri;
         const themeMaker = this.dataset.themeMaker;
@@ -81,6 +82,9 @@ $(function () {
         document.getElementById('theme_screenshot').src = themeScreenshot;
         document.getElementById('theme_version').innerText = themeVersion;
         document.getElementById('theme_description').innerText = themeDetail;
+
+        const themePreview = document.getElementById('theme_preview');
+        themePreview.value = theme;
 
         // 테마 이름 설정
         const themeNameElement = document.getElementById('theme_name');
@@ -106,10 +110,24 @@ $(function () {
             themeLicenseElement.innerText = themeLicense;
         }
 
+        // 삭제버튼 표시 여부 설정
+        const currentTheme = document.getElementById('current_theme');
+        if (theme === currentTheme.value || theme === 'basic') {
+            $("#delete_btn").hide();
+        } else {
+            $("#delete_btn").show();
+        }
+
         $("#theme_detail").show();
     });
 
     $(".close_btn").on("click", function () {
         $(this).parents("#theme_detail").hide();
+    });
+
+    $("#delete_btn").on("click", function () {
+        let theme = $("#theme_preview").val();
+        let url = $(this).data("url");
+        delete_confirm(url.replace('__REPLACE_ID__', theme));
     });
 });

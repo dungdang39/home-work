@@ -5,6 +5,7 @@ namespace App\Base\Controller\Admin;
 use App\Base\Model\Admin\InstallPluginRequest;
 use App\Base\Model\Admin\SearchPluginRequest;
 use Core\BaseController;
+use Core\FileService;
 use Core\Lib\FlashMessage;
 use Core\PluginService;
 use DI\Container;
@@ -17,14 +18,17 @@ use Slim\Views\Twig;
  */
 class PluginController extends BaseController
 {
-    protected FlashMessage $flash;
-    protected PluginService $service;
+    private FlashMessage $flash;
+    private FileService $file_service;
+    private PluginService $service;
 
     public function __construct(
         Container $container,
+        FileService $file_service,
         PluginService $service
     ) {
         $this->flash = $container->get('flash');
+        $this->file_service = $file_service;
         $this->service = $service;
     }
 
@@ -91,9 +95,9 @@ class PluginController extends BaseController
 
         $plugin_folder_name = pathinfo($uploaded_file->getClientFilename(), PATHINFO_FILENAME);
         $plugin_folder_path = $this->service::PLUGIN_DIR . '/' . $plugin_folder_name;
-        
+
         $this->service->checkRequiredFiles($plugin_folder_path);
-        
+
         $this->flash->setMessage('플러그인이 설치되었습니다.');
 
         return $this->redirectRoute($request, $response, 'admin.config.plugin');
@@ -106,12 +110,11 @@ class PluginController extends BaseController
     {
         $plugin_data = $this->service->getPlugin($plugin);
         $this->service->deactivatePlugin($plugin_data['plugin']);
-        $this->service->removePlugin(join(DIRECTORY_SEPARATOR, [$this->service::PLUGIN_DIR, $plugin_data['plugin']]));
+        $this->file_service->clearDirectory(join(DIRECTORY_SEPARATOR, [$this->service::PLUGIN_DIR, $plugin_data['plugin']]));
 
         return $response->withJson([
             'result' => 'success',
             'message' => '플러그인이 삭제되었습니다.',
         ]);
     }
-
 }

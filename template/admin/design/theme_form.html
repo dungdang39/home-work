@@ -5,7 +5,6 @@
 {% set sub_menus = {
     'theme' : '테마',
     'logo': '로고',
-    'layout': '레이아웃'
 } %}
 
 {% block title %}{{ title }}{% endblock title %}
@@ -21,6 +20,19 @@
 
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
+    <form id="theme_form" action="{{ url_for('admin.design.theme.install') }}" method="post" enctype="multipart/form-data">
+        {{ csrf.field|raw }}
+        <div class="local_desc01 local_desc">
+            <strong>테마 업로드</strong>
+            <p>압축파일 형식의 테마폴더를 직접 업로드할 수 있습니다.</p>
+            <p>
+                <input type="file" id="theme_file" name="theme_file" class="file" accept=".zip">
+                <button type="button" id="theme_upload" class="btn btn_02" disabled>업로드</button>
+            </p>
+        </div>
+    </form>
+
+    <input type="hidden" id="current_theme" value="{{ current_theme }}">
     <section id="anchor_theme">
         <h2 class="h2_frm">{{ sub_menus.theme }}</h2>
         {{ anchor(sub_menus, 'theme') }}
@@ -63,6 +75,7 @@
                             {% endif %}
 
                             <button type="button" class="tmli_dt theme_preview"
+                                data-theme="{{ theme.theme }}"
                                 data-theme-name="{{ theme.name }}"
                                 data-theme-uri="{{ theme.uri }}"
                                 data-theme-maker="{{ theme.maker }}"
@@ -82,6 +95,7 @@
         </div>
 
         <div id="theme_detail">
+            <input type="hidden" id="theme_preview" value="">
             <h2 id="theme_name"></h2>
             <div class="theme_dt_img"><img src="" id="theme_screenshot" alt=""></div>
             <div class="theme_dt_if">
@@ -103,6 +117,10 @@
                 <div class="theme_dt_btn">
                     <button type="button" class="close_btn">닫기</button>
                 </div>
+                <button type="button" id="delete_btn" class="btn btn_01"
+                    data-url="{{ url_for('admin.design.theme.uninstall', {'theme': '__REPLACE_ID__'}) }}">
+                    삭제
+                </button>
             </div>
         </div>
     </section>
@@ -153,66 +171,36 @@
                 <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
             </div>
         </section>
-
-        <section id="anchor_layout">
-            <h2 class="h2_frm">{{ sub_menus.layout }}</h2>
-            {{ anchor(sub_menus, 'layout') }}
-
-            <div class="tbl_frm01 tbl_wrap">
-                <table>
-                    <caption>레이아웃 선택</caption>
-                    <colgroup>
-                        <col class="grid_4">
-                        <col>
-                        <col class="grid_4">
-                        <col>
-                    </colgroup>
-                    <tbody>
-                        <tr>
-                            <th scope="row"><label for="layout_community">커뮤니티</label></th>
-                            <td>
-                                <select name="layout_community">
-                                    <option value="community" {{ selected('community', configs.layout_community, true) }}>커뮤니티</option>
-                                    <option value="shop" {{ selected('shop', configs.layout_community) }}>쇼핑몰</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="layout_member">회원</label></th>
-                            <td>
-                                <select name="layout_member">
-                                    <option value="community" {{ selected('community', configs.layout_member, true) }}>커뮤니티</option>
-                                    <option value="shop" {{ selected('shop', configs.layout_member) }}>쇼핑몰</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="layout_shop">쇼핑몰</label></th>
-                            <td>
-                                <select name="layout_shop">
-                                    <option value="community" {{ selected('community', configs.layout_shop) }}>커뮤니티</option>
-                                    <option value="shop" {{ selected('shop', configs.layout_shop, true) }}>쇼핑몰</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="layout_content">컨텐츠</label></th>
-                            <td>
-                                <select name="layout_content">
-                                    <option value="content" {{ selected('shop', configs.layout_content, true) }}>컨텐츠</option>
-                                    <option value="community" {{ selected('community', configs.layout_content) }}>커뮤니티</option>
-                                    <option value="shop" {{ selected('shop', configs.layout_content) }}>쇼핑몰</option>
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div>
-                <a href="#" class="btn_02 btn">취소 </a>
-                <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
-            </div>
-        </section>
     </form>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadForm = document.getElementById('theme_form');
+        const uploadFile = document.getElementById('theme_file');
+        const uploadButton = document.getElementById('theme_upload');
+
+        // 파일 선택 시 이벤트 리스너 추가
+        uploadFile.addEventListener('change', function() {
+            const uploadButton = document.getElementById('theme_upload');
+            if (this.files.length > 0) {
+                uploadButton.classList.remove('btn_02');
+                uploadButton.classList.add('btn_03');
+                uploadButton.disabled = false;
+            } else {
+                uploadButton.classList.remove('btn_03');
+                uploadButton.classList.add('btn_02');
+                uploadButton.disabled = true;
+            }
+        });
+
+        // 파일 업로드 버튼 클릭 시 이벤트 리스너 추가
+        uploadButton.addEventListener('click', function() {
+            if (theme_file.files.length === 0) {
+                alert('테마 압축파일을 선택하세요.');
+                return;
+            }
+            uploadForm.submit();
+        });
+    });
+</script>
 {% endblock content %}

@@ -144,4 +144,68 @@ class FileService
 
         return $filename;
     }
+
+    /**
+     * ZIP 파일 압축 해제
+     * @param string $file_path ZIP 파일 경로
+     * @param string $extract_path 압축 해제 경로
+     * @return bool
+     * @throws \Exception
+     */
+    public function extractZip($file_path, $extract_path): bool
+    {
+        $zip = new \ZipArchive;
+        if ($zip->open($file_path) === TRUE) {
+            $zip->extractTo($extract_path);
+            $zip->close();
+            return true;
+        }
+        throw new \Exception('ZIP 파일을 해제할 수 없습니다.');
+    }
+
+    /**
+     * TAR 파일 압축 해제
+     * @param string $zip_file_path TAR 파일 경로\
+     * @param string $extract_path 압축 해제 경로
+     * @return bool
+     * @throws \Exception
+     */
+    public function extractTar($file_path, $extract_path): bool
+    {
+        try {
+            $phar = new \PharData($file_path);
+            $phar->extractTo($extract_path, null, true);
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception('압축 파일을 해제할 수 없습니다: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 폴더 내 모든 파일 및 폴더 삭제
+     * @param string $dir
+     * @return void
+     */
+    public function clearDirectory($dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object === '.' || $object === '..') {
+                continue;
+            }
+
+            $object_path = $dir . DIRECTORY_SEPARATOR . $object;
+            if (is_dir($object_path)) {
+                $this->clearDirectory($object_path);
+            } else {
+                unlink($object_path);
+            }
+        }
+
+        rmdir($dir);
+    }
 }
