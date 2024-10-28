@@ -298,11 +298,13 @@
                 "children": [
                     {
                         "setting_key": "email_address",
-                        "setting_name": "메일 주소"
+                        "setting_name": "메일 주소",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "email_sender",
-                        "setting_name": "메일 발송 이름"
+                        "setting_name": "메일 발송 이름",
+                        "setting_type": "text"
                     }
                 ]
             },
@@ -312,23 +314,29 @@
                 "children": [
                     {
                         "setting_key": "sms_type",
-                        "setting_name": "SMS 전송 유형"
+                        "setting_name": "SMS 전송 유형",
+                        "setting_type": "select",
+                        "setting_options": "[{\"value\": \"SMS\", \"label\": \"SMS\"}, {\"value\": \"LMS\", \"label\": \"LMS\"}]"
                     },
                     {
                         "setting_key": "admin_phone_number",
-                        "setting_name": "관리자 휴대폰번호"
+                        "setting_name": "관리자 휴대폰번호",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "icode_id",
-                        "setting_name": "아이코드 회원아이디 (구버전)"
+                        "setting_name": "아이코드 회원아이디 (구버전)",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "icode_password",
-                        "setting_name": "아이코드 비밀번호 (구버전)"
+                        "setting_name": "아이코드 비밀번호 (구버전)",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "icode_token_key",
-                        "setting_name": "아이코드 토큰키 (JSON버전)"
+                        "setting_name": "아이코드 토큰키 (JSON버전)",
+                        "setting_type": "text"
                     }
                 ]
             },
@@ -337,16 +345,25 @@
                 "name": "알림톡",
                 "children": [
                     {
+                        "setting_key": "alimtalk_service",
+                        "setting_name": "알림톡 서비스",
+                        "setting_type": "select",
+                        "setting_options": "[{\"value\": \"popbill\", \"label\": \"팝빌\"}]"
+                    },
+                    {
                         "setting_key": "business_reg_num",
-                        "setting_name": "사업자번호"
+                        "setting_name": "사업자번호",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "popbill_id",
-                        "setting_name": "팝빌 아이디"
+                        "setting_name": "팝빌 아이디",
+                        "setting_type": "text"
                     },
                     {
                         "setting_key": "popbill_secret_key",
-                        "setting_name": "팝빌 비밀키"
+                        "setting_name": "팝빌 비밀키",
+                        "setting_type": "text"
                     }
                 ]
             }

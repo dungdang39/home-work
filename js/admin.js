@@ -107,3 +107,15 @@ async function get_member_info(mb_id) {
         });
     });
 }
+
+// 비밀번호 보기/숨기기 토글 함수
+function togglePasswordVisibility(button) {
+    const input = button.previousElementSibling;
+    if (input && input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '숨기기';
+    } else if (input) {
+        input.type = 'password';
+        button.textContent = '보기';
+    }
+}

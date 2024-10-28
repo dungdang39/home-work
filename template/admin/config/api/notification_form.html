@@ -1,11 +1,11 @@
 {% extends "@admin/_layout.html" %}
-{% from "@admin/macro.html" import anchor, checked, info %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
 
 {% set title = '기본환경 > API연동설정 > 알림/메시징/메일' %}
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-{% set sub_menus = {'enabled' : '사용 설정'} %}
+{% set sub_menus = {} %}
 {% for noti in notifications %}
     {% set sub_menus = sub_menus | merge({ (noti.type): noti.name }) %}
 {% endfor %}
@@ -15,37 +15,6 @@
     <form name="form_notification" id="form_notification" method="post" action="{{ url_for('admin.config.api.notification.update') }}" onsubmit="return validate_form(this);">
         {{ csrf.field|raw }}
         <input type="hidden" name="_METHOD" value="PUT">
-
-        <section id="anchor_enabled">
-            <h2 class="h2_frm">{{ sub_menus.enabled }}</h2>
-            {{ anchor(sub_menus, 'enabled') }}
-
-            <div class="tbl_frm01 tbl_wrap">
-                <table>
-                    <caption>{{ sub_menus.enabled }}</caption>
-                    <colgroup>
-                        <col class="grid_4">
-                        <col>
-                    </colgroup>
-                    <tbody>
-                    {% with %}
-                    {% for noti in notifications %}
-                    {% set type = noti.type %}
-                        <tr>
-                            <th scope="row">{{ noti.name }} 사용</th>
-                            <td colspan="3">
-                                <label for="{{ type }}_is_enabled_1" class="rules_label">사용</label>
-                                <input type="radio" id="{{ type }}_is_enabled_1" name="notification[{{ type }}][is_enabled]" value="1" {{ checked(1, noti.is_enabled) }}>
-                                <label for="{{ type }}_is_enabled_0" class="rules_label">사용안함</label>
-                                <input type="radio" id="{{ type }}_is_enabled_0" name="notification[{{ type }}][is_enabled]" value="0" {{ checked(0, noti.is_enabled) }}>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    {% endwith %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
 
         {% with %}
         {% for noti in notifications %}
@@ -64,16 +33,36 @@
                         <col>
                     </colgroup>
                     <tbody>
+                        <tr>
+                            <th scope="row">{{ noti.name }} 사용</th>
+                            <td colspan="3">
+                                <label for="{{ type }}_is_enabled_1" class="rules_label">사용</label>
+                                <input type="radio" id="{{ type }}_is_enabled_1" name="notifications[{{ type }}][is_enabled]" value="1" {{ checked(1, noti.is_enabled) }}>
+                                <label for="{{ type }}_is_enabled_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="{{ type }}_is_enabled_0" name="notifications[{{ type }}][is_enabled]" value="0" {{ checked(0, noti.is_enabled) }}>
+                            </td>
+                        </tr>
                         {% for setting in noti.settings %}
                         {% set key = setting.setting_key|trim %}
                         {% set name = setting.setting_name %}
                         {% set value = setting.setting_value %}
-                        {% set attr_id = type ~ '_' ~ key  %}
                         <tr>
-                            <th scope="row"><label for="{{ attr_id }}">{{ name }}</label></th>
+                            <th scope="row"><label for="{{ key }}">{{ name }}</label></th>
                             <td>
                                 {{ info(setting.setting_description) }}
-                                <input type="text" id="{{ attr_id }}" name="settings[{{ key }}]" class="frm_input" value="{{ value }}">
+                                {% if setting.setting_type == 'select' %}
+                                <select id="{{ key }}" name="notifications[{{ type }}][settings][{{ key }}]" class="frm_input">
+                                    <option value="">선택</option>
+                                    {% for option in setting.setting_options %}
+                                    <option value="{{ option.value }}" {{ selected(option.value, value) }}>{{ option.label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% else %}
+                                <input type="{{ setting.setting_type }}" id="{{ key }}" name="notifications[{{ type }}][settings][{{ key }}]" class="frm_input" value="{{ value }}">
+                                {% if setting.setting_type == 'password' %}
+                                <button type="button" class="btn btn_02 btn_display_secret">보기</button>
+                                {% endif %}
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -86,14 +75,47 @@
         {% endwith %}
 
         <div class="btn_fixed_top btn_confirm">
-            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+            <input type="submit" value="저장" class="btn_submit btn" accesskey="s">
         </div>
 
     </form>
 </div>
 
 <script>
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn_display_secret').forEach(button => {
+            button.addEventListener('click', function(event) {
+                togglePasswordVisibility(event.target);
+            });
+        });
+    });
+
     function validate_form(f) {
+        const useEmail = document.getElementById('email_is_enabled_1').checked;
+        const EmailAddress = document.getElementById('email_address');
+        if (useEmail && EmailAddress.value.trim() === '') {
+            alert('발송 메일 주소를 입력해 주세요.');
+            EmailAddress.focus();
+            return false;
+        }
+
+        const useSms = document.getElementById('sms_is_enabled_1').checked;
+        const SmsType = document.getElementById('sms_type');
+        if (useSms && SmsType.value.trim() === '') {
+            alert('SMS 발송 타입을 선택해 주세요.');
+            SmsType.focus();
+            return false;
+        }
+
+        const useAlimtalk = document.getElementById('alimtalk_is_enabled_1').checked;
+        const alimtalkService = document.getElementById('alimtalk_service');
+        if (useAlimtalk && alimtalkService.value.trim() === '') {
+            alert('알림톡 발송 서비스를 선택해 주세요.');
+            alimtalkService.focus();
+            return false;
+        }
+
         return true;
     }
 </script>

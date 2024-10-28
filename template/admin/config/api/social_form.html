@@ -113,17 +113,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 비밀번호 보기/숨기기
         document.querySelectorAll('.btn_display_secret').forEach(button => {
             button.addEventListener('click', function(event) {
-                const input = event.target.previousElementSibling;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    event.target.textContent = '숨기기';
-                } else {
-                    input.type = 'password';
-                    event.target.textContent = '보기';
-                }
+                togglePasswordVisibility(event.target);
             });
         });
     });

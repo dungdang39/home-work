@@ -274,6 +274,9 @@ function insertNotification($table, $noti, $parent_id = null)
         unset($item['children']);
         if (isset($parent_id)) {
             $item['notification_id'] = $parent_id;
+            if ($item['setting_key'] === 'email_sender') {
+                $item['setting_value'] = AppConfig::getInstance()->get('APP_NAME');
+            }
             $db->insert($table . "_setting", $item);
         } else {
             $insert_id = $db->insert($table, $item);

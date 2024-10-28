@@ -2,8 +2,10 @@
 
 namespace App\Base\Controller\Admin;
 
+use App\Base\Model\Admin\UpdateNotificationRequest;
 use App\Base\Service\NotificationService;
 use Core\BaseController;
+use Core\Database\Db;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -35,17 +37,21 @@ class NotificationController extends BaseController
     /**
      * 알림 설정 정보 업데이트
      */
-    public function update(Request $request, Response $response): Response
+    public function update(Request $request, Response $response, UpdateNotificationRequest $data): Response
     {
-        throw new \Exception('Not implemented');
-        $request_body = $request->getParsedBody();
+        Db::getInstance()->getPdo()->beginTransaction();
 
-        foreach ($request_body['notification'] as $key => $data) {
-            $this->service->update($key, $data);
+        foreach ($data->notifications as $noti => $value) {
+            $settings = $value['settings'];
+            unset($value['settings']);
+            $this->service->update($noti, $value);
+
+            foreach ($settings as $setting_key => $setting_value) {
+                $this->service->updateSetting($setting_key, $setting_value);
+            }
         }
-        foreach ($request_body['settings'] as $key => $value) {
-            $this->service->updateSetting($key, $value);
-        }
+
+        Db::getInstance()->getPdo()->commit();
 
         return $this->redirectRoute($request, $response, 'admin.config.api.notification');
     }
