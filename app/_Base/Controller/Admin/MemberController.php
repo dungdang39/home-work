@@ -6,6 +6,7 @@ use App\Base\Service\MemberService;
 use App\Base\Model\Admin\CreateMemberRequest;
 use App\Base\Model\Admin\DeleteMemberListRequest;
 use App\Base\Model\Admin\MemberMemoRequest;
+use App\Base\Model\Admin\MemberNotificationRequest;
 use App\Base\Model\Admin\MemberSearchRequest;
 use App\Base\Model\Admin\MemberRequest;
 use App\Base\Model\Admin\UpdateMemberListRequest;
@@ -237,6 +238,19 @@ class MemberController extends BaseController
         return $response->withJson([
             'message' => '메모가 ' . ($data->mb_memo === '') ? '삭제' : '수정' . '되었습니다.',
         ], 200);
+    }
+
+    /**
+     * 회원 알림 전송
+     * @todo 알림 전송 기능 추가
+     */
+    public function sendNotification(Request $request, Response $response, MemberNotificationRequest $data, string $mb_id): Response
+    {
+        $member = $this->service->getMember($mb_id);
+
+        // 알림 전송처리
+
+        return $response->withJson(['message' => $member['mb_name'] . '님께 알림이 전송되었습니다.'], 200);
     }
 
     /**

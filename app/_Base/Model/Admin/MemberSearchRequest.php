@@ -8,7 +8,5 @@ class MemberSearchRequest extends PaginationRequest
 {
     public ?string $status;
 
-    public ?string $field;
-
     public ?string $keyword;
 }

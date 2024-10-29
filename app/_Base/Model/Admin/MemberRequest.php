@@ -34,8 +34,7 @@ class MemberRequest
 
     // 관리 정보
     public ?string $mb_memo = '';
-    public ?int $mb_mailling = 0;
-    public ?int $mb_sms = 0;
+    public ?int $mb_is_marketing_receive = 0;
     public ?int $mb_open = 0;
     public ?string $mb_leave_date = null;
     public ?string $mb_intercept_date = null;

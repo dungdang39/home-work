@@ -163,9 +163,9 @@ class MemberService
         // run_event('member_leave', $member);
 
         //소셜로그인 해제
-        if (function_exists('social_member_link_delete')) {
-            social_member_link_delete($member['mb_id']);
-        }
+        // if (function_exists('social_member_link_delete')) {
+        //     social_member_link_delete($member['mb_id']);
+        // }
     }
 
     /**
@@ -287,9 +287,11 @@ class MemberService
             }
         }
 
-        if (isset($params['field']) && isset($params['keyword'])) {
-            $wheres[] = "{$params['field']} LIKE :keyword";
-            $values['keyword'] = "%{$params['keyword']}%";
+        if (isset($params['keyword'])) {
+            $wheres[] = "(mb_id LIKE :keyword1 OR mb_name LIKE :keyword2 OR mb_nick LIKE :keyword3)";
+            $values["keyword1"] = "%{$params['keyword']}%";
+            $values["keyword2"] = "%{$params['keyword']}%";
+            $values["keyword3"] = "%{$params['keyword']}%";
         }
 
         $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
@@ -323,9 +325,11 @@ class MemberService
             }
         }
 
-        if (isset($params['field']) && isset($params['keyword'])) {
-            $wheres[] = "{$params['field']} LIKE :keyword";
-            $values["keyword"] = "%{$params['keyword']}%";
+        if (isset($params['keyword'])) {
+            $wheres[] = "(mb_id LIKE :keyword1 OR mb_name LIKE :keyword2 OR mb_nick LIKE :keyword3)";
+            $values["keyword1"] = "%{$params['keyword']}%";
+            $values["keyword2"] = "%{$params['keyword']}%";
+            $values["keyword3"] = "%{$params['keyword']}%";
         }
 
         if (isset($params['offset']) && isset($params['limit'])) {
@@ -493,6 +497,9 @@ class MemberService
 
     /**
      * 새로운 암호화 방식으로 비밀번호 업데이트
+     * @param string $mb_id 회원아이디
+     * @param string $password 새로운 비밀번호
+     * @return bool
      */
     public function updatePasswordRehash(string $mb_id, string $password): bool
     {

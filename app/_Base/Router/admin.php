@@ -221,6 +221,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.manage.delete');
                 $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.manage.info');
                 $group->put('/{mb_id}/memo', [MemberController::class, 'updateMemo'])->setName('admin.member.manage.memo');
+                $group->post('/{mb_id}/notification', [MemberController::class, 'sendNotification'])->setName('admin.member.manage.notification');
                 $group->delete('/{mb_id}/social/{provider}/unlink', [SocialLoginController::class, 'unlinkSocial'])->setName('admin.member.manage.social.unlink');
             });
         })->add(AdminMenuPermissionMiddleware::class);

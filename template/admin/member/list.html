@@ -26,22 +26,8 @@
 
     <form id="form_search" name="form_search" class="local_sch01 local_sch" method="get">
         <input type="hidden" name="status" value="{{ search.status }}">
-        <label for="field" class="sound_only">검색대상</label>
-        <select name="field" id="field">
-            <option value="mb_id" {{ selected('mb_id', search.field) }}>회원아이디</option>
-            <option value="mb_nick" {{ selected('mb_nick', search.field) }}>닉네임</option>
-            <option value="mb_name" {{ selected('mb_name', search.field) }}>이름</option>
-            <option value="mb_level" {{ selected('mb_level', search.field) }}>권한</option>
-            <option value="mb_email" {{ selected('mb_email', search.field) }}>E-MAIL</option>
-            <option value="mb_tel" {{ selected('mb_tel', search.field) }}>전화번호</option>
-            <option value="mb_hp" {{ selected('mb_hp', search.field) }}>휴대폰번호</option>
-            <option value="mb_point" {{ selected('mb_point', search.field) }}>포인트</option>
-            <option value="mb_datetime" {{ selected('mb_datetime', search.field) }}>가입일시</option>
-            <option value="mb_ip" {{ selected('mb_ip', search.field) }}>IP</option>
-            <option value="mb_recommend" {{ selected('mb_recommend', search.field) }}>추천인</option>
-        </select>
         <label for="keyword" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
-        <input type="text" id="keyword" name="keyword" class="required frm_input" value="{{ search.keyword }}" required>
+        <input type="text" id="keyword" name="keyword" class="required frm_input" value="{{ search.keyword }}" placeholder="검색어" required>
         <input type="submit" class="btn_submit" value="검색">
     </form>
 
@@ -141,6 +127,7 @@
             </table>
         </div>
         <div class="btn_fixed_top">
+            <button type="button" id="btn_modal_export" class="btn btn_03" data-url="">내보내기</button>
             <button type="button" id="btn_list_update" class="btn btn_02" data-url="{{ url_for('admin.member.manage.update.list', {}, query_params) }}">선택수정</button>
             <button type="button" id="btn_list_delete" class="btn btn_02" data-url="{{ url_for('admin.member.manage.delete.list', {}, query_params) }}">선택삭제</button>
             <a href="{{ url_for('admin.member.manage.create') }}" id="member_add" class="btn btn_01">회원추가</a>
@@ -174,6 +161,8 @@
         <span class="txt">닫기</span>
     </button>
     <form name="alarm_form">
+        <input type="hidden" name="mb_id" value="">
+
         <h3>회원아이디 / 이름 / 닉네임</h3>
         <h4 class="copy_title">알림</h4>
         <textarea rows="5" style="min-height:unset;" placeholder="알림 내용"></textarea>
@@ -183,6 +172,7 @@
 
 <script>
     const memo_update_url = "{{ url_for('admin.member.manage.memo', {mb_id: '__REPLACE_ID__'}) }}";
+    const send_notification_url = "{{ url_for('admin.member.manage.notification', {mb_id: '__REPLACE_ID__'}) }}";
     let modal_memo = $('[data-remodal-id="modal_memo"]');
     let modal_notify = $('[data-remodal-id="modal_notify"]');
 
@@ -198,7 +188,7 @@
             modal_memo.find("textarea").text(member.mb_memo);
 
             if (member.mb_memo) {
-                modal_memo.find("[name='memo_created_at'] span").text(member.mb_memo_created_at);
+                modal_memo.find("[name='memo_created_at'] span").text(member.mb_memo_created_at ?? '');
                 modal_memo.find("[name='memo_created_at']").show();
             } else {
                 modal_memo.find("[name='memo_created_at'] span").text('');
@@ -272,13 +262,37 @@
     });
 
     $("#btn_send_notify").on("click", function () {
-        let nofify = modal_notify.find("textarea").val();
-        if (nofify.length == 0) {
+        let message = modal_notify.find("textarea").val();
+        let mb_id = modal_notify.find("input[name='mb_id']").val();
+
+        if (message.length == 0) {
             alert("알림 내용을 입력하세요.");
             return;
         }
 
-        // @todo 알림 전송
+        $.ajax({
+            url: send_notification_url.replace('__REPLACE_ID__', mb_id),
+            type: "post",
+            data: {notification_message: message},
+            beforeSend: function (xhr) {
+                for (let key in csrf) {
+                    if (!csrf[key]) {
+                        alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                        return false;
+                    }
+                    xhr.setRequestHeader(key, csrf[key]);
+                }
+            },
+            success: function (data) {
+                alert(data.message);
+                modal_notify.remodal().close();
+                window.location.reload();
+            },
+            error: function (xhr, status, error) {
+                let result = xhr.responseJSON;
+                alert(xhr.status + ' ' + error + ': ' + result.error.message);
+            }
+        });
     });
 
     $("#btn_list_update, #btn_list_delete").on("click", function () {

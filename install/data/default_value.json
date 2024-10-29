@@ -248,7 +248,7 @@
         "table": "member",
         "fields": {
             "mb_level": "10",
-            "mb_mailling": "1",
+            "mb_is_marketing_receive": "1",
             "mb_open": "1"
         }
     },

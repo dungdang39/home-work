@@ -126,8 +126,9 @@
                                 <input type="text" name="mb_name" value="{{ old('mb_name', member) }}" id="mb_name" required class="required frm_input" size="15" maxlength="20">
                             </td>
                             <th scope="row"><label for="mb_nick">닉네임<strong class="sound_only">필수</strong></label></th>
-                            <td><input type="text" name="mb_nick" value="{{ old('mb_nick', member) }}" id="mb_nick" required
-                                    class="required frm_input" size="15" maxlength="20"></td>
+                            <td>
+                                <input type="text" name="mb_nick" value="{{ old('mb_nick', member) }}" id="mb_nick" required class="required frm_input" size="15" maxlength="20">
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_email">E-mail<strong class="sound_only">필수</strong></label>
@@ -150,7 +151,7 @@
                             <th scope="row">본인인증 방법</th>
                             <td>
                                 <input type="radio" name="mb_certify" value="" id="mb_certify" {{ checked("", old('mb_certify', member), true) }}>
-                                <label for="mb_certify">인증없음</label>
+                                <label for="mb_certify">미인증</label>
                                 <input type="radio" name="mb_certify" value="simple" id="mb_certify_sa" {{ checked("simple", old('mb_certify', member)) }}>
                                 <label for="mb_certify_sa">통합인증</label>
                                 <input type="radio" name="mb_certify" value="hp" id="mb_certify_hp" {{ checked("hp", old('mb_certify', member)) }}>
@@ -181,19 +182,13 @@
                                 <label for="mb_zip" class="sound_only">우편번호</label>
                                 <input type="text" name="mb_zip" value="{{ old('mb_zip', member) }}" id="mb_zip" class="frm_input readonly" size="5" maxlength="6">
                                 <button type="button" class="btn_frmline"
-                                    onclick="win_zip('fmember', 'mb_zip', 'mb_addr1', 'mb_addr2', 'mb_addr3', 'mb_addr_jibeon');">
+                                    onclick="win_zip('form_member', 'mb_zip', 'mb_addr1', 'mb_addr2', 'mb_addr_jibeon');">
                                     주소 검색
                                 </button>
                                 <br>
-                                <input type="text" name="mb_addr1" value="{{ old('mb_addr1', member) }}" id="mb_addr1" class="frm_input readonly" size="60">
-                                <label for="mb_addr1">기본주소</label>
+                                <input type="text" name="mb_addr1" value="{{ old('mb_addr1', member) }}" id="mb_addr1" class="frm_input readonly" size="60" placeholder="기본주소">
                                 <br>
-                                <input type="text" name="mb_addr2" value="{{ old('mb_addr2', member) }}" id="mb_addr2" class="frm_input" size="60">
-                                <label for="mb_addr2">상세주소</label>
-                                <br>
-                                <input type="text" name="mb_addr3" value="{{ old('mb_addr3', member) }}" id="mb_addr3" class="frm_input" size="60">
-                                <label for="mb_addr3">참고항목</label>
-                                <input type="hidden" name="mb_addr_jibeon" value="{{ old('mb_addr_jibeon', member) }}"><br>
+                                <input type="text" name="mb_addr2" value="{{ old('mb_addr2', member) }}" id="mb_addr2" class="frm_input" size="60" placeholder="상세주소">
                             </td>
                         </tr>
                         <tr>
@@ -228,34 +223,34 @@
                             <td colspan="3"><textarea name="mb_memo" id="mb_memo">{{ old('mb_memo', member) }}</textarea></td>
                         </tr>
                         <tr>
+                            <th scope="row"><label for="notification_message">알림</label></th>
+                            <td colspan="3">
+                                <textarea name="notification_message" id="notification_message"></textarea>
+                                <button type="button" class="btn btn_03" id="btn_send_notification">알림 발송</button>
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row"><label for="mb_cert_history">본인인증 내역</label></th>
                             <td colspan="3">
                                 본인인증 내역이 없습니다.
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">메일 수신</th>
+                            <th scope="row">광고성정보수신동의</th>
                             <td>
-                                <input type="radio" name="mb_mailling" value="1" id="mb_mailling_yes" {{ checked(1, old('mb_mailling', member), true) }}>
-                                <label for="mb_mailling_yes">예</label>
-                                <input type="radio" name="mb_mailling" value="0" id="mb_mailling_no" {{ checked(0, old('mb_mailling', member)) }}>
-                                <label for="mb_mailling_no">아니오</label>
-                            </td>
-                            <th scope="row"><label for="mb_sms_yes">SMS 수신</label></th>
-                            <td>
-                                <input type="radio" name="mb_sms" value="1" id="mb_sms_yes" {{ checked(1, old('mb_sms', member), true) }}>
-                                <label for="mb_sms_yes">예</label>
-                                <input type="radio" name="mb_sms" value="0" id="mb_sms_no" {{ checked(0, old('mb_sms', member)) }}>
-                                <label for="mb_sms_no">아니오</label>
+                                <input type="radio" name="mb_is_marketing_receive" value="1" id="mb_is_marketing_receive_yes" {{ checked(1, old('mb_is_marketing_receive', member), true) }}>
+                                <label for="mb_is_marketing_receive_yes">동의</label>
+                                <input type="radio" name="mb_is_marketing_receive_no" value="0" id="mb_is_marketing_receive_no" {{ checked(0, old('mb_is_marketing_receive', member)) }}>
+                                <label for="mb_is_marketing_receive_no">동의안함</label>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">정보 공개</th>
+                            <th scope="row">프로필 공개</th>
                             <td colspan="3">
                                 <input type="radio" name="mb_open" value="1" id="mb_open_yes" {{ checked(1, old('mb_open', member), true) }}>
-                                <label for="mb_open_yes">예</label>
+                                <label for="mb_open_yes">공개</label>
                                 <input type="radio" name="mb_open" value="0" id="mb_open_no" {{ checked(0, old('mb_open', member)) }}>
-                                <label for="mb_open_no">아니오</label>
+                                <label for="mb_open_no">공개안함</label>
                             </td>
                         </tr>
                         <tr>
@@ -365,17 +360,18 @@
         });
 
         const setEmailVerifiedTime = document.getElementById('mb_email_verified_at');
-    
-        setEmailVerifiedTime.addEventListener('change', function () {
-            if (this.checked) {
-                const futureDate = new Date();
-                futureDate.setDate(futureDate.getDate());
-                const formattedDate = formatDate(futureDate);
-                this.value = formattedDate;
-            } else {
-                this.value = this.defaultValue;
-            }
-        });
+        if (setEmailVerifiedTime) {
+            setEmailVerifiedTime.addEventListener('change', function () {
+                if (this.checked) {
+                    const futureDate = new Date();
+                    futureDate.setDate(futureDate.getDate());
+                    const formattedDate = formatDate(futureDate);
+                    this.value = formattedDate;
+                } else {
+                    this.value = this.defaultValue;
+                }
+            });
+        }
 
         /**
         * 날짜를 지정된 시간과 함께 형식화하는 함수
@@ -391,6 +387,43 @@
             const second = String(date.getSeconds()).padStart(2, '0');
             return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
         }
+
+
+        // 알림 발송
+        const btnSendNotification = document.getElementById('btn_send_notification');
+        const notificationMessage = document.getElementById('notification_message');
+        btnSendNotification.addEventListener('click', function () {
+            if (!notificationMessage.value) {
+                alert('알림 메시지를 입력해주세요.');
+                return;
+            }
+
+            if (!confirm('알림을 발송하시겠습니까?')) {
+                return;
+            }
+            const url = "{{ url_for('admin.member.manage.notification', {'mb_id': member.mb_id}) }}";
+            const headers = {};
+            const formData = new FormData();
+            formData.append('message', notificationMessage.value);
+
+            for (let key in csrf) {
+                headers[key] = csrf[key];
+            }
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: headers
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     });
 </script>
 {% endblock content %}
