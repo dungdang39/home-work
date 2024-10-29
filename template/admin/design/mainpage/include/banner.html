@@ -6,37 +6,45 @@
         <h2 class="h2_frm">배너</h2>
         <table>
             <colgroup>
-                <col class="grid_4">
+                <col class="grid_2">
+                <col>
+                <col class="grid_2">
                 <col>
             </colgroup>
             <tbody>
                 <tr>
                     <th scope="row"><label for="">컬럼 수<strong class="sound_only">필수</strong></label></th>
                     <td>
-                        <select name="display_count">
-                            <option value="">컬럼 수 선택</option>
-                            <option value="1">1단</option>
-                            <option value="2">2단</option>
-                            <option value="3">3단</option>
-                        </select>
+                        <input type="text" name="display_count" class="frm_input" placeholder="0">
                     </td>
-                </tr>
-                <tr>
                     <th scope="row"><label for="section_title">타이틀<strong class="sound_only">필수</strong></label></th>
                     <td>
                         <input type="text" name="section_title" class="frm_input frm_input_full" placeholder="섹션 타이틀">
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="hide_title">타이틀 숨김</label></th>
+                    <th scope="row"><label for="is_display_title">타이틀 보이기</label></th>
                     <td>
-                        <input type="checkbox" name="hide_title" value="1">
+                        <label for="is_display_title_1" class="rules_label">보이기</label>
+                        <input name="is_display_title" id="is_display_title_1" type="radio" value="1" checked>
+                        <label for="is_display_title_0" class="rules_label">숨김</label>
+                        <input name="is_display_title" id="is_display_title_0" type="radio" value="0">
+                    </td>
+                    <th scope="row"><label for="is_swipe">스와이프 (자동넘김)</label></th>
+                    <td>
+                        <label for="is_swipe_1" class="rules_label">사용</label>
+                        <input name="is_swipe" id="is_swipe_1" type="radio" value="1" checked>
+                        <label for="is_swipe_0" class="rules_label">사용안함</label>
+                        <input name="is_swipe" id="is_swipe_0" type="radio" value="0">
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="auto_swipe">스와이프 (자동넘김)</label></th>
-                    <td>
-                        <input type="checkbox" name="auto_swipe" value="1">
+                    <th scope="row"><label for="skin">스킨</label></th>
+                    <td colspan="3">
+                        <select id="skin" name="skin">
+                            <option value="">스킨 선택</option>
+                            <option value="basic">기본</option>
+                        </select>
                     </td>
                 </tr>
             </tbody>

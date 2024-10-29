@@ -5,6 +5,7 @@ namespace App\Base\Service;
 use App\Base\Model\Admin\Banner;
 use Core\Database\Db;
 use Core\FileService;
+use DI\Container;
 use Exception;
 use Slim\Http\ServerRequest as Request;
 
@@ -15,16 +16,16 @@ class BannerService
     public const MAX_WIDTH = 750;
 
     private string $table;
+    private Container $container;
     private FileService $file_service;
-    private MainPageService $mainpage_service;
 
     public function __construct(
-        FileService $file_service,
-        MainPageService $mainpage_service
+        Container $container,
+        FileService $file_service
     ) {
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+        $this->container = $container;
         $this->file_service = $file_service;
-        $this->mainpage_service = $mainpage_service;
     }
 
     /**
@@ -91,6 +92,17 @@ class BannerService
     // ========================================
 
     /**
+     * 포지션별 배너 개수 조회
+     * @param int $bn_position  배너 포지션
+     * @return int
+     */
+    public function fetchBannersCountByPosition(int $bn_position): int
+    {
+        $query = "SELECT COUNT(*) FROM {$this->table} WHERE bn_position = :bn_position";
+        return Db::getInstance()->run($query, ["bn_position" => $bn_position])->fetchColumn();
+    }
+
+    /**
      * 배너 목록 조회
      * 
      * @param array $search_params  검색 조건
@@ -103,6 +115,7 @@ class BannerService
         $values = [];
         $sql_where = "";
         $sql_limit = "";
+        $mainpage_table = $this->container->get(MainPageService::class)->table;
 
         if (!empty($params['bn_position'])) {
             $wheres[] = " bn_position = :bn_position";
@@ -118,7 +131,7 @@ class BannerService
 
         $query = "SELECT banner.*, main.id as main_id, main.section_title
                     FROM {$this->table} banner
-                    LEFT JOIN {$this->mainpage_service->table} main ON main.id = banner.bn_position
+                    LEFT JOIN {$mainpage_table} main ON main.id = banner.bn_position
                     {$sql_where}
                     ORDER BY bn_order, created_at DESC
                     {$sql_limit}";

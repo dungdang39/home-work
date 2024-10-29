@@ -9,14 +9,18 @@ use Slim\Http\ServerRequest as Request;
 class MainPageService
 {
     public const TABLE_NAME = 'mainpage';
-    
+
     public string $table;
     private Request $request;
+    private BannerService $banner_service;
 
     public function __construct(
-        Request $request
+        Request $request,
+        BannerService $banner_service,
     ) {
         $this->request = $request;
+        $this->banner_service = $banner_service;
+
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
     }
 
@@ -30,6 +34,10 @@ class MainPageService
         if (empty($sections)) {
             return [];
         }
+        foreach ($sections as &$section) {
+            $section['data_count'] = $this->getDataCountBySection($section);
+        }
+
         return $sections;
     }
 
@@ -59,6 +67,21 @@ class MainPageService
             return [];
         }
         return $positions;
+    }
+
+    /**
+     * 섹션 데이터 개수 조회
+     * @param int $section_id 섹션 ID
+     * @return int
+     * @todo 다른 섹션 데이터 개수 조회 로직 추가 (커뮤니티, 쇼핑카테고리, 기획전)
+     */
+    public function getDataCountBySection(array $section): int
+    {
+        if ($section['section'] === 'banner') {
+            return $this->banner_service->fetchBannersCountByPosition($section['id']);
+        }
+
+        return 0;
     }
 
     // ========================================
@@ -101,27 +124,25 @@ class MainPageService
      * 메인페이지 섹션이 이미 존재하는지 확인
      * @param string $section 섹션 유형
      * @param string $title 섹션 제목
-     * @param int|null $id 섹션 ID
+     * @param int|null $except_id 제외할 섹션 ID
      */
-    public function exists(string $section, string $title, ?int $id = null)
+    public function exists(string $section, string $title, ?int $except_id = null)
     {
+        $wheres = ["section = :section", "section_title = :title"];
         $values = ['section' => $section, 'title' => $title];
-        
-        $sql_where = '';
-        if ($id) {
-            $values['id'] = $id;
-            $sql_where = 'AND id != :id';
+
+        if ($except_id) {
+            $wheres[] = 'id != :id';
+            $values['id'] = $except_id;
         }
+
+        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
 
         $query = "SELECT EXISTS(
                         SELECT 1
                             FROM {$this->table}
-                            WHERE section = :section
-                                AND section_title = :title
-                                {$sql_where}
+                            {$sql_where}
                     ) as exist";
-        // print_r($query);
-        // exit;
 
         $stmt = Db::getInstance()->run($query, $values);
         return $stmt->fetchColumn() == 1;

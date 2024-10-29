@@ -13,8 +13,8 @@ class UpdateMainpageRequest
     public string $section = '';
     public string $section_title = '';
     public ?int $display_count = 1;
-    public ?int $hide_title = 0;
-    public ?int $auto_swipe = 0;
+    public ?int $is_display_title = 0;
+    public ?int $is_swipe = 0;
     public ?int $max_item = 0;
     public ?int $row_item = 0;
     public ?int $is_enabled = 0;

@@ -78,8 +78,20 @@ class MainPageController extends BaseController
      */
     public function update(Request $request, Response $response, int $id, UpdateMainpageRequest $data): Response
     {
+        $section_info = $this->service->getSection($id);
+
         if ($this->service->exists($data->section, $data->section_title, $id)) {
             throw new HttpConflictException($request, '이미 존재하는 섹션입니다.');
+        }
+        if ($section_info['section'] === 'banner') {
+            $count = $this->service->getDataCountBySection($section_info);
+
+            if (
+                $data->section_title != $section_info['section_title']
+                && $count > 0 
+            ) {
+                throw new HttpConflictException($request, '배너가 등록된 섹션은 타이틀을 변경할 수 없습니다.');
+            }
         }
 
         $this->service->update($id, $data->publics());
@@ -104,6 +116,17 @@ class MainPageController extends BaseController
                 $errors[] = "{$id} : 이미 존재하는 섹션입니다.";
                 continue;
             }
+            if ($section_info['section'] === 'banner') {
+                $count = $this->service->getDataCountBySection($section_info);
+
+                if (
+                    $list_data['section_title'] != $section_info['section_title']
+                    && $count > 0 
+                ) {
+                    $errors[] = "{$id} : 배너가 등록된 섹션은 타이틀을 변경할 수 없습니다.";
+                    continue;
+                }
+            }
 
             $this->service->update($id, $list_data);
         }
@@ -117,9 +140,13 @@ class MainPageController extends BaseController
     /**
      * 메인화면 설정 삭제
      */
-    public function delete(Response $response, int $id): Response
+    public function delete(Request $request, Response $response, int $id): Response
     {
         $section = $this->service->getSection($id);
+
+        if ($this->service->getDataCountBySection($section) > 0) {
+            throw new HttpConflictException($request, '섹션에 등록된 데이터가 존재합니다.');
+        }
 
         $this->service->delete($section['id']);
 

@@ -17,21 +17,34 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="hide_title">타이틀 숨김</label></th>
+                    <th scope="row"><label for="is_display_title">타이틀 보이기</label></th>
                     <td>
-                        <input type="checkbox" name="hide_title" value="1">
+                        <label for="is_display_title_1" class="rules_label">보이기</label>
+                        <input name="is_display_title" id="is_display_title_1" type="radio" value="1" checked>
+                        <label for="is_display_title_0" class="rules_label">숨김</label>
+                        <input name="is_display_title" id="is_display_title_0" type="radio" value="0">
+                        <input type="checkbox" name="is_display_title" value="1">
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="auto_swipe">한 페이지당 상품 수</label></th>
+                    <th scope="row"><label for="max_item">한 페이지당 상품 수</label></th>
                     <td>
                         <input type="text" name="max_item" class="frm_input" value="24" placeholder="한 페이지당 상품 수">
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="auto_swipe">한 줄 최소 상품 수</label></th>
+                    <th scope="row"><label for="row_item">한 줄 최소 상품 수</label></th>
                     <td>
                         <input type="text" name="row_item" class="frm_input" value="2" placeholder="한 줄 최소 상품 수">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="skin">스킨</label></th>
+                    <td colspan="3">
+                        <select id="skin" name="skin">
+                            <option value="">스킨 선택</option>
+                            <option value="basic">기본</option>
+                        </select>
                     </td>
                 </tr>
             </tbody>

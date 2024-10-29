@@ -42,6 +42,7 @@
                         <tr>
                             <th scope="col">섹션</th>
                             <th scope="col">타이틀</th>
+                            <th scope="col">데이터 수</th>
                             <th scope="col">관리</th>
                             <th scope="col">순서</th>
                         </tr>
@@ -57,9 +58,15 @@
                             <td>
                                 <input type="text" name="section_title[{{ section.id }}]" value="{{ section.section_title }}" class="frm_input">
                             </td>
+                            <td>
+                                {{ section.data_count }}
+                            </td>
                             <td class="td_mng td_mng_l">
                                 <button type="button" class="btn_modify btn_03" data-id="{{ section.id }}">수정</button>
-                                <a href="{{ url_for('admin.design.mainpage.delete', {id: section.id}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_02">
+                                <a href="{{ url_for('admin.design.mainpage.delete', {id: section.id}) }}"
+                                    data-title="{{ section.section_title }}"
+                                    data-data_count="{{ section.data_count }}"
+                                    onclick="delete_section(this); return false;" class="btn btn_02">
                                     삭제
                                 </a>
                             </td>
@@ -133,13 +140,17 @@
 
             // 값 초기화
             $form.find("input[type='text']").val("");
-            $form.find("input[type='checkbox']").prop("checked", false);
+            // 라디오버튼의 초기 설정값으로 변경 defaultValue 사용
+            $form.find("input[type='radio']").prop("checked", function() {
+                return this.attributes.checked;
+            });
             $form.find("select").val("");
 
             let action = "{{ url_for('admin.design.mainpage.insert') }}";
             $form.attr("action", action);
 
             $(".section_info > form").hide();
+            $form.find("button[type='submit']").text("추가");
             $form.show();
         });
 
@@ -155,14 +166,14 @@
                     let section_type = data.row.section;
                     let section = data.row;
                     let $form = $("#form_" + section_type);
-
+                    console.log(section);
                     // 데이터 세팅
                     $form.find("input[name='section_title']").val(section.section_title);
-                    $form.find("input[name='hide_title']").prop("checked", section.hide_title == 1);
+                    $form.find("input[id='is_display_title_" + section.is_display_title + "']").prop("checked", true);
 
                     if (section_type == 'banner') {
                         $form.find("select[name='display_count']").val(section.display_count);
-                        $form.find("input[name='auto_swipe']").prop("checked", section.auto_swipe == 1);
+                        $form.find("input[id='is_swipe_" + section.is_swipe + "']").prop("checked", true);
                     } else if (section_type == 'community') {
                         $form.find("select[name='display_count']").val(section.display_count);
                         let display_boards = section.display_boards.split(',');
@@ -194,6 +205,7 @@
                     $form.attr("action", action.replace('__REPLACE_ID__', id));
 
                     $(".section_info > form").hide();
+                    $form.find("button[type='submit']").text("수정");
                     $form.show();
                 },
                 error: function (xhr, status, error) {
@@ -212,14 +224,31 @@
 </script>
 
 <script>
-    function cancel_confirm() {
-        let message = "메인화면 설정을 취소하시겠습니까?";
+    function validate_form(form) {
+        return true;
+    }
 
-        // @todo 값이 변경됬다면 문구 추가
+    function cancel_confirm() {
+        const message = "메인화면 설정을 취소하시겠습니까?";
+
+        // @todo 순서가 변경됬다면 문구 추가 => 프론트 작업 후 추가
 
         if (confirm(message)) {
             location.href = "{{ url_for('admin.design.mainpage') }}";
         }
+    }
+
+    function delete_section(obj) {
+        const href = obj.href;
+        const section_title = obj.dataset.title;
+        const data_count = obj.dataset.data_count;
+
+        if (data_count > 0) {
+            alert(section_title + " 섹션에 데이터가 있습니다. 데이터를 먼저 삭제해주세요.");
+            return false;
+        }
+
+        delete_confirm(href);
     }
 </script>
 {% endblock %}
