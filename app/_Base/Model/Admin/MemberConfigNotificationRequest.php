@@ -13,23 +13,23 @@ class MemberConfigNotificationRequest
     use SchemaHelperTrait;
 
     public ?bool $notification_member_on_signup = false;
-    public ?string $notification_member_on_signup_type = '';
-    public ?string $notification_member_on_signup_preset = '';
+    public ?string $notification_member_on_signup_type;
+    public ?string $notification_member_on_signup_preset;
     public ?bool $notification_member_on_leave= false;
-    public ?string $notification_member_on_leave_type = '';
-    public ?string $notification_member_on_leave_preset = '';
+    public ?string $notification_member_on_leave_type;
+    public ?string $notification_member_on_leave_preset;
     public ?bool $notification_admin_on_signup= false;
-    public ?string $notification_admin_on_signup_type = '';
-    public ?string $notification_admin_on_signup_preset = '';
+    public ?string $notification_admin_on_signup_type;
+    public ?string $notification_admin_on_signup_preset;
     public ?bool $notification_admin_on_leave= false;
-    public ?string $notification_admin_on_leave_type = '';
-    public ?string $notification_admin_on_leave_preset = '';
+    public ?string $notification_admin_on_leave_type;
+    public ?string $notification_admin_on_leave_preset;
     public ?bool $notification_superadmin_on_signup= false;
-    public ?string $notification_superadmin_on_signup_type = '';
-    public ?string $notification_superadmin_on_signup_preset = '';
+    public ?string $notification_superadmin_on_signup_type;
+    public ?string $notification_superadmin_on_signup_preset;
     public ?bool $notification_superadmin_on_leave= false;
-    public ?string $notification_superadmin_on_leave_type = '';
-    public ?string $notification_superadmin_on_leave_preset = '';
+    public ?string $notification_superadmin_on_leave_type;
+    public ?string $notification_superadmin_on_leave_preset;
 
     public function __construct(Request $request)
     {

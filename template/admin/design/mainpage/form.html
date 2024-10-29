@@ -166,7 +166,7 @@
                     let section_type = data.row.section;
                     let section = data.row;
                     let $form = $("#form_" + section_type);
-                    console.log(section);
+
                     // 데이터 세팅
                     $form.find("input[name='section_title']").val(section.section_title);
                     $form.find("input[id='is_display_title_" + section.is_display_title + "']").prop("checked", true);

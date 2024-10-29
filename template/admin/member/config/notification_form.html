@@ -40,14 +40,14 @@
                             <th scope="row">가입 시 회원에게 발송유형</th>
                             <td>
                                 <select name="notification_member_on_signup_type" id="notification_member_on_signup_type">
-                                    <option value="both" {{ selected('both', old('notification_member_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_member_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_member_on_signup_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_member_on_signup_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">가입 시 회원에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('가입 시 회원에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('가입 시 회원에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_member_on_signup_preset" id="notification_member_on_signup_preset" rows="5" class="frm_input">
                                     {{- old('notification_member_on_signup_preset', configs) -}}
                                 </textarea>
@@ -64,14 +64,14 @@
                             <th scope="row">탈퇴 시 회원에게 발송유형</th>
                             <td>
                                 <select name="notification_member_on_leave_type" id="notification_member_on_leave_type">
-                                    <option value="both" {{ selected('both', old('notification_member_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_member_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_member_on_leave_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_member_on_leave_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">탈퇴 시 회원에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('탈퇴 시 회원에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('탈퇴 시 회원에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_member_on_leave_preset" id="notification_member_on_leave_preset" rows="5" class="frm_input">
                                     {{- old('notification_member_on_leave_preset', configs) -}}
                                 </textarea>
@@ -89,14 +89,14 @@
                             <th scope="row">가입 시 운영진에게 발송유형</th>
                             <td>
                                 <select name="notification_admin_on_signup_type" id="notification_admin_on_signup_type">
-                                    <option value="both" {{ selected('both', old('notification_admin_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_admin_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_admin_on_signup_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_admin_on_signup_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">가입 시 운영진에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('가입 시 운영진에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('가입 시 운영진에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_admin_on_signup_preset" id="notification_admin_on_signup_preset" rows="5" class="frm_input">{{- old('notification_admin_on_signup_preset', configs) -}}</textarea>
                             </td>
                         </tr>
@@ -111,14 +111,14 @@
                             <th scope="row">탈퇴 시 운영진에게 발송유형</th>
                             <td>
                                 <select name="notification_admin_on_leave_type" id="notification_admin_on_leave_type">
-                                    <option value="both" {{ selected('both', old('notification_admin_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_admin_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_admin_on_leave_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_admin_on_leave_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">탈퇴 시 운영진에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('탈퇴 시 운영진에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('탈퇴 시 운영진에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_admin_on_leave_preset" id="notification_admin_on_leave_preset" rows="5" class="frm_input">
                                     {{- old('notification_admin_on_leave_preset', configs) -}}
                                 </textarea>
@@ -136,14 +136,14 @@
                             <th scope="row">가입 시 최고관리자에게 발송유형</th>
                             <td>
                                 <select name="notification_superadmin_on_signup_type" id="notification_superadmin_on_signup_type">
-                                    <option value="both" {{ selected('both', old('notification_superadmin_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_superadmin_on_signup_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_superadmin_on_signup_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_superadmin_on_signup_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">가입 시 최고관리자에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('가입 시 최고관리자에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('가입 시 최고관리자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_superadmin_on_signup_preset" id="notification_superadmin_on_signup_preset" rows="5" class="frm_input">
                                     {{- old('notification_superadmin_on_signup_preset', configs) -}}
                                 </textarea>
@@ -161,14 +161,14 @@
                             <th scope="row">탈퇴 시 최고관리자에게 발송유형</th>
                             <td>
                                 <select name="notification_superadmin_on_leave_type" id="notification_superadmin_on_leave_type">
-                                    <option value="both" {{ selected('both', old('notification_superadmin_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="all" {{ selected('all', old('notification_superadmin_on_leave_type', configs)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_superadmin_on_leave_type', configs)) }}>메일</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_superadmin_on_leave_type', configs)) }}>알림톡</option>
                                 </select>
                             </td>
                             <th scope="row">탈퇴 시 최고관리자에게 알림 프리셋</th>
                             <td colspan="3">
-                                {{ info('탈퇴 시 최고관리자에게 발송할 알림 내용을 입력하세요.') }}
+                                {{ info('탈퇴 시 최고관리자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
                                 <textarea name="notification_superadmin_on_leave_preset" id="notification_superadmin_on_leave_preset" rows="5" class="frm_input">
                                     {{- old('notification_superadmin_on_leave_preset', configs) -}}
                                 </textarea>

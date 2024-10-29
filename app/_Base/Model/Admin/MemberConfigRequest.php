@@ -26,11 +26,11 @@ class MemberConfigRequest
     public ?int $signup_point = 0;
     public ?bool $member_image_enabled = false;
     public ?int $member_image_upload_level;
-    public ?int $member_image_max_size = 0;
-    public ?int $member_image_width = 0;
-    public ?int $member_image_height = 0;
+    public ?int $member_image_max_size;
+    public ?int $member_image_width;
+    public ?int $member_image_height;
     public ?bool $recommend_enabled = false;
-    public ?int $recommend_point = 0;
+    public ?int $recommend_point;
     public ?string $prohibit_word = '';
     public ?string $prohibit_domain = '';
     public ?string $signup_terms;
@@ -55,7 +55,6 @@ class MemberConfigRequest
     public ?bool $use_point = false;
     public ?int $point_term = 0;
     public ?int $login_point = 0;
-    public ?int $memo_send_point = 0;
 
     public function __construct(Request $request)
     {
