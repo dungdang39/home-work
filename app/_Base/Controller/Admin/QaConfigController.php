@@ -5,7 +5,7 @@ namespace App\Base\Controller\Admin;
 use App\Base\Model\Admin\QaConfigRequest;
 use App\Base\Model\Admin\UpdateQaCategoryReqeust;
 use App\Base\Service\ConfigService;
-use App\Base\Service\QaService;
+use App\Base\Service\QaConfigService;
 use Core\BaseController;
 use Core\Lib\FlashMessage;
 use DI\Container;
@@ -17,12 +17,12 @@ class QaConfigController extends BaseController
 {
     private ConfigService $config_service;
     private FlashMessage $flash;
-    private QaService $service;
+    private QaConfigService $service;
 
     public function __construct(
         Container $container,
         ConfigService $config_service,
-        QaService $service
+        QaConfigService $service
     ) {
         $this->config_service = $config_service;
         $this->service = $service;

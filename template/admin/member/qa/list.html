@@ -1,0 +1,141 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import checked, renderPagination, selected, member_icon %}
+
+{% set title = "회원 > 1:1문의 > 관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
+{% endblock head %}
+
+{% block content %}
+{% set status_list = {'pending': '답변대기', 'in_progress': '답변 진행중', 'complated': '답변완료'} %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <span class="btn_ov01">
+        <span class="ov_txt">총 Q&A 건수 </span>
+        <span class="ov_num"> {{ total_count|format_number }}건 </span>
+    </span>
+    <div class="local_ov01 local_ov">
+        <a href="{{ url_for('admin.member.qa.manage', {}, {status: search.status}) }}"
+            class="btn {{ html_classes({'btn_02': search.category_id, 'btn_03': not search.category_id}) }}">
+            전체
+        </a>
+        {% for category in categories %}
+        <a href="{{ url_for('admin.member.qa.manage', {}, {status: search.status, category_id: category.id}) }}"
+            class="btn {{ html_classes({'btn_02': search.category_id != category.id, 'btn_03': search.category_id == category.id}) }}">
+            {{ category.title }}
+        </a>
+        {% endfor %}
+    </div>
+    <div class="local_ov01 local_ov">
+        <a href="{{ url_for('admin.member.qa.manage', {}, {category_id: search.category_id}) }}"
+            class="btn {{ html_classes({'btn_02': search.status, 'btn_03': not search.status}) }}">
+            전체
+        </a>
+        {% for status, status_name in status_list %}
+        <a href="{{ url_for('admin.member.qa.manage', {}, {status: status, category_id: search.category_id}) }}"
+            class="btn {{ html_classes({'btn_02': search.status != status, 'btn_03': search.status == status}) }}">
+            {{ status_name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <form id="form_search" name="form_search" class="local_sch01 local_sch" method="get">
+        <input type="hidden" name="category_id" value="{{ search.category_id }}">
+        <input type="hidden" name="status" value="{{ search.status }}">
+
+        <label for="keyword" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+        <input type="text" id="keyword" name="keyword" class="frm_input" value="{{ search.keyword }}" placeholder="검색어">
+        <input type="submit" class="btn_submit" value="검색">
+        <select name="limit" id="limit">
+            <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
+            <option value="30" {{ selected(30, pagination.limit) }}>30개씩 보기</option>
+        </select>
+    </form>
+
+    <div class="local_desc01 local_desc">
+        <strong>1:1문의</strong>
+        <p>
+            1:1문의 목록입니다.
+        </p>
+    </div>
+
+    <form name="form_qa_list" id="form_qa_list" onsubmit="return validate_form(this);" method="post">
+        {{ csrf.field|raw }}
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>Q&A 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">상태</th>
+                        <th scope="col">카테고리</th>
+                        <th scope="col">이름</th>
+                        <th scope="col">문의내용</th>
+                        <th scope="col">등록일</th>
+                        <th scope="col">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for qa in qas %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                        <td class="td_mbstat">
+                            <select name="status[{{ qa.id }}]" class="frm_input">
+                                {% for status, status_name in status_list %}
+                                <option value="{{ status }}" {{ selected(qa.status, status) }}>{{ status_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="td_category2">
+                            {{- qa.category.title ?? '미분류' -}}
+                        </td>
+                        <td class="td_name">
+                            {% if qa.member %}
+                                <a href="{{ url_for('admin.member.manage.view', {mb_id: qa.mb_id}) }}" class="btn btn_03">
+                                    {{- qa.member.mb_name -}}
+                                </a>
+                            {% else %}
+                            {{- qa.questioner_name -}}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ qa.subject }}
+                            <br>
+                            {{ qa.content|length > 100 ? qa.content|slice(0, 100) ~ '...' : qa.content }}
+                        </td>
+                        <td class="td_datetime">
+                            {{ qa.created_at|format_datetime }}
+                        </td>
+                        <td class="td_mng_l">
+                            <a href="{{ url_for('admin.member.qa.manage.view', {id: qa.id}, query_params) }}" class="btn btn_03">답변</a>
+                            <a href="{{ url_for('admin.member.qa.manage.delete', {id: qa.id}) }}"
+                                onclick="delete_confirm(this); return false;" class="btn btn_02">
+                                삭제
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="btn_fixed_top">
+        </div>
+    </form>
+    {{ renderPagination(pagination, query_params) }}
+</div>
+
+<script>
+    const form_search = document.getElementById('form_search');
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // 목록 출력갯수 변경
+        const form_search_limit = form_search.querySelector('#limit');
+        form_search_limit.addEventListener('change', function () {
+            form_search.submit();
+        });
+    });
+</script>
+{% endblock content %}

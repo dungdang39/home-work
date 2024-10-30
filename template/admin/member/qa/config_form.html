@@ -74,7 +74,7 @@
                             <input type="text" name="title[{{ category.id }}]" value="{{ category.title }}" class="frm_input">
                         </td>
                         <td>
-                            <a href="#" class="btn btn_03">{{ category.qa_count|format_number }}건</a>
+                            <a href="{{ url_for('admin.member.qa.manage', {}, {category_id: category.id}) }}" class="btn btn_03">{{ category.qa_count|format_number }}건</a>
                         </td>
                         <td class="td_mng td_mng_l">
                             <button type="button" class="btn_update_category btn_03" data-id="{{ category.id }}">수정</button>
