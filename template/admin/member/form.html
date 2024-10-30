@@ -404,7 +404,7 @@
             const url = "{{ url_for('admin.member.manage.notification', {'mb_id': member.mb_id}) }}";
             const headers = {};
             const formData = new FormData();
-            formData.append('message', notificationMessage.value);
+            formData.append('notification_message', notificationMessage.value);
 
             for (let key in csrf) {
                 headers[key] = csrf[key];

@@ -179,16 +179,15 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 // 환경설정
                 $group->group('/config', function (RouteCollectorProxy $group) {
                     $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa.config');
-                    $group->put('', [QaConfigController::class, 'update'])->setName('admin.member.qa.config.update');
+                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa.config.update');
+                    $group->post('/template', [QaConfigController::class, 'updateBasicTemplate'])->setName('admin.member.qa.config.template');
+                    $group->post('/category', [QaConfigController::class, 'createCategory'])->setName('admin.member.qa.config.category.create');
+                    $group->get('/category/{id}', [QaConfigController::class, 'getCategory'])->setName('admin.member.qa.config.category');
+                    $group->post('/category/{id}', [QaConfigController::class, 'updateCategory'])->setName('admin.member.qa.config.category.update');
+                    $group->delete('/category/{id}', [QaConfigController::class, 'deleteCategory'])->setName('admin.member.qa.config.category.delete');
                 });
 
-                // 알림/푸시 설정
-                $group->group('/notification', function (RouteCollectorProxy $group) {
-                    $group->get('', [QaConfigController::class, 'index'])->setName('admin.member.qa.notification');
-                    $group->post('', [QaConfigController::class, 'update'])->setName('admin.member.qa.notification.update');
-                });
-
-                // 1:1문의 내용 (미구현)
+                // 1:1문의 내용
                 $group->group('/manage', function (RouteCollectorProxy $group) {
                     $group->get('', [QaController::class, 'index'])->setName('admin.member.qa.manage');
                     $group->get('/create', [QaController::class, 'create'])->setName('admin.member.qa.manage.create');

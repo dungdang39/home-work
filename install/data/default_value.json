@@ -235,15 +235,6 @@
             "de_sms_cont5": "{이름}님 배송합니다.\n택배:{택배회사}\n운송장번호:\n{운송장번호}\n{회사명}"
         }
     },
-    "qa_config": {
-        "table": "qa_config",
-        "fields": {
-            "qa_title": "1:1문의",
-            "qa_category": "회원|포인트",
-            "qa_use_email": "1",
-            "qa_use_hp": "1"
-        }
-    },
     "member": {
         "table": "member",
         "fields": {
@@ -502,8 +493,8 @@
                                 "children": []
                             },
                             {
-                                "am_name": "알림/푸시 설정",
-                                "am_route": "admin.member.qa.notification",
+                                "am_name": "관리",
+                                "am_route": "admin.member.qa.manage",
                                 "am_order": 1,
                                 "children": []
                             }

@@ -2,7 +2,6 @@
 
 namespace App\Base\Controller\Admin;
 
-use App\Base\Service\QaConfigService;
 use App\Base\Service\QaService;
 use Core\BaseController;
 use Slim\Http\Response;
@@ -14,14 +13,11 @@ use Exception;
 class QaController extends BaseController
 {
     private QaService $service;
-    private QaConfigService $config_service;
 
     public function __construct(
         QaService $service,
-        QaConfigService $config_service
     ) {
         $this->service = $service;
-        $this->config_service = $config_service;
     }
 
     /**

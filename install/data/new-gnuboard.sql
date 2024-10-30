@@ -358,27 +358,60 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `new_qa_config`
+-- Table structure for table `new_qa_category`
 --
-DROP TABLE IF EXISTS `new_qa_config`;
-CREATE TABLE IF NOT EXISTS `new_qa_config` (
-  `qa_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'QA 설정 ID',
-  `qa_title` varchar(255) NOT NULL DEFAULT '' COMMENT 'QA 제목',
-  `qa_category` varchar(200) NOT NULL DEFAULT '' COMMENT 'QA 카테고리 (`|`로 구분)',
-  `qa_use_email` tinyint(1) NOT NULL DEFAULT 0 COMMENT '이메일 입력 사용여부',
-  `qa_req_email` tinyint(1) NOT NULL DEFAULT 0 COMMENT '이메일 입력 필수여부',
-  `qa_use_hp` tinyint(1) NOT NULL DEFAULT 0 COMMENT '휴대폰 번호 입력 사용여부',
-  `qa_req_hp` tinyint(1) NOT NULL DEFAULT 0 COMMENT '휴대폰 번호 입력 필수여부',
-  `qa_use_sms` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'SMS 수신동의 사용여부',
-  `qa_send_number` varchar(20) NOT NULL DEFAULT '' COMMENT 'SMS 발신 번호',
-  `qa_use_editor` tinyint(1) NOT NULL DEFAULT 0 COMMENT '에디터 사용 여부',
-  `qa_image_width` int(11) NOT NULL DEFAULT 0 COMMENT '이미지 최대 너비',
-  `qa_upload_size` int(11) NOT NULL DEFAULT 0 COMMENT '파일 업로드 최대 크기 (Byte)',
-  `qa_insert_content` text NOT NULL DEFAULT '' COMMENT '기본 내용',
+DROP TABLE IF EXISTS `new_qa_category`;
+CREATE TABLE IF NOT EXISTS `new_qa_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'QA 카테고리 ID',
+  `title` varchar(255) NOT NULL DEFAULT '' COMMENT '카테고리 타이틀',
+  `template` text DEFAULT '' COMMENT '서식',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '카테고리 활성화 여부',
+  `display_order`int(11) NOT NULL DEFAULT 0 COMMENT '정렬순서',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
-  PRIMARY KEY (`qa_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 설정';
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 카테고리 관리';
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_qa`
+--
+
+DROP TABLE IF EXISTS `new_qa`;
+CREATE TABLE IF NOT EXISTS `new_qa` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category_id` int(11) DEFAULT NULL COMMENT '카테고리 ID',
+  `mb_id` varchar(60) DEFAULT NULL COMMENT '회원 아이디',
+  `questioner_name` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이름',
+  `questioner_email` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이메일',
+  `status` varchar(20) NOT NULL DEFAULT 'pending' COMMENT '1:1문의 상태(pending, in_progress, completed)',
+  `subject` varchar(255) NOT NULL DEFAULT '' COMMENT '질문 제목',
+  `content` text NOT NULL COMMENT '질문 내용',
+  `ip` varchar(45) NOT NULL DEFAULT '' COMMENT '질문 등록 시 IP',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 관리';
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_qa_answer`
+--
+
+DROP TABLE IF EXISTS `new_qa_answer`;
+CREATE TABLE IF NOT EXISTS `new_qa_answer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `qa_id` int(11) NOT NULL COMMENT '질문 ID',
+  `mb_id` varchar(60) DEFAULT NULL COMMENT '답변 작성자 회원 아이디',
+  `content` text NOT NULL COMMENT '답변 내용',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 답변 관리';
 
 
 -- --------------------------------------------------------

@@ -10,7 +10,7 @@ class MemberNotificationRequest
 {
     use SchemaHelperTrait;
 
-    public ?string $notification_message;
+    public ?string $notification_message = '';
 
     public function __construct(
         Request $request

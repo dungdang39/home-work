@@ -1,19 +1,104 @@
 {% extends "@admin/_layout.html" %}
-{% from "@admin/macro.html" import checked, info, selected %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
 
 {% set title = "회원 > 1:1문의 > 환경설정" %}
-{% block title %}{{ title }}{% endblock title%}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
+{% endblock head %}
 
 {% block content %}
+{% set sub_menus = {
+    'category' : '카테고리 설정',
+    'input': '입력 설정',
+    'notification': '알림/푸시 설정'
+} %}
+
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
+
+    <section id="anchor_category">
+        <h2 class="h2_frm">{{ sub_menus.category }}</h2>
+        {{ anchor(sub_menus, 'category') }}
+        
+        <form name="form_qa_category" id="form_qa_category" action="{{ url_for('admin.member.qa.config.category.create') }}"
+            method="post" onsubmit="return validate_form_category(this);" autocomplete="off">
+            {{ csrf.field|raw }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>Q&A 카테고리</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">카테고리</th>
+                            <td>
+                                <input type="text" class="frm_input" id="category_title" name="category_title" size="30" placeholder="카테고리 타이틀">
+                                <button type="submit" id="btn_add_category" class="btn btn_01">추가</button>
+                                <button type="button" id="btn_modal_basic_template" class="btn btn_03">기본서식</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>카테고리 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">사용</th>
+                        <th scope="col">카테고리 타이틀</th>
+                        <th scope="col">등록된 QA</th>
+                        <th scope="col">관리</th>
+                        <th scope="col">순서</th>
+                    </tr>
+                </thead>
+                <tbody id="categoryList">
+                    {% for category in qa_categories %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                        <td class="td_category">
+                            <label for="is_enabled_1[{{ category.id }}]" class="rules_label">사용</label>
+                            <input name="is_enabled[{{ category.id }}]" id="is_enabled_1[{{ category.id }}]" type="radio" value="1" {{ checked(1, old('is_enabled', category)) }}>
+                            <label for="is_enabled_0[{{ category.id }}]" class="rules_label">미사용</label>
+                            <input name="is_enabled[{{ category.id }}]" id="is_enabled_0[{{ category.id }}]" type="radio" value="0" {{ checked(0, old('is_enabled', category)) }}>
+                        </td>
+                        <td>
+                            <input type="text" name="title[{{ category.id }}]" value="{{ category.title }}" class="frm_input">
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn_03">{{ category.qa_count|format_number }}건</a>
+                        </td>
+                        <td class="td_mng td_mng_l">
+                            <button type="button" class="btn_update_category btn_03" data-id="{{ category.id }}">수정</button>
+                            <button type="button" class="btn_modal_template btn_03" data-id="{{ category.id }}">서식</button>
+                            <button type="button" class="btn_delete_category btn_02" data-id="{{ category.id }}" data-title="{{ category.title }}">삭제</button>
+                        </td>
+                        <td class="td_mng td_mng_l">
+                            <button type="button" class="btn_del_menu btn_04">이동</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
     <form name="qa_config_form" id="qa_config_form" action="{{ url_for('admin.member.qa.config.update') }}"
         method="post" onsubmit="return validate_form(this);" autocomplete="off">
-        <input type="hidden" name="_METHOD" value="PUT">
         {{ csrf.field|raw }}
 
-        <section id="anc_cf_qa_config">
-            <h2 class="h2_frm">환경설정</h2>
+        <section id="anchor_input">
+            <h2 class="h2_frm">{{ sub_menus.input }}</h2>
+            {{ anchor(sub_menus, 'input') }}
+            
             <div class="tbl_frm01 tbl_wrap">
                 <table>
                     <caption>환경설정</caption>
@@ -23,90 +108,55 @@
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row"><label for="qa_title">타이틀<strong class="sound_only">필수</strong></label></th>
-                            <td>
-                                <input type="text" name="qa_title" value="{{ old('qa_title', qa_config) }}" id="qa_title" class="frm_input" size="40">
-                                <a href="#" class="btn_frmline">1:1문의 바로가기</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">분류</th>
-                            <td>
-                                {{ info('분류와 분류 사이는 | 로 구분하세요. (예: 질문|답변) 첫자로 #은 입력하지 마세요. (예: #질문|#답변[X])') }}
-                                <input type="text" name="qa_category" value="{{ old('qa_category', qa_config) }}" id="qa_category" class="frm_input" size="70">
-                            </td>
-                        </tr>
-                        <tr>
                             <th scope="row">이메일 입력</th>
                             <td>
-                                <input type="checkbox" name="qa_use_email" value="1" id="qa_use_email" {{ checked(1, old('qa_use_email', qa_config)) }}>
-                                <label for="qa_use_email">입력</label>
-                                <input type="checkbox" name="qa_req_email" value="1" id="qa_req_email" {{ checked(1, old('qa_req_email', qa_config)) }}>
-                                <label for="qa_req_email">필수입력</label>
+                                <input type="checkbox" name="email_input_enabled" value="1" id="email_input_enabled" {{ checked(1, old('email_input_enabled', qa_config)) }}>
+                                <label for="email_input_enabled">입력</label>
+                                <input type="checkbox" name="email_input_required" value="1" id="email_input_required" {{ checked(1, old('email_input_required', qa_config)) }}>
+                                <label for="email_input_required">필수입력</label>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">휴대폰 입력</th>
                             <td>
-                                <input type="checkbox" name="qa_use_hp" value="1" id="qa_use_hp" {{ checked(1, old('qa_use_hp', qa_config)) }}>
-                                <label for="qa_use_hp">입력</label>
-                                <input type="checkbox" name="qa_req_hp" value="1" id="qa_req_hp" {{ checked(1, old('qa_req_hp', qa_config)) }}>
-                                <label for="qa_req_hp">필수입력</label>
+                                <input type="checkbox" name="hp_input_enabled" value="1" id="hp_input_enabled" {{ checked(1, old('hp_input_enabled', qa_config)) }}>
+                                <label for="hp_input_enabled">입력</label>
+                                <input type="checkbox" name="hp_input_required" value="1" id="hp_input_required" {{ checked(1, old('hp_input_required', qa_config)) }}>
+                                <label for="hp_input_required">필수입력</label>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="qa_use_sms">SMS 알림</label></th>
+                            <th scope="row">SMS 알림</th>
                             <td>
-                                {{ info('휴대폰 입력을 사용하실 경우 문의글 등록시 등록자가 답변등록시 SMS 알림 수신을 선택할 수 있도록 합니다.
-                                    SMS 알림을 사용하기 위해서는 기본환경설정 &gt; <a href="' ~ url_for('admin.config.api.notification') ~ '#anchor_sms">SMS 설정</a> 을 하셔야 합니다.
-                                ', false) }}
-                                <label for="qa_use_sms_1" class="rules_label">사용</label>
-                                <input name="qa_use_sms" id="qa_use_sms_1" type="radio" value="1" {{ checked(1, old('qa_use_sms', qa_config)) }}>
-                                <label for="qa_use_sms_0" class="rules_label">사용안함</label>
-                                <input name="qa_use_sms" id="qa_use_sms_0" type="radio" value="0" {{ checked(0, old('qa_use_sms', qa_config)) }}>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="qa_send_number">SMS 발신번호</label></th>
-                            <td>
-                                <span class="frm_info">
-                                    
-                                </span>
-                                {{ info('SMS 알림 전송시 발신번호로 사용됩니다.')}}
-                                <input type="text" name="qa_send_number" value="{{ old('qa_send_number', qa_config) }}" id="qa_send_number" class="frm_input" size="30">
+                                <label for="sms_notification_1" class="rules_label">사용</label>
+                                <input name="sms_notification" id="sms_notification_1" type="radio" value="1" {{ checked(1, old('sms_notification', qa_config)) }}>
+                                <label for="sms_notification_0" class="rules_label">사용안함</label>
+                                <input name="sms_notification" id="sms_notification_0" type="radio" value="0" {{ checked(0, old('sms_notification', qa_config)) }}>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">DHTML 에디터 사용</th>
                             <td>
-                                {{ info('글작성시 내용을 DHTML 에디터 기능으로 사용할 것인지 설정합니다. 스킨에 따라 적용되지 않을 수 있습니다.')}}
-                                <label for="qa_use_editor_1" class="rules_label">사용</label>
-                                <input name="qa_use_editor" id="qa_use_editor_1" type="radio" value="1" {{ checked(1, old('qa_use_editor', qa_config)) }}>
-                                <label for="qa_use_editor_0" class="rules_label">사용안함</label>
-                                <input name="qa_use_editor" id="qa_use_editor_0" type="radio" value="0" {{ checked(0, old('qa_use_editor', qa_config)) }}>
+                                <label for="is_use_editor_1" class="rules_label">사용</label>
+                                <input name="is_use_editor" id="is_use_editor_1" type="radio" value="1" {{ checked(1, old('is_use_editor', qa_config)) }}>
+                                <label for="is_use_editor_0" class="rules_label">사용안함</label>
+                                <input name="is_use_editor" id="is_use_editor_0" type="radio" value="0" {{ checked(0, old('is_use_editor', qa_config)) }}>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="qa_image_width">이미지 폭 크기<strong class="sound_only">필수</strong></label></th>
+                            <th scope="row">파일 업로드</th>
                             <td>
-                                <span class="frm_info">게시판에서 출력되는 이미지의 폭 크기</span>
-                                <input type="text" name="qa_image_width" value="{{ old('qa_image_width', qa_config) }}" id="qa_image_width"
-                                    class="numeric frm_input" size="4"> 픽셀
+                                <label for="is_use_upload_1" class="rules_label">사용</label>
+                                <input name="is_use_upload" id="is_use_upload_1" type="radio" value="1" {{ checked(1, old('is_use_upload', qa_config)) }}>
+                                <label for="is_use_upload_0" class="rules_label">사용안함</label>
+                                <input name="is_use_upload" id="is_use_upload_0" type="radio" value="0" {{ checked(0, old('is_use_upload', qa_config)) }}>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="qa_upload_size">파일 업로드 용량<strong class="sound_only">필수</strong></label></th>
+                            <th scope="row"><label for="qa_upload_size">파일 업로드 용량 제한</label></th>
                             <td>
                                 <span class="frm_info">최대 40M 이하 업로드 가능, 1 MB = 1,048,576 bytes</span> 업로드 파일 한개당
                                 <input type="text" name="qa_upload_size" value="{{ old('qa_upload_size', qa_config) }}" id="qa_upload_size" class="numeric frm_input" size="10"> bytes 이하
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="qa_insert_content">글쓰기 기본 내용</label></th>
-                            <td>
-                                <textarea id="qa_insert_content" name="qa_insert_content" rows="5">
-                                    {{- old('qa_insert_content', qa_config) -}}
-                                </textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -114,15 +164,228 @@
             </div>
         </section>
 
-        <div class="btn_fixed_top">
-            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        <div>
+            <button type="button" class="btn btn_02">취소</button>
+            <button type="submit" class="btn btn_submit" accesskey="s">확인</button>
         </div>
 
+        <section id="anchor_notification">
+            <h2 class="h2_frm">{{ sub_menus.notification }}</h2>
+            {{ anchor(sub_menus, 'notification') }}
+            
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>환경설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">회원님에게 발송</th>
+                            <td>
+                                <select name="notification_member" id="notification_member">
+                                    <option value="all" {{ selected('all', old('notification_member', qa_config)) }}>문의&답변 등록 시</option>
+                                    <option value="inquiry" {{ selected('inquiry', old('notification_member', qa_config)) }}>문의 등록 시</option>
+                                    <option value="response" {{ selected('response', old('notification_member', qa_config)) }}>답변 등록 시</option>
+                                    <option value="none" {{ selected('none', old('notification_member', qa_config)) }}>발송안함</option>
+                                </select>
+                            </td>
+                            <th scope="row">회원님에게 발송 유형</th>
+                            <td>
+                                <select name="notification_member_type" id="notification_member_type">
+                                    <option value="all" {{ selected('all', old('notification_member_type', qa_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_member_type', qa_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_member_type', qa_config)) }}>알림톡(SMS)</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">운영진에게 발송</th>
+                            <td>
+                                <select name="notification_admin" id="notification_admin">
+                                    <option value="all" {{ selected('all', old('notification_admin', qa_config)) }}>문의&답변 등록 시</option>
+                                    <option value="inquiry" {{ selected('inquiry', old('notification_admin', qa_config)) }}>문의 등록 시</option>
+                                    <option value="response" {{ selected('response', old('notification_admin', qa_config)) }}>답변 등록 시</option>
+                                    <option value="none" {{ selected('none', old('notification_admin', qa_config)) }}>발송안함</option>
+                                </select>
+                            </td>
+                            <th scope="row">운영진에게 발송 유형</th>
+                            <td>
+                                <select name="notification_admin_type" id="notification_admin_type">
+                                    <option value="all" {{ selected('all', old('notification_admin_type', qa_config)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_admin_type', qa_config)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_admin_type', qa_config)) }}>알림톡(SMS)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div>
+            <button type="button" class="btn btn_02">취소</button>
+            <button type="submit" class="btn btn_submit" accesskey="s">확인</button>
+        </div>
+    </form>
+</div>
+
+<div class="is_rewrite remodal" data-remodal-id="modal_basic_template" role="dialog" aria-labelledby="modal" aria-describedby="modalDesc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form id="form_basic_template" name="form_basic_template" method="post" action="{{ url_for('admin.member.qa.config.template') }}">
+        {{ csrf.field|raw }}
+        <h3>카테고리 기본 서식</h3>
+        <textarea name="category_basic_template" rows="5" style="min-height:unset;">
+            {{- old('category_basic_template', qa_config) -}}
+        </textarea>
+        <button type="button" id="btn_save_basic_template" class="btn btn_03">저장</button> 
+    </form>
+</div>
+
+<div class="is_rewrite remodal" data-remodal-id="modal_template" role="dialog" aria-labelledby="modal" aria-describedby="modalDesc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form id="form_template" name="form_template" method="post">
+        {{ csrf.field|raw }}
+
+        <h3>카테고리 내용 서식</h3>
+        <textarea rows="5" name="template" style="min-height:unset;"></textarea>
+        <button type="button" id="btn_load_basic_template" class="btn btn_02">기본서식 불러오기</button>
+        <button type="button" id="btn_save_template" class="btn btn_03">저장</button>
     </form>
 </div>
 
 <script>
-    function validate_form(f) {
+    const $modal_basic_template = $('[data-remodal-id="modal_basic_template"]');
+    const $modal_template = $('[data-remodal-id="modal_template"]');
+    const form_basic_template = document.getElementById('form_basic_template');
+    const form_template = document.getElementById('form_template');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 카테고리 기본서식 모달 버튼
+        const btn_modal_basic_template = document.getElementById('btn_modal_basic_template');
+        btn_modal_basic_template.addEventListener('click', function() {
+            $modal_basic_template.remodal().open();
+        });
+
+        // 카테고리 기본서식 저장 버튼
+        const btn_save_basic_template = document.getElementById('btn_save_basic_template');
+        btn_save_basic_template.addEventListener('click', function() {
+            form_basic_template.submit();
+        });
+
+        // 카테고리 목록 > 서식 모달 버튼
+        const btn_modal_template = document.querySelectorAll('.btn_modal_template');
+        btn_modal_template.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                let id = this.dataset.id;
+                let url = "{{ url_for('admin.member.qa.config.category', {id: '__REPLACE_ID__'}) }}";
+
+                fetch(url.replace('__REPLACE_ID__', id), {method: 'GET'})
+                .then(response => response.json())
+                .then(data => {
+                    form_template.querySelector('textarea[name="template"]').value = data.template;
+                    modal_template_open(id);
+                })
+                .catch(error => {
+                    alert('서식을 불러오는 중 오류가 발생했습니다.');
+                });
+            });
+        });
+
+        // 카테고리 목록 > 서식 모달 > 기본서식 불러오기 버튼
+        const btn_load_basic_template = document.getElementById('btn_load_basic_template');
+        btn_load_basic_template.addEventListener('click', function() {
+            form_template.querySelector('textarea[name="template"]').value = form_basic_template.querySelector('textarea').value;
+        });
+
+        // 카테고리 목록 > 서식 모달 > 저장 버튼
+        const btn_save_template = document.getElementById('btn_save_template');
+        btn_save_template.addEventListener('click', function() {
+            update_category(form_template.action, new FormData(form_template));
+            $modal_template.remodal().close();
+        });
+
+        // 카테고리 목록 > 수정 버튼
+        const btn_update_category = document.querySelectorAll('.btn_update_category');
+        btn_update_category.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                let id = this.dataset.id;
+                let url = "{{ url_for('admin.member.qa.config.category.update', {id: '__REPLACE_ID__'}) }}";
+                const formData = new FormData();
+                formData.append('is_enabled', document.querySelector(`input[name="is_enabled[${id}]"]:checked`).value);
+                formData.append('title', document.getElementsByName(`title[${id}]`)[0].value);
+
+                update_category(url.replace('__REPLACE_ID__', id), formData);
+            });
+        });
+
+        // 카테고리 목록 > 삭제 버튼
+        const btn_delete_category = document.querySelectorAll('.btn_delete_category');
+        btn_delete_category.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const title = this.dataset.title;
+                let url = "{{ url_for('admin.member.qa.config.category.delete', {id: '__REPLACE_ID__'}) }}";
+                let message = `"${title}" 카테고리를 삭제하시겠습니까?`;
+
+                delete_confirm(url.replace('__REPLACE_ID__', id), message);
+            });
+        });
+    });
+
+    // 카테고리 서식 모달 열기
+    function modal_template_open(id) {
+        let url = "{{ url_for('admin.member.qa.config.category.update', {id: '__REPLACE_ID__'}) }}";
+        form_template.action = url.replace('__REPLACE_ID__', id);
+
+        $modal_template.remodal().open();
+    }
+
+    // 카테고리 정보 갱신
+    function update_category(url, formData) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.body = formData;
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const data = JSON.parse(xhr.responseText);
+                if (data.message) {
+                    alert(data.message);
+                }
+                document.location.reload();
+            } else {
+                const result = JSON.parse(xhr.responseText);
+                alert(xhr.status + ' ' + xhr.statusText + ': ' + result.error.message);
+            }
+        };
+        xhr.onerror = function() {
+            alert('요청 중 오류가 발생했습니다.');
+        };
+        for (let key in csrf) {
+            if (!csrf[key]) {
+                alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                return false;
+            }
+            xhr.setRequestHeader(key, csrf[key]);
+        }
+        xhr.send(formData);
+    }
+
+    // 카테고리 추가 폼 유효성 검사
+    function validate_form_category(f) {
+        let category_title = f.category_title.value.trim();
+        if (category_title == '') {
+            alert('카테고리 타이틀을 입력해주세요.');
+            f.category_title.focus();
+            return false;
+        }
         return true;
     }
 </script>
