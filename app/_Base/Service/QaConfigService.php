@@ -30,7 +30,7 @@ class QaConfigService
         }
 
         foreach ($categories as &$category) {
-            $category['qa_count'] = $this->qa_service->fetchQasTotalCount(['category_id' => $category['id']]);
+            $category['qa_count'] = $this->qa_service->fetchQuestionsTotalCount(['category_id' => $category['id']]);
         }
 
         return $categories;

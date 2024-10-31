@@ -80,38 +80,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for qa in qas %}
+                    {% for question in questions %}
                     <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
                         <td class="td_mbstat">
-                            <select name="status[{{ qa.id }}]" class="frm_input">
+                            <select name="status[{{ question.id }}]" class="frm_input">
                                 {% for status, status_name in status_list %}
-                                <option value="{{ status }}" {{ selected(qa.status, status) }}>{{ status_name }}</option>
+                                <option value="{{ status }}" {{ selected(question.status, status) }}>{{ status_name }}</option>
                                 {% endfor %}
                             </select>
                         </td>
                         <td class="td_category2">
-                            {{- qa.category.title ?? '미분류' -}}
+                            {{- question.category.title ?? '미분류' -}}
                         </td>
                         <td class="td_name">
-                            {% if qa.member %}
-                                <a href="{{ url_for('admin.member.manage.view', {mb_id: qa.mb_id}) }}" class="btn btn_03">
-                                    {{- qa.member.mb_name -}}
+                            {% if question.member %}
+                                <a href="{{ url_for('admin.member.manage.view', {mb_id: question.mb_id}) }}" class="btn btn_03">
+                                    {{- question.member.mb_name -}}
                                 </a>
                             {% else %}
-                            {{- qa.questioner_name -}}
+                            {{- question.questioner_name -}}
                             {% endif %}
                         </td>
                         <td>
-                            {{ qa.subject }}
+                            {{ question.subject }}
                             <br>
-                            {{ qa.content|length > 100 ? qa.content|slice(0, 100) ~ '...' : qa.content }}
+                            {{ question.content|length > 100 ? question.content|slice(0, 100) ~ '...' : question.content }}
                         </td>
                         <td class="td_datetime">
-                            {{ qa.created_at|format_datetime }}
+                            {{ question.created_at|format_datetime }}
                         </td>
                         <td class="td_mng_l">
-                            <a href="{{ url_for('admin.member.qa.manage.view', {id: qa.id}, query_params) }}" class="btn btn_03">답변</a>
-                            <a href="{{ url_for('admin.member.qa.manage.delete', {id: qa.id}) }}"
+                            <a href="{{ url_for('admin.member.qa.manage.view', {id: question.id}, query_params) }}" class="btn btn_03">답변</a>
+                            <a href="{{ url_for('admin.member.qa.manage.delete', {id: question.id}) }}"
                                 onclick="delete_confirm(this); return false;" class="btn btn_02">
                                 삭제
                             </a>

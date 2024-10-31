@@ -368,8 +368,12 @@ class MemberService
      * @param string $mb_id 회원아이디
      * @return array|false
      */
-    public function fetchMemberById(string $mb_id)
+    public function fetchMemberById(?string $mb_id = null)
     {
+        if (!$mb_id) {
+            return false;
+        }
+
         static $cache = [];
         if (isset($cache[$mb_id])) {
             return $cache[$mb_id];

@@ -2,16 +2,17 @@
 
 namespace Bootstrap;
 
-use App\Base\Service\ThemeService;
 use App\Base\Service\ConfigService;
+use App\Base\Service\ThemeService;
+use Core\Extension\CsrfExtension;
+use Core\Extension\FlashExtension;
 use Core\FileService;
+use Core\PluginService;
+use DI\Container;
+use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
 use Twig\Extra\Html\HtmlExtension;
 use Twig\Extra\Intl\IntlExtension;
-use Core\Extension\CsrfExtension;
-use Core\Extension\FlashExtension;
-use Core\PluginService;
-use DI\Container;
 use Twig\Loader\FilesystemLoader;
 
 class TwigConfig
@@ -44,6 +45,7 @@ class TwigConfig
             ]
         );
         self::addExtensions($twig, $container);
+        self::addGlobalVariables($twig, $container);
 
         return $twig;
     }
@@ -71,6 +73,15 @@ class TwigConfig
     private static function initializeThemeDirectory(string $theme_directory): void
     {
         ThemeService::setBaseDir($theme_directory);
+    }
+
+    /**
+     * Twig에 전역 변수를 추가합니다.
+     */
+    private static function addGlobalVariables(Twig $twig, Container $container): void
+    {
+        $request = $container->get(Request::class);
+        $twig->getEnvironment()->addGlobal('query_params', $request->getQueryParams());
     }
 
     /**

@@ -358,10 +358,10 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `new_qa_category`
+-- Table structure for table `new_question_category`
 --
-DROP TABLE IF EXISTS `new_qa_category`;
-CREATE TABLE IF NOT EXISTS `new_qa_category` (
+DROP TABLE IF EXISTS `new_question_category`;
+CREATE TABLE IF NOT EXISTS `new_question_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'QA 카테고리 ID',
   `title` varchar(255) NOT NULL DEFAULT '' COMMENT '카테고리 타이틀',
   `template` text DEFAULT '' COMMENT '서식',
@@ -370,22 +370,22 @@ CREATE TABLE IF NOT EXISTS `new_qa_category` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 카테고리 관리';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Q&A 카테고리 관리';
 
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `new_qa`
+-- Table structure for table `new_question`
 --
 
-DROP TABLE IF EXISTS `new_qa`;
-CREATE TABLE IF NOT EXISTS `new_qa` (
+DROP TABLE IF EXISTS `new_question`;
+CREATE TABLE IF NOT EXISTS `new_question` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category_id` int(11) DEFAULT NULL COMMENT '카테고리 ID',
   `mb_id` varchar(60) DEFAULT NULL COMMENT '회원 아이디',
-  `questioner_name` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이름',
-  `questioner_email` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이메일',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이름',
+  `email` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 이메일',
   `status` varchar(20) NOT NULL DEFAULT 'pending' COMMENT '1:1문의 상태(pending, in_progress, completed)',
   `subject` varchar(255) NOT NULL DEFAULT '' COMMENT '질문 제목',
   `content` text NOT NULL COMMENT '질문 내용',
@@ -393,25 +393,25 @@ CREATE TABLE IF NOT EXISTS `new_qa` (
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 관리';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Q&A 질문 관리';
 
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `new_qa_answer`
+-- Table structure for table `new_question_answer`
 --
 
-DROP TABLE IF EXISTS `new_qa_answer`;
-CREATE TABLE IF NOT EXISTS `new_qa_answer` (
+DROP TABLE IF EXISTS `new_question_answer`;
+CREATE TABLE IF NOT EXISTS `new_question_answer` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `qa_id` int(11) NOT NULL COMMENT '질문 ID',
-  `mb_id` varchar(60) DEFAULT NULL COMMENT '답변 작성자 회원 아이디',
+  `question_id` int(11) NOT NULL COMMENT '질문 ID',
+  `admin_id` varchar(60) DEFAULT NULL COMMENT '답변 작성자 회원 아이디',
   `content` text NOT NULL COMMENT '답변 내용',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='QA 답변 관리';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Q&A 답변 관리';
 
 
 -- --------------------------------------------------------

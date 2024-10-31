@@ -46,8 +46,7 @@ class PointController extends BaseController
             'points' => $points,
             'total_count' => $total_count,
             'search' => $search_request,
-            'pagination' => $search_request->getPaginationInfo(),
-            'query_params' => $request->getQueryParams(),
+            'pagination' => $search_request->getPaginationInfo()
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/point_form.html', $response_data);

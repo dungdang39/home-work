@@ -3,6 +3,7 @@
 namespace App\Base\Controller\Admin;
 
 use App\Base\Model\Admin\QaSearchRequest;
+use App\Base\Model\Admin\UpdateQaReqeust;
 use App\Base\Service\QaConfigService;
 use App\Base\Service\QaService;
 use Core\BaseController;
@@ -33,21 +34,20 @@ class QaController extends BaseController
         $search_params = $search_request->publics();
 
         // 검색 데이터 수 조회 및 페이징 정보 설정
-        $total_count = $this->service->fetchQasTotalCount($search_params);
+        $total_count = $this->service->fetchQuestionsTotalCount($search_params);
         $search_request->setTotalCount($total_count);
 
         // Q&A 목록 조회
-        $qas = $this->service->getQas($search_params);
+        $questions = $this->service->getQuestions($search_params);
         // 카테고리 목록 조회
         $categories = $this->config_service->getCategories();
 
         $response_data = [
             'categories' => $categories,
-            'qas' => $qas,
+            'questions' => $questions,
             'total_count' => $total_count,
             'search' => $search_request,
             'pagination' => $search_request->getPaginationInfo(),
-            'query_params' => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/qa/list.html', $response_data);
@@ -58,9 +58,12 @@ class QaController extends BaseController
      */
     public function view(Request $request, Response $response, int $id): Response
     {
-        $qa = $this->service->getQa($id);
+        $question = $this->service->getQuestion($id);
+        $answer = $this->service->getAnswerByQuestion($question['id']);
+
         $response_data = [
-            'qa' => $qa,
+            'question' => $question,
+            'answer' => $answer,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/qa/form.html', $response_data);
@@ -69,11 +72,24 @@ class QaController extends BaseController
     /**
      * Q&A 수정
      */
-    public function update(Request $request, Response $response, int $id): Response
+    public function updateQa(Request $request, Response $response, int $id, UpdateQaReqeust $data): Response
     {
-        $routeContext = RouteContext::fromRequest($request);
-        $redirect_url = $routeContext->getRouteParser()->urlFor('admin.dashboard');
-        return $response->withHeader('Location', $redirect_url)->withStatus(302);
+        $question = $this->service->getQuestion($id);
+        $answer = $this->service->getAnswerByQuestion($question['id']);
+
+        $this->service->updateQuestion($question['id'], ['status' => $data->status]);
+        if (empty($answer) && $data->content) {
+            $login_member = $request->getAttribute('login_member');
+            $this->service->createAnswer([
+                'question_id' => $question['id'],
+                'admin_id' => $login_member['mb_id'],
+                'content' => $data->content
+            ]);
+        } elseif ($answer) {
+            $this->service->updateAnswer($answer['id'], ['content' => $data->content]);
+        }
+        
+        return $this->redirectRoute($request, $response, 'admin.member.qa.manage.view', ['id' => $id]);
     }
 
     /**
@@ -81,9 +97,9 @@ class QaController extends BaseController
      */
     public function delete(Request $request, Response $response, int $id): Response
     {
-        $qa = $this->service->getQa($id);
+        $question = $this->service->getQuestion($id);
 
-        $this->service->deleteQa($qa['id']);
+        $this->service->deleteQa($question['id']);
 
         return $response->withJson(['message' => '삭제되었습니다.']);
     }

@@ -193,7 +193,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->get('/create', [QaController::class, 'create'])->setName('admin.member.qa.manage.create');
                     $group->post('', [QaController::class, 'insert'])->setName('admin.member.qa.manage.insert');
                     $group->get('/{id}', [QaController::class, 'view'])->setName('admin.member.qa.manage.view');
-                    $group->put('/{id}', [QaController::class, 'update'])->setName('admin.member.qa.manage.update');
+                    $group->put('/{id}', [QaController::class, 'updateQa'])->setName('admin.member.qa.manage.update');
                     $group->delete('/{id}', [QaController::class, 'delete'])->setName('admin.member.qa.manage.delete');
                 });
             });

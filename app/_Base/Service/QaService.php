@@ -8,10 +8,10 @@ use Exception;
 
 class QaService
 {
-    public const TABLE_NAME = 'qa';
-    public const ANSWER_TABLE_NAME = 'qa_answer';
+    public const QUESTION_TABLE_NAME = 'question';
+    public const ANSWER_TABLE_NAME = 'question_answer';
 
-    private string $table;
+    private string $question_table;
     private string $answer_table;
     private Container $container;
 
@@ -19,7 +19,7 @@ class QaService
         Container $container
     ) {
         $this->container = $container;
-        $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+        $this->question_table = $_ENV['DB_PREFIX'] . self::QUESTION_TABLE_NAME;
         $this->answer_table = $_ENV['DB_PREFIX'] . self::ANSWER_TABLE_NAME;
     }
 
@@ -28,9 +28,9 @@ class QaService
      * @param array $params
      * @return array
      */
-    public function getQas(array $params = []): array
+    public function getQuestions(array $params = []): array
     {
-        $qas = $this->fetchQas($params);
+        $qas = $this->fetchQuestions($params);
         if (empty($qas)) {
             return [];
         }
@@ -45,22 +45,63 @@ class QaService
     }
 
     /**
-     * Q&A 상세 조회
+     * Q&A 질문 조회
      * @param int $id
      * @return array
      */
-    public function getQa(int $id): array
+    public function getQuestion(int $id): array
     {
-        $qa = $this->fetchById($id);
-        if (empty($qa)) {
+        $question = $this->fetchQuestion($id);
+        if (empty($question)) {
             throw new Exception('Q&A 정보를 찾을 수 없습니다.');
         }
         $config_service = $this->container->get(QaConfigService::class);
         $member_service = $this->container->get(MemberService::class);
-        $qa['category'] = $config_service->fetchCategory($qa['category_id']);
-        $qa['member'] = $member_service->fetchMemberById($qa['mb_id']);
+        $question['category'] = $config_service->fetchCategory($question['category_id']);
+        $question['member'] = $member_service->fetchMemberById($question['mb_id']);
 
-        return $qa;
+        return $question;
+    }
+
+    /**
+     * Q&A 질문ID로 답변 조회
+     * @param int $question_id
+     * @return array
+     */
+    public function getAnswerByQuestion(int $question_id): array
+    {
+        $answer = $this->fetchAnswerByQuestionId($question_id);
+        if (empty($answer)) {
+            return [];
+        }
+        $member_service = $this->container->get(MemberService::class);
+        $answer['admin'] = $member_service->fetchMemberById($answer['admin_id']);
+
+        return $answer;
+    }
+
+    /**
+     * Q&A 답변 조회
+     * @param int $question_id
+     * @return array
+     */
+    public function getAnswer(?int $answer_id = null): array
+    {
+        $answer = $this->fetchAnswer($answer_id);
+        if (empty($answer)) {
+            throw new Exception('Q&A 답변 정보를 찾을 수 없습니다.');
+        }
+        return $answer;
+    }
+
+    /**
+     * Q&A 답변 등록
+     * @param int $question_id
+     * @param array $data
+     */
+    public function createAnswer(array $data): int
+    {
+        return $this->insertAnswer($data);
     }
 
     /**
@@ -75,10 +116,7 @@ class QaService
         Db::getInstance()->getPdo()->beginTransaction();
 
         $this->deleteAnswer($id);
-
-        // 첨부파일 삭제 추가
-
-        $this->delete($id);
+        $this->deleteQuestion($id);
 
         Db::getInstance()->getPdo()->commit();
 
@@ -90,11 +128,11 @@ class QaService
     // ========================================
 
     /**
-     * Q&A 총 데이터 수 조회
+     * Q&A 질문 총 데이터 수 조회
      * @param array $params
      * @return int
      */
-    public function fetchQasTotalCount(array $params = []): int
+    public function fetchQuestionsTotalCount(array $params = []): int
     {
         $values = [];
         $wheres = [];
@@ -104,18 +142,18 @@ class QaService
         $sql_where = Db::buildWhere($wheres);
 
         $query = "SELECT COUNT(*)
-                    FROM {$this->table}
+                    FROM {$this->question_table}
                     {$sql_where}";
 
         return Db::getInstance()->run($query, $values)->fetchColumn();
     }
 
     /**
-     * Q&A 목록 조회
+     * Q&A 질문 목록 조회
      * @param array $params
      * @return array|false
      */
-    public function fetchQas(array $params = []): array
+    public function fetchQuestions(array $params = []): array
     {
         $values = [];
         $wheres = [];
@@ -132,32 +170,59 @@ class QaService
         }
 
         $query = "SELECT *
-                    FROM {$this->table}
+                    FROM {$this->question_table}
                     {$sql_where}
                     {$sql_limit}";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
     }
 
-    public function fetchById(int $id)
+    public function fetchQuestion(int $id)
     {
-        $query = "SELECT * FROM {$this->table} WHERE id = :id";
+        $query = "SELECT * FROM {$this->question_table} WHERE id = :id";
         return Db::getInstance()->run($query, ['id' => $id])->fetch();
     }
 
-    public function update(array $data): int
+    public function fetchAnswer(?int $answer_id = null)
     {
-        return Db::getInstance()->update($this->table, $data);
+        $query = "SELECT * FROM {$this->answer_table} WHERE id = :id";
+        return Db::getInstance()->run($query, ['id' => $answer_id])->fetch();
     }
 
-    public function delete(int $id): int
+    public function fetchAnswerByQuestionId(int $question_id)
     {
-        return Db::getInstance()->delete($this->table, ['id' => $id]);
+        $query = "SELECT * FROM {$this->answer_table} WHERE question_id = :question_id";
+        return Db::getInstance()->run($query, ['question_id' => $question_id])->fetch();
     }
 
-    public function deleteAnswer(int $qa_id): int
+    public function insertQuestion(array $data): int
     {
-        return Db::getInstance()->delete($this->answer_table, ['qa_id' => $qa_id]);
+        return Db::getInstance()->insert($this->question_table, $data);
+    }
+
+    public function insertAnswer(array $data): int
+    {
+        return Db::getInstance()->insert($this->answer_table, $data);
+    }
+
+    public function updateQuestion(int $question_id, array $data): int
+    {
+        return Db::getInstance()->update($this->question_table, $data, ['id' => $question_id]);
+    }
+
+    public function updateAnswer(int $answer_id, array $data): int
+    {
+        return Db::getInstance()->update($this->answer_table, $data, ['id' => $answer_id]);
+    }
+
+    public function deleteQuestion(int $id): int
+    {
+        return Db::getInstance()->delete($this->question_table, ['id' => $id]);
+    }
+
+    public function deleteAnswer(int $question_id): int
+    {
+        return Db::getInstance()->delete($this->answer_table, ['question_id' => $question_id]);
     }
 
     /**
