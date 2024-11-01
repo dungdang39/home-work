@@ -19,6 +19,7 @@ use Core\Lib\FlashMessage;
 use Core\Validator\Validator;
 use DI\Container;
 use Exception;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -111,10 +112,12 @@ class MemberController extends BaseController
         $member = $this->service->getMember($mb_id);
 
         $socials = $this->social_service->getMemberSocialProfiles($mb_id);
+        $memos = $this->service->getMemos($mb_id);
 
         $response_data = [
             "member" => $member,
             "socials" => $socials,
+            "memos" => $memos
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/form.html', $response_data);
@@ -227,17 +230,34 @@ class MemberController extends BaseController
     }
 
     /**
-     * 회원 메모 수정
+     * 회원 메모 추가
      */
-    public function updateMemo(Request $request, Response $response, MemberMemoRequest $data, string $mb_id): Response
+    public function insertMemo(Request $request, Response $response, string $mb_id, MemberMemoRequest $data): Response
     {
+        $admin_id = $request->getAttribute('login_member')['mb_id'] ?? '';
         $member = $this->service->getMember($mb_id);
 
-        $this->service->update($member['mb_id'], $data->publics());
+        $this->service->insertMemo([
+            'mb_id' => $member['mb_id'],
+            'memo' => $data->memo,
+            'author_mb_id' => $admin_id,
+        ]);
+        return $response->withJson(['message' => '메모가 등록되었습니다.'], 200);
+    }
 
-        return $response->withJson([
-            'message' => '메모가 ' . ($data->mb_memo === '') ? '삭제' : '수정' . '되었습니다.',
-        ], 200);
+    /**
+     * 회원 메모 삭제
+     */
+    public function deleteMemo(Request $request, Response $response, string $mb_id, int $memo_id): Response
+    {
+        $memo = $this->service->getMemo($memo_id);
+        if ($memo['mb_id'] !== $mb_id) {
+            throw new HttpForbiddenException($request, '메모를 삭제할 수 없습니다.');
+        }
+
+        $this->service->deleteMemo($memo['id']);
+
+        return $response->withJson(['message' => '메모가 삭제되었습니다.'], 200);
     }
 
     /**

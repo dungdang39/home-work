@@ -333,7 +333,7 @@
             }
 
             const url = "{{ url_for('admin.config.basic.mail.test') }}";
-            sendAjaxRequest(url, 'POST', { mail_address: mail_address }, false);
+            sendAjaxRequest(url, 'POST', { mail_address: mail_address });
         });
     });
         

@@ -9,18 +9,11 @@ class MemberMemoRequest
 {
     use SchemaHelperTrait;
 
-    public ?string $mb_memo = '';
-    public ?string $mb_memo_created_at;
-
-    private array $config;
+    public ?string $memo = '';
 
     public function __construct(
-        Request $request
+        Request $request,
     ) {
         $this->initializeFromRequest($request);
-        if (empty($this->mb_memo)) {
-            $this->mb_memo_created_at = null;
-        }
-        $this->mb_memo_created_at = date('Y-m-d H:i:s');
     }
 }

@@ -131,13 +131,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="mb_email">E-mail<strong class="sound_only">필수</strong></label>
-                            </th>
-                            <td><input type="text" name="mb_email" value="{{ old('mb_email', member) }}" id="mb_email" maxlength="100" required
-                                    class="required frm_input email" size="30"></td>
-                            <th scope="row"><label for="mb_homepage">홈페이지</label></th>
-                            <td><input type="text" name="mb_homepage" value="{{ old('mb_homepage', member) }}" id="mb_homepage" class="frm_input"
-                                    maxlength="255" size="15"></td>
+                            <th scope="row"><label for="mb_email">E-mail<strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <input type="text" name="mb_email" value="{{ old('mb_email', member) }}" id="mb_email" maxlength="100" required class="required frm_input email" size="30">
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="mb_hp">휴대폰번호</label></th>
@@ -220,7 +217,35 @@
                     <tbody>
                         <tr>
                             <th scope="row"><label for="mb_memo">메모</label></th>
-                            <td colspan="3"><textarea name="mb_memo" id="mb_memo">{{ old('mb_memo', member) }}</textarea></td>
+                            <td colspan="3">
+                                <input type="text" id="new_memo" class="frm_input" size="60">
+                                <button type="button" class="btn btn_03" id="btn_add_memo">메모 추가</button>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>입력일시</th>
+                                            <th>아이디</th>
+                                            <th>메모 내용</th>
+                                            <th>삭제</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for memo in memos %}
+                                        <tr>
+                                            <td>{{ memo.created_at }}</td>
+                                            <td>{{ memo.author_mb_id }}</td>
+                                            <td>{{ memo.memo }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn_03" onclick="delete_memo(this.dataset.href);"
+                                                    data-href="{{ url_for('admin.member.manage.memo.delete', {'mb_id': member.mb_id, 'memo_id': memo.id}) }}">
+                                                    삭제
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="notification_message">알림</label></th>
@@ -305,7 +330,7 @@
     </form>
 </div>
 <script>
-    function validate_form(form) {
+    function validate_form(f) {
         if (!f.mb_icon.value.match(/\.(gif|jpe?g|png)$/i) && f.mb_icon.value) {
             alert('아이콘은 이미지 파일만 가능합니다.');
             return false;
@@ -317,6 +342,10 @@
         }
 
         return true;
+    }
+
+    function delete_memo(url) {
+        return delete_confirm(url, '메모를 삭제하시겠습니까?');
     }
 
     $(function(){
@@ -423,6 +452,20 @@
             .catch(error => {
                 console.error('Error:', error);
             });
+        });
+
+        // 메모 추가
+        const btnAddMemo = document.getElementById('btn_add_memo');
+        const newMemoInput = document.getElementById('new_memo');
+        btnAddMemo.addEventListener('click', function () {
+            const newMemo = newMemoInput.value.trim();
+            if (!newMemo) {
+                alert('메모 내용을 입력해주세요.');
+                return;
+            }
+            
+            const url = "{{ url_for('admin.member.manage.memo.insert', {'mb_id': member.mb_id}) }}";
+            sendAjaxRequest(url, 'POST', {memo: newMemo}, {reload: true});
         });
     });
 </script>

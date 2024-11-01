@@ -85,9 +85,9 @@ class Db
     {
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
-        if (AppConfig::getInstance()->get('APP_DEBUG')) {
-            $this->logging_last_stmt($stmt);
-        }
+        // if (AppConfig::getInstance()->get('APP_DEBUG')) {
+        //     $this->logging_last_stmt($stmt);
+        // }
         return $stmt;
     }
 

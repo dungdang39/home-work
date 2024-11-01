@@ -220,7 +220,8 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('/list/delete', [MemberController::class, 'deleteList'])->setName('admin.member.manage.delete.list');
                 $group->delete('/{mb_id}', [MemberController::class, 'delete'])->setName('admin.member.manage.delete');
                 $group->get('/{mb_id}/info', [MemberController::class, 'getMemberInfo'])->setName('admin.member.manage.info');
-                $group->put('/{mb_id}/memo', [MemberController::class, 'updateMemo'])->setName('admin.member.manage.memo');
+                $group->post('/{mb_id}/memo', [MemberController::class, 'insertMemo'])->setName('admin.member.manage.memo.insert');
+                $group->delete('/{mb_id}/memo/{memo_id}', [MemberController::class, 'deleteMemo'])->setName('admin.member.manage.memo.delete');
                 $group->post('/{mb_id}/notification', [MemberController::class, 'sendNotification'])->setName('admin.member.manage.notification');
                 $group->delete('/{mb_id}/social/{provider}/unlink', [SocialLoginController::class, 'unlinkSocial'])->setName('admin.member.manage.social.unlink');
             });

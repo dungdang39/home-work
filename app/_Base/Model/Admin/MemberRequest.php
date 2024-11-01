@@ -22,7 +22,6 @@ class MemberRequest
     public string $mb_email;
     public ?string $mb_nick_date = '';
     public ?string $mb_image;
-    public ?string $mb_homepage = '';
     public ?string $mb_hp = '';
     public ?string $mb_tel = '';
     public ?string $mb_zip = '';
@@ -33,7 +32,6 @@ class MemberRequest
     public ?string $mb_certify = '';
 
     // 관리 정보
-    public ?string $mb_memo = '';
     public ?int $mb_is_marketing_receive = 0;
     public ?int $mb_open = 0;
     public ?string $mb_leave_date = null;

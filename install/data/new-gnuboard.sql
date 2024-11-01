@@ -179,7 +179,6 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_nick_date` date DEFAULT NULL COMMENT '회원 닉네임 변경일',
   `mb_image` varchar(255) DEFAULT NULL COMMENT '회원 이미지',
   `mb_email` varchar(255) NOT NULL COMMENT '이메일',
-  `mb_homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '홈페이지',
   `mb_level` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '회원레벨',
   `mb_sex` char(1) NOT NULL DEFAULT '' COMMENT '성별',
   `mb_birth` date DEFAULT NULL COMMENT '생일',
@@ -203,8 +202,6 @@ CREATE TABLE IF NOT EXISTS `new_member` (
   `mb_intercept_date` datetime DEFAULT NULL COMMENT '회원 접근차단일',
   `mb_email_verified_at` datetime DEFAULT NULL COMMENT '메일인증 완료 일시',
   `mb_email_verified_code` varchar(255) NOT NULL DEFAULT '' COMMENT '메일 인증 코드(일회용)',
-  `mb_memo` text DEFAULT NULL COMMENT '메모',
-  `mb_memo_created_at` datetime DEFAULT NULL COMMENT '메모 등록일시',
   `mb_lost_certify` varchar(255) NOT NULL DEFAULT '' COMMENT '비밀번호 분실 시 인증 코드',
   `mb_is_marketing_receive` tinyint(1) NOT NULL DEFAULT 0 COMMENT '광고성정보 수신동의',
   `mb_open` tinyint(1) NOT NULL DEFAULT 0 COMMENT '회원정보 공개 여부',
@@ -221,9 +218,30 @@ CREATE TABLE IF NOT EXISTS `new_member` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 정보';
 
 
--- gnuboard7.new_member_social_profiles definition
+-- --------------------------------------------------------
 
-CREATE TABLE `new_member_social_profiles` (
+--
+-- Table structure for table `new_member_memo`
+--
+DROP TABLE IF EXISTS `new_member_memo`;
+CREATE TABLE IF NOT EXISTS `new_member_memo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
+  `mb_id` varchar(60) NOT NULL COMMENT '회원 ID',
+  `memo` varchar(255) NOT NULL COMMENT '메모 내용',
+  `created_by` int(11) NOT NULL COMMENT '메모 작성자 ID',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '작성일',
+  PRIMARY KEY (`id`),
+  KEY `idx_mb_id` (`mb_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='회원 메모 관리';
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_member_social_profiles`
+--
+DROP TABLE IF EXISTS `new_member_social_profiles`;
+CREATE TABLE IF NOT EXISTS `new_member_social_profiles` (
   `mp_no` int(11) NOT NULL AUTO_INCREMENT,
   `mb_id` varchar(255) NOT NULL DEFAULT '' COMMENT '회원 아이디',
   `provider` varchar(50) NOT NULL DEFAULT '' COMMENT '소셜 제공자',

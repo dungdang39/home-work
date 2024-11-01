@@ -10,11 +10,13 @@ use Slim\Http\ServerRequest as Request;
 class MemberService
 {
     public const TABLE_NAME = 'member';
+    public const MEMO_TABLE_NAME = 'member_memo';
     public const DIRECTORY = 'member';
     public const IMAGE_WIDTH = 60;
     public const IMAGE_HEIGHT = 60;
 
     public string $table;
+    public string $memo_table;
 
     private Request $request;
     private ConfigService $config_service;
@@ -24,6 +26,7 @@ class MemberService
         ConfigService $config_service
     ) {
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
+        $this->memo_table = $_ENV['DB_PREFIX'] . self::MEMO_TABLE_NAME;
 
         $this->request = $request;
         $this->config_service = $config_service;
@@ -90,6 +93,41 @@ class MemberService
     }
 
     /**
+     * 회원메모 목록 조회
+     * @param string $mb_id 회원아이디
+     * @return array
+     */
+    public function getMemos(string $mb_id): array
+    {
+        $memos = $this->fetchMemos($mb_id);
+        if (!$memos) {
+            return [];
+        }
+
+        foreach ($memos as &$memo) {
+            $memo['admin'] = $this->fetchMemberById($memo['author_mb_id']);
+        }
+
+
+        return $memos;
+    }
+
+    /**
+     * 회원메모 조회
+     * @param int $memo_id 메모번호
+     * @return array
+     */
+    public function getMemo(int $memo_id): array
+    {
+        $memo = $this->fetchMemo($memo_id);
+        if (!$memo) {
+            throw new HttpNotFoundException($this->request, '메모정보가 존재하지 않습니다.');
+        }
+
+        return $memo;
+    }
+
+    /**
      * 회원가입 처리
      * @param array $data 회원가입 데이터
      * @return int 회원번호
@@ -152,12 +190,13 @@ class MemberService
     {
         $update_data = [
             'mb_leave_date' => date('Ymd'),
-            'mb_memo' => date('Ymd') . " 탈퇴함\n" . addslashes($member['mb_memo']),
             'mb_certify' => '',
             'mb_adult' => 0,
             'mb_dupinfo' => ''
         ];
         $this->updateMember($member['mb_id'], $update_data);
+
+        // @todo 메모 추가 처리
 
         // Hook - 회원탈퇴
         // run_event('member_leave', $member);
@@ -247,8 +286,8 @@ class MemberService
             'mb_level' => 1,
             'mb_email' => '',
             'mb_leave_date' => date('Ymd'),
-            'mb_memo' => date('Ymd') . " 삭제함\n" . $member['mb_memo']
         ]);
+        // @todo 메모 추가 필요
         // @todo
         // 추천 포인트 반환
         // 포인트 테이블에서 삭제
@@ -386,6 +425,28 @@ class MemberService
     }
 
     /**
+     * 회원메모 목록 조회
+     * @param string $mb_id 회원아이디
+     * @return array|false
+     */
+    public function fetchMemos(string $mb_id): array
+    {
+        $query = "SELECT * FROM {$this->memo_table} WHERE mb_id = :mb_id ORDER BY id DESC";
+        return Db::getInstance()->run($query, ['mb_id' => $mb_id])->fetchAll();
+    }
+
+    /**
+     * 회원메모 조회
+     * @param int $memo_id 메모번호
+     * @return array|false
+     */
+    public function fetchMemo(int $memo_id)
+    {
+        $query = "SELECT * FROM {$this->memo_table} WHERE id = :id";
+        return Db::getInstance()->run($query, ['id' => $memo_id])->fetch();
+    }
+
+    /**
      * 회원정보를 해시값으로 조회
      * @param string $hash 회원아이디 해시값
      * @return array|false
@@ -487,6 +548,18 @@ class MemberService
     }
 
     /**
+     * 회원메모 추가
+     * @param array $data 메모 데이터
+     * @return int 메모번호
+     */
+    public function insertMemo(array $data): int
+    {
+        $insert_id = Db::getInstance()->insert($this->memo_table, $data);
+
+        return $insert_id;
+    }
+
+    /**
      * 회원정보 수정 처리
      * @param string $mb_id 회원아이디
      * @param array $data 수정할 데이터
@@ -510,5 +583,16 @@ class MemberService
         $new_hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $update_rows = $this->update($mb_id, ['mb_password' => $new_hashed_password]);
         return $update_rows > 0;
+    }
+
+    /**
+     * 회원메모 삭제
+     * @param int $memo_id 메모번호
+     * @return void
+     */
+    public function deleteMemo(int $memo_id): void
+    {
+        $query = "DELETE FROM {$this->memo_table} WHERE id = :id";
+        Db::getInstance()->run($query, ['id' => $memo_id]);
     }
 }

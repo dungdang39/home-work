@@ -113,7 +113,7 @@
                             </select>
                         </td>
                         <td headers="mb_list_memo" class="td_mng_m">
-                            <button type="button" name="btn_memo" class="btn btn_03" data-mb_id="{{ member.mb_id }}">메모</button>
+                            <button type="button" name="btn_modal_memo" class="btn btn_03" data-mb_id="{{ member.mb_id }}">메모</button>
                         </td>
                         <td headers="mb_list_blank" class="td_mng_m">
                             <button type="button" name="btn_notify" class="btn btn_03" data-mb_id="{{ member.mb_id }}">알림</button>
@@ -136,22 +136,17 @@
     {{ renderPagination(pagination, query_params) }}
 </div>
 
-<div class="is_rewrite remodal" data-remodal-id="modal_memo" role="dialog" aria-labelledby="modalMemo" aria-describedby="modal1Desc">
+<div class="is_rewrite remodal" data-remodal-id="modal_memo" role="dialog" aria-labelledby="modalMemo" aria-describedby="modal1Desc" style="max-width:400px;">
     <button type="button" class="connect-close" data-remodal-action="close">
         <i class="fa fa-close"></i>
         <span class="txt">닫기</span>
     </button>
     <form name="memo_form">
         <input type="hidden" name="mb_id" value="">
-
+        <h2>메모 작성</h2>
         <h3>회원아이디 / 이름 / 닉네임</h3>
-        <div name="memo_created_at">
-            <h4 class="copy_title">등록일시</h4>
-            <span></span>
-        </div>
-        <textarea rows="5" style="min-height:unset;"></textarea>
-        <button type="button" id="btn_memo_add" class="btn btn_03">메모 추가</button>
-        <button type="button" id="btn_memo_remove" class="btn btn_02">삭제</button> 
+        <input type="text" name="memo" class="frm_input frm_input_full" value="">
+        <button type="button" id="btn_memo_add" class="btn btn_03">등록</button>
     </form>
 </div>
 
@@ -171,44 +166,52 @@
 </div>
 
 <script>
-    const memo_update_url = "{{ url_for('admin.member.manage.memo', {mb_id: '__REPLACE_ID__'}) }}";
     const send_notification_url = "{{ url_for('admin.member.manage.notification', {mb_id: '__REPLACE_ID__'}) }}";
-    let modal_memo = $('[data-remodal-id="modal_memo"]');
     let modal_notify = $('[data-remodal-id="modal_notify"]');
 
-    /**
-     * 메모
-     */
-    $("button[name='btn_memo']").on("click", async function () {
-        let mb_id = $(this).data("mb_id");
-        
-        let member = await get_member_info(mb_id);
-        if (member) {
-            modal_memo.find("h3").text(member.mb_id + " / " + member.mb_name + " / " + member.mb_nick);
-            modal_memo.find("textarea").text(member.mb_memo);
+    document.addEventListener('DOMContentLoaded', function () {
+        // 메모 모달버튼 클릭 이벤트
+        const $modal_memo = $('[data-remodal-id="modal_memo"]');
+        const btn_modal_memo = document.querySelectorAll("button[name='btn_modal_memo']");
+        btn_modal_memo.forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                let mb_id = this.dataset.mb_id;
+                let member = await get_member_info(mb_id);
+                if (member) {
+                    
+                    $modal_memo.find("h3").html(
+                        "아이디 : " + member.mb_id
+                        + "<br>이름 : " + member.mb_name
+                        + "<br>닉네임 : " + member.mb_nick
+                    );
+                    $modal_memo.find("input[name='mb_id']").val(mb_id);
+                    $modal_memo.remodal().open();
+                }
+            });
+        });
 
-            if (member.mb_memo) {
-                modal_memo.find("[name='memo_created_at'] span").text(member.mb_memo_created_at ?? '');
-                modal_memo.find("[name='memo_created_at']").show();
-            } else {
-                modal_memo.find("[name='memo_created_at'] span").text('');
-                modal_memo.find("[name='memo_created_at']").hide();
+        // 메모 추가 버튼 클릭 이벤트
+        const btn_memo_add = document.getElementById("btn_memo_add");
+        btn_memo_add.addEventListener("click", function () {
+            let memo = $modal_memo.find("input[name='memo']").val();
+            if (memo.length == 0) {
+                alert("메모를 입력하세요.");
+                return;
             }
-            modal_memo.find("input[name='mb_id']").val(mb_id);
-            modal_memo.remodal().open();
-        }
+
+            let mb_id = $modal_memo.find("input[name='mb_id']").val();
+            let url = "{{ url_for('admin.member.manage.memo.insert', {mb_id: '__REPLACE_ID__'}) }}";
+            url = url.replace('__REPLACE_ID__', mb_id);
+
+            sendAjaxRequest(url, 'POST', {memo: memo}, {callback: function (data) {
+                $modal_memo.find("input[name='memo']").val("");
+                $modal_memo.remodal().close();
+            }});
+        });
+        
     });
 
-    $("#btn_memo_add").on("click", function () {
-        let memo = modal_memo.find("textarea").val();
-        if (memo.length == 0) {
-            alert("메모를 입력하세요.");
-            return;
-        }
-
-        update_memo();
-    });
-
+    /*
     $("#btn_memo_remove").on("click", function () {
         if (!confirm("메모를 삭제하시겠습니까?")) {
             return;
@@ -246,6 +249,7 @@
             }
         });
     }
+    */
 
     /**
      * 알림 전송
