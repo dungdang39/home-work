@@ -4,13 +4,13 @@
  * Slim Framework를 사용한 애플리케이션 진입점
  */
 
-use API\Middleware\JsonBodyParserMiddleware;
 use Bootstrap\TwigConfig;
 use Bootstrap\ContainerConfig;
 use Bootstrap\EnvLoader;
 use Bootstrap\RouterConfig;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
+use Core\Middleware\JsonBodyParserMiddleware;
 use Core\PluginService;
 use Core\Validator\Installation;
 use DI\Container;

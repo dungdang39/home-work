@@ -32,6 +32,7 @@ class ContainerConfig
         $container->set('csrf', function ($container) {
             $responseFactory = $container->get('responseFactory');
             $guard = new Guard($responseFactory);
+            $guard->setPersistentTokenMode(true);
             $guard->setFailureHandler(function (Request $request, $handler) {
                 $content_length = $request->getServerParams()['CONTENT_LENGTH'] ?? 0;
                 $post_max_size = (int)ini_get('post_max_size');
