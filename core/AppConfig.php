@@ -47,6 +47,7 @@ class AppConfig
         'PHPMAILER_DIR' => 'PHPMailer',
         'SESSION_DIR' => 'session',
         'THEME_DIR' => 'theme',
+        'LOGO_DIR' => 'logo',
 
         'SET_DEVICE' => 'both',
         'USE_MOBILE' => true,

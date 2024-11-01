@@ -4,7 +4,6 @@
 {% set title = '디자인/UI > 테마 설정' %}
 {% set sub_menus = {
     'theme' : '테마',
-    'logo': '로고',
 } %}
 
 {% block title %}{{ title }}{% endblock title %}
@@ -124,54 +123,6 @@
             </div>
         </div>
     </section>
-
-    <form name="form_theme" method="post" action="{{ url_for('admin.design.theme.config.update') }}" enctype="multipart/form-data">
-        <input type="hidden" name="_METHOD" value="PUT"/>
-        {{ csrf.field|raw }}
-
-        <section id="anchor_logo">
-            <h2 class="h2_frm">{{ sub_menus.logo }}</h2>
-            {{ anchor(sub_menus, 'logo') }}
-
-            <div class="tbl_frm01 tbl_wrap">
-                <table>
-                    <caption>로고 선택</caption>
-                    <colgroup>
-                        <col class="grid_4">
-                        <col>
-                        <col class="grid_4">
-                        <col>
-                    </colgroup>
-                    <tbody>
-                        <tr>
-                            <th scope="row"><label for="logo_header_file">상단 로고 이미지</label></th>
-                            <td>
-                                <input type="file" name="logo_header_file" id="logo_header_file" class="frm_file">
-                                {% if configs.logo_header %}
-                                <input type="checkbox" id="logo_header_del" name="logo_header_del" value="1"><label for="logo_header_del">삭제</label>
-                                <img src="{{ base_url ~ configs.logo_header }}" alt="배너 이미지" width="{{ logo_header_width }}">
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="logo_footer_file">하단 로고 이미지</label></th>
-                            <td>
-                                <input type="file" name="logo_footer_file" id="logo_footer_file" class="frm_file">
-                                {% if configs.logo_footer %}
-                                <input type="checkbox" id="logo_footer_del" name="logo_footer_del" value="1"><label for="logo_footer_del">삭제</label>
-                                <img src="{{ base_url ~ configs.logo_footer }}" alt="배너 이미지" width="{{ logo_footer_width }}">
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div>
-                <a href="#" class="btn_02 btn">취소 </a>
-                <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
-            </div>
-        </section>
-    </form>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

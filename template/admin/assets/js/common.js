@@ -780,3 +780,23 @@ function sendAjaxRequest(url, method = 'GET', send_data = {}, option = { reload:
 
     xhr.send(JSON.stringify(send_data));
 }
+
+/**
+ * 이미지 파일 검사
+ * @param {*} file
+ * @returns 
+ */
+function isValidImageFile(file) {
+    return file.type.startsWith('image/');
+}
+
+/**
+ * 파일 확장자 검사
+ * @param {*} file 
+ * @param {*} allowedExtensions 
+ * @returns 
+ */
+function isValidFileExtension(file, allowedExtensions) {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    return allowedExtensions.includes(fileExtension);
+}

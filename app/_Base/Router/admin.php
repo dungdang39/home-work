@@ -14,6 +14,7 @@ use App\Base\Controller\Admin\PermissionController;
 use App\Base\Controller\Admin\SocialController;
 use App\Base\Controller\Admin\ContentController;
 use App\Base\Controller\Admin\FaqController;
+use App\Base\Controller\Admin\LogoController;
 use App\Base\Controller\Admin\MemberConfigController;
 use App\Base\Controller\Admin\MemberController;
 use App\Base\Controller\Admin\PluginController;
@@ -114,9 +115,14 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('/install', [ThemeController::class, 'install'])->setName('admin.design.theme.install');
                 $group->post('/{theme}', [ThemeController::class, 'update'])->setName('admin.design.theme.update');
                 $group->post('/{theme}/reset', [ThemeController::class, 'reset'])->setName('admin.design.theme.reset');
-                $group->put('/', [ThemeController::class, 'updateInfo'])->setName('admin.design.theme.config.update');
                 $group->delete('/{theme}/uninstall', [ThemeController::class, 'uninstall'])->setName('admin.design.theme.uninstall');
             })->add(SuperAdminAuthMiddleware::class);
+
+            // 로고
+            $group->group('/logo', function (RouteCollectorProxy $group) {
+                $group->get('', [LogoController::class, 'index'])->setName('admin.design.logo');
+                $group->post('', [LogoController::class, 'update'])->setName('admin.design.logo.update');
+            })->add(AdminMenuPermissionMiddleware::class);
 
             // 배너
             $group->group('/banner', function (RouteCollectorProxy $group) {

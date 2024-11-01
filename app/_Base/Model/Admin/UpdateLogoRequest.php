@@ -8,9 +8,9 @@ use Slim\Http\ServerRequest as Request;
 use Slim\Psr7\UploadedFile;
 
 /**
- * 테마 설정 업데이트 요청
+ * 로고 업데이트 요청
  */
-class UpdateThemeConfigRequest
+class UpdateLogoRequest
 {
     use SchemaHelperTrait;
 

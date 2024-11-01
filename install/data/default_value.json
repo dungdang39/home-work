@@ -426,27 +426,33 @@
                         "children": []
                     },
                     {
+                        "am_name": "로고 관리",
+                        "am_route": "admin.design.logo",
+                        "am_order": 1,
+                        "children": []
+                    },
+                    {
                         "am_name": "배너 관리",
                         "am_route": "admin.design.banner",
-                        "am_order": 1,
+                        "am_order": 2,
                         "children": []
                     },
                     {
                         "am_name": "팝업레이어 관리",
                         "am_route": "admin.design.popup",
-                        "am_order": 2,
+                        "am_order": 3,
                         "children": []
                     },
                     {
                         "am_name": "메인화면 설정",
                         "am_route": "admin.design.mainpage",
-                        "am_order": 3,
+                        "am_order": 4,
                         "children": []
                     },
                     {
                         "am_name": "메뉴 설정",
                         "am_route": "admin.design.menu",
-                        "am_order": 4,
+                        "am_order": 5,
                         "children": []
                     }
                 ]

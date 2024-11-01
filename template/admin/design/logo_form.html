@@ -1,0 +1,79 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, selected %}
+
+{% set title = '디자인/UI > 로고 관리' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <div class="local_desc01 local_desc">
+        <strong>로고 관리</strong>
+        <p>도움말</p>
+    </div>
+
+    <form name="form_logo" method="post" action="{{ url_for('admin.design.logo.update') }}" enctype="multipart/form-data" onsubmit="return validateForm();">
+        {{ csrf.field|raw }}
+
+        <section id="anchor_logo">
+            <h2 class="h2_frm">{{ title }}</h2>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>로고 선택</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="logo_header_file">상단 로고 이미지</label></th>
+                            <td>
+                                <input type="file" name="logo_header_file" id="logo_header_file" class="frm_file">
+                                {% if configs.logo_header %}
+                                <input type="checkbox" id="logo_header_del" name="logo_header_del" value="1"><label for="logo_header_del">삭제</label>
+                                <img src="{{ base_url ~ configs.logo_header }}" alt="상단 로고 이미지" width="{{ logo_header_width }}">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="logo_footer_file">하단 로고 이미지</label></th>
+                            <td>
+                                <input type="file" name="logo_footer_file" id="logo_footer_file" class="frm_file">
+                                {% if configs.logo_footer %}
+                                <input type="checkbox" id="logo_footer_del" name="logo_footer_del" value="1"><label for="logo_footer_del">삭제</label>
+                                <img src="{{ base_url ~ configs.logo_footer }}" alt="하단 로고 이미지" width="{{ logo_footer_width }}">
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+    </form>
+</div>
+
+<script>
+function validateForm() {
+    const logoHeaderFile = document.getElementById('logo_header_file').files[0];
+    const logoFooterFile = document.getElementById('logo_footer_file').files[0];
+
+    if (logoHeaderFile && !isValidImageFile(logoHeaderFile)) {
+        alert('상단 로고 이미지는 jpg, jpeg, png, gif 파일만 업로드할 수 있습니다.');
+        return false;
+    }
+
+    if (logoFooterFile && !isValidImageFile(logoFooterFile)) {
+        alert('하단 로고 이미지는 jpg, jpeg, png, gif 파일만 업로드할 수 있습니다.');
+        return false;
+    }
+
+    return true;
+}
+</script>
+{% endblock content %}
