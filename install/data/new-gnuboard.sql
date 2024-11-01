@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `new_config` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_name` (`scope`, `name`)
+  UNIQUE KEY `scope_name` (`scope`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사이트 환경설정';
 
 

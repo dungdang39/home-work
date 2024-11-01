@@ -1,7 +1,7 @@
 {% extends "@admin/_layout.html" %}
 {% from "@admin/macro.html" import anchor, checked, info, selected %}
 
-{% set title = '기본환경 > API연동설정 > 알림/메시징/메일' %}
+{% set title = '기본환경 > API연동설정 > 메시지' %}
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
@@ -92,14 +92,6 @@
     });
 
     function validate_form(f) {
-        const useEmail = document.getElementById('email_is_enabled_1').checked;
-        const EmailAddress = document.getElementById('email_address');
-        if (useEmail && EmailAddress.value.trim() === '') {
-            alert('발송 메일 주소를 입력해 주세요.');
-            EmailAddress.focus();
-            return false;
-        }
-
         const useSms = document.getElementById('sms_is_enabled_1').checked;
         const SmsType = document.getElementById('sms_type');
         if (useSms && SmsType.value.trim() === '') {

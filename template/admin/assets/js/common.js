@@ -402,7 +402,8 @@ var win_zip = function(frm_name, frm_zip, frm_addr1, frm_addr2, frm_jibeon) {
         of[frm_zip].value = data.zonecode;
 
         of[frm_addr1].value = fullAddr;
-        of[frm_addr2].value = extraAddr;
+        // 24.10.31 참고항목을 사용하지 않으므로 주석처리
+        // of[frm_addr2].value = extraAddr;
 
         if(of[frm_jibeon] !== undefined){
             of[frm_jibeon].value = data.userSelectedType;
@@ -738,3 +739,40 @@ $(function() {
         return true;
     });
 });
+
+/**
+ * XMLHttpRequest를 이용한 Ajax 요청
+ * @param string url 요청 URL
+ * @param string method 요청 방식 (GET, POST, PUT, DELETE)
+ * @param array send_data 전송할 데이터
+ * @returns 
+ */
+function sendAjaxRequest(url, method = 'GET', send_data = {}, reload = true) {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    for (let key in csrf) {
+        if (!csrf[key]) {
+            alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+            return;
+        }
+        xhr.setRequestHeader(key, csrf[key]);
+    }
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            const response = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300) {
+                alert(response.message);
+                if (reload) {
+                    window.location.reload();
+                }
+            } else {
+                alert(xhr.status + ' ' + xhr.statusText + ': ' + response.error.message);
+            }
+        }
+    };
+
+    xhr.send(JSON.stringify(send_data));
+}

@@ -7,6 +7,7 @@ use Core\Validator\Sanitizer;
 use Core\Validator\Validator;
 use Exception;
 use Slim\Http\ServerRequest as Request;
+use Slim\Psr7\UploadedFile;
 
 /**
  * 환경설정 업데이트 요청 객체
@@ -18,27 +19,31 @@ class UpdateConfigRequest
     public string $site_title = '';
     public string $site_description = '';
     public string $site_keyword = '';
+    public ?string $site_image = '';
     public string $super_admin = '';
     public string $privacy_officer_name = '';
     public string $privacy_officer_email = '';
-    public ?int $use_shop = 0;
-    public ?int $use_community = 0;
-    public ?string $company_name = null;
-    public ?string $biz_reg_no = null;
-    public ?string $ceo_name = null;
-    public ?string $main_phone_number = null;
-    public ?string $fax_number = null;
-    public ?string $ecom_reg_no = null;
-    public ?string $add_telecom_no = null;
-    public ?string $biz_zip_code = null;
-    public ?string $biz_address = null;
-    public ?string $biz_address_detail = null;
-    public ?string $biz_address_etc = null;
-    public ?string $possible_ip = null;
-    public ?string $intercept_ip = null;
-    public ?string $add_script = null;
-    public ?string $add_css = null;
-    public ?string $add_meta = null;
+    public ?int $use_mail = 0;
+    public ?string $mail_address = '';
+    public ?string $mail_name = '';
+    public ?string $company_name = '';
+    public ?string $biz_reg_no = '';
+    public ?string $ceo_name = '';
+    public ?string $main_phone_number = '';
+    public ?string $fax_number = '';
+    public ?string $ecom_reg_no = '';
+    public ?string $add_telecom_no = '';
+    public ?string $biz_zip_code = '';
+    public ?string $biz_address = '';
+    public ?string $biz_address_detail = '';
+    public ?string $possible_ip = '';
+    public ?string $intercept_ip = '';
+    public ?string $add_script = '';
+    public ?string $add_css = '';
+    public ?string $add_meta = '';
+    
+    public ?UploadedFile $site_image_file;
+    public ?int $delete_site_image = 0;
 
     private Request $request;
 
@@ -51,9 +56,21 @@ class UpdateConfigRequest
     protected function validate()
     {
         $this->validateRequired('site_title', '사이트 제목');
+        $this->validateSiteImage();
         $this->validateRequired('super_admin', '최고관리자');
         $this->validateRequired('privacy_officer_name', '개인정보관리 책임자명');
         $this->validateRequired('privacy_officer_email', '개인정보관리 메일 주소');
+        if ($this->use_mail) {
+            $this->validateRequired('mail_address', '메일 발송 주소');
+            if (!Validator::isValidEmail($this->mail_address)) {
+                $this->throwException('메일 발송 주소가 올바르지 않은 형식입니다.');
+            }
+        }
+        if ($this->biz_reg_no) {
+            if (!Validator::isMaxLength($this->biz_reg_no, 12)) {
+                $this->throwException('사업자등록번호는 12자리 이하로 입력해 주세요.');
+            }
+        }
         $this->checkInterceptIp($this->intercept_ip);
     }
 
@@ -72,6 +89,18 @@ class UpdateConfigRequest
     {
         if (!Validator::required($this->$field)) {
             $this->throwException("{$label}은(는) 필수 입력 사항입니다.");
+        }
+    }
+
+    /**
+     * 사이트 대표이미지 검사
+     */
+    private function validateSiteImage(): void
+    {
+        if (Validator::isUploadedFile($this->site_image_file)) {
+            if (!Validator::isImage($this->site_image_file)) {
+                $this->throwException('이미지 파일만 업로드 할 수 있습니다.');
+            }
         }
     }
 

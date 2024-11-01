@@ -7,6 +7,7 @@ use App\Base\Service\ThemeService;
 use Core\Extension\CsrfExtension;
 use Core\Extension\FlashExtension;
 use Core\FileService;
+use Core\MailService;
 use Core\PluginService;
 use DI\Container;
 use Slim\Http\ServerRequest as Request;
@@ -37,6 +38,7 @@ class TwigConfig
             [
                 'admin' => ThemeService::ADMIN_DIRECTORY,
                 'plugin' => PluginService::PLUGIN_DIRECTORY,
+                'mail' => MailService::TEMPLATE_DIRECTORY,
                 FilesystemLoader::MAIN_NAMESPACE => ThemeService::DIRECTORY . '/' . $theme,
             ],
             [

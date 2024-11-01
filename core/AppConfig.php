@@ -74,6 +74,8 @@ class AppConfig
         // SMTP 설정
         'SMTP' => '127.0.0.1',
         'SMTP_PORT' => '25',
+        'SMTP_USERNAME' => '',
+        'SMTP_PASSWORD' => '',
 
         // 암호화 함수 지정
         'STRING_ENCRYPT_FUNCTION' => 'create_hash',

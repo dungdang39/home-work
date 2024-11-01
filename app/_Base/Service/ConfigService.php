@@ -23,7 +23,7 @@ class ConfigService
      */
     public function getTheme(): string
     {
-        return self::getConfig('design', 'theme') ?: ThemeService::DEFAULT_THEME;
+        return $this->getConfig('design', 'theme') ?: ThemeService::DEFAULT_THEME;
     }
 
     /**
@@ -131,16 +131,19 @@ class ConfigService
 
     /**
      * 환경설정 목록 조회
+     * @param string|null $scope 설정 범위
+     * @return array
      */
     protected function fetchConfigs(?string $scope = null): array
     {
         $wheres = [];
         $values = [];
+
         if (isset($scope)) {
             $wheres[] = 'scope = :scope';
             $values['scope'] = $scope;
         }
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+        $sql_where = DB::buildWhere($wheres);
 
         $query = "SELECT * FROM {$this->table} {$sql_where}";
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -168,9 +171,7 @@ class ConfigService
      */
     public function insert(string $scope, string $name, $value): int
     {
-        if (gettype($value) === 'boolean') {
-            $value = $value ? 1 : 0;
-        }
+        $value = $this->convertConfigValue($value);
 
         return Db::getInstance()->insert(
             $this->table,
@@ -187,9 +188,7 @@ class ConfigService
      */
     public function update(string $scope, string $name, $value): int
     {
-        if (gettype($value) === 'boolean') {
-            $value = $value ? 1 : 0;
-        }
+        $value = $this->convertConfigValue($value);
 
         return Db::getInstance()->update(
             $this->table,
@@ -209,5 +208,18 @@ class ConfigService
         $query = "DELETE FROM {$this->table} WHERE scope = :scope AND name = :name";
         $values = ['scope' => $scope, 'name' => $name];
         return Db::getInstance()->run($query, $values)->rowCount();
+    }
+
+    /**
+     * 설정값을 DB에 저장하기 전에 변환
+     * @param mixed $value
+     * @return mixed
+     */
+    private function convertConfigValue($value)
+    {
+        if (gettype($value) === 'boolean') {
+            return $value ? 1 : 0;
+        }
+        return $value;
     }
 }

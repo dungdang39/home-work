@@ -58,6 +58,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
             $group->group('/basic', function (RouteCollectorProxy $group) {
                 $group->get('', [ConfigController::class, 'index'])->setName('admin.config.basic');
                 $group->put('', [ConfigController::class, 'update'])->setName('admin.config.basic.update');
+                $group->post('/mail/test', [ConfigController::class, 'sendMailTest'])->setName('admin.config.basic.mail.test');
             })->add(SuperAdminAuthMiddleware::class);
 
             // 운영진 설정
