@@ -1,0 +1,172 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
+
+{% set title = '커뮤니티 > 커뮤니티 설정 > 알림/푸시 설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <form name="form_community_config_notification" id="form_community_config_notification" method="post" action="{{ url_for('admin.community.config.notification.update') }}"
+        onsubmit="return validate_community_config_form(this);">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
+
+        <section>
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">댓글 등록 시 원글 작성자에게</th>
+                            <td>
+                                <label for="notification_post_author_on_comment_1" class="rules_label">사용</label>
+                                <input type="radio" id="notification_post_author_on_comment_1" name="notification_post_author_on_comment" value="1" {{ checked(1, old('notification_post_author_on_comment', configs)) }}>
+                                <label for="notification_post_author_on_comment_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="notification_post_author_on_comment_0" name="notification_post_author_on_comment" value="0" {{ checked(0, old('notification_post_author_on_comment', configs)) }}>
+                            </td>
+                            <th scope="row">댓글 등록 시 원글 작성자에게 발송유형</th>
+                            <td>
+                                <select name="notification_post_author_on_comment_type" id="notification_post_author_on_comment_type">
+                                    <option value="all" {{ selected('all', old('notification_post_author_on_comment_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_post_author_on_comment_type', configs)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_post_author_on_comment_type', configs)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">댓글 등록 시 원글 작성자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('댓글 등록 시 원글 작성자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_post_author_on_comment_preset" id="notification_post_author_on_comment_preset" rows="5" class="frm_input">
+                                    {{- old('notification_post_author_on_comment_preset', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">대댓글 등록 시 댓글 작성자에게</th>
+                            <td>
+                                <label for="notification_comment_author_on_reply_1" class="rules_label">사용</label>
+                                <input type="radio" id="notification_comment_author_on_reply_1" name="notification_comment_author_on_reply" value="1" {{ checked(1, old('notification_comment_author_on_reply', configs)) }}>
+                                <label for="notification_comment_author_on_reply_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="notification_comment_author_on_reply_0" name="notification_comment_author_on_reply" value="0" {{ checked(0, old('notification_comment_author_on_reply', configs)) }}>
+                            </td>
+                            <th scope="row">대댓글 등록 시 댓글 작성자에게 발송유형</th>
+                            <td>
+                                <select name="notification_comment_author_on_reply_type" id="notification_comment_author_on_reply_type">
+                                    <option value="all" {{ selected('all', old('notification_comment_author_on_reply_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_comment_author_on_reply_type', configs)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_comment_author_on_reply_type', configs)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">대댓글 등록 시 댓글 작성자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('대댓글 등록 시 댓글 작성자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_comment_author_on_reply_preset" id="notification_comment_author_on_reply_preset" rows="5" class="frm_input">
+                                    {{- old('notification_comment_author_on_reply_preset', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">게시물 등록 시 게시판 관리자에게</th>
+                            <td>
+                                <label for="notification_board_admin_on_post_1" class="rules_label">사용</label>
+                                <input type="radio" id="notification_board_admin_on_post_1" name="notification_board_admin_on_post" value="1" {{ checked(1, old('notification_board_admin_on_post', configs)) }}>
+                                <label for="notification_board_admin_on_post_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="notification_board_admin_on_post_0" name="notification_board_admin_on_post" value="0" {{ checked(0, old('notification_board_admin_on_post', configs)) }}>
+                            </td>
+                            <th scope="row">게시물 등록 시 게시판 관리자에게 발송유형</th>
+                            <td>
+                                <select name="notification_board_admin_on_post_type" id="notification_board_admin_on_post_type">
+                                    <option value="all" {{ selected('all', old('notification_board_admin_on_post_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_board_admin_on_post_type', configs)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_board_admin_on_post_type', configs)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">게시물 등록 시 게시판 관리자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('게시물 등록 시 게시판 관리자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_board_admin_on_post_preset" id="notification_board_admin_on_post_preset" rows="5" class="frm_input">
+                                    {{- old('notification_board_admin_on_post_preset', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">게시물 등록 시 그룹 관리자에게</th>
+                            <td>
+                                <label for="notification_group_admin_on_post_1" class="rules_label">사용</label>
+                                <input type="radio" id="notification_group_admin_on_post_1" name="notification_group_admin_on_post" value="1" {{ checked(1, old('notification_group_admin_on_post', configs)) }}>
+                                <label for="notification_group_admin_on_post_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="notification_group_admin_on_post_0" name="notification_group_admin_on_post" value="0" {{ checked(0, old('notification_group_admin_on_post', configs)) }}>
+                            </td>
+                            <th scope="row">게시물 등록 시 그룹 관리자에게 발송유형</th>
+                            <td>
+                                <select name="notification_group_admin_on_post_type" id="notification_group_admin_on_post_type">
+                                    <option value="all" {{ selected('all', old('notification_group_admin_on_post_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_group_admin_on_post_type', configs)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_group_admin_on_post_type', configs)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">게시물 등록 시 그룹 관리자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('게시물 등록 시 그룹 관리자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_group_admin_on_post_preset" id="notification_group_admin_on_post_preset" rows="5" class="frm_input">
+                                    {{- old('notification_group_admin_on_post_preset', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">게시물 등록 시 최고관리자에게</th>
+                            <td>
+                                <label for="notification_superadmin_on_post_1" class="rules_label">사용</label>
+                                <input type="radio" id="notification_superadmin_on_post_1" name="notification_superadmin_on_post" value="1" {{ checked(1, old('notification_superadmin_on_post', configs)) }}>
+                                <label for="notification_superadmin_on_post_0" class="rules_label">사용안함</label>
+                                <input type="radio" id="notification_superadmin_on_post_0" name="notification_superadmin_on_post" value="0" {{ checked(0, old('notification_superadmin_on_post', configs)) }}>
+                            </td>
+                            <th scope="row">게시물 등록 시 최고관리자에게 발송유형</th>
+                            <td>
+                                <select name="notification_superadmin_on_post_type" id="notification_superadmin_on_post_type">
+                                    <option value="all" {{ selected('all', old('notification_superadmin_on_post_type', configs)) }}>메일+알림톡(SMS)</option>
+                                    <option value="mail" {{ selected('mail', old('notification_superadmin_on_post_type', configs)) }}>메일</option>
+                                    <option value="alimtalk" {{ selected('alimtalk', old('notification_superadmin_on_post_type', configs)) }}>알림톡</option>
+                                </select>
+                            </td>
+                            <th scope="row">게시물 등록 시 최고관리자에게 알림 프리셋</th>
+                            <td colspan="3">
+                                {{ info('게시물 등록 시 최고관리자에게 발송할 알림 내용을 입력하세요.\n프리셋을 수정하시는 경우 [알림톡]은 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_superadmin_on_post_preset" id="notification_superadmin_on_post_preset" rows="5" class="frm_input">
+                                    {{- old('notification_superadmin_on_post_preset', configs) -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    /**
+     * 커뮤니티 설정 알림/푸시 설정 폼 유효성 검사
+     */
+    function validate_community_config_form(form) {
+        return true;
+    }
+</script>
+{% endblock content %}

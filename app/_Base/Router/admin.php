@@ -7,6 +7,7 @@ use App\Base\Controller\Admin\MainPageController;
 use App\Base\Controller\Admin\MenuController;
 use App\Base\Controller\Admin\ThemeController;
 use App\Base\Controller\Admin\BannerController;
+use App\Base\Controller\Admin\BoardConfigController;
 use App\Base\Controller\Admin\DashboardController;
 use App\Base\Controller\Admin\ConfigController;
 use App\Base\Controller\Admin\NotificationController;
@@ -262,6 +263,24 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->get('/{faq_id}', [FaqController::class, 'view'])->setName('admin.content.faq.view');
                     $group->post('/{faq_id}', [FaqController::class, 'update'])->setName('admin.content.faq.update');
                     $group->delete('/{faq_id}', [FaqController::class, 'delete'])->setName('admin.content.faq.delete');
+                });
+            })->add(AdminMenuPermissionMiddleware::class);
+        });
+
+        // 커뮤니티
+        $group->group('/community', function (RouteCollectorProxy $group) {
+            // 커뮤니티 설정
+            $group->group('/config', function (RouteCollectorProxy $group) {
+                $group->redirect('', 'config/basic')->setName('admin.community.config');
+                // 기본환경설정
+                $group->group('/basic', function (RouteCollectorProxy $group) {
+                    $group->get('', [BoardConfigController::class, 'index'])->setName('admin.community.config.basic');
+                    $group->put('', [BoardConfigController::class, 'update'])->setName('admin.community.config.basic.update');
+                });
+                // 알림/푸시 설정
+                $group->group('/notification', function (RouteCollectorProxy $group) {
+                    $group->get('', [BoardConfigController::class, 'indexNotification'])->setName('admin.community.config.notification');
+                    $group->put('', [BoardConfigController::class, 'updateNotification'])->setName('admin.community.config.notification.update');
                 });
             })->add(AdminMenuPermissionMiddleware::class);
         });

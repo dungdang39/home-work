@@ -1,0 +1,276 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
+
+{% set title = '커뮤니티 > 커뮤니티 설정 > 기본환경설정' %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <form name="form_community_config" id="form_community_config" method="post" action="{{ url_for('admin.community.config.basic.update') }}"
+        onsubmit="return validate_community_config_form(this);">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT">
+
+        <section>
+            <h2 class="h2_frm">기본환경설정</h2>
+
+            <div class="local_desc02 local_desc">
+                도움말
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>기본환경설정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">커뮤니티 사용</th>
+                            <td>
+                                <label for="use_community_1" class="rules_label">사용</label>
+                                <input name="use_community" id="use_community_1" type="radio" value="1" {{ checked(1, old('use_community', configs)) }}>
+                                <label for="use_community_0" class="rules_label">사용안함</label>
+                                <input name="use_community" id="use_community_0" type="radio" value="0" {{ checked(0, old('use_community', configs)) }}>
+                            </td>
+                            <th scope="row">레이아웃</th>
+                            <td>
+                                <select id="layout" name="layout" class="frm_input">
+                                    <option value="" {{ selected('', old('layout', configs), true) }}>공통</option>
+                                    <option value="community" {{ selected('community', old('layout', configs)) }}>커뮤니티</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <!--
+                        <tr>
+                            <th scope="row">메뉴 자동생성</th>
+                            <td colspan="3">
+                                <label for="auto_menu_1" class="rules_label">사용</label>
+                                <input name="auto_menu" id="auto_menu_1" type="radio" value="1" {{ checked(1, old('auto_menu', configs)) }}>
+                                <label for="auto_menu_0" class="rules_label">사용안함</label>
+                                <input name="auto_menu" id="auto_menu_0" type="radio" value="0" {{ checked(0, old('auto_menu', configs)) }}>
+                            </td>
+                        </tr>
+                        -->
+                        <tr>
+                            <th scope="row">이름(닉네임) 표시 방법</th>
+                            <td>
+                                <select id="display_name_type" name="display_name_type" class="frm_input">
+                                    <option value="all" {{ selected('all', old('display_name_type', configs), true) }}>회원이미지 + 이름(닉네임)</option>
+                                    <option value="name" {{ selected('name', old('display_name_type', configs)) }}>이름(닉네임)만</option>
+                                </select>
+                            </td>
+                            <th scope="row">이름(닉네임) 표시 길이</th>
+                            <td>
+                                <input type="text" name="display_name_limit" id="display_name_limit" value="{{ old('display_name_limit', configs) }}" class="frm_input" size="3"> 자리만 표시
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="nickname_edit_limit">닉네임 수정 제한일</label></th>
+                            <td>
+                                <input type="text" id="nickname_edit_limit" name="nickname_edit_limit" class="frm_input" value="{{ old('nickname_edit_limit', configs) }}" size="5"> 일
+                            </td>
+                            <th scope="row"><label for="info_edit_limit">정보공개 수정 제한일</label></th>
+                            <td>
+                                <input type="text" id="info_edit_limit" name="info_edit_limit" class="frm_input" value="{{ old('info_edit_limit', configs) }}" size="5"> 일
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="use_formmail">폼메일 사용 여부</label></th>
+                            <td colspan="3">
+                                <label for="use_formmail_1" class="rules_label">사용</label>
+                                <input name="use_formmail" id="use_formmail_1" type="radio" value="1" {{ checked(1, old('use_formmail', configs)) }}>
+                                <label for="use_formmail_0" class="rules_label">사용안함</label>
+                                <input name="use_formmail" id="use_formmail_0" type="radio" value="0" {{ checked(0, old('use_formmail', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">최근 게시물 라인수</th>
+                            <td>
+                                {{ info('최근 게시물 목록 한 페이지당 라인수') }}
+                                <input type="text" name="recent_post_lines" value="{{ old('recent_post_lines', configs) }}" id="recent_post_lines" class="frm_input" size="10"> 일
+                            </td>
+                            <th scope="row">최근게시물 삭제</th>
+                            <td>
+                                {{ info('설정일이 지난 최근게시물 자동 삭제') }}
+                                <input type="text" name="recent_post_delete" value="{{ old('recent_post_delete', configs) }}" id="recent_post_delete" class="frm_input" size="10"> 일
+                            </td>
+                        </tr>
+                        <!--
+                        <tr>
+                            <th scope="row">쪽지 삭제</th>
+                            <td>
+                                <input type="text" name="delete_message" id="delete_message" class="frm_input">
+                            </td>
+                            <th scope="row">인기검색어 삭제</th>
+                            <td>
+                                <input type="text" name="delete_popular_search" id="delete_popular_search" class="frm_input">
+                            </td>
+                        </tr>
+                        -->
+                        <tr>
+                            <th scope="row">한 페이지당 라인수</th>
+                            <td>
+                                {{ info('게시판 목록 한 페이지당 라인수') }}
+                                <input type="text" name="page_rows" id="page_rows" class="frm_input" size="3"> 라인
+                            </td>
+                            <th scope="row">모바일 한 페이지당 라인수</th>
+                            <td>
+                                {{ info('게시판 목록 모바일 한 페이지당 라인수') }}
+                                <input type="text" name="mobile_page_rows" id="mobile_page_rows" class="frm_input" size="3"> 라인
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">페이지 표시 수</th>
+                            <td>
+                                <input type="text" name="pages_display_count" id="pages_display_count" class="frm_input" size="3"> 페이지씩 표시
+                            </td>
+                            <th scope="row">모바일 페이지 표시 수</th>
+                            <td>
+                                <input type="text" name="mobile_pages_display_count" id="mobile_pages_display_count" class="frm_input" size="3"> 페이지씩 표시
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">에디터 선택</th>
+                            <td colspan="3">
+                                <select id="basic_editor" name="basic_editor" class="frm_input">
+                                    <option value="">없음</option>
+                                    <option value="editor1">Editor 1</option>
+                                    <option value="editor2">Editor 2</option>
+                                </select>
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <th scope="row">캡챠 선택</th>
+                            <td colspan="3">
+                                <select id="basic_captcha" name="basic_captcha" class="frm_input">
+                                    <option value="">없음</option>
+                                    <option value="kcaptcha">Kcaptcha</option>
+                                    <option value="recaptcha_v2">reCAPTCHA V2</option>
+                                    <option value="invisible_recaptcha">Invisible reCAPTCHA</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">음성캡챠 선택</th>
+                            <td colspan="3">
+                                <select id="audio_captcha_choice" name="audio_captcha_choice" class="frm_input">
+                                    <option value="basic">Basic</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">구글 reCAPTCHA Site key</th>
+                            <td colspan="3">
+                                {{ info('reCAPTCHA V2와 Invisible reCAPTCHA 캡챠의 sitekey 와 secret 키는 동일하지 않고, 서로 발급받는 키가 다릅니다.') }}
+                                <input type="text" name="recaptcha_site_key" id="recaptcha_site_key" class="frm_input" size="52">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">구글 reCAPTCHA Secret key</th>
+                            <td colspan="3">
+                                <input type="password" name="recaptcha_secret_key" id="recaptcha_secret_key" class="frm_input" size="52">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">복사, 이동시 로그</th>
+                            <td>
+                                <label for="log_copy_move_1" class="rules_label">남김</label>
+                                <input name="log_copy_move" id="log_copy_move_1" type="radio" value="1" {{ checked(1, old('log_copy_move', configs)) }}>
+                                <label for="log_copy_move_0" class="rules_label">안남김</label>
+                                <input name="log_copy_move" id="log_copy_move_0" type="radio" value="0" {{ checked(0, old('log_copy_move', configs)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">글쓰기 간격</th>
+                            <td>
+                                <input type="text" name="write_interval" id="write_interval" class="numeric frm_input" size="3">초 지난후 가능
+                            </td>
+                            <th scope="row">게시물 안의 링크 연결</th>
+                            <td>
+                                <select id="link_target" name="link_target" class="frm_input">
+                                    <option value="_self">현재탭으로 연결</option>
+                                    <option value="_blank">새탭으로 연결</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">글읽기 포인트</th>
+                            <td>
+                                <input type="text" name="read_point" id="read_point" class="frm_input" size="3"> 점
+                            </td>
+                            <th scope="row">글쓰기 포인트</th>
+                            <td>
+                                <input type="text" name="write_point" id="write_point" class="frm_input" size="3"> 점
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">댓글쓰기 포인트</th>
+                            <td>
+                                <input type="text" name="comment_point" id="comment_point" class="frm_input" size="3"> 점
+                            </td>
+                            <th scope="row">다운로드 포인트</th>
+                            <td>
+                                <input type="text" name="download_point" id="download_point" class="frm_input" size="3"> 점
+                            </td>
+                        </tr>
+                        <tr>
+                            <!--
+                            <th scope="row">쪽지 보낼 시 차감 포인트</th>
+                            <td>
+                                <input type="text" name="message_send_point" id="message_send_point" class="frm_input">
+                            </td>
+                            -->
+                            <th scope="row">검색 단위</th>
+                            <td colspan="3">
+                                <input type="text" name="search_unit" id="search_unit" class="frm_input" size="4">건 단위로 검색
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">이미지 업로드 확장자</th>
+                            <td>
+                                {{ info('게시판 글작성시 이미지 파일 업로드 가능 확장자. ,로 구분') }}
+                                <input type="text" name="image_upload_extensions" id="image_upload_extensions" class="frm_input" size="70">
+                            </td>
+                            <th scope="row">동영상 업로드 확장자</th>
+                            <td>
+                                {{ info('게시판 글작성시 동영상 파일 업로드 가능 확장자. , 로 구분') }}
+                                <input type="text" name="video_upload_extensions" id="video_upload_extensions" class="frm_input" size="70">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">단어 필터링</th>
+                            <td colspan="3">
+                                {{ info('입력된 단어가 포함된 내용은 게시할 수 없습니다. 단어와 단어 사이는 ,로 구분합니다.') }}
+                                <textarea name="word_filtering" id="word_filtering" class="frm_input"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="btn_fixed_top btn_confirm">
+            <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    });
+
+    /**
+     * 커뮤니티 기본환경설정 폼 유효성 검사
+     */
+    function validate_member_config_form(form) {
+        return true;
+    }
+</script>
+{% endblock content %}

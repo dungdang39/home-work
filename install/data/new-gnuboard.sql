@@ -63,6 +63,79 @@ CREATE TABLE IF NOT EXISTS `new_banner` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `new_board`
+--
+DROP TABLE IF EXISTS `new_board`;
+CREATE TABLE IF NOT EXISTS `new_board` (
+  `id` varchar(100) NOT NULL,
+  `board_group_id` varchar(255) DEFAULT NULL COMMENT '게시판 그룹 ID',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀',
+  `mobile_name` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀(모바일)',
+  `admin_id` varchar(60) NOT NULL DEFAULT '' COMMENT '게시판 관리자',
+  `list_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '목록보기 권한',
+  `read_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '읽기 권한',
+  `write_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '쓰기 권한',
+  `reply_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '답글 권한',
+  `comment_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '댓글 권한',
+  `upload_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '파일 업로드 권한',
+  `download_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '파일 다운로드 권한',
+  `html_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT 'html쓰기 권한',
+  `link_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '링크입력 권한',
+  `comments_limit_for_edit` tinyint(4) NOT NULL DEFAULT 0 COMMENT '게시글 수정 제한 댓글 수',
+  `comments_limit_for_delete` tinyint(4) NOT NULL DEFAULT 0 COMMENT '게시글 삭제 제한 댓글 수',
+  `enable_sideview` tinyint(1) NOT NULL DEFAULT 0 COMMENT '회원 사이드뷰 활성화',
+  `enable_secret_post` tinyint(1) NOT NULL DEFAULT 0 COMMENT '비밀글 활성화',
+  `enable_dhtml_editor` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'DHTML 에디터 활성화',
+  `selected_editor` varchar(50) NOT NULL DEFAULT '' COMMENT '게시판에서 사용할 에디터',
+  `enable_rss` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'RSS 보이기 활성화',
+  `enable_like` tinyint(1) NOT NULL DEFAULT 0 COMMENT '추천 활성화',
+  `enable_dislike` tinyint(1) NOT NULL DEFAULT 0 COMMENT '비추천 활성화',
+  `use_real_name` tinyint(1) NOT NULL DEFAULT 0 COMMENT '실명 사용',
+  `show_signature` tinyint(1) NOT NULL DEFAULT 0 COMMENT '회원 서명 보이기',
+  `show_ip` tinyint(1) NOT NULL DEFAULT 0 COMMENT '회원 IP 보이기',
+  `show_content_in_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '게시글 목록에서 게시글 내용 보이기',
+  `show_files_in_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '게시글 목록에서 파일 다운로드 보이기',
+  `show_full_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '게시글 상세 페이지에서 게시글 목록 보이기',
+  `enable_email_notification` tinyint(1) NOT NULL DEFAULT 0 COMMENT '메일발송 활성화',
+  `authentication_type` enum('','personal','adult') NOT NULL DEFAULT '' COMMENT '게시판 사용 시 필요한 인증',
+  `max_file_upload_count` int(11) NOT NULL DEFAULT 0 COMMENT '파일 업로드 개수',
+  `max_file_upload_size` int(11) NOT NULL DEFAULT 0 COMMENT '파일 업로드 용량 (바이트 단위)',
+  `enable_file_description` tinyint(1) NOT NULL DEFAULT 0 COMMENT '파일 설명 사용 여부',
+  `min_contents_count_limit` int(11) NOT NULL DEFAULT 0 COMMENT '최소 글수 제한',
+  `max_contents_count_limit` int(11) NOT NULL DEFAULT 0 COMMENT '최대 글수 제한',
+  `min_comment_count_limit` int(11) NOT NULL DEFAULT 0 COMMENT '최소 댓글수 제한',
+  `max_comment_count_limit` int(11) NOT NULL DEFAULT 0 COMMENT '최대 댓글수 제한',
+  `enable_sns` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'SNS 사용',
+  `enable_search` tinyint(1) NOT NULL DEFAULT 0 COMMENT '전체 검색 사용',
+  `display_order` int(11) NOT NULL DEFAULT 0 COMMENT '게시판 정렬 순서',
+  `enable_captcha` tinyint(1) NOT NULL DEFAULT 0 COMMENT '캡챠 사용',
+  `skin` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 스킨',
+  `header_file_path` varchar(255) NOT NULL DEFAULT '' COMMENT '상단 파일 경로',
+  `footer_file_path` varchar(255) NOT NULL DEFAULT '' COMMENT '하단 파일 경로',
+  `header_content` text DEFAULT NULL COMMENT '상단 내용',
+  `footer_content` text DEFAULT NULL COMMENT '하단 내용',
+  `default_template` text DEFAULT NULL COMMENT '글쓰기 기본 내용',
+  `subject_length_limit` int(11) NOT NULL DEFAULT 0 COMMENT '제목 길이',
+  `items_per_page` int(11) NOT NULL DEFAULT 10 COMMENT '한 페이지당 목록 수',
+  `board_width` int(11) NOT NULL DEFAULT 0 COMMENT '게시판 폭',
+  `image_width` int(11) NOT NULL DEFAULT 0 COMMENT '이미지 폭 크기',
+  `new_icon_time` varchar(255) NOT NULL DEFAULT '' COMMENT '새글 아이콘 표시 시간',
+  `popular_icon_time` varchar(255) NOT NULL DEFAULT '' COMMENT '인기글 아이콘 표시 시간',
+  `reply_sort` tinyint(1) NOT NULL DEFAULT 0 COMMENT '답변 정렬기준(0:최신순, 1:등록순)',
+  `list_sort_field` varchar(50) NOT NULL DEFAULT '' COMMENT '리스트 정렬 필드',
+  `read_point` int(11) NOT NULL DEFAULT 0 COMMENT '게시글 조회 시 필요 포인트',
+  `write_point` int(11) NOT NULL DEFAULT 0 COMMENT '게시글 작성 시 필요 포인트',
+  `comment_point` int(11) NOT NULL DEFAULT 0 COMMENT '댓글 작성시 필요 포인트',
+  `download_point` int(11) NOT NULL DEFAULT 0 COMMENT '다운로드 필요 포인트',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시판 관리 테이블';
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `new_config`
 --
 DROP TABLE IF EXISTS `new_config`;
@@ -70,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `new_config` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `scope` varchar(255) NOT NULL DEFAULT 'other' COMMENT '환경설정 포함 범위',
   `name` varchar(255) NOT NULL COMMENT '환경설정 이름',
-  `value` text NOT NULL DEFAULT '' COMMENT '환경설정 값',
+  `value` text DEFAULT NULL COMMENT '환경설정 값',
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
@@ -365,12 +438,80 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
   `pu_width` int(11) NOT NULL DEFAULT 0 COMMENT '팝업 너비',
   `pu_auto_height` tinyint(1) NOT NULL DEFAULT 0 COMMENT '팝업 자동 높이 여부',
   `pu_title` varchar(255) NOT NULL COMMENT '팝업 타이틀',
-  `pu_content` text NOT NULL COMMENT '팝업 내용',
-  `pu_mobile_content` text NOT NULL COMMENT '팝업 내용 (모바일)',
+  `pu_content` text DEFAULT NULL COMMENT '팝업 내용',
+  `pu_mobile_content` text DEFAULT NULL COMMENT '팝업 내용 (모바일)',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`pu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='팝업 정보';
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_post`
+--
+DROP TABLE IF EXISTS `new_post`;
+CREATE TABLE IF NOT EXISTS `new_post` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `board_id` varchar(100) NOT NULL COMMENT '게시판 ID',
+  `category_id` int(11) DEFAULT NULL COMMENT '게시글 카테고리 ID',
+  `original_post_id` int(11) NOT NULL DEFAULT 0 COMMENT '원글 ID',
+  `parent_id` int(11) DEFAULT NULL COMMENT '부모 게시글 ID',
+  `reply_depth` int(11) NOT NULL DEFAULT 0 COMMENT '답글 깊이',
+  `subject` varchar(255) NOT NULL COMMENT '제목',
+  `content` text NOT NULL COMMENT '내용',
+  `seo_title` varchar(255) NOT NULL DEFAULT '' COMMENT '검색엔진 최적화 제목',
+  `mb_id` varchar(60) DEFAULT NULL COMMENT '회원아이디',
+  `author_name` varchar(255) DEFAULT NULL COMMENT '작성자',
+  `author_email` varchar(255) DEFAULT NULL COMMENT '작성자 이메일',
+  `author_ip` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 IP 주소',
+  `is_secret` tinyint(1) NOT NULL DEFAULT 0 COMMENT '비밀글 여부',
+  `is_notice` tinyint(1) NOT NULL DEFAULT 0 COMMENT '공지글 여부',
+  `file_count` tinyint(4) NOT NULL DEFAULT 0 COMMENT '첨부파일 갯수',
+  `view_count` int(11) NOT NULL DEFAULT 0 COMMENT '조회수',
+  `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '좋아요수',
+  `dislike_count` int(11) NOT NULL DEFAULT 0 COMMENT '싫어요수',
+  `post_password` varchar(255) DEFAULT NULL COMMENT '게시글 비밀번호',
+  `post_option` enum('html1', 'html2', 'mail', 'md', 'text') DEFAULT 'html1' COMMENT '게시글 옵션',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`),
+  KEY `created_at` (`created_at`),
+  KEY `updated_at` (`updated_at`),
+  KEY `seo_title` (`seo_title`),
+  KEY `board_id` (`board_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='통합 게시글 테이블';
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_post_comment`
+--
+DROP TABLE IF EXISTS `new_post_comment`;
+CREATE TABLE IF NOT EXISTS `new_post_comment` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `board_id` varchar(255) NOT NULL COMMENT '게시판 ID',
+  `post_id` int(11) NOT NULL DEFAULT 0 COMMENT '게시글 ID',
+  `original_comment_id` int(11) NOT NULL DEFAULT 0 COMMENT '원댓글 ID',
+  `parent_id` int(11) DEFAULT NULL COMMENT '부모 댓글 ID',
+  `reply_depth` int(11) NOT NULL DEFAULT 0 COMMENT '대댓글 깊이',
+  `mb_id` varchar(60) DEFAULT NULL COMMENT '회원 아이디',
+  `author_email` varchar(255) DEFAULT NULL COMMENT '작성자 이메일',
+  `author_name` varchar(255) DEFAULT NULL COMMENT '작성자',
+  `author_ip` varchar(255) NOT NULL DEFAULT '' COMMENT '작성자 IP 주소',
+  `content` text NOT NULL COMMENT '댓글 내용',
+  `is_secret` tinyint(1) NOT NULL DEFAULT 0 COMMENT '비밀댓글 여부',
+  `comment_password` varchar(255) DEFAULT NULL COMMENT '댓글 비밀번호',
+  `comment_option` enum('html1', 'html2', 'mail', 'text', 'md') DEFAULT 'html1' COMMENT '댓글 옵션',
+  `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '좋아요수',
+  `dislike_count` int(11) NOT NULL DEFAULT 0 COMMENT '싫어요수',
+  `file_count` tinyint(4) NOT NULL DEFAULT 0 COMMENT '첨부파일 개수',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='댓글 테이블';
 
 
 -- --------------------------------------------------------
@@ -382,7 +523,7 @@ DROP TABLE IF EXISTS `new_question_category`;
 CREATE TABLE IF NOT EXISTS `new_question_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'QA 카테고리 ID',
   `title` varchar(255) NOT NULL DEFAULT '' COMMENT '카테고리 타이틀',
-  `template` text DEFAULT '' COMMENT '서식',
+  `template` text DEFAULT NULL COMMENT '서식',
   `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '카테고리 활성화 여부',
   `display_order`int(11) NOT NULL DEFAULT 0 COMMENT '정렬순서',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
