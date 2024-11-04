@@ -67,10 +67,10 @@ CREATE TABLE IF NOT EXISTS `new_banner` (
 --
 DROP TABLE IF EXISTS `new_board`;
 CREATE TABLE IF NOT EXISTS `new_board` (
-  `id` varchar(100) NOT NULL,
+  `board_id` varchar(100) NOT NULL,
   `board_group_id` varchar(255) DEFAULT NULL COMMENT '게시판 그룹 ID',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀',
-  `mobile_name` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀(모바일)',
+  `title` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀',
+  `mobile_title` varchar(255) NOT NULL DEFAULT '' COMMENT '게시판 타이틀(모바일)',
   `admin_id` varchar(60) NOT NULL DEFAULT '' COMMENT '게시판 관리자',
   `list_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '목록보기 권한',
   `read_level` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT '읽기 권한',
@@ -131,6 +131,23 @@ CREATE TABLE IF NOT EXISTS `new_board` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시판 관리 테이블';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `new_config`
+--
+DROP TABLE IF EXISTS `new_board_category`;
+CREATE TABLE IF NOT EXISTS `new_board_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '게시판 카테고리 ID',
+  `board_id` int(11) DEFAULT NULL COMMENT '게시판 ID',
+  `title` varchar(255) NOT NULL DEFAULT '' COMMENT '카테고리 타이틀',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '카테고리 활성화',
+  `display_order` int(11) NOT NULL DEFAULT 0 COMMENT '정렬순서',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시판 카테고리 관리';
 
 
 -- --------------------------------------------------------

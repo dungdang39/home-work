@@ -1,0 +1,482 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import anchor, checked, info, selected %}
+
+{% set title = '커뮤니티 > 게시판 관리' %}
+{% set action = board ? '수정' : '추가' %}
+{% set form_action = board ? url_for('admin.community.board.update', {'board_id': board.board_id}) : url_for('admin.community.board.insert') %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+{% set sub_menus = {
+    'basic': '게시판 기본 설정',
+    'level': '게시판 권한 설정',
+    'function': '게시판 기능 설정',
+    'form': '게시판 디자인/양식',
+} %}
+
+<h1 id="container_title">{{ title ~ ' ' ~ action }}</h1>
+<div class="container_wr">
+    <form name="form_board" action="{{ form_action }}" method="post" enctype="multipart/form-data">
+        {{ csrf.field|raw }}
+        {% if board %}
+        <input type="hidden" name="_METHOD" value="PUT"/>
+        {% endif %}
+        
+        <section id="anchor_basic">
+            <h2 class="h2_frm">{{ sub_menus.basic }}</h2>
+            {{ anchor(sub_menus, 'basic') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title ~ ' ' ~ action }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="board_id">게시판 코드</label></th>
+                            <td>
+                                <input type="text" id="board_id" name="board_id" class="frm_input" value="{{ old('board_id', board) }}"
+                                    {% if board %}readonly{% endif %}>
+                            </td>
+                            <!--
+                            <th scope="row"><label for="board_group">게시판 그룹</label></th>
+                            <td>
+                                <select id="board_group_id" name="board_group_id" class="frm_select">
+                                    <option value="">그룹을 선택하세요.</option>
+                                    {% for group in board_groups %}
+                                    <option value="{{ group.id }}" {{ selected('group.id', old('board_group_id', board)) }}>{{ group.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            -->
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="title">게시판 타이틀</label></th>
+                            <td>
+                                <input type="text" id="title" name="title" class="frm_input frm_input_full" value="{{ old('title', board) }}">
+                            </td>
+                            <th scope="row"><label for="mobile_title">게시판 타이틀 (모바일)</label></th>
+                            <td>
+                                <input type="text" id="mobile_title" name="mobile_title" class="frm_input frm_input_full" value="{{ old('mobile_title', board) }}">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row"><label for="board_category">게시물 분류</label></th>
+                            <td colspan="3">
+                                <!--
+                                <input type="text" id="board_category" name="board_category" class="frm_input">
+                                -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_confirm">
+                <button type="button" class="btn btn_02">취소</button>
+                <button type="submit" class="btn btn_submit">저장</button>
+            </div>
+        </section>
+
+        <section id="anchor_level">
+            <h2 class="h2_frm">{{ sub_menus.level }}</h2>
+            {{ anchor(sub_menus, 'level') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title ~ ' ' ~ action }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="admin_id">게시판 관리자</label></th>
+                            <td colspan="3">
+                                <input type="text" id="admin_id" name="admin_id" class="frm_input" value="{{ old('admin_id', board) }}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="list_level">목록보기 권한</label></th>
+                            <td>
+                                <select id="list_level" name="list_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('list_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <th scope="row"><label for="read_level">글읽기 권한</label></th>
+                            <td>
+                                <select id="read_level" name="read_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('read_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="write_level">글쓰기 권한</label></th>
+                            <td>
+                                <select id="write_level" name="write_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('write_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <th scope="row"><label for="comment_level">댓글쓰기 권한</label></th>
+                            <td>
+                                <select id="comment_level" name="comment_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('comment_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="reply_level">글답변 권한</label></th>
+                            <td colspan="3">
+                                <select id="reply_level" name="reply_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('reply_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            
+                        </tr>
+
+                        <tr>
+                            <th scope="row"><label for="upload_level">업로드 권한</label></th>
+                            <td>
+                                <select id="upload_level" name="upload_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('upload_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <th scope="row"><label for="download_level">다운로드 권한</label></th>
+                            <td>
+                                <select id="download_level" name="download_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('download_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="link_level">링크 권한</label></th>
+                            <td>
+                                <select id="link_level" name="link_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('link_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <th scope="row"><label for="html_level">HTML 쓰기 권한</label></th>
+                            <td>
+                                <select id="html_level" name="html_level" class="frm_select">
+                                    {% for i in range(1, 10) %}
+                                    <option value="{{ i }}" {{ selected(i, old('html_level', board)) }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_confirm">
+                <button type="button" class="btn btn_02">취소</button>
+                <button type="submit" class="btn btn_submit">저장</button>
+            </div>
+        </section>
+
+        <section id="anchor_function">
+            <h2 class="h2_frm">{{ sub_menus.function }}</h2>
+            {{ anchor(sub_menus, 'function') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title ~ ' ' ~ action }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="comments_limit_for_edit">원글 수정 불가</label></th>
+                            <td><input type="text" id="comments_limit_for_edit" name="comments_limit_for_edit" class="frm_input" value="{{ old('comments_limit_for_edit', board) }}" ></td>
+                            <th scope="row"><label for="comments_limit_for_delete">원글 삭제 불가</label></th>
+                            <td><input type="text" id="comments_limit_for_delete" name="comments_limit_for_delete" class="frm_input" value="{{ old('comments_limit_for_delete', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">글쓴이 사이드뷰</th>
+                            <td colspan="3">
+                                <label for="enable_sideview_yes" class="rules_label">사용</label>
+                                <input type="radio" id="enable_sideview_yes" name="enable_sideview" value="1" {{ checked(1, old('enable_sideview', board)) }}>
+                                <label for="enable_sideview_no" class="rules_label">사용안함</label>
+                                <input type="radio" id="enable_sideview_no" name="enable_sideview" value="0" {{ checked(0, old('enable_sideview', board)) }}>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="enable_secret_post">비밀글 사용</label></th>
+                            <td colspan="3">
+                                <select id="enable_secret_post" name="enable_secret_post" class="frm_select">
+                                    <option value="0" {{ selected(0, old('enable_secret_post', board)) }}>사용안함</option>
+                                    <option value="1" {{ selected(1, old('enable_secret_post', board)) }}>비밀글 선택</option>
+                                    <option value="2" {{ selected(2, old('enable_secret_post', board)) }}>무조건</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">DHTML 에디터 사용</th>
+                            <td>
+                                <input type="radio" id="enable_dhtml_editor_yes" name="enable_dhtml_editor" value="1" {{ checked(1, old('enable_dhtml_editor', board)) }}> <label for="enable_dhtml_editor_yes">사용</label>
+                                <input type="radio" id="enable_dhtml_editor_no" name="enable_dhtml_editor" value="0" {{ checked(0, old('enable_dhtml_editor', board)) }}> <label for="enable_dhtml_editor_no">사용안함</label>
+                            </td>
+                            <th scope="row"><label for="selected_editor">게시판 에디터 선택</label></th>
+                            <td>
+                                <select id="selected_editor" name="selected_editor" class="frm_select">
+                                    <!-- 에디터 옵션 추가 -->
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">RSS 보이기 사용</th>
+                            <td>
+                                <input type="radio" id="enable_rss_yes" name="enable_rss" value="1" {{ checked(1, old('enable_rss', board)) }}> <label for="enable_rss_yes">사용</label>
+                                <input type="radio" id="enable_rss_no" name="enable_rss" value="0" {{ checked(0, old('enable_rss', board)) }}> <label for="enable_rss_no">사용안함</label>
+                            </td>
+                            <th scope="row">IP 보이기 사용</th>
+                            <td>
+                                <input type="radio" id="show_ip_yes" name="show_ip" value="1" {{ checked(1, old('show_ip', board)) }}> <label for="show_ip_yes">사용</label>
+                                <input type="radio" id="show_ip_no" name="show_ip" value="0" {{ checked(0, old('show_ip', board)) }}> <label for="show_ip_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">추천 사용</th>
+                            <td>
+                                <input type="radio" id="enable_like_yes" name="enable_like" value="1" {{ checked(1, old('enable_like', board)) }}> <label for="enable_like_yes">사용</label>
+                                <input type="radio" id="enable_like_no" name="enable_like" value="0" {{ checked(0, old('enable_like', board)) }} <label for="enable_like_no">사용안함</label>
+                            </td>
+                            <th scope="row">비추천 사용</th>
+                            <td>
+                                <input type="radio" id="enable_dislike_yes" name="enable_dislike" value="1" {{ checked(1, old('enable_dislike', board)) }}> <label for="enable_dislike_yes">사용</label>
+                                <input type="radio" id="enable_dislike_no" name="enable_dislike" value="0" {{ checked(0, old('enable_dislike', board)) }}> <label for="enable_dislike_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">이름(실명) 사용</th>
+                            <td>
+                                <input type="radio" id="use_real_name_yes" name="use_real_name" value="1" {{ checked(1, old('use_real_name', board)) }}> <label for="use_real_name_yes">사용</label>
+                                <input type="radio" id="use_real_name_no" name="use_real_name" value="0" {{ checked(0, old('use_real_name', board)) }}> <label for="use_real_name_no">사용안함</label>
+                            </td>
+                            <th scope="row">서명보이기 사용</th>
+                            <td>
+                                <input type="radio" id="show_signature_yes" name="show_signature" value="1" {{ checked(1, old('show_signature', board)) }}> <label for="show_signature_yes">사용</label>
+                                <input type="radio" id="show_signature_no" name="show_signature" value="0" {{ checked(0, old('show_signature', board)) }}> <label for="show_signature_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">목록에서 내용 사용</th>
+                            <td>
+                                <input type="radio" id="show_content_in_list_yes" name="show_content_in_list" value="1" {{ checked(1, old('show_content_in_list', board)) }}> <label for="show_content_in_list_yes">사용</label>
+                                <input type="radio" id="show_content_in_list_no" name="show_content_in_list" value="0" {{ checked(0, old('show_content_in_list', board)) }}> <label for="show_content_in_list_no">사용안함</label>
+                            </td>
+                            <th scope="row">목록에서 파일 사용</th>
+                            <td>
+                                <input type="radio" id="show_files_in_list_yes" name="show_files_in_list" value="1" {{ checked(1, old('show_files_in_list', board)) }}> <label for="show_files_in_list_yes">사용</label>
+                                <input type="radio" id="show_files_in_list_no" name="show_files_in_list" value="0" {{ checked(0, old('show_files_in_list', board)) }}> <label for="show_files_in_list_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">전체목록보이기 사용</th>
+                            <td>
+                                <input type="radio" id="show_full_list_yes" name="show_full_list" value="1" {{ checked(1, old('show_full_list', board)) }}> <label for="show_full_list_yes">사용</label>
+                                <input type="radio" id="show_full_list_no" name="show_full_list" value="0" {{ checked(0, old('show_full_list', board)) }}> <label for="show_full_list_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">메일발송 사용</th>
+                            <td>
+                                <input type="radio" id="enable_email_notification_yes" name="enable_email_notification" value="1" {{ checked(1, old('enable_email_notification', board)) }}> <label for="enable_email_notification_yes">사용</label>
+                                <input type="radio" id="enable_email_notification_no" name="enable_email_notification" value="0" {{ checked(0, old('enable_email_notification', board)) }}> <label for="enable_email_notification_no">사용안함</label>
+                            </td>
+                            <th scope="row"><label for="authentication_type">본인인증 사용</label></th>
+                            <td>
+                                <select id="authentication_type" name="authentication_type" class="frm_select">
+                                    <option value="" {{ selected('', old('authentication_type', board)) }}>사용안함</option>
+                                    <option value="personal" {{ selected('personal', old('authentication_type', board)) }}>본인확인한 회원</option>
+                                    <option value="adult" {{ selected('adult', old('authentication_type', board)) }}>성인인증한 회원</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="max_file_upload_count">파일 업로드 개수</label></th>
+                            <td><input type="text" id="max_file_upload_count" name="max_file_upload_count" class="frm_input" value="{{ old('max_file_upload_count', board) }}"></td>
+                            <th scope="row"><label for="max_file_upload_size">파일 업로드 용량</label></th>
+                            <td><input type="text" id="max_file_upload_size" name="max_file_upload_size" class="frm_input" value="{{ old('max_file_upload_size', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">파일 설명 사용</th>
+                            <td colspan="3">
+                                <input type="radio" id="enable_file_description_yes" name="enable_file_description" value="1" {{ checked(1, old('enable_file_description', board)) }}> <label for="enable_file_description_yes">사용</label>
+                                <input type="radio" id="enable_file_description_no" name="enable_file_description" value="0" {{ checked(0, old('enable_file_description', board)) }}> <label for="enable_file_description_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="min_contents_count_limit">최소 글수 제한</label></th>
+                            <td><input type="text" id="min_contents_count_limit" name="min_contents_count_limit" class="frm_input" value="{{ old('min_contents_count_limit', board) }}"></td>
+                            <th scope="row"><label for="max_contents_count_limit">최대 글수 제한</label></th>
+                            <td><input type="text" id="max_contents_count_limit" name="max_contents_count_limit" class="frm_input" value="{{ old('max_contents_count_limit', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="min_comment_count_limit">최소 댓글수 제한</label></th>
+                            <td><input type="text" id="min_comment_count_limit" name="min_comment_count_limit" class="frm_input" value="{{ old('min_comment_count_limit', board) }}"></td>
+                            <th scope="row"><label for="max_comment_count_limit">최대 댓글수 제한</label></th>
+                            <td><input type="text" id="max_comment_count_limit" name="max_comment_count_limit" class="frm_input" value="{{ old('max_comment_count_limit', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">SNS 사용</th>
+                            <td>
+                                <input type="radio" id="enable_sns_yes" name="enable_sns" value="1" {{ checked(1, old('enable_sns', board)) }}> <label for="enable_sns_yes">사용</label>
+                                <input type="radio" id="enable_sns_no" name="enable_sns" value="0" {{ checked(0, old('enable_sns', board)) }}> <label for="enable_sns_no">사용안함</label>
+                            </td>
+                            <th scope="row">전체 검색 사용</th>
+                            <td>
+                                <input type="radio" id="enable_search_yes" name="enable_search" value="1" {{ checked(1, old('enable_search', board)) }}> <label for="enable_search_yes">사용</label>
+                                <input type="radio" id="enable_search_no" name="enable_search" value="0" {{ checked(0, old('enable_search', board)) }}> <label for="enable_search_no">사용안함</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="display_order">전시순서</label></th>
+                            <td><input type="text" id="display_order" name="display_order" class="frm_input" value="{{ old('display_order', board) }}"></td>
+                            <th scope="row">캡챠 사용</th>
+                            <td>
+                                <input type="radio" id="enable_captcha_yes" name="enable_captcha" value="1" {{ checked(1, old('enable_captcha', board)) }}> <label for="enable_captcha_yes">사용</label>
+                                <input type="radio" id="enable_captcha_no" name="enable_captcha" value="0" {{ checked(0, old('enable_captcha', board)) }}> <label for="enable_captcha_no">사용안함</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_confirm">
+                <button type="button" class="btn btn_02">취소</button>
+                <button type="submit" class="btn btn_submit">저장</button>
+            </div>
+        </section>
+
+        <section id="anchor_form">
+            <h2 class="h2_frm">{{ sub_menus.form }}</h2>
+            {{ anchor(sub_menus, 'form') }}
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>{{ title ~ ' ' ~ action }}</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="skin">스킨</label></th>
+                            <td colspan="3">
+                                <select id="skin" name="skin" class="frm_select">
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="header_file_path">상단 파일 경로</label></th>
+                            <td><input type="text" id="header_file_path" name="header_file_path" class="frm_input" value="{{ old('header_file_path', board) }}"></td>
+                            <th scope="row"><label for="footer_file_path">하단 파일 경로</label></th>
+                            <td><input type="text" id="footer_file_path" name="footer_file_path" class="frm_input" value="{{ old('footer_file_path', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="header_content">상단 내용</label></th>
+                            <td>
+                                <textarea id="header_content" name="header_content" class="frm_textarea">
+                                    {{- board.header_content -}}
+                                </textarea>
+                            </td>
+                            <th scope="row"><label for="footer_content">하단 내용</label></th>
+                            <td>
+                                <textarea id="footer_content" name="footer_content" class="frm_textarea">
+                                    {{- board.footer_content -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="default_template">글쓰기 기본 내용</label></th>
+                            <td colspan="3">
+                                <textarea id="default_template" name="default_template" class="frm_textarea">
+                                    {{- board.default_template -}}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="subject_length_limit">제목 길이</label></th>
+                            <td><input type="text" id="subject_length_limit" name="subject_length_limit" class="frm_input" value="{{ old('subject_length_limit', board) }}"></td>
+                            <th scope="row"><label for="items_per_page">한 페이지당 목록 수</label></th>
+                            <td><input type="text" id="items_per_page" name="items_per_page" class="frm_input" value="{{ old('items_per_page', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="board_width">게시판 폭</label></th>
+                            <td><input type="text" id="board_width" name="board_width" class="frm_input" value="{{ old('board_width', board) }}"></td>
+                            <th scope="row"><label for="image_width">이미지 폭 크기</label></th>
+                            <td><input type="text" id="image_width" name="image_width" class="frm_input" value="{{ old('image_width', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="new_icon_time">새글 아이콘 표시 시간</label></th>
+                            <td><input type="text" id="new_icon_time" name="new_icon_time" class="frm_input" value="{{ old('new_icon_time', board) }}"></td>
+                            <th scope="row"><label for="popular_icon_time">인기글 아이콘 표시 시간</label></th>
+                            <td><input type="text" id="popular_icon_time" name="popular_icon_time" class="frm_input" value="{{ old('popular_icon_time', board) }}"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="reply_sort">답변 정렬기준</label></th>
+                            <td>
+                                <select id="reply_sort" name="reply_sort" class="frm_select">
+                                    <option value="0" {{ selected(0, old('reply_sort', board)) }}>최신순</option>
+                                    <option value="1" {{ selected(1, old('reply_sort', board)) }}>등록순</option>
+                                </select>
+                            </td>
+                            <th scope="row"><label for="list_sort_field">리스트 정렬 필드</label></th>
+                            <td>
+                                <select id="list_sort_field" name="list_sort_field" class="frm_select">
+                                    <!-- 정렬 필드 옵션 추가 -->
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_confirm">
+                <button type="button" class="btn btn_02">취소</button>
+                <button type="submit" class="btn btn_submit">저장</button>
+            </div>
+        </section>
+        
+        <div class="btn_fixed_top">
+            <a href="{{ url_for('admin.community.board', {}, query_params) }}" class="btn_02 btn">목록</a>
+            <button type="submit" class="btn btn_submit" accesskey="s">저장</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    });
+</script>
+{% endblock content %}

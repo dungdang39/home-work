@@ -8,6 +8,7 @@ use App\Base\Controller\Admin\MenuController;
 use App\Base\Controller\Admin\ThemeController;
 use App\Base\Controller\Admin\BannerController;
 use App\Base\Controller\Admin\BoardConfigController;
+use App\Base\Controller\Admin\BoardController;
 use App\Base\Controller\Admin\DashboardController;
 use App\Base\Controller\Admin\ConfigController;
 use App\Base\Controller\Admin\NotificationController;
@@ -282,6 +283,16 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                     $group->get('', [BoardConfigController::class, 'indexNotification'])->setName('admin.community.config.notification');
                     $group->put('', [BoardConfigController::class, 'updateNotification'])->setName('admin.community.config.notification.update');
                 });
+            })->add(AdminMenuPermissionMiddleware::class);
+
+            // 게시판 관리
+            $group->group('/board', function (RouteCollectorProxy $group) {
+                $group->get('', [BoardController::class, 'index'])->setName('admin.community.board');
+                $group->get('/create', [BoardController::class, 'create'])->setName('admin.community.board.create');
+                $group->post('', [BoardController::class, 'insert'])->setName('admin.community.board.insert');
+                $group->get('/{board_id}', [BoardController::class, 'view'])->setName('admin.community.board.view');
+                $group->put('/{board_id}', [BoardController::class, 'update'])->setName('admin.community.board.update');
+                $group->delete('/{board_id}', [BoardController::class, 'delete'])->setName('admin.community.board.delete');
             })->add(AdminMenuPermissionMiddleware::class);
         });
     })

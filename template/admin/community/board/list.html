@@ -1,0 +1,125 @@
+{% extends "@admin/_layout.html" %}
+{% from "@admin/macro.html" import selected %}
+
+{% set title = "커뮤니티 > 게시판 관리" %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<h1 id="container_title">{{ title }}</h1>
+<div class="container_wr">
+    <div class="local_ov01 local_ov">
+        <a href="{{ url_for('admin.community.board') }}" class="ov_listall">전체목록</a>
+        <span class="btn_ov01">
+            <span class="ov_txt">생성된 게시판수</span>
+            <span class="ov_num"> {{ total_count|format_number }}개</span>
+        </span>
+    </div>
+
+    <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
+        <label for="field" class="sound_only">검색대상</label>
+        <select name="field" id="field">
+            <option value="board_id" {{ selected('board_id', search.field) }}>게시판 ID</option>
+            <option value="title" {{ selected('title', search.field) }}>게시판 제목</option>
+        </select>
+        <label for="keyword" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+        <input type="text" id="keyword" name="keyword" class="frm_input" value="{{ search.keyword }}" placeholder="검색어">
+        <input type="submit" value="검색" class="btn_submit">
+        <select name="limit" id="limit">
+            <option value="15" {{ selected(15, pagination.limit) }}>15개씩 보기</option>
+            <option value="30" {{ selected(30, pagination.limit) }}>30개씩 보기</option>
+        </select>
+    </form>
+
+    <div class="local_desc02 local_desc">
+        도움말
+    </div>
+
+    <form name="form_board_list" id="form_board_list" action="" onsubmit="return form_board_list_submit(this);" method="post">
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>게시판관리 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">순서</th>
+                        <th scope="col">
+                            <label for="chkall" class="sound_only">전체선택하기</label>
+                            <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
+                        </th>
+                        <th scope="col">게시판 타이틀</th>
+                        <th scope="col">목록권한</th>
+                        <th scope="col">읽기권한</th>
+                        <th scope="col">쓰기권한</th>
+                        <th scope="col">댓글권한</th>
+                        <th scope="col">게시판 관리자</th>
+                        <th scope="col">수정</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for board in boards %}
+                    <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                        <td></td>
+                        <td class="td_chk">
+                            <label for="chk_{{ loop.index }}" class="sound_only">{{ board.title }}</label>
+                            <input type="checkbox" name="chk[]" value="{{ board.id }}" id="chk_{{ loop.index }}">
+                        </td>
+                        <td>
+                            <input type="text" name="board_title[{{ loop.index }}]" value="{{ board.title }}" class="tbl_input" size="10">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn_02">{{ board.list_level }}</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn_02">{{ board.read_level }}</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn_02">{{ board.write_level }}</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn_02">{{ board.comment_level }}</button>
+                        </td>
+                        <td>{{ board.admin_id }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.community.board.view', {board_id: board.board_id}, query_params) }}" class="btn btn_03">수정</a>
+                            <button type="button" class="btn btn_01 btn_delete_board" 
+                                data-href="{{ url_for('admin.community.board.delete', {board_id: board.board_id}, query_params) }}">
+                                삭제
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_fixed_top">
+            <a href="{{ url_for('admin.community.board.create', {}, query_params) }}" class="btn_01 btn">게시판 추가</a>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 목록 출력갯수 변경
+        const form_search = document.getElementById('form_search');
+        const form_search_limit = form_search.querySelector('#limit');
+        form_search_limit.addEventListener('change', function () {
+            form_search.submit();
+        });
+
+
+        // 목록 > 게시판 삭제 버튼
+        const btn_delete_board = document.querySelectorAll('.btn_delete_board');
+        btn_delete_board.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const message = '게시판을 삭제하시겠습니까?\n삭제된 게시판은 복구할 수 없으머 관련된 정보도 모두 삭제됩니다.';
+                let href = this.getAttribute('data-href');
+                delete_confirm(href, message);
+            });
+        });
+    });
+
+    function form_board_list_submit(f) {
+        return true;
+    }
+</script>
+{% endblock content %}
