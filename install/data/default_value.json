@@ -515,89 +515,9 @@
                 ]
             },
             {
-                "am_name": "쇼핑몰",
-                "am_route": "admin.shop",
-                "am_order": 3,
-                "children": [
-                    {
-                        "am_name": "대시보드",
-                        "am_route": "admin.shop.dashboard",
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "쇼핑몰 설정",
-                        "am_route": "admin.shop.config",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "주문 관리",
-                        "am_route": null,
-                        "am_order": 2,
-                        "children": []
-                    },
-                    {
-                        "am_name": "상품",
-                        "am_route": null,
-                        "am_order": 3,
-                        "children": []
-                    },
-                    {
-                        "am_name": "카테고리",
-                        "am_route": null,
-                        "am_order": 4,
-                        "children": []
-                    },
-                    {
-                        "am_name": "문의 관리",
-                        "am_route": null,
-                        "am_order": 5,
-                        "children": []
-                    },
-                    {
-                        "am_name": "리뷰 관리",
-                        "am_route": null,
-                        "am_order": 6,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "커뮤니티",
-                "am_route": null,
-                "am_order": 4,
-                "children": [
-                    {
-                        "am_name": "기본환경설정",
-                        "am_route": null,
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "게시판 관리",
-                        "am_route": null,
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "게시판 그룹 관리",
-                        "am_route": null,
-                        "am_order": 2,
-                        "children": []
-                    },
-                    {
-                        "am_name": "글, 댓글 현황",
-                        "am_route": null,
-                        "am_order": 3,
-                        "children": []
-                    }
-                ]
-            },
-            {
                 "am_name": "컨텐츠",
                 "am_route": "admin.content",
-                "am_order": 5,
+                "am_order": 3,
                 "children": [
                     {
                         "am_name": "컨텐츠 관리",
@@ -614,115 +534,49 @@
                 ]
             },
             {
-                "am_name": "알림/메시징/메일",
-                "am_route": null,
-                "am_order": 6,
+                "am_name": "커뮤니티",
+                "am_route": "admin.community",
+                "am_order": 4,
                 "children": [
                     {
-                        "am_name": "자동발송 설정",
-                        "am_route": null,
+                        "am_name": "커뮤니티 설정",
+                        "am_route": "admin.community.config",
                         "am_order": 0,
-                        "children": []
+                        "children": [
+                            {
+                                "am_name": "기본환경설정",
+                                "am_route": "admin.community.config.basic",
+                                "am_order": 0,
+                                "children": []
+                            },
+                            {
+                                "am_name": "알림/푸시 설정",
+                                "am_route": "admin.community.config.notification",
+                                "am_order": 1,
+                                "children": []
+                            }
+                        ]
                     },
                     {
-                        "am_name": "SMS",
-                        "am_route": null,
+                        "am_name": "게시판 그룹 관리",
+                        "am_route": "admin.community.group",
                         "am_order": 1,
                         "children": []
                     },
                     {
-                        "am_name": "알림톡",
-                        "am_route": null,
-                        "am_order": 2,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "광고/캠페인",
-                "am_route": null,
-                "am_order": 7,
-                "children": [
-                    {
-                        "am_name": "네이버쇼핑",
-                        "am_route": null,
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "쇼핑몰 기획전",
-                        "am_route": null,
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "쿠폰 관리",
-                        "am_route": null,
+                        "am_name": "게시판 관리",
+                        "am_route": "admin.community.board",
                         "am_order": 2,
                         "children": []
                     },
+
                     {
-                        "am_name": "쿠폰존 관리",
-                        "am_route": null,
-                        "am_order": 3,
-                        "children": []
-                    },
-                    {
-                        "am_name": "친구톡",
-                        "am_route": null,
-                        "am_order": 4,
-                        "children": []
-                    },
-                    {
-                        "am_name": "메일 직접발송",
-                        "am_route": null,
-                        "am_order": 5,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "통계",
-                "am_route": null,
-                "am_order": 8,
-                "children": [
-                    {
-                        "am_name": "애널리틱스",
-                        "am_route": null,
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "접속자",
-                        "am_route": null,
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "쇼핑몰",
-                        "am_route": null,
-                        "am_order": 2,
-                        "children": []
-                    },
-                    {
-                        "am_name": "인기검색어 순위",
+                        "am_name": "글, 댓글 현황",
                         "am_route": null,
                         "am_order": 3,
                         "children": []
                     }
                 ]
-            },
-            {
-                "am_name": "부가서비스",
-                "am_route": null,
-                "am_order": 9,
-                "children": []
-            },
-            {
-                "am_name": "컨텐츠 몰",
-                "am_route": null,
-                "am_order": 10,
-                "children": []
             }
         ]
     }

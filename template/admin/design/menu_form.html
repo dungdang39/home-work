@@ -82,15 +82,6 @@
                         <input name="me_target" id="me_target_0" type="radio" value="_self" checked>
                     </td>
                 </tr>
-                <tr id="add_sub">
-                    <th scope="row"><label for="menu_type">하위카테고리/게시판 자동추가</label></th>
-                    <td>
-                        <label for="is_add_sub_1" class="rules_label">추가</label>
-                        <input name="is_add_sub" id="is_add_sub_1" type="radio" value="1">
-                        <label for="is_add_sub_0" class="rules_label">추가안함</label>
-                        <input name="is_add_sub" id="is_add_sub_0" type="radio" value="0" checked>
-                    </td>
-                </tr>
                 <tr>
                     <th scope="row"><label for="menu_order">전시 순서</label></th>
                     <td>
@@ -236,13 +227,6 @@
                     $menu_url.append(html);
                     $area_select_url.show();
                     $form_menu_info.hide();
-
-                    // 
-                    if (menu_type == "community_group" && menu_type == "shop_category") {
-                        $("#add_sub").show();
-                    } else {
-                        $("#add_sub").hide();
-                    }
                 },
                 error: function (xhr, status, error) {
                     let result = xhr.responseJSON;

@@ -1,15 +1,17 @@
 {
     "default": [
+        "banner",
         "cache",
+        "config",
+        "content",
         "editor",
+        "faq",
         "file",
         "log",
+        "logo",
         "member",
         "member_image",
-        "session",
-        "content",
-        "faq",
-        "tmp"
+        "session"
     ],
     "shop": [
         "banner",
