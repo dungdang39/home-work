@@ -83,16 +83,6 @@ class UpdateConfigRequest
     }
 
     /**
-     * 필수 입력 사항 검사
-     */
-    private function validateRequired(string $field, string $label): void
-    {
-        if (!Validator::required($this->$field)) {
-            $this->throwException("{$label}은(는) 필수 입력 사항입니다.");
-        }
-    }
-
-    /**
      * 사이트 대표이미지 검사
      */
     private function validateSiteImage(): void

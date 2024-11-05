@@ -89,14 +89,4 @@ class UpdateBoardRequest
         $this->deleted_categories = json_decode($this->deleted_category, true);
         unset($this->deleted_category);
     }
-
-    /**
-     * 필수 입력 사항 검사
-     */
-    private function validateRequired(string $field, string $label): void
-    {
-        if (!Validator::required($this->$field)) {
-            $this->throwException("{$label}은(는) 필수 입력 사항입니다.");
-        }
-    }
 }

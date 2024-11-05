@@ -446,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `new_point` (
 DROP TABLE IF EXISTS `new_popup`;
 CREATE TABLE IF NOT EXISTS `new_popup` (
   `pu_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pu_division` varchar(10) NOT NULL DEFAULT 'both' COMMENT '팝업 표시 구분',
+  `pu_position` varchar(50) NOT NULL DEFAULT '' COMMENT '출력위치',
   `pu_begin_time` datetime DEFAULT NULL COMMENT '팝업 시작 시간',
   `pu_end_time` datetime DEFAULT NULL COMMENT '팝업 종료 시간',
   `pu_disable_hours` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '팝업 비활성화 시간 (시간 단위)',
@@ -454,10 +454,10 @@ CREATE TABLE IF NOT EXISTS `new_popup` (
   `pu_top` int(11) NOT NULL DEFAULT 0 COMMENT '팝업 위치 (top)',
   `pu_height` int(11) NOT NULL DEFAULT 0 COMMENT '팝업 높이',
   `pu_width` int(11) NOT NULL DEFAULT 0 COMMENT '팝업 너비',
-  `pu_auto_height` tinyint(1) NOT NULL DEFAULT 0 COMMENT '팝업 자동 높이 여부',
   `pu_title` varchar(255) NOT NULL COMMENT '팝업 타이틀',
   `pu_content` text DEFAULT NULL COMMENT '팝업 내용',
   `pu_mobile_content` text DEFAULT NULL COMMENT '팝업 내용 (모바일)',
+  `pu_is_enabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '상태',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`pu_id`)

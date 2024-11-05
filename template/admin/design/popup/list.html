@@ -7,8 +7,41 @@
 {% block content %}
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
+    <div class="local_ov01 local_ov">
+        <form name="form_banner_list" class="local_sch01 local_sch">
+            <input type="hidden" name="pu_is_enabled" value="{{ search.pu_is_enabled }}">
 
-    <div class="btn_fixed_top ">
+            <label for="keyword" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+            <input type="text" id="keyword" name="keyword" class="frm_input" value="{{ search.keyword }}" placeholder="검색어">
+            <input type="submit" class="btn_submit" value="검색">
+
+            {% with {query_params: query_params|filter((value, key) => key != 'pu_is_enabled')} %}
+            <a href="{{ url_for('admin.design.popup', {}, query_params) }}"
+                class="btn {{ search.pu_is_enabled is not defined ? 'btn_03' : 'btn_02' }}">
+                전체
+            </a>
+            <a href="{{ url_for('admin.design.popup', {}, query_params|merge({pu_is_enabled: true})) }}"
+                class="btn {{ search.pu_is_enabled is same as(true) ? 'btn_03' : 'btn_02' }}">
+                전시중
+            </a>
+            <a href="{{ url_for('admin.design.popup', {}, query_params|merge({pu_is_enabled: false})) }}"
+                class="btn {{ search.pu_is_enabled is same as(false) ? 'btn_03' : 'btn_02' }}">
+                종료
+            </a>
+            {% endwith %}
+        </form>
+    </div>
+
+    <div class="local_ov01 local_ov">
+        {% with {query_params: query_params|filter((value, key) => key != 'position')} %}
+            <a href="{{ url_for('admin.design.popup', {}, query_params) }}"
+               class="btn {{ search.position is not defined ? 'btn_03' : 'btn_02' }}">
+               전체
+            </a>
+        {% endwith %}
+    </div>
+
+    <div class="btn_fixed_top">
         <a href="{{ url_for('admin.design.popup.create') }}" class="btn btn_01">팝업레이어 추가</a>
     </div>
 
@@ -17,7 +50,7 @@
             <caption>{{ title }} 목록</caption>
             <thead>
                 <tr>
-                    <th scope="col">구분</th>
+                    <th scope="col">상태</th>
                     <th scope="col">제목</th>
                     <th scope="col">시작일시</th>
                     <th scope="col">종료일시</th>
@@ -32,7 +65,7 @@
             <tbody>
                 {% for popup in popups %}
                 <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
-                    <td class="td_device">{{ popup.pu_division }}</td>
+                    <td class="td_device">{{ popup.pu_is_enabled ? '활성화' : '비활성화' }}</td>
                     <td class="td_left">{{ popup.pu_title }}</td>
                     <td class="td_datetime">{{ popup.pu_begin_time }}</td>
                     <td class="td_datetime">{{ popup.pu_end_time }}</td>
@@ -46,7 +79,9 @@
                             <span class="sound_only">{{ popup.pu_title }}</span>
                             삭제
                         </a>
-                        <button type="button" class="btn btn_02">즉시종료</button>
+                        {% if popup.is_within_date and popup.pu_is_enabled %}
+                            <button type="button" class="is_enabled btn btn_02" data-url="{{ url_for('admin.design.popup.enabled', {'pu_id': popup.pu_id}) }}">즉시종료</button>
+                        {% endif %}
                         <a href="{{ url_for('admin.design.popup.view', {'pu_id': popup.pu_id}) }}" class="btn btn_03">
                             <span class="sound_only">{{ popup.pu_title }}</span>
                             수정
@@ -63,4 +98,17 @@
     </div>
     {{ renderPagination(pagination, query_params) }}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const is_enabled = document.querySelectorAll('.is_enabled');
+        is_enabled.forEach(function(el) {
+            el.addEventListener('click', function() {
+                if (!confirm('팝업레이어를 ' + el.textContent + '하시겠습니까?')) {
+                    return false;
+                }
+                sendAjaxRequest(el.dataset.url, 'PUT', {}, {reload: true});
+            });
+        });
+    });
+</script>
 {% endblock content %}

@@ -108,7 +108,7 @@
                             {% else %}
                             <button type="button" class="is_enabled btn btn_03" data-url="{{ url_for('admin.design.banner.enabled', {'bn_id': banner.bn_id}) }}">재시작</button>
                             {% endif %}
-                            {% endif %}
+                        {% endif %}
                         <a href="{{ url_for('admin.design.banner.delete', {'bn_id': banner.bn_id}) }}" onclick="delete_confirm(this.href); return false;" class="btn btn_02">삭제</a>
                     </td>
                 </tr>

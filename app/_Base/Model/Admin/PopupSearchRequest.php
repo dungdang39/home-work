@@ -6,5 +6,9 @@ use Core\Model\PaginationRequest;
 
 class PopupSearchRequest extends PaginationRequest
 {
-    public ?string $pu_device;
+    public ?string $keyword;
+
+    public ?bool $pu_is_enabled;
+
+    public ?string $position;
 }

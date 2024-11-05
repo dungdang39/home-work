@@ -24,24 +24,23 @@ class PopupController extends BaseController
     /**
      * 팝업 목록 페이지
      */
-    public function index(Request $request, Response $response, PopupSearchRequest $search_request): Response
+    public function index(Request $request, Response $response, PopupSearchRequest $search): Response
     {
         // 검색 조건 설정
-        $search_params = $search_request->publics();
+        $params = $search->publics();
 
         // 총 데이터 수 조회 및 페이징 정보 설정
-        $total_count = $this->service->fetchPopupsCount($search_params);
-        $search_request->setTotalCount($total_count);
+        $total_count = $this->service->fetchPopupsCount($params);
+        $search->setTotalCount($total_count);
     
         // 팝업 목록 조회
-        $popups = $this->service->getPopups($search_params);
+        $popups = $this->service->getPopups($params);
 
         $response_data = [
             "popups" => $popups,
             "total_count" => $total_count,
-            "search" => $search_request,
-            "pagination" => $search_request->getPaginationInfo(),
-            "query_params" => $request->getQueryParams(),
+            "search" => $search,
+            "pagination" => $search->getPaginationInfo(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/design/popup/list.html', $response_data);
@@ -102,5 +101,18 @@ class PopupController extends BaseController
         $this->service->delete($popup['pu_id']);
 
         return $response->withJson(['message' => '삭제되었습니다.']);
+    }
+
+    /**
+     * 팝업 활성화/비활성화 전환
+     */
+    public function toggleEnabled(Request $request, Response $response, int $pu_id): Response
+    {
+        $popup = $this->service->getPopup($pu_id);
+        $is_enabled = (bool)$popup['pu_is_enabled'];
+
+        $this->service->update($popup['pu_id'], ['pu_is_enabled' => !$is_enabled]);
+
+        return $response->withJson(['message' => '팝업이 ' . ($is_enabled ? '비' : '') . '활성화되었습니다.']);
     }
 }

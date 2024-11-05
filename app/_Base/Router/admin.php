@@ -144,6 +144,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [PopupController::class, 'insert'])->setName('admin.design.popup.insert');
                 $group->get('/{pu_id}', [PopupController::class, 'view'])->setName('admin.design.popup.view');
                 $group->put('/{pu_id}', [PopupController::class, 'update'])->setName('admin.design.popup.update');
+                $group->put('/{pu_id}/enabled', [PopupController::class, 'toggleEnabled'])->setName('admin.design.popup.enabled');
                 $group->delete('/{pu_id}', [PopupController::class, 'delete'])->setName('admin.design.popup.delete');
             })->add(AdminMenuPermissionMiddleware::class);
 

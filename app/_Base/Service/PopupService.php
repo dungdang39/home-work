@@ -23,8 +23,15 @@ class PopupService
     public function getPopups(array $params): array
     {
         $popups = $this->fetchPopups($params);
+        if (empty($popups)) {
+            return [];
+        }
 
-        return $popups ?: [];
+        foreach ($popups as &$popup) {
+            $popup['is_within_date'] = $this->isWithinDate($popup['pu_begin_time'], $popup['pu_end_time']);
+        }
+
+        return $popups;
     }
 
     /**
@@ -39,6 +46,29 @@ class PopupService
         }
 
         return $popup;
+    }
+
+    /**
+     * 팝업이 현재 날짜에 포함되는지 확인
+     * @todo 동일한 코드가 배너에도 있으므로 개선이 필요함.
+     * @param string $start_date  시작일
+     * @param string $end_date  종료일
+     * @return bool
+     */
+    public function isWithinDate(?string $start_date, ?string $end_date): bool
+    {
+        if (empty($start_date) && empty($end_date)) {
+            return true;
+        }
+        $now = date('Y-m-d H:i:s');
+        if (empty($start_date)) {
+            return $now <= $end_date;
+        }
+        if (empty($end_date)) {
+            return $start_date <= $now;
+        }
+
+        return $start_date <= $now && $now <= $end_date;
     }
 
     // ========================================
@@ -77,15 +107,8 @@ class PopupService
      */
     public function fetchPopupsCount(array $params): int
     {
-        $wheres = [];
-        $values = [];
-        $sql_where = "";
-
-        if (!empty($params['pu_device'])) {
-            $sql_where .= 'pu_device = :pu_device';
-            $values['pu_device'] = $params['pu_device'];
-        }
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+        $this->addSearchConditions($wheres, $values, $params);
+        $sql_where = Db::buildWhere($wheres);
 
         $query = "SELECT COUNT(*)
                     FROM {$this->table}
@@ -102,17 +125,10 @@ class PopupService
      */
     public function fetchPopups(array $params)
     {
-        $wheres = [];
-        $values = [];
-        $sql_where = "";
+        $this->addSearchConditions($wheres, $values, $params);
+        $sql_where = Db::buildWhere($wheres);
+        
         $sql_limit = "";
-
-        if (!empty($params['pu_device'])) {
-            $sql_where .= "pu_device = :pu_device";
-            $values['pu_device'] = $params['pu_device'];
-        }
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
-
         if (isset($params['offset']) && isset($params['limit'])) {
             $values["offset"] = $params['offset'];
             $values["limit"] = $params['limit'];
@@ -172,6 +188,30 @@ class PopupService
     public function delete(int $pu_id): int
     {
         return Db::getInstance()->delete($this->table, ["pu_id" => $pu_id]);
+    }
+
+    /**
+     * 목록 검색 조건 추가
+     * @param array $params 검색 조건
+     * @param array $wheres WHERE 절
+     * @param array $values 바인딩 값
+     * @return void
+     */
+    private function addSearchConditions(?array &$wheres = [], ?array &$values = [], ?array $params = [])
+    {
+        if (isset($params['keyword'])) {
+            $wheres[] = "(pu_title LIKE :keyword1 OR pu_content LIKE :keyword2)";
+            $values["keyword1"] = "%{$params['keyword']}%";
+            $values["keyword2"] = "%{$params['keyword']}%";
+        }
+        if (isset($params['position'])) {
+            // $wheres[] = "position = :position";
+            // $values["position"] = $params['position'];
+        }
+        if (isset($params['pu_is_enabled'])) {
+            $wheres[] = " pu_is_enabled = :pu_is_enabled";
+            $values["pu_is_enabled"] = $params['pu_is_enabled'];
+        }
     }
 
     // ========================================

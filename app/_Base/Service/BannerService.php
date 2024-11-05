@@ -84,6 +84,12 @@ class BannerService
             return false;
         }
         $now = date('Y-m-d H:i:s');
+        if (empty($start_date)) {
+            return $now <= $end_date;
+        }
+        if (empty($end_date)) {
+            return $start_date <= $now;
+        }
         return $start_date <= $now || $now <= $end_date;
     }
 

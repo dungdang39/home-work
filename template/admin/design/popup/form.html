@@ -1,5 +1,5 @@
 {% extends "@admin/_layout.html" %}
-{% from "@admin/macro.html" import info, selected %}
+{% from "@admin/macro.html" import checked, info, selected %}
 
 {% set title = "디자인/UI > 팝업레이어" %}
 {% set action = popup ? '수정' : '추가' %}
@@ -29,86 +29,78 @@
                 </colgroup>
                 <tbody>
                     <tr>
-                        <th scope="row"><label for="pu_division">구분</label></th>
-                        <td>
-                            {{ info('커뮤니티에 표시될 것인지 쇼핑몰에 표시될 것인지를 설정합니다.') }}
-                            <select name="pu_division" id="pu_division">
-                                <option value="community" {{ selected('community', old('pu_division', popup)) }}>커뮤니티</option>
-                                <option value="shop" {{ selected('shop', old('pu_division', popup)) }}>쇼핑몰</option>
-                                <option value="both" {{ selected('both', old('pu_division', popup)) }}>모두</option>
-                            </select>
+                        <th scope="row"><label for="pu_title">팝업 타이틀<strong class="sound_only"> 필수</strong></label></th>
+                        <td colspan="3">
+                            <input type="text" name="pu_title" value="{{ old('pu_title', popup) }}" id="pu_title" required class="frm_input required" size="80">
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_disable_hours">시간<strong class="sound_only"> 필수</strong></label>
-                        </th>
-                        <td>
+                        <th scope="row">노출위치</th>
+                        <td colspan="3"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="pu_disable_hours">다시 보지 않음 설정<strong class="sound_only"> 필수</strong></label></th>
+                        <td colspan="3">
                             {{ info('고객이 다시 보지 않음을 선택할 시 몇 시간동안 팝업레이어를 보여주지 않을지 설정합니다.') }}
                             <input type="text" class="frm_input required" name="pu_disable_hours" value="{{ old('pu_disable_hours', popup) }}" id="pu_disable_hours" size="5" required> 시간
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_begin_time">시작일시<strong class="sound_only"> 필수</strong></label>
-                        </th>
-                        <td>
-                            <input type="text" name="pu_begin_time" value="{{ old('pu_begin_time', popup) }}" id="pu_begin_time" required class="frm_input required" size="21" maxlength="19">
-                            <input type="checkbox" name="set_start_time" value="" id="set_start_time">
-                            <label for="set_start_time">시작일시를 오늘로</label>
+                        <th scope="row">상태</th>
+                        <td colspan="3">
+                            <label for="pu_is_enabled_1" class="rules_label">사용</label>
+                            <input name="pu_is_enabled" id="pu_is_enabled_1" type="radio" value="1" {{ checked(1, old('pu_is_enabled', popup, true)) }}>
+                            <label for="pu_is_enabled_0" class="rules_label">사용안함</label>
+                            <input name="pu_is_enabled" id="pu_is_enabled_0" type="radio" value="0" {{ checked(0, old('pu_is_enabled', popup)) }}>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_end_time">종료일시<strong class="sound_only"> 필수</strong></label>
+                        <th scope="row"><label for="pu_begin_time">시작일시</label>
                         </th>
                         <td>
-                            <input type="text" name="pu_end_time" value="{{ old('pu_end_time', popup) }}" id="pu_end_time" required class="frm_input required" size="21" maxlength="19">
+                            <input type="text" name="pu_begin_time" value="{{ old('pu_begin_time', popup) }}" id="pu_begin_time" class="frm_input" size="21" maxlength="19">
+                            <input type="checkbox" name="set_start_time" value="" id="set_start_time">
+                            <label for="set_start_time">시작일시를 오늘로</label>
+                        </td>
+                        <th scope="row"><label for="pu_end_time">종료일시</label>
+                        </th>
+                        <td>
+                            <input type="text" name="pu_end_time" value="{{ old('pu_end_time', popup) }}" id="pu_end_time" class="frm_input" size="21" maxlength="19">
                             <input type="checkbox" name="set_end_time" value="" id="set_end_time">
                             <label for="set_end_time">종료일시를 오늘로부터 7일 후로</label>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_left">팝업레이어 좌측 위치<strong class="sound_only"> 필수</strong></label>
+                        <th scope="row"><label for="pu_left">PC 좌측 위치</label>
                         </th>
                         <td>
-                            <input type="text" name="pu_left" value="{{ old('pu_left', popup) }}" id="pu_left" required class="frm_input required" size="5"> px
+                            <input type="text" name="pu_left" value="{{ old('pu_left', popup) }}" id="pu_left" class="frm_input" size="5"> px
+                        </td>
+                        <th scope="row"><label for="pu_top">PC 상단 위치</label>
+                        </th>
+                        <td>
+                            <input type="text" name="pu_top" value="{{ old('pu_top', popup) }}" id="pu_top" class="frm_input" size="5"> px
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="pu_top">팝업레이어 상단 위치<strong class="sound_only"> 필수</strong></label>
+                        <th scope="row"><label for="pu_width">PC 넓이</label>
                         </th>
                         <td>
-                            <input type="text" name="pu_top" value="{{ old('pu_top', popup) }}" id="pu_top" required class="frm_input required" size="5"> px
+                            <input type="text" name="pu_width" value="{{ old('pu_width', popup) }}" id="pu_width" class="frm_input" size="5"> px
                         </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="pu_width">팝업레이어 넓이<strong class="sound_only"> 필수</strong></label>
+                        <th scope="row"><label for="pu_height">PC 높이</label>
                         </th>
                         <td>
-                            <input type="text" name="pu_width" value="{{ old('pu_width', popup) }}" id="pu_width" required class="frm_input required" size="5"> px
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="pu_height">팝업레이어 높이<strong class="sound_only"> 필수</strong></label>
-                        </th>
-                        <td>
-                            <input type="text" name="pu_height" value="{{ old('pu_height', popup) }}" id="pu_height" required class="frm_input required" size="5"> px
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="pu_title">팝업 타이틀<strong class="sound_only"> 필수</strong></label>
-                        </th>
-                        <td>
-                            <input type="text" name="pu_title" value="{{ old('pu_title', popup) }}" id="pu_title" required class="frm_input required" size="80">
+                            <input type="text" name="pu_height" value="{{ old('pu_height', popup) }}" id="pu_height" class="frm_input" size="5"> px
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="nw_content">내용</label></th>
                         <td>
-                            <textarea name="pu_content">
+                            <textarea name="pu_content" class="required" required>
                                 {{- old('pu_content', popup) -}}
                             </textarea>
                         </td>
-                    </tr>
-                    <tr>
                         <th scope="row"><label for="nw_content">모바일 내용</label></th>
                         <td>
                             <textarea name="pu_mobile_content">

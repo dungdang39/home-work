@@ -54,7 +54,7 @@ class Db
      * @param array $wheres
      * @return string
      */
-    public static function buildWhere(array $wheres): string
+    public static function buildWhere(?array $wheres = []): string
     {
         return $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
     }

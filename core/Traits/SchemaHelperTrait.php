@@ -159,6 +159,16 @@ trait SchemaHelperTrait
     }
 
     /**
+     * 필수 입력 사항 검사
+     */
+    protected function validateRequired(string $field, string $label): void
+    {
+        if (!Validator::required($this->$field)) {
+            $this->throwException("{$label}은(는) 필수 입력 사항입니다.");
+        }
+    }
+
+    /**
      * 예외를 던지는 유틸리티 메서드
      * 
      * @param string $message 예외 메시지
