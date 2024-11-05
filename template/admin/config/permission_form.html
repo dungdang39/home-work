@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
 <link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
 <script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
-
 {% endblock head %}
 
 {% block content %}
@@ -192,59 +191,20 @@
     </section>
 </div>
 
-<div class="is_rewrite remodal" data-remodal-id="modal_search_member" role="dialog" aria-labelledby="modalNotify" aria-describedby="modal2Desc">
-    <button type="button" class="connect-close" data-remodal-action="close">
-        <i class="fa fa-close"></i>
-        <span class="txt">닫기</span>
-    </button>
-
-    <form id="modal_search_form" class="local_sch" method="get" action="{{ url_for('admin.member.manage.search') }}" onsubmit="return false">
-        <div class="search-container">
-            <!-- 검색 입력 폼 -->
-            <div class="search-header">
-                <select id="modal_search_type">
-                    <option value="mb_id">아이디</option>
-                    <option value="mb_name">이름</option>
-                </select>
-                <input type="text" id="modal_search_keyword" class="frm_input" placeholder="검색어" />
-                <button type="button" id="btn_search_member" class="btn_sch2">검색</button>
-            </div>
-            
-            <!-- 검색 전 -->
-            <p id="search_message">회원을 검색해 보세요.</p>
-
-            <!-- 검색 결과 -->
-            <div id="search_results" style="display:none;">
-                <!-- 검색 결과 리스트 -->
-                <ul id="results_list"></ul>
-            </div>
-
-            <!-- 검색 결과 없을 때 -->
-            <p id="no_results" style="display:none;">검색결과가 없습니다.</p>
-            
-            <!-- 하단 버튼 -->
-            <div class="search-footer">
-                <button type="button" class="btn btn_03" data-remodal-action="close" style="float:right">닫기</button>
-            </div>
-        </div>
-    </form>
-</div>
+{% include '@admin/modal_search_member.html' ignore missing %}
 
 <script>
-    $btn_search_id = $("#btn_search_id");
-    $btn_add_admin = $("#btn_add_admin");
-    $btn_cancel = $("#btn_cancel");
-
     $area_admin = $("#select_admin");
     $area_permission = $("#select_permission");
     $area_admin_info = $("#admin_info");
 
     $input_mb_id = $("#mb_id");
-    $input_search_mb_id = $("#search_mb_id");
     $select_menu = $("#au_menu");
     $check_read = $("#read");
     $check_write = $("#write");
     $check_delete = $("#delete");
+
+    const search_mb_id = document.getElementById('search_mb_id');
 
     $(function () {
         // 목록 출력갯수 변경
@@ -254,91 +214,18 @@
             form_search.submit();
         });
 
-        // 검색버튼 클릭
-        const modal_memo = $('[data-remodal-id=modal_search_member]');
+        // 모달 검색창 열기
+        const modal_search_member = $('[data-remodal-id=modal_search_member]');
         const btn_search_modal = document.getElementById('btn_search_modal');
-        const modal_search_keyword = document.getElementById('modal_search_keyword');
-        const modal_search_type = document.getElementById('modal_search_type');
-        const search_mb_id = document.getElementById('search_mb_id');
         btn_search_modal.addEventListener('click', function () {
             modal_search_keyword.value = search_mb_id.value;
-            modal_memo.remodal().open();
+            modal_search_member.remodal().open();
         });
 
-        const btn_search_member = document.getElementById('btn_search_member');
-        const modal_search_form = document.getElementById('modal_search_form');
-        btn_search_member.addEventListener('click', function () {
-            const searchType = modal_search_type.value;
-            const searchKeyword = modal_search_keyword.value;
-
-            // AJAX 요청
-            const url = modal_search_form.action + '?search_type=' + searchType + '&keyword=' + searchKeyword;
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    const data = JSON.parse(xhr.responseText);
-                    console.log(data);
-                    if (data.members.length === 0) {
-                        showNoResults();
-                        return;
-                    }
-
-                    displayResults(data.members);
-                    
-                } else {
-                    const result = JSON.parse(xhr.responseText);
-                    alert(xhr.status + ' ' + xhr.statusText + ': ' + result.error.message);
-                }
-            };
-            
-            xhr.onerror = function() {
-                showNoResults();
-                alert('요청 중 오류가 발생했습니다.');
-            };
-
-            xhr.send();  // AJAX 요청 전송
-        });
-
-        $(document).on('closed', '.remodal', function (e) {
-            hideResults();
-        });
-
-        // 결과 출력 함수
-        function displayResults(results) {
-            const resultsList = document.getElementById('results_list');
-            resultsList.innerHTML = ''; // 기존 내용 초기화
-            
-            results.forEach(result => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `<span>(아이디 : ${result.mb_id}) ${result.mb_name} (${result.mb_nick})</span>
-                                    <button type="button" class="btn btn_03" onclick="set_admin_info('${result.mb_id}', '${result.mb_name}')">선택</button>`;
-                resultsList.appendChild(listItem);
-            });
-
-            document.getElementById('search_results').style.display = 'block';
-            document.getElementById('no_results').style.display = 'none';
-            document.getElementById('search_message').style.display = 'none';
-        }
-
-        // 검색 결과 없을 때
-        function showNoResults() {
-            document.getElementById('search_results').style.display = 'none';
-            document.getElementById('no_results').style.display = 'block';
-            document.getElementById('search_message').style.display = 'none';
-        }
-
-        // 검색 모달 숨기기
-        function hideResults() {
-            document.getElementById('search_results').style.display = 'none';
-            document.getElementById('no_results').style.display = 'none';
-            document.getElementById('search_message').style.display = 'block';
-        }
-
-        // 운영진 추가 버튼 클릭
-        $btn_add_admin.click(function () {
-            let member_id = $input_search_mb_id.val();
+        // 운영진 추가 > 추가 버튼
+        const btn_add_admin = document.getElementById('btn_add_admin');
+        btn_add_admin.addEventListener('click', function () {
+            let member_id = search_mb_id.value;
             if (member_id == "") {
                 alert("운영진을 추가할 회원아이디를 입력해주세요.");
                 return;
@@ -347,21 +234,14 @@
             let route = "{{ url_for('admin.member.manage.info', {mb_id: '__REPLACE_ID__'}) }}";
             let url = route.replace('__REPLACE_ID__', member_id);
 
-            $.ajax({
-                url: url,
-                type: "get",
-                success: function (data) {
-                    set_admin_info(data.member.mb_id, data.member.mb_name);
-                },
-                error: function (xhr, status, error) {
-                    let result = xhr.responseJSON;
-                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
-                }
-            });
+            sendAjaxRequest(url, 'GET', null, {callback: function (data) {
+                set_admin_info(data.member.mb_id, data.member.mb_name);
+            }});
         });
 
-        // 취소버튼 클릭
-        $btn_cancel.click(function () {
+        // 운영진 추가 > 취소 버튼
+        const btn_cancel = document.getElementById('btn_cancel');
+        btn_cancel.addEventListener('click', function () {
             $area_admin.show();
             $area_permission.hide();
 
@@ -373,9 +253,8 @@
             $check_delete.prop("checked", false);
         });
 
-         // 저장 버튼 클릭 이벤트 핸들러
-         $('.btn_save').click(function (e) {
-            // 필요한 데이터 수집
+        // 목록 > 저장 버튼
+        $('.btn_save').click(function (e) {
             let url = $(this).data('url');
             let index = $(this).data('index');
             let send_data = {
@@ -384,36 +263,22 @@
                 "delete": $("input[name='delete[" + index + "]']").is(":checked") ? 1 : 0
             };
 
-            $.ajax({
-                url: url,
-                type: "PUT",
-                data: send_data,
-                beforeSend: function (xhr) {
-                    for (let key in csrf) {
-                        if (!csrf[key]) {
-                            alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
-                            return false;
-                        }
-                        xhr.setRequestHeader(key, csrf[key]);
-                    }
-                },
-                success: function (response) {
-                    alert(response.message);
-                    window.location.reload();
-                },
-                error: function (xhr, status, error) {
-                    let result = xhr.responseJSON;
-                    alert(xhr.status + ' ' + error + ': ' + result.error.message);
-                }
-            });
+            sendAjaxRequest(url, 'PUT', send_data, {reload: true});
         });
 
-        // 삭제 버튼 클릭 이벤트 핸들러
+        // 목록 > 삭제 버튼
         $('.btn_delete').click(function (e) {
             delete_confirm($(this).data('url'));
         });
+
+        // 회원 선택 이벤트 리스너 추가
+        document.addEventListener('memberSelected', function(event) {
+            set_admin_info(event.detail.mb_id, event.detail.mb_name);
+            modal_search_member.remodal().close();
+        });
     })
 
+    // 운영진 정보 설정
     function set_admin_info(mb_id, mb_name) {
         $input_mb_id.val(mb_id);
         $area_admin_info.text(mb_id + " (" + mb_name + ") ");
@@ -421,8 +286,8 @@
         $area_admin.hide();
         $area_permission.show();
         
-        const modal_memo = $('[data-remodal-id=modal_search_member]');
-        modal_memo.remodal().close();
+        const modal_search_member = $('[data-remodal-id=modal_search_member]');
+        modal_search_member.remodal().close();
     }
 
     function validate_form_permission() {
@@ -450,4 +315,5 @@
         return true;
     }
 </script>
-{% endblock %}
+{% endblock %} 
+

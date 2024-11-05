@@ -13,6 +13,7 @@ class UpdateBoardRequest
     public ?int $board_group_id = null;
     public ?string $title = '';
     public ?string $mobile_title = '';
+    public ?int $use_category = 0;
     public ?string $admin_id = '';
     public ?int $list_level = 1;
     public ?int $read_level = 1;
@@ -66,6 +67,13 @@ class UpdateBoardRequest
     public ?int $reply_sort = 0;
     public ?string $list_sort_field = '';
 
+    public ?array $category_id = [];
+    public ?array $category_display_order = [];
+    public ?array $category_title = [];
+    public ?array $category_is_enabled = [];
+    public ?string $deleted_category = '';
+    public ?array $deleted_categories = [];
+
     public function __construct(Request $request)
     {
         $this->initializeFromRequest($request);
@@ -74,6 +82,12 @@ class UpdateBoardRequest
     protected function validate(): void
     {
         $this->validateRequired('title', '게시판 타이틀');
+    }
+
+    protected function afterValidate(): void
+    {
+        $this->deleted_categories = json_decode($this->deleted_category, true);
+        unset($this->deleted_category);
     }
 
     /**

@@ -50,13 +50,38 @@ class BoardService
      * 게시판 카테고리 목록 조회
      * @return array
      */
-    public function getCategories(string $board_id): array
+    public function getCategories(?string $board_id = null): array
     {
+        if ($board_id === null) {
+            return [];
+        }
         $categories = $this->fetchCategories($board_id);
         if (!$categories) {
             return [];
         }
         return $categories;
+    }
+
+    /**
+     * 게시판 카테고리 추가 및 수정
+     * @param string $board_id 게시판 ID
+     * @param array $data 추가 및 수정할 데이터
+     * @return void
+     */
+    public function upsertCategory(string $board_id, array $data)
+    {
+        foreach ($data['category_id'] as $index => $category_id) {
+            $category_data = [
+                'display_order' => $data['category_display_order'][$index],
+                'title' => $data['category_title'][$index],
+                'is_enabled' => isset($data->category_is_enabled[$index]) ? $data['category_is_enabled'][$index] : 0,
+            ];
+            if (!$category_id) {
+                $this->insertCategory(array_merge($category_data, ['board_id' => $board_id]));
+            } else {
+                $this->updateCategory($category_id, $category_data);
+            }
+        }
     }
 
     // ========================================
@@ -194,6 +219,16 @@ class BoardService
     }
 
     /**
+     * 게시판 카테고리 추가
+     * @param array $data 추가할 데이터
+     * @return int
+     */
+    public function insertCategory(array $data): int
+    {
+        return Db::getInstance()->insert($this->category_table, $data);
+    }
+
+    /**
      * 게시판 추가
      * @param array $data 추가할 데이터
      * @return int
@@ -215,6 +250,17 @@ class BoardService
     }
 
     /**
+     * 게시판 카테고리 수정
+     * @param string $id 카테고리 ID
+     * @param array $data 수정할 데이터
+     * @return int
+     */
+    public function updateCategory(string $id, array $data): int
+    {
+        return Db::getInstance()->update($this->category_table, $data, ['id' => $id]);
+    }
+
+    /**
      * 게시판 삭제
      * @param string $board_id 게시판 ID
      * @return int
@@ -222,6 +268,11 @@ class BoardService
     public function delete(string $board_id): int
     {
         return Db::getInstance()->delete($this->table, ['board_id' => $board_id]);
+    }
+
+    public function deleteCategory(string $id): int
+    {
+        return Db::getInstance()->delete($this->category_table, ['id' => $id]);
     }
 
     /**

@@ -748,24 +748,28 @@ $(function() {
  * @param object option 추가 옵션 (reload, callback)
  * @returns 
  */
-function sendAjaxRequest(url, method = 'GET', send_data = {}, option = { reload: false, callback: null }) {
+function sendAjaxRequest(url, method = 'GET', send_data = {}, option = {message: true, reload: false, callback: null }) {
     const xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
-    for (let key in csrf) {
-        if (!csrf[key]) {
-            alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
-            return;
+    if (method !== 'GET') {
+        for (let key in csrf) {
+            if (!csrf[key]) {
+                alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
+                return;
+            }
+            xhr.setRequestHeader(key, csrf[key]);
         }
-        xhr.setRequestHeader(key, csrf[key]);
     }
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             const response = JSON.parse(xhr.responseText);
             if (xhr.status >= 200 && xhr.status < 300) {
-                alert(response.message);
+                if (option.message) {
+                    alert(response.message);
+                }
                 if (typeof option.callback === 'function') {
                     option.callback(response);
                 }

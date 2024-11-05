@@ -5,6 +5,12 @@
 {% set action = board ? '수정' : '추가' %}
 {% set form_action = board ? url_for('admin.community.board.update', {'board_id': board.board_id}) : url_for('admin.community.board.insert') %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
+{% endblock head %}
+
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
@@ -17,7 +23,7 @@
 
 <h1 id="container_title">{{ title ~ ' ' ~ action }}</h1>
 <div class="container_wr">
-    <form name="form_board" action="{{ form_action }}" method="post" enctype="multipart/form-data">
+    <form name="form_board" action="{{ form_action }}" method="post" enctype="multipart/form-data" onsubmit="validate_form(this);">
         {{ csrf.field|raw }}
         {% if board %}
         <input type="hidden" name="_METHOD" value="PUT"/>
@@ -34,7 +40,7 @@
                         <col class="grid_4">
                         <col>
                         <col class="grid_4">
-                        <col>
+                        <col style="width:40%;">
                     </colgroup>
                     <tbody>
                         <tr>
@@ -43,7 +49,6 @@
                                 <input type="text" id="board_id" name="board_id" class="frm_input" value="{{ old('board_id', board) }}"
                                     {% if board %}readonly{% endif %}>
                             </td>
-                            <!--
                             <th scope="row"><label for="board_group">게시판 그룹</label></th>
                             <td>
                                 <select id="board_group_id" name="board_group_id" class="frm_select">
@@ -53,7 +58,6 @@
                                     {% endfor %}
                                 </select>
                             </td>
-                            -->
                         </tr>
                         <tr>
                             <th scope="row"><label for="title">게시판 타이틀</label></th>
@@ -65,13 +69,50 @@
                                 <input type="text" id="mobile_title" name="mobile_title" class="frm_input frm_input_full" value="{{ old('mobile_title', board) }}">
                             </td>
                         </tr>
-                        
                         <tr>
-                            <th scope="row"><label for="board_category">게시물 분류</label></th>
-                            <td colspan="3">
-                                <!--
-                                <input type="text" id="board_category" name="board_category" class="frm_input">
-                                -->
+                            <th scope="row"><label for="board_category">카테고리 사용</label></th>
+                            <td>
+                                <input type="radio" id="use_category_yes" name="use_category" value="1" {{ checked(1, old('use_category', board)) }}> <label for="use_category_yes">사용</label>
+                                <input type="radio" id="use_category_no" name="use_category" value="0" {{ checked(0, old('use_category', board)) }}> <label for="use_category_no">사용안함</label>
+                            </td>
+
+                            <th scope="row">카테고리</th>
+                            <td>
+                                <!-- 카테고리 추가 버튼 --> 
+                                <div style="margin-bottom:10px;">
+                                    <button type="button" id="btn_add_category" class="btn btn_03">카테고리 추가</button>
+                                </div>
+                                <div class="tbl_head01 tbl_wrap">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">순서</th>
+                                                <th scope="col">카테고리</th>
+                                                <th scope="col">활성화</th>
+                                                <th scope="col">관리</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="category_list">
+                                            {% for category in categories %}
+                                            <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                                                <td>
+                                                    <input type="hidden" name="category_id[]" value="{{ category.id }}">
+                                                    <input type="text" name="category_display_order[]" class="frm_input" value="{{ category.display_order }}">
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="category_title[]" class="frm_input"  value="{{ category.title }}">
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox" name="category_is_enabled[]" value="1" {{ checked(1, category.is_enabled) }}>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn_01 btn_delete_category">삭제</button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -100,8 +141,9 @@
                     <tbody>
                         <tr>
                             <th scope="row"><label for="admin_id">게시판 관리자</label></th>
-                            <td colspan="3">
-                                <input type="text" id="admin_id" name="admin_id" class="frm_input" value="{{ old('admin_id', board) }}">
+                            <td colspan="3" class="local_sch">
+                                <input type="text" id="admin_id" name="admin_id" class="frm_input" value="{{ old('admin_id', board) }}" readonly>
+                                <button type="button" id="btn_search_modal" class="btn_sch2">검색</button>
                             </td>
                         </tr>
                         <tr>
@@ -321,7 +363,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="max_file_upload_count">파일 업로드 개수</label></th>
+                            <th scope="row"><label for="max_file_upload_count">파일 업로드 ���수</label></th>
                             <td><input type="text" id="max_file_upload_count" name="max_file_upload_count" class="frm_input" value="{{ old('max_file_upload_count', board) }}"></td>
                             <th scope="row"><label for="max_file_upload_size">파일 업로드 용량</label></th>
                             <td><input type="text" id="max_file_upload_size" name="max_file_upload_size" class="frm_input" value="{{ old('max_file_upload_size', board) }}"></td>
@@ -475,8 +517,79 @@
     </form>
 </div>
 
+{% include '@admin/modal_search_member.html' ignore missing %}
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const btnAddCategory = document.getElementById('btn_add_category');
+        const categoryList = document.getElementById('category_list');
+        const formBoard = document.forms['form_board'];
+        const deletedCategories = [];
+
+        function createCategoryRow() {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <input type="hidden" name="category_id[]" value="">
+                    <input type="text" name="category_display_order[]" class="frm_input">
+                </td>
+                <td><input type="text" name="category_title[]" class="frm_input"></td>
+                <td><input type="checkbox" name="category_is_enabled[]" value="1"></td>
+                <td>
+                    <button type="button" class="btn btn_02 btn_remove_category">취소</button>
+                </td>
+            `;
+            return newRow;
+        }
+
+        // 카테고리 추가 버튼
+        btnAddCategory.addEventListener('click', function () {
+            const newRow = createCategoryRow();
+            categoryList.appendChild(newRow);
+        });
+
+        
+        categoryList.addEventListener('click', function (event) {
+            const newRow = event.target.closest('tr');
+
+            // 카테고리 제거 버튼
+            if (event.target.classList.contains('btn_remove_category')) {
+                categoryList.removeChild(newRow);
+            }
+            // 카테고리 삭제 버튼
+            if (event.target.classList.contains('btn_delete_category')) {
+                const categoryId = newRow.querySelector('input[name="category_id[]"]').value;
+                if (categoryId) {
+                    deletedCategories.push(categoryId);
+                }
+                categoryList.removeChild(newRow);
+            }
+        });
+
+        // 삭제된 카테고리 정보를 전송하기 위한 hidden input 추가
+        formBoard.addEventListener('submit', function () {
+            const deletedCategoriesInput = document.createElement('input');
+            deletedCategoriesInput.type = 'hidden';
+            deletedCategoriesInput.name = 'deleted_category';
+            deletedCategoriesInput.value = JSON.stringify(deletedCategories);
+            formBoard.appendChild(deletedCategoriesInput);
+        });
+        
+        // 회원검색 모달 열기
+        const modal_search_member = $('[data-remodal-id=modal_search_member]');
+        const btn_search_modal = document.getElementById('btn_search_modal');
+        btn_search_modal.addEventListener('click', function () {
+            modal_search_member.remodal().open();
+        });
+
+        // 회원검색 모달 > 회원 선택 이벤트 리스너
+        document.addEventListener('memberSelected', function(event) {
+            document.getElementById('admin_id').value = event.detail.mb_id;
+            modal_search_member.remodal().close();
+        });
     });
+
+    function validate_form(form) {
+    }
 </script>
 {% endblock content %}

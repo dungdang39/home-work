@@ -292,6 +292,7 @@ $app->group('admin', function (RouteCollectorProxy $group) {
                 $group->post('', [BoardController::class, 'insert'])->setName('admin.community.board.insert');
                 $group->get('/{board_id}', [BoardController::class, 'view'])->setName('admin.community.board.view');
                 $group->put('/{board_id}', [BoardController::class, 'update'])->setName('admin.community.board.update');
+                $group->put('/{board_id}/level', [BoardController::class, 'updateLevel'])->setName('admin.community.board.level.update');
                 $group->delete('/{board_id}', [BoardController::class, 'delete'])->setName('admin.community.board.delete');
             })->add(AdminMenuPermissionMiddleware::class);
         });

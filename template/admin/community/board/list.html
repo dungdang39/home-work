@@ -4,6 +4,12 @@
 {% set title = "커뮤니티 > 게시판 관리" %}
 {% block title %}{{ title }}{% endblock title %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
+{% endblock head %}
+
 {% block content %}
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
@@ -58,6 +64,7 @@
                 <tbody>
                     {% for board in boards %}
                     <tr class="bg{{ cycle(['0', '1'], loop.index0) }}">
+                        <input type="hidden" name="board_id[{{ loop.index }}]" value="{{ board.board_id }}">
                         <td></td>
                         <td class="td_chk">
                             <label for="chk_{{ loop.index }}" class="sound_only">{{ board.title }}</label>
@@ -67,16 +74,16 @@
                             <input type="text" name="board_title[{{ loop.index }}]" value="{{ board.title }}" class="tbl_input" size="10">
                         </td>
                         <td>
-                            <button type="button" class="btn btn_02">{{ board.list_level }}</button>
+                            <button type="button" class="btn btn_02 btn_modal_level" data-type="list">{{ board.list_level }}</button>
                         </td>
                         <td>
-                            <button type="button" class="btn btn_02">{{ board.read_level }}</button>
+                            <button type="button" class="btn btn_02 btn_modal_level" data-type="read">{{ board.read_level }}</button>
                         </td>
                         <td>
-                            <button type="button" class="btn btn_02">{{ board.write_level }}</button>
+                            <button type="button" class="btn btn_02 btn_modal_level" data-type="write">{{ board.write_level }}</button>
                         </td>
                         <td>
-                            <button type="button" class="btn btn_02">{{ board.comment_level }}</button>
+                            <button type="button" class="btn btn_02 btn_modal_level" data-type="comment">{{ board.comment_level }}</button>
                         </td>
                         <td>{{ board.admin_id }}</td>
                         <td>
@@ -97,6 +104,27 @@
         </div>
     </form>
 </div>
+
+<div class="is_rewrite remodal" data-remodal-id="modal_level" role="dialog" aria-labelledby="modalMemo" aria-describedby="modal1Desc" style="max-width:400px;">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form name="form_level" method="post">
+        {{ csrf.field|raw }}
+        <input type="hidden" name="_METHOD" value="PUT"/>
+        <input type="hidden" name="type" value="">
+
+        <h2>게시판 권한 설정</h2>
+        <select name="level" class="frm_input frm_input_full">
+            {% for i in range(1, 10) %}
+            <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" id="btn_level_update" class="btn btn_03">저장</button>
+    </form>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // 목록 출력갯수 변경
@@ -106,7 +134,6 @@
             form_search.submit();
         });
 
-
         // 목록 > 게시판 삭제 버튼
         const btn_delete_board = document.querySelectorAll('.btn_delete_board');
         btn_delete_board.forEach(function(btn) {
@@ -115,6 +142,40 @@
                 let href = this.getAttribute('data-href');
                 delete_confirm(href, message);
             });
+        });
+
+        // 권한 모달버튼 클릭 버튼
+        const $modal_level = $('[data-remodal-id="modal_level"]');
+        const btn_modal_level = document.querySelectorAll(".btn_modal_level");
+        btn_modal_level.forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                let board_id = this.closest('tr').querySelector('input[name^="board_id"]').value;
+                let title = this.closest('tr').querySelector('input[name^="board_title"]').value;
+                let type = this.dataset.type;
+                let level = this.textContent.trim();
+                let url = "{{ url_for('admin.community.board.level.update', {board_id: '__REPLACE_ID__'}, query_params) }}"
+                url = url.replace('__REPLACE_ID__', board_id).replace(/&amp;/g, '&');
+                let typeKorean = {
+                    list: '목록',
+                    read: '읽기',
+                    write: '쓰기',
+                    comment: '댓글'
+                }[type];
+
+                $modal_level.find('form').attr('action', url);
+                $modal_level.find('input[name="type"]').val(type);
+                $modal_level.find('h2').text(title + ' ' + typeKorean + ' 권한 설정');
+                $modal_level.find('select[name="level"]').val(level);
+
+                $modal_level.remodal().open();
+            });
+        });
+
+        // 권한 모달 저장 버튼
+        const btn_level_update = document.getElementById('btn_level_update');
+        btn_level_update.addEventListener('click', function() {
+            let form = $modal_level.find('form')[0];
+            form.submit();
         });
     });
 

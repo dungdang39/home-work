@@ -2,12 +2,13 @@
 
 namespace App\Base\Controller\Admin;
 
-
 use App\Base\Model\Admin\BoardSearchRequest;
 use App\Base\Model\Admin\CreateBoardRequest;
 use App\Base\Model\Admin\UpdateBoardRequest;
 use App\Base\Service\BoardService;
+use App\Base\Service\MemberService;
 use Core\BaseController;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Slim\Views\Twig;
@@ -15,11 +16,14 @@ use Slim\Views\Twig;
 class BoardController extends BaseController
 {
     private BoardService $service;
+    private MemberService $member_service;
 
     public function __construct(
         BoardService $service,
+        MemberService $member_service
     ) {
         $this->service = $service;
+        $this->member_service = $member_service;
     }
 
     /**
@@ -52,8 +56,11 @@ class BoardController extends BaseController
      */
     public function create(Request $request, Response $response): Response
     {
+        $response_data = [
+            'categories' => [],
+        ];
         $view = Twig::fromRequest($request);
-        return $view->render($response, '@admin/community/board/form.html');
+        return $view->render($response, '@admin/community/board/form.html', $response_data);
     }
 
     /**
@@ -72,9 +79,11 @@ class BoardController extends BaseController
     public function view(Request $request, Response $response, string $board_id): Response
     {
         $board = $this->service->getBoard($board_id);
+        $categories = $this->service->getCategories($board_id);
 
         $response_data = [
             'board' => $board,
+            'categories' => $categories,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/community/board/form.html', $response_data);
@@ -86,10 +95,25 @@ class BoardController extends BaseController
     public function update(Request $request, Response $response, UpdateBoardRequest $data, string $board_id): Response
     {
         $board = $this->service->getBoard($board_id);
+        if (!$this->member_service->existsMemberById($data->admin_id)) {
+            throw new HttpNotFoundException($request, '해당 관리자가 존재하지 않습니다.');
+        }
+
+        // 카테고리 삭제
+        foreach ($data->deleted_categories as $category_id) {
+            $this->service->deleteCategory($category_id);
+        }
+
+        // 카테고리 추가 및 수정
+        $this->service->upsertCategory($board_id, $data->publics());
+        unset($data->category_id, $data->category_display_order,
+            $data->category_title, $data->category_is_enabled, $data->deleted_categories);
 
         $this->service->update($board['board_id'], $data->publics());
 
-        return $this->redirectRoute($request, $response,
+        return $this->redirectRoute(
+            $request,
+            $response,
             'admin.community.board.view',
             ['board_id' => $board['board_id']],
             $request->getQueryParams()
@@ -103,10 +127,22 @@ class BoardController extends BaseController
     public function delete(Request $request, Response $response, string $board_id): Response
     {
         $board = $this->service->getBoard($board_id);
-        
+
         $this->service->delete($board['board_id']);
 
         return $response->withJson(['message' => '게시판이 삭제되었습니다.']);
+    }
+
+    /**
+     * 게시판 권한 변경
+     */
+    public function updateLevel(Request $request, Response $response, string $board_id): Response
+    {
+        $body = $request->getParsedBody();
+
+        $this->service->update($board_id, [$body['type'] . '_level' => $body['level']]);
+
+        return $this->redirectRoute($request, $response, 'admin.community.board', [], $request->getQueryParams());
     }
 
     /**
