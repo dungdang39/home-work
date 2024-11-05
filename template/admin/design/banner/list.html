@@ -8,17 +8,44 @@
 <h1 id="container_title">{{ title }}</h1>
 <div class="container_wr">
     <div class="local_ov01 local_ov">
-        <form name="flist" class="local_sch01 local_sch">
-            <label for="bn_position" class="sound_only">검색</label>
-            <select name="bn_position" id="bn_position">
-                <option value="" selected="selected">위치 전체</option>
-                {% for position in positions %}
-                <option value="{{ position.id }}" {{ selected(position.id, search.bn_position) }}>{{ position.section_title }}</option>
-                {% endfor %}
-            </select>
+        <form name="form_banner_list" class="local_sch01 local_sch">
+            <input type="hidden" name="bn_is_enabled" value="{{ search.bn_is_enabled }}">
+            <input type="hidden" name="bn_position" value="{{ search.bn_position }}">
 
-            <input type="submit" value="검색" class="btn_submit">
+            <label for="keyword" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+            <input type="text" id="keyword" name="keyword" class="frm_input" value="{{ search.keyword }}" placeholder="검색어">
+            <input type="submit" class="btn_submit" value="검색">
+
+            {% with {query_params: query_params|filter((value, key) => key != 'bn_is_enabled')} %}
+            <a href="{{ url_for('admin.design.banner', {}, query_params) }}"
+                class="btn {{ search.bn_is_enabled is not defined ? 'btn_03' : 'btn_02' }}">
+                전체
+            </a>
+            <a href="{{ url_for('admin.design.banner', {}, query_params|merge({bn_is_enabled: true})) }}"
+                class="btn {{ search.bn_is_enabled is same as(true) ? 'btn_03' : 'btn_02' }}">
+                전시중
+            </a>
+            <a href="{{ url_for('admin.design.banner', {}, query_params|merge({bn_is_enabled: false})) }}"
+                class="btn {{ search.bn_is_enabled is same as(false) ? 'btn_03' : 'btn_02' }}">
+                종료
+            </a>
+            {% endwith %}
         </form>
+    </div>
+
+    <div class="local_ov01 local_ov">
+        {% with {query_params: query_params|filter((value, key) => key != 'bn_position')} %}
+            <a href="{{ url_for('admin.design.banner', {}, query_params) }}"
+               class="btn {{ search.bn_position is not defined ? 'btn_03' : 'btn_02' }}">
+               전체
+            </a>
+            {% for position in positions %}
+                <a href="{{ url_for('admin.design.banner', {}, query_params|merge({bn_position: position.id})) }}"
+                   class="btn {{ search.bn_position == position.id ? 'btn_03' : 'btn_02' }}">
+                   {{ position.section_title }}
+                </a>
+            {% endfor %}
+        {% endwith %}
     </div>
 
     <div class="btn_fixed_top">

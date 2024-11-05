@@ -106,23 +106,30 @@ class BannerService
      * 배너 목록 조회
      * 
      * @param array $search_params  검색 조건
-     * @param array $page_params  페이지 정보
      * @return array|false
      */
-    public function fetchBanners(array $params) // , array $page_params
+    public function fetchBanners(array $params)
     {
         $wheres = [];
         $values = [];
-        $sql_where = "";
-        $sql_limit = "";
+
         $mainpage_table = $this->container->get(MainPageService::class)->table;
 
+        if (!empty($params['keyword'])) {
+            $wheres[] = " bn_title LIKE :keyword";
+            $values['keyword'] = "%{$params['keyword']}%";
+        }
+        if (isset($params['bn_is_enabled'])) {
+            $wheres[] = " bn_is_enabled = :bn_is_enabled";
+            $values["bn_is_enabled"] = $params['bn_is_enabled'];
+        }
         if (!empty($params['bn_position'])) {
             $wheres[] = " bn_position = :bn_position";
             $values["bn_position"] = $params['bn_position'];
         }
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+        $sql_where = Db::buildWhere($wheres);
 
+        $sql_limit = '';
         if (isset($params['offset']) && isset($params['limit'])) {
             $values["offset"] = $params['offset'];
             $values["limit"] = $params['limit'];

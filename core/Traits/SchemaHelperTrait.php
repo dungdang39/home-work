@@ -73,7 +73,8 @@ trait SchemaHelperTrait
     {
         foreach ($data as $key => $value) {
             if (property_exists($object, $key)) {
-                if (!$value) { // [], null, 0 등 빈값 일 때 기본 속성값을 유지
+                 // 빈값 일 경우 기본 속성값을 유지
+                if (is_null($value) || $value === '') {
                     continue;
                 }
 
