@@ -22,11 +22,7 @@ $template = $install->loadTemplate();
 $validate = new InstallValidateService();
 
 // 설치 가능 여부 체크
-$error = $validate->validateInstall($template);
-if ($error) {
-    echo $error;
-    exit;
-}
+$validate->validateInstall($template);
 
 // 폼 데이터 체크
 $form = [];
@@ -35,14 +31,12 @@ $form['mysql_user']  = $validate->validateInstallInput($_POST['mysql_user']);
 $form['mysql_pass']  = $validate->validateInstallInput($_POST['mysql_pass']);
 $form['mysql_db']    = $validate->validateInstallInput($_POST['mysql_db']);
 $form['table_prefix']= $validate->validateInstallInput($_POST['table_prefix']);
-// $form['shop_table_prefix']= isset($_POST['shop_table_prefix']) ? safe_install_string_check($_POST['shop_table_prefix']) : 'yc_';
 $form['reinstall'] = isset($_POST['reinstall']) ? (int) $_POST['reinstall'] : 0;
-$form['shop_install'] = isset($_POST['shop_install']) ? (int) $_POST['shop_install'] : 0;
+$form['site_title'] = $validate->validateInstallInput($_POST['site_title']);
 $form['admin_id']    = isset($_POST['admin_id']) ? $_POST['admin_id'] : '';
 $form['admin_pass']  = isset($_POST['admin_pass']) ? $_POST['admin_pass'] : '';
 $form['admin_name']  = isset($_POST['admin_name']) ? $_POST['admin_name'] : '';
 $form['admin_email'] = isset($_POST['admin_email']) ? $_POST['admin_email'] : '';
-
 $_SESSION['install_form'] = $form;
 
 // 설치 페이지 출력

@@ -4,15 +4,13 @@ namespace Core;
 
 use Core\AppConfig;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use App\Base\Service\ConfigService;
+use Exception;
 
 class MailService
 {
     public const TEMPLATE_DIRECTORY = 'template/mail';
     private const DEFAULT_CHARSET = 'UTF-8';
-
-    protected bool $use_mail = false;
 
     private ?PHPMailer $mail;
     private ConfigService $config_service;
@@ -20,7 +18,6 @@ class MailService
     public function __construct(ConfigService $config_service)
     {
         $this->config_service = $config_service;
-        $this->use_mail = (bool)$this->config_service->getConfig('config', 'use_mail', false);
         $this->initializeMailer();
     }
 
@@ -39,11 +36,6 @@ class MailService
      */
     public function send(string $to, string $subject, string $content, array $options = []): bool
     {
-        // 메일발송 설정되지 않았을 때는 발송하지 않음
-        if (!$this->use_mail) {
-            throw new \Exception("메일 사용설정이 되어있지 않습니다.", 400);
-        }
-
         if (!$this->mail) {
             return false;
         }
@@ -57,20 +49,10 @@ class MailService
             $this->clearMail();
 
             return $send_result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log("Send Mail Error : " . $e->getMessage());
             return false;
         }
-    }
-
-    /**
-     * 메일 사용 설정
-     * @param bool $use_mail
-     * @return void
-     */
-    public function setUseMail(bool $use_mail): void
-    {
-        $this->use_mail = $use_mail;
     }
 
     /**
@@ -79,14 +61,13 @@ class MailService
      * @param string $username
      * @param string $password
      * @param int $port
-     * @param int $debug_mode
      * @return PHPMailer|null
      */
-    public function configureMailer(string $host, string $username, string $password, int $port, int $debug_mode = SMTP::DEBUG_OFF): ?PHPMailer
+    public function configureMailer(string $host, string $username, string $password, int $port): ?PHPMailer
     {
         $mail = new PHPMailer(true);
         try {
-            $mail->SMTPDebug = $debug_mode;          // Enable verbose debug output
+            // $mail->SMTPDebug = true;          // Enable verbose debug output
             $mail->isSMTP();                         // Send using SMTP
             $mail->Host = $host;                     // Set the SMTP server to send through
             $mail->Port = $port;                     // TCP port to connect to
@@ -96,7 +77,7 @@ class MailService
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Enable implicit TLS encryption
             $mail->CharSet = self::DEFAULT_CHARSET;  // Set email charset
             $mail->isHTML(true);                     // Set email format to HTML
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log("configure Mailer Error : " . $e->getMessage());
             return null;
         }
@@ -110,12 +91,11 @@ class MailService
     private function initializeMailer(): void
     {
         $app_config = AppConfig::getInstance();
-        $debug = $app_config->get('APP_DEBUG') ? SMTP::DEBUG_LOWLEVEL : SMTP::DEBUG_OFF;
         $host = $app_config->get('SMTP');
         $port = $app_config->get('SMTP_PORT');
         $username = $app_config->get('SMTP_USERNAME');
         $password = $app_config->get('SMTP_PASSWORD');
-        $this->mail = $this->configureMailer($host, $username, $password, $port, $debug);
+        $this->mail = $this->configureMailer($host, $username, $password, $port);
     }
 
     /**
@@ -124,9 +104,8 @@ class MailService
      */
     private function getDefaultFromName(): string
     {
-        $configs = $this->config_service->getConfigs('config');
         $default_name = $configs['site_title'] ?? AppConfig::getInstance()->get('APP_NAME');
-        return isset($configs['mail_name']) && $configs['mail_name'] !== '' ? $configs['mail_name'] : $default_name;
+        return $this->config_service->getConfig('config', 'mail_name', $default_name);
     }
 
     /**

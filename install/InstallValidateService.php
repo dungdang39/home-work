@@ -24,34 +24,37 @@ class InstallValidateService
 
     /**
      * 설치 가능 여부 체크
-     * @return string Error Type(파일 이름)
+     * @return void
+     * @param Environment $templates
      */
-    public function validateInstall(Environment $templates): string
+    public function validateInstall(Environment $templates): void
     {
         $error_data = [
             "env_file" => "/" . EnvLoader::ENV_FILE,
             "data_dir" => $this->data_dir,
         ];
         if ($this->isInstalled()) {
-            return $templates->render("error/installed.html", $error_data);
+            echo $templates->render("error/installed.html", $error_data);
+            exit;
         }
         if (!$this->isDataDirExists()) {
-            return $templates->render("error/data_directory.html", $error_data);
+            echo $templates->render("error/data_directory.html", $error_data);
+            exit;
         }
         if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             $sapi_type = php_sapi_name();
             if (substr($sapi_type, 0, 3) == 'cgi') {
                 if (!$this->isDataDirWritableFromCgi()) {
-                    return $templates->render("error/permission_705.html", $error_data);
+                    echo $templates->render("error/permission_705.html", $error_data);
+                    exit;
                 }
             } else {
                 if (!$this->isDataDirWritable()) {
-                    return $templates->render("error/permission_707.html", $error_data);
+                    echo $templates->render("error/permission_707.html", $error_data);
+                    exit;
                 }
             }
         }
-
-        return "";
     }
 
     /**
@@ -112,12 +115,12 @@ class InstallValidateService
 
     /**
      * 라이센스 동의 체크
-     * @param string $agree 동의 여부
+     * @param string|null $agree 동의 여부
      * @return bool
      */
-    public function checkLicenseAgree(?string $agree = ""): bool
+    public function checkLicenseAgree(?string $agree = ''): bool
     {
-        return (isset($agree) && $agree === '동의함');
+        return $agree === '동의함';
     }
 
     /**

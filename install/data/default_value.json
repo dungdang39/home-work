@@ -1,438 +1,334 @@
 {
-    "config": {
-        "table": "config",
-        "values": [
-            {
-                "scope": "config",
-                "name": "use_mainpage",
-                "value": "false",
-                "type": "boolean",
-                "description": "메인화면 설정 사용여부"
-            }
-        ]
-    },
-    "group": {
-        "table": "group",
-        "fields": {
-            "gr_id": "community",
-            "gr_subject": "커뮤니티"
-        }
-    },
-    "board_list": [
+    "config": [
         {
-            "bo_table": "notice",
-            "bo_subject": "공지사항"
-        },
-        {
-            "bo_table": "free",
-            "bo_subject": "자유게시판"
-        },
-        {
-            "bo_table": "gallery",
-            "bo_subject": "갤러리"
+            "scope": "config",
+            "name": "use_mainpage",
+            "value": "false",
+            "description": "메인화면 설정 사용여부"
         }
     ],
-    "board": {
-        "table": "board",
-        "fields": {
-            "bo_device": "both",
-            "bo_admin": "",
-            "bo_list_level": "1",
-            "bo_read_level": "1",
-            "bo_write_level": "1",
-            "bo_reply_level": "1",
-            "bo_comment_level": "1",
-            "bo_html_level": "1",
-            "bo_link_level": "1",
-            "bo_count_modify": "1",
-            "bo_count_delete": "1",
-            "bo_upload_level": "1",
-            "bo_download_level": "1",
-            "bo_use_category": "0",
-            "bo_category_list": "",
-            "bo_use_sideview": "0",
-            "bo_use_file_content": "0",
-            "bo_use_secret": "0",
-            "bo_use_dhtml_editor": "0",
-            "bo_use_rss_view": "0",
-            "bo_use_good": "0",
-            "bo_use_nogood": "0",
-            "bo_use_name": "0",
-            "bo_use_signature": "0",
-            "bo_use_ip_view": "0",
-            "bo_use_list_view": "0",
-            "bo_use_list_content": "0",
-            "bo_use_email": "0",
-            "bo_table_width": "100",
-            "bo_subject_len": "60",
-            "bo_mobile_subject_len": "30",
-            "bo_page_rows": "15",
-            "bo_mobile_page_rows": "15",
-            "bo_new": "24",
-            "bo_hot": "100",
-            "bo_image_width": "835",
-            "bo_include_head": "_head.php",
-            "bo_include_tail": "_tail.php",
-            "bo_content_head": "",
-            "bo_content_tail": "",
-            "bo_mobile_content_head": "",
-            "bo_mobile_content_tail": "",
-            "bo_insert_content": "",
-            "bo_gallery_cols": "4",
-            "bo_gallery_width": "202",
-            "bo_gallery_height": "150",
-            "bo_mobile_gallery_width": "125",
-            "bo_mobile_gallery_height": "100",
-            "bo_upload_count": "2",
-            "bo_upload_size": "1048576",
-            "bo_reply_order": "1",
-            "bo_use_search": "0",
-            "bo_order": "0"
+    "board_list": [
+        {
+            "board_id": "notice",
+            "title": "공지사항"
+        },
+        {
+            "board_id": "free",
+            "title": "자유게시판"
+        },
+        {
+            "board_id": "gallery",
+            "title": "갤러리"
         }
-    },
-    "member": {
-        "table": "member",
-        "fields": {
-            "mb_level": "10",
-            "mb_is_marketing_receive": "1",
-            "mb_open": "1"
+    ],
+    "board": [
+        {
+            "board_id": "free",
+            "title": "자유게시판",
+            "comments_limit_for_edit": "1",
+            "comments_limit_for_delete": "1",
+            "subject_length_limit": "60",
+            "board_width": "100",
+            "image_width": "835",
+            "items_per_page": "15",
+            "latest_icon_time": "24",
+            "popular_icon_time": "100",
+            "max_file_upload_count": "2",
+            "max_file_upload_size": "1048576",
+            "reply_sort": "1",
+            "display_order": "0"
         }
-    },
-    "content": {
-        "table": "content",
-        "values": [
-            {
-                "fields": {
-                    "code": "company",
-                    "title": "회사소개",
-                    "content": "<p align=center><b>회사소개에 대한 내용을 입력하십시오.</b></p>"
+    ],
+    "content": [
+        {
+            "code": "company",
+            "title": "회사소개",
+            "content": "<p align=center><b>회사소개에 대한 내용을 입력하십시오.</b></p>"
+        }
+    ],
+    "faq_category": [
+        {
+            "subject": "자주하시는 질문",
+            "is_enabled": 1,
+            "order": 0
+        }
+    ],
+    "notification": [
+        {
+            "type": "sms",
+            "name": "SMS",
+            "settings": [
+                {
+                    "setting_key": "sms_type",
+                    "setting_name": "SMS 전송 유형",
+                    "setting_type": "select",
+                    "setting_options": "[{\"value\": \"SMS\", \"label\": \"SMS\"}, {\"value\": \"LMS\", \"label\": \"LMS\"}]"
+                },
+                {
+                    "setting_key": "admin_phone_number",
+                    "setting_name": "관리자 휴대폰번호",
+                    "setting_type": "text"
+                },
+                {
+                    "setting_key": "icode_id",
+                    "setting_name": "아이코드 회원아이디 (구버전)",
+                    "setting_type": "text"
+                },
+                {
+                    "setting_key": "icode_password",
+                    "setting_name": "아이코드 비밀번호 (구버전)",
+                    "setting_type": "text"
+                },
+                {
+                    "setting_key": "icode_token_key",
+                    "setting_name": "아이코드 토큰키 (JSON버전)",
+                    "setting_type": "text"
                 }
-            },
-            {
-                "fields": {
-                    "code": "privacy",
-                    "title": "개인정보 처리방침",
-                    "content": "<p align=center><b>개인정보 처리방침에 대한 내용을 입력하십시오.</b></p>"
+            ]
+        },
+        {
+            "type": "alimtalk",
+            "name": "알림톡",
+            "settings": [
+                {
+                    "setting_key": "alimtalk_service",
+                    "setting_name": "알림톡 서비스",
+                    "setting_type": "select",
+                    "setting_options": "[{\"value\": \"popbill\", \"label\": \"팝빌\"}]"
+                },
+                {
+                    "setting_key": "business_reg_num",
+                    "setting_name": "사업자번호",
+                    "setting_type": "text"
+                },
+                {
+                    "setting_key": "popbill_id",
+                    "setting_name": "팝빌 아이디",
+                    "setting_type": "text"
+                },
+                {
+                    "setting_key": "popbill_secret_key",
+                    "setting_name": "팝빌 비밀키",
+                    "setting_type": "text"
                 }
-            },
-            {
-                "fields": {
-                    "code": "provision",
-                    "title": "서비스 이용약관",
-                    "content": "<p align=center><b>서비스 이용약관에 대한 내용을 입력하십시오.</b></p>"
-                }
-            }
-        ]
-    },
-    "faq_category": {
-        "table": "faq_category",
-        "values": [
-            {
-                "fields": {
-                    "fm_id": "1",
-                    "fm_subject": "자주하시는 질문"
-                }
-            }
-        ]
-    },
-    "notification": {
-        "table": "notification",
-        "values": [
-            {
-                "type": "email",
-                "name": "메일",
-                "children": [
-                    {
-                        "setting_key": "email_address",
-                        "setting_name": "메일 주소",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "email_sender",
-                        "setting_name": "메일 발송 이름",
-                        "setting_type": "text"
-                    }
-                ]
-            },
-            {
-                "type": "sms",
-                "name": "SMS",
-                "children": [
-                    {
-                        "setting_key": "sms_type",
-                        "setting_name": "SMS 전송 유형",
-                        "setting_type": "select",
-                        "setting_options": "[{\"value\": \"SMS\", \"label\": \"SMS\"}, {\"value\": \"LMS\", \"label\": \"LMS\"}]"
-                    },
-                    {
-                        "setting_key": "admin_phone_number",
-                        "setting_name": "관리자 휴대폰번호",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "icode_id",
-                        "setting_name": "아이코드 회원아이디 (구버전)",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "icode_password",
-                        "setting_name": "아이코드 비밀번호 (구버전)",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "icode_token_key",
-                        "setting_name": "아이코드 토큰키 (JSON버전)",
-                        "setting_type": "text"
-                    }
-                ]
-            },
-            {
-                "type": "alimtalk",
-                "name": "알림톡",
-                "children": [
-                    {
-                        "setting_key": "alimtalk_service",
-                        "setting_name": "알림톡 서비스",
-                        "setting_type": "select",
-                        "setting_options": "[{\"value\": \"popbill\", \"label\": \"팝빌\"}]"
-                    },
-                    {
-                        "setting_key": "business_reg_num",
-                        "setting_name": "사업자번호",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "popbill_id",
-                        "setting_name": "팝빌 아이디",
-                        "setting_type": "text"
-                    },
-                    {
-                        "setting_key": "popbill_secret_key",
-                        "setting_name": "팝빌 비밀키",
-                        "setting_type": "text"
-                    }
-                ]
-            }
-        ]
-    },
-    "admin_menu": {
-        "table": "admin_menu",
-        "values": [
-            {
-                "am_name": "기본환경",
-                "am_route": "admin.config",
-                "am_order": 0,
-                "children": [
-                    {
-                        "am_name": "기본환경설정",
-                        "am_route": "admin.config.basic",
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "운영진설정",
-                        "am_route": "admin.config.permission",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "API연동설정",
-                        "am_route": "admin.config.api",
-                        "am_order": 2,
-                        "children": [
-                            {
-                                "am_name": "소셜로그인",
-                                "am_route": "admin.config.api.social",
-                                "am_order": 0,
-                                "children": []
-                            },
-                            {
-                                "am_name": "알림/메시징/메일",
-                                "am_route": "admin.config.api.notification",
-                                "am_order": 1,
-                                "children": []
-                            }
+            ]
+        }
+    ],
+    "admin_menu": [
+        {
+            "am_name": "기본환경",
+            "am_route": "admin.config",
+            "am_order": 0,
+            "submenu": [
+                {
+                    "am_name": "기본환경설정",
+                    "am_route": "admin.config.basic",
+                    "am_order": 0,
+                    "submenu": []
+                },
+                {
+                    "am_name": "운영진설정",
+                    "am_route": "admin.config.permission",
+                    "am_order": 1,
+                    "submenu": []
+                },
+                {
+                    "am_name": "API연동설정",
+                    "am_route": "admin.config.api",
+                    "am_order": 2,
+                    "submenu": [
+                        {
+                            "am_name": "소셜로그인",
+                            "am_route": "admin.config.api.social",
+                            "am_order": 0,
+                            "submenu": []
+                        },
+                        {
+                            "am_name": "알림/메시징/메일",
+                            "am_route": "admin.config.api.notification",
+                            "am_order": 1,
+                            "submenu": []
+                        }
 
-                        ]
-                    },
-                    {
-                        "am_name": "캐시파일 일괄 삭제",
-                        "am_route": "admin.config.remove-cache",
-                        "am_order": 3,
-                        "children": []
-                    },
-                    {
-                        "am_name": "플러그인 관리",
-                        "am_route": "admin.config.plugin",
-                        "am_order": 4,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "디자인/UI",
-                "am_route": "admin.design",
-                "am_order": 1,
-                "children": [
-                    {
-                        "am_name": "테마 설정",
-                        "am_route": "admin.design.theme",
-                        "am_order": 0,
-                        "children": []
-                    },
-                    {
-                        "am_name": "로고 관리",
-                        "am_route": "admin.design.logo",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "배너 관리",
-                        "am_route": "admin.design.banner",
-                        "am_order": 2,
-                        "children": []
-                    },
-                    {
-                        "am_name": "팝업레이어 관리",
-                        "am_route": "admin.design.popup",
-                        "am_order": 3,
-                        "children": []
-                    },
-                    {
-                        "am_name": "메인화면 설정",
-                        "am_route": "admin.design.mainpage",
-                        "am_order": 4,
-                        "children": []
-                    },
-                    {
-                        "am_name": "메뉴 설정",
-                        "am_route": "admin.design.menu",
-                        "am_order": 5,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "회원",
-                "am_route": "admin.member",
-                "am_order": 2,
-                "children": [
-                    {
-                        "am_name": "회원설정",
-                        "am_route": "admin.member.config",
-                        "am_order": 0,
-                        "children": [
-                            {
-                                "am_name": "기본환경설정",
-                                "am_route": "admin.member.config.basic",
-                                "am_order": 0,
-                                "children": []
-                            },
-                            {
-                                "am_name": "알림/푸시 설정",
-                                "am_route": "admin.member.config.notification",
-                                "am_order": 1,
-                                "children": []
-                            }
-                        ]
-                    },
-                    {
-                        "am_name": "회원 관리",
-                        "am_route": "admin.member.manage",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "1:1문의",
-                        "am_route": "admin.member.qa",
-                        "am_order": 2,
-                        "children": [
-                            {
-                                "am_name": "환경설정",
-                                "am_route": "admin.member.qa.config",
-                                "am_order": 0,
-                                "children": []
-                            },
-                            {
-                                "am_name": "관리",
-                                "am_route": "admin.member.qa.manage",
-                                "am_order": 1,
-                                "children": []
-                            }
-                        ]
-                    },
-                    {
-                        "am_name": "포인트 관리",
-                        "am_route": "admin.member.point",
-                        "am_order": 3,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "컨텐츠",
-                "am_route": "admin.content",
-                "am_order": 3,
-                "children": [
-                    {
-                        "am_name": "컨텐츠 관리",
-                        "am_route": "admin.content.manage",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "FAQ",
-                        "am_route": "admin.content.faq",
-                        "am_order": 2,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "am_name": "커뮤니티",
-                "am_route": "admin.community",
-                "am_order": 4,
-                "children": [
-                    {
-                        "am_name": "커뮤니티 설정",
-                        "am_route": "admin.community.config",
-                        "am_order": 0,
-                        "children": [
-                            {
-                                "am_name": "기본환경설정",
-                                "am_route": "admin.community.config.basic",
-                                "am_order": 0,
-                                "children": []
-                            },
-                            {
-                                "am_name": "알림/푸시 설정",
-                                "am_route": "admin.community.config.notification",
-                                "am_order": 1,
-                                "children": []
-                            }
-                        ]
-                    },
-                    {
-                        "am_name": "게시판 그룹 관리",
-                        "am_route": "admin.community.group",
-                        "am_order": 1,
-                        "children": []
-                    },
-                    {
-                        "am_name": "게시판 관리",
-                        "am_route": "admin.community.board",
-                        "am_order": 2,
-                        "children": []
-                    },
+                    ]
+                },
+                {
+                    "am_name": "캐시파일 일괄 삭제",
+                    "am_route": "admin.config.remove-cache",
+                    "am_order": 3,
+                    "submenu": []
+                },
+                {
+                    "am_name": "플러그인 관리",
+                    "am_route": "admin.config.plugin",
+                    "am_order": 4,
+                    "submenu": []
+                }
+            ]
+        },
+        {
+            "am_name": "디자인/UI",
+            "am_route": "admin.design",
+            "am_order": 1,
+            "submenu": [
+                {
+                    "am_name": "테마 설정",
+                    "am_route": "admin.design.theme",
+                    "am_order": 0,
+                    "submenu": []
+                },
+                {
+                    "am_name": "로고 관리",
+                    "am_route": "admin.design.logo",
+                    "am_order": 1,
+                    "submenu": []
+                },
+                {
+                    "am_name": "배너 관리",
+                    "am_route": "admin.design.banner",
+                    "am_order": 2,
+                    "submenu": []
+                },
+                {
+                    "am_name": "팝업레이어 관리",
+                    "am_route": "admin.design.popup",
+                    "am_order": 3,
+                    "submenu": []
+                },
+                {
+                    "am_name": "메인화면 설정",
+                    "am_route": "admin.design.mainpage",
+                    "am_order": 4,
+                    "submenu": []
+                },
+                {
+                    "am_name": "메뉴 설정",
+                    "am_route": "admin.design.menu",
+                    "am_order": 5,
+                    "submenu": []
+                }
+            ]
+        },
+        {
+            "am_name": "회원",
+            "am_route": "admin.member",
+            "am_order": 2,
+            "submenu": [
+                {
+                    "am_name": "회원설정",
+                    "am_route": "admin.member.config",
+                    "am_order": 0,
+                    "submenu": [
+                        {
+                            "am_name": "기본환경설정",
+                            "am_route": "admin.member.config.basic",
+                            "am_order": 0,
+                            "submenu": []
+                        },
+                        {
+                            "am_name": "알림/푸시 설정",
+                            "am_route": "admin.member.config.notification",
+                            "am_order": 1,
+                            "submenu": []
+                        }
+                    ]
+                },
+                {
+                    "am_name": "회원 관리",
+                    "am_route": "admin.member.manage",
+                    "am_order": 1,
+                    "submenu": []
+                },
+                {
+                    "am_name": "1:1문의",
+                    "am_route": "admin.member.qa",
+                    "am_order": 2,
+                    "submenu": [
+                        {
+                            "am_name": "환경설정",
+                            "am_route": "admin.member.qa.config",
+                            "am_order": 0,
+                            "submenu": []
+                        },
+                        {
+                            "am_name": "관리",
+                            "am_route": "admin.member.qa.manage",
+                            "am_order": 1,
+                            "submenu": []
+                        }
+                    ]
+                },
+                {
+                    "am_name": "포인트 관리",
+                    "am_route": "admin.member.point",
+                    "am_order": 3,
+                    "submenu": []
+                }
+            ]
+        },
+        {
+            "am_name": "컨텐츠",
+            "am_route": "admin.content",
+            "am_order": 3,
+            "submenu": [
+                {
+                    "am_name": "컨텐츠 관리",
+                    "am_route": "admin.content.manage",
+                    "am_order": 1,
+                    "submenu": []
+                },
+                {
+                    "am_name": "FAQ",
+                    "am_route": "admin.content.faq",
+                    "am_order": 2,
+                    "submenu": []
+                }
+            ]
+        },
+        {
+            "am_name": "커뮤니티",
+            "am_route": "admin.community",
+            "am_order": 4,
+            "submenu": [
+                {
+                    "am_name": "커뮤니티 설정",
+                    "am_route": "admin.community.config",
+                    "am_order": 0,
+                    "submenu": [
+                        {
+                            "am_name": "기본환경설정",
+                            "am_route": "admin.community.config.basic",
+                            "am_order": 0,
+                            "submenu": []
+                        },
+                        {
+                            "am_name": "알림/푸시 설정",
+                            "am_route": "admin.community.config.notification",
+                            "am_order": 1,
+                            "submenu": []
+                        }
+                    ]
+                },
+                {
+                    "am_name": "게시판 그룹 관리",
+                    "am_route": "admin.community.group",
+                    "am_order": 1,
+                    "submenu": []
+                },
+                {
+                    "am_name": "게시판 관리",
+                    "am_route": "admin.community.board",
+                    "am_order": 2,
+                    "submenu": []
+                },
 
-                    {
-                        "am_name": "글, 댓글 현황",
-                        "am_route": null,
-                        "am_order": 3,
-                        "children": []
-                    }
-                ]
-            }
-        ]
-    }
+                {
+                    "am_name": "글, 댓글 현황",
+                    "am_route": null,
+                    "am_order": 3,
+                    "submenu": []
+                }
+            ]
+        }
+    ]
 }

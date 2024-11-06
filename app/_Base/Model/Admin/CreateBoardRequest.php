@@ -62,7 +62,7 @@ class CreateBoardRequest
     public ?int $items_per_page = 0;
     public ?int $board_width = 0;
     public ?int $image_width = 0;
-    public ?int $new_icon_time = 0;
+    public ?int $latest_icon_time = 0;
     public ?int $popular_icon_time = 0;
     public ?int $reply_sort = 0;
     public ?string $list_sort_field = '';

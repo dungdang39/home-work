@@ -41,21 +41,21 @@
                         <tr>
                             <th scope="row"><label for="site_title">사이트 제목<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                {{ info('브라우저 탭 / 메일 발송 등에 표시되는 이름입니다.') }}
+                                {{ info('브라우저 탭 / 메일 발송 등에 표시되는 이름이에요.') }}
                                 <input type="text" id="site_title" name="site_title" class="frm_input required" value="{{ old('site_title', configs) }}" size="40" required>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="site_description">사이트 설명</label></th>
                             <td>
-                                {{ info('사이트 설명을 간략하게 입력해 주세요. 검색 엔진에 제공하는 정보입니다.') }}
+                                {{ info('페이지 미리보기, 검색 엔진에서 사용하는 사이트 설명이에요.') }}
                                 <textarea name="site_description" id="site_description">
                                     {{- old('site_description', configs) -}}
                                 </textarea>
                             </td>
                             <th scope="row"><label for="site_keyword">사이트 키워드</label></th>
                             <td>
-                                {{ info('쉼표나 탭으로 구분하여 입력하세요. 검색 엔진에 제공하는 정보입니다.') }}
+                                {{ info('쉼표나 탭으로 구분하여 입력해 보세요. 페이지 미리보기, 검색 엔진 품질을 높이는 데 사용합니다.') }}
                                 <textarea name="site_keyword" id="site_keyword" >
                                     {{- old('site_keyword', configs) -}}
                                 </textarea>
@@ -64,7 +64,7 @@
                         <tr>
                             <th scope="row"><label for="site_image">사이트 대표이미지</label></th>
                             <td colspan="3">
-                                {{ info('사이트를 다른 곳에 공유할 때 사용할 대표 이미지를 지정합니다.') }}
+                                {{ info('사이트 대표 이미지를 설정해 보세요. 페이지 미리보기, 검색 엔진 등에 표시합니다.') }}
                                 <input type="file" name="site_image_file" id="site_image_file" class="frm_input">
                                 {% if configs.site_image %}
                                 <input type="checkbox" id="delete_site_image" name="delete_site_image" value="1"><label for="delete_site_image">삭제</label>
@@ -75,7 +75,7 @@
                         <tr>
                             <th scope="row"><label for="super_admin">최고관리자<strong class="sound_only">필수</strong></label></th>
                             <td colspan="3">
-                                {{ info('레벨10 회원을 최고관리자로 지정할 수 있습니다. 사이트의 모든 권한을 갖게 됩니다.') }}
+                                {{ info('최고관리자는 사이트 모든 권한을 가져요. 회원 레벨 10인 회원만 최고관리자로 지정할 수 있어요.') }}
                                 <select name="super_admin" id="super_admin" required>
                                     <option value="">선택안함</option>
                                 {% for admin in admins %}
@@ -119,25 +119,16 @@
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row">메일 사용</th>
-                            <td colspan="3">
-                                <label for="use_mail" class="rules_label">사용</label>
-                                <input type="radio" id="use_mail_1" name="use_mail" value="1" {{ checked(1, old('use_mail', configs)) }}>
-                                <label for="use_mail_0" class="rules_label">사용안함</label>
-                                <input type="radio" id="use_mail_0" name="use_mail" value="0" {{ checked(0, old('use_mail', configs), true) }}>
-                            </td>
-                        </tr>
-                        <tr>
                             <th scope="row">발송 메일 주소</th>
                             <td>
                                 {{ info('발송메일은 연동한 SMTP 서버의 메일을 입력해야 메일이 정상 발송됩니다.') }}
-                                <input type="text" name="mail_address" id="mail_address" class="frm_input" value="{{ old('mail_address', configs) }}">
+                                <input type="text" name="mail_address" id="mail_address" class="frm_input required" value="{{ old('mail_address', configs) }}" required>
                                 <button type="button" id="btn_mail_test" class="btn btn_03">메일 테스트</button>
                             </td>
                             <th scope="row">메일 발송 이름</th>
                             <td>
-                                {{ info('입력하지 않으시면 사이트명(' ~ configs.site_title ~ ') (으)로 적용됩니다.') }}
-                                <input type="text" name="mail_name" id="mail_name" class="frm_input" value="{{ old('mail_name', configs) }}">
+                                {{ info('메일 발송시 보여지는 이름이므로 구분이 가능하도록 입력하세요.') }}
+                                <input type="text" name="mail_name" id="mail_name" class="frm_input required" value="{{ old('mail_name', configs) }}" required>
                             </td>
                         </tr>
                     </tbody>
@@ -227,15 +218,15 @@
                         <tr>
                             <th scope="row"><label for="possible_ip">접근가능 IP</label></th>
                             <td>
-                                {{ info('입력된 IP의 컴퓨터만 접근할 수 있습니다.\n 123.123.+ 도 입력 가능. (엔터로 구분)') }}
-                                <textarea name="possible_ip" id="possible_ip">
+                                {{ info('여러 개 입력은 엔터(Enter Key)로 구분해 보세요. 중복 입력 시 자동으로 제거합니다.') }}
+                                <textarea name="possible_ip" id="possible_ip" placeholder="123.123.+">
                                     {{- old('possible_ip', configs) -}}
                                 </textarea>
                             </td>
                             <th scope="row"><label for="intercept_ip">접근차단 IP</label></th>
                             <td>
-                                {{ info('입력된 IP의 컴퓨터는 접근할 수 없음.\n 123.123.+ 도 입력 가능. (엔터로 구분)') }}
-                                <textarea name="intercept_ip" id="intercept_ip">
+                                {{ info('여러 개 입력은 엔터(Enter Key)로 구분해 보세요. 중복 입력 시 자동으로 제거합니다.') }}
+                                <textarea name="intercept_ip" id="intercept_ip" placeholder="123.123.+">
                                     {{- old('intercept_ip', configs) -}}
                                 </textarea>
                             </td>
@@ -327,18 +318,20 @@
         // 메일 테스트 버튼 클릭
         document.getElementById('btn_mail_test').addEventListener('click', function () {
             const mail_address = document.getElementById('mail_address').value.trim();
+            const mail_name = document.getElementById('mail_name').value.trim();
             if (!mail_address) {
                 alert('발송 메일 주소를 입력해 주세요.');
                 return;
             }
 
             const url = "{{ url_for('admin.config.basic.mail.test') }}";
-            sendAjaxRequest(url, 'POST', { mail_address: mail_address });
+            sendAjaxRequest(url, 'POST', { mail_address: mail_address, mail_name: mail_name });
         });
     });
         
 
     function validate_config_form(f) {
+        // IP 입력값 검증
         const current_user_ip = "{{ current_ip }}";
         const intercept_ip_val = f.intercept_ip.value.trim();
 
@@ -353,6 +346,15 @@
                     alert(`현재 접속 IP : ${current_user_ip} 가 차단될수 있기 때문에, 다른 IP를 입력해 주세요.`);
                     return false;
                 }
+            }
+        }
+
+        // 최고관리자 입력값 검증
+        const admin_id_old = "{{ configs.super_admin }}";
+        const admin_id_new = f.super_admin.value;
+        if (admin_id_old !== admin_id_new) {
+            if (!confirm('최고관리자를 변경하시면 즉시 반영되며, 관리자 화면에 다시 접속하실 수 없을 수 있습니다.\n그래도 변경하시겠습니까?')) {
+                return false;
             }
         }
 

@@ -2,10 +2,12 @@
 
 namespace App\Base\Controller\Admin;
 
+use App\Base\Model\Admin\SendMailTestRequest;
 use App\Base\Model\Admin\UpdateConfigRequest;
 use App\Base\Service\ConfigService;
 use App\Base\Service\MemberService;
 use Core\BaseController;
+use Core\Exception\HttpUnprocessableEntityException;
 use Core\FileService;
 use Core\MailService;
 use Core\Validator\Validator;
@@ -74,21 +76,15 @@ class ConfigController extends BaseController
     /**
      * 테스트 메일 발송
      * @throws HttpBadRequestException
+     * @throws HttpUnprocessableEntityException
      */
-    public function sendMailTest(Request $request, Response $response): Response
+    public function sendMailTest(Request $request, Response $response, SendMailTestRequest $data): Response
     {
-        $mail = $request->getParam('mail_address');
-        if (empty($mail)) {
-            throw new HttpBadRequestException($request, '메일 발송 주소를 입력해주세요.');
-        }
-        if (!Validator::isValidEmail($mail)) {
-            throw new HttpBadRequestException($request, '메일 발송 주소가 올바르지 않은 형식입니다.');
-        }
+        $mail = $data->mail_address;
+        $mail_name = $data->mail_name;
 
-        // 테스트 메일 발송
         $content = Twig::fromRequest($request)->fetch('@mail/test.html');
-        $this->mail_service->setUseMail(true);
-        $option = ['from_mail' => $mail];
+        $option = ['from_mail' => $mail, 'from_name' => $mail_name];
         $result = $this->mail_service->send($mail, '테스트 메일 발송', $content, $option);
         if (!$result) {
             throw new HttpBadRequestException($request, '메일 발송에 실패하였습니다.');

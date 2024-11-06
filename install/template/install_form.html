@@ -1,8 +1,10 @@
 {% extends "/_layout.html" %}
+
 {% block title %}{{ app_name }} 초기환경설정 2/3{% endblock %}
 
 {% block content %}
 <form id="frm_install" method="post" action="./install_result.php" autocomplete="off" onsubmit="return validate_form(this)">
+    <input type="hidden" name="ajax_token" value="{{ ajax_token }}">
 
     <div class="ins_inner">
         <table class="ins_frm">
@@ -14,50 +16,50 @@
             <tbody>
                 <tr>
                     <th scope="row"><label for="mysql_host">Host</label></th>
-                    <td><input name="mysql_host" type="text" value="localhost" id="mysql_host" required></td>
+                    <td><input type="text" id="mysql_host" name="mysql_host" value="localhost" required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_user">User</label></th>
-                    <td><input name="mysql_user" type="text" id="mysql_user" required value=""></td>
+                    <td><input type="text" id="mysql_user" name="mysql_user" value="kjh" required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_pass">Password</label></th>
-                    <td><input name="mysql_pass" type="text" id="mysql_pass" value=""></td>
+                    <td><input type="text" id="mysql_pass" name="mysql_pass" value="1234"></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="mysql_db">DB</label></th>
-                    <td><input name="mysql_db" type="text" id="mysql_db" required value=""></td>
+                    <td><input type="text" id="mysql_db" name="mysql_db" value="gnuboard7" required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="table_prefix">TABLE 접두사</label></th>
                     <td>
-                        <input name="table_prefix" type="text" value="new_" id="table_prefix">
+                        <input type="text" id="table_prefix" name="table_prefix" value="new_">
                         <span>TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
                     </td>
                 </tr>
-                <!--
-                <tr>
-                    <th scope="row"><label for="shop_table_prefix">영카트 TABLE 접두사</label></th>
-                    <td>
-                        <input name="shop_table_prefix" type="text" value="new_shop_" id="shop_table_prefix">
-                        <span>쇼핑몰TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
-                    </td>
-                </tr>
-                -->
                 <tr>
                     <th scope="row"><label for="reinstall">{{ app_name ~ version }} 재설치</label></th>
-                    <td><input name="reinstall" type="checkbox" value="1" id="reinstall"> 재설치</td>
+                    <td><input type="checkbox" id="reinstall" name="reinstall" value="1"> 재설치</td>
                 </tr>
+            </tbody>
+        </table>
+
+        <table class="ins_frm">
+            <caption>사이트 정보입력</caption>
+            <colgroup>
+                <col style="width:150px">
+                <col>
+            </colgroup>
+            <tbody>
                 <tr>
-                    <th scope="row"><label for="shop_install">영카트 설치</label></th>
-                    <td><input name="shop_install" type="checkbox" value="1" id="shop_install"> 설치</td>
+                    <th scope="row"><label for="site_title">사이트 타이틀</label></th>
+                    <td><input type="text" id="site_title" name="site_title" value="{{ app_name }}"></td>
                 </tr>
             </tbody>
         </table>
 
         <table class="ins_frm">
             <caption>최고관리자 정보입력</caption>
-            <input type="hidden" name="ajax_token" value="{{ ajax_token }}">
             <colgroup>
                 <col style="width:150px">
                 <col>
@@ -65,29 +67,32 @@
             <tbody>
                 <tr>
                     <th scope="row"><label for="admin_id">회원 ID</label></th>
-                    <td><input name="admin_id" type="text" value="admin" id="admin_id" required></td>
+                    <td><input type="text" id="admin_id" name="admin_id" value="admin" required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="admin_pass">비밀번호</label></th>
-                    <td><input name="admin_pass" type="password" id="admin_pass" required value="1234"></td>
+                    <td><input type="password" id="admin_pass" name="admin_pass" value="1234" required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="admin_name">이름</label></th>
                     <td>
-                        개인정보관리책임자명으로 기본 입력됩니다.<br>
-                        <input name="admin_name" type="text" value="최고관리자" id="admin_name" required>
+                        <input type="text" id="admin_name" name="admin_name" value="최고관리자" required>
+                        <span><strong>개인정보관리책임자명으로 표시</strong>되며, '기본환경설정 > 사이트설정' 에서 수정할 수 있습니다.</span>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="admin_email">E-mail</label></th>
-                    <td><input name="admin_email" type="email" value="admin@domain.com" id="admin_email" required></td>
+                    <td>
+                        <input type="email" id="admin_email" name="admin_email" value="admin@domain.com" required>
+                        <span><strong>개인정보관리책임자 메일 주소로 표시</strong>되며, '기본환경설정 > 사이트설정' 에서 수정할 수 있습니다.</span>
+                    </td>
                 </tr>
             </tbody>
         </table>
 
         <p>
-            <strong class="st_strong">주의! 이미 {{ version }}가 존재한다면 DB 자료가 망실되므로 주의하십시오.</strong><br>
-            주의사항을 이해했으며, 그누보드 설치를 계속 진행하시려면 다음을 누르십시오.
+            <strong class="st_strong">주의! 이미 `{{ app_name }}` 테이블이 존재한다면 자료가 망실되므로 주의하십시오.</strong><br>
+            주의사항을 이해했으며, 설치를 계속 진행하시려면 다음을 누르십시오.
         </p>
 
         <div class="inner_btn">
@@ -96,7 +101,6 @@
     </div>
 </form>
 
-<script src="{{ base_url }}/js/jquery-1.8.3.min.js"></script>
 <script>
     function validate_form(f) {
         const requiredFields = [
@@ -110,8 +114,7 @@
             { field: f.admin_email, message: '최고관리자 E-mail 을 입력하십시오.' }
         ];
 
-        for (let i = 0; i < requiredFields.length; i++) {
-            const { field, message } = requiredFields[i];
+        for (const { field, message } of requiredFields) {
             if (field.value.trim() === '') {
                 alert(message);
                 field.focus();
@@ -128,11 +131,9 @@
             { field: f.mysql_pass, message: 'MySQL PASSWORD' },
             { field: f.mysql_db, message: 'MySQL DB' },
             { field: f.table_prefix, message: 'TABLE명 접두사' },
-            { field: f.shop_table_prefix, message: '쇼핑몰 TABLE명 접두사' }
         ];
 
-        for (let i = 0; i < fieldsToValidate.length; i++) {
-            const { field, message } = fieldsToValidate[i];
+        for (const { field, message } of fieldsToValidate) {
             if (field.value && reg.test(field.value)) {
                 alert(message + reg_msg);
                 field.focus();
@@ -146,27 +147,29 @@
             return false;
         }
 
-        if (window.jQuery) {
-            const jqxhr = jQuery.post("ajax.form_check.php", $(f).serialize(), function(data) {
-                if (data.type == 'success') {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "ajax.form_check.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                if (data.type === 'success') {
                     f.submit();
-                } else if (data.type == 'confirm') {
+                } else if (data.type === 'confirm') {
                     if (confirm(data.message)) {
                         f.submit();
                     }
                 } else {
                     alert(data.message);
                 }
-            }, "json");
+            }
+        };
 
-            jqxhr.fail(function(xhr) {
-                alert(xhr.responseText);
-            });
+        const formData = new FormData(f);
+        const params = new URLSearchParams(formData).toString();
+        xhr.send(params);
 
-            return false;
-        }
-
-        return true;
+        return false;
     }
 </script>
 {% endblock content %}

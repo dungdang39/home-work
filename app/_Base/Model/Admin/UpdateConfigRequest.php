@@ -23,7 +23,6 @@ class UpdateConfigRequest
     public string $super_admin = '';
     public string $privacy_officer_name = '';
     public string $privacy_officer_email = '';
-    public ?int $use_mail = 0;
     public ?string $mail_address = '';
     public ?string $mail_name = '';
     public ?string $company_name = '';
@@ -60,11 +59,10 @@ class UpdateConfigRequest
         $this->validateRequired('super_admin', '최고관리자');
         $this->validateRequired('privacy_officer_name', '개인정보관리 책임자명');
         $this->validateRequired('privacy_officer_email', '개인정보관리 메일 주소');
-        if ($this->use_mail) {
-            $this->validateRequired('mail_address', '메일 발송 주소');
-            if (!Validator::isValidEmail($this->mail_address)) {
-                $this->throwException('메일 발송 주소가 올바르지 않은 형식입니다.');
-            }
+        $this->validateRequired('mail_address', '메일 발송 주소');
+        $this->validateRequired('mail_name', '메일 발송 이름');
+        if (!Validator::isValidEmail($this->mail_address)) {
+            $this->throwException('메일 발송 주소가 올바르지 않은 형식입니다.');
         }
         if ($this->biz_reg_no) {
             if (!Validator::isMaxLength($this->biz_reg_no, 12)) {

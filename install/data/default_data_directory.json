@@ -12,11 +12,5 @@
         "member",
         "member_image",
         "session"
-    ],
-    "shop": [
-        "banner",
-        "common",
-        "event",
-        "item"
     ]
 }

@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `new_board` (
   `items_per_page` int(11) NOT NULL DEFAULT 10 COMMENT '한 페이지당 목록 수',
   `board_width` int(11) NOT NULL DEFAULT 0 COMMENT '게시판 폭',
   `image_width` int(11) NOT NULL DEFAULT 0 COMMENT '이미지 폭 크기',
-  `new_icon_time` varchar(255) NOT NULL DEFAULT '' COMMENT '새글 아이콘 표시 시간',
+  `latest_icon_time` varchar(255) NOT NULL DEFAULT '' COMMENT '새글 아이콘 표시 시간',
   `popular_icon_time` varchar(255) NOT NULL DEFAULT '' COMMENT '인기글 아이콘 표시 시간',
   `reply_sort` tinyint(1) NOT NULL DEFAULT 0 COMMENT '답변 정렬기준(0:최신순, 1:등록순)',
   `list_sort_field` varchar(50) NOT NULL DEFAULT '' COMMENT '리스트 정렬 필드',
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `new_board` (
   `download_point` int(11) NOT NULL DEFAULT 0 COMMENT '다운로드 필요 포인트',
   `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시판 관리 테이블';
 
 -- --------------------------------------------------------
@@ -402,13 +402,14 @@ CREATE TABLE IF NOT EXISTS `new_notification_setting` (
   `notification_id` int(11) unsigned NOT NULL COMMENT '알림 ID',
   `setting_key` varchar(255) NOT NULL COMMENT '설정 key',
   `setting_name` varchar(255) NOT NULL COMMENT '설정 이름',
+  `setting_type` varchar(20) NOT NULL COMMENT '알림 설정 값 유형',
   `setting_value` varchar(255) NOT NULL COMMENT '설정 값',
   `setting_options` text DEFAULT NULL COMMENT '설정 값 옵션',
   `setting_description` text DEFAULT NULL COMMENT '설정 값에 대한 설명',
   `created_at` datetime DEFAULT current_timestamp() COMMENT '생성일',
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='���림 설정에 대한 값';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='알림 설정에 대한 값';
 
 
 -- --------------------------------------------------------
