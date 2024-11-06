@@ -69,7 +69,6 @@ class MemberController extends BaseController
             "total_count" => $total_count,
             "search" => $search_request,
             "pagination" => $search_request->getPaginationInfo(),
-            "query_params" => $request->getQueryParams(),
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/list.html', $response_data);

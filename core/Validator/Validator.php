@@ -20,7 +20,7 @@ class Validator
         "audio" => ['mp3', 'wav', 'ogg', 'flac', 'aac'],
         "video" => ['mp4', 'avi', 'mkv', 'webm', 'mov'],
         "archive" => ['zip', 'rar', '7z', 'tar', 'gz'],
-        "other" => ['xml', 'json', 'csv']
+        "other" => ['xml', 'json', 'csv', 'p8']
     ];
 
     // 허용된 MIME 타입 목록
@@ -30,7 +30,7 @@ class Validator
         "audio" => ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/aac'],
         "video" => ['video/mp4', 'video/x-msvideo', 'video/x-matroska', 'video/webm', 'video/quicktime'],
         "archive" => ['application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-7z-compressed', 'application/x-tar', 'application/gzip'],
-        "other" => ['application/xml', 'application/json', 'text/csv']
+        "other" => ['application/xml', 'application/json', 'text/csv', 'application/octet-stream']
     ];
 
     /**

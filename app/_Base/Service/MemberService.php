@@ -307,36 +307,19 @@ class MemberService
 
     /**
      * 회원 전체 카운트 조회
-     * @param array $params 조회조건
+     * @param array|null $params 조회조건
      * @return int
      */
-    public function fetchMembersTotalCount(array $params): int
+    public function fetchMembersTotalCount(?array $params = []): int
     {
         $wheres = [];
         $values = [];
 
-        if (isset($params['status'])) {
-            if ($params['status'] == 'leave') {
-                $wheres[] = 'mb_leave_date is not null';
-            } elseif ($params['status'] == 'intercept') {
-                $wheres[] = 'mb_intercept_date is not null';
-            } elseif ($params['status'] == 'normal') {
-                $wheres[] = 'mb_leave_date is null';
-                $wheres[] = 'mb_intercept_date is null';
-            }
-        }
-
-        if (isset($params['keyword'])) {
-            $wheres[] = "(mb_id LIKE :keyword1 OR mb_name LIKE :keyword2 OR mb_nick LIKE :keyword3)";
-            $values["keyword1"] = "%{$params['keyword']}%";
-            $values["keyword2"] = "%{$params['keyword']}%";
-            $values["keyword3"] = "%{$params['keyword']}%";
-        }
-
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
+        $this->addSearchConditions($wheres, $values, $params);
+        $sql_where = Db::buildWhere($wheres);
 
         $query = "SELECT COUNT(*)
-                    FROM {$this->table}
+                    FROM {$this->table} AS member
                     {$sql_where}";
 
         return Db::getInstance()->run($query, $values)->fetchColumn();
@@ -344,45 +327,30 @@ class MemberService
 
     /**
      * 회원 목록 조회
-     * @param array $params 조회조건
+     * @param array|null $params 조회조건
      * @return array|false
      */
-    public function fetchMembers(array $params): array
+    public function fetchMembers(?array $params = []): array
     {
         $wheres = [];
         $values = [];
+        
+        $this->addSearchConditions($wheres, $values, $params);
+        $sql_where = Db::buildWhere($wheres);
+
         $sql_limit = '';
-
-        if (isset($params['status'])) {
-            if ($params['status'] == 'leave') {
-                $wheres[] = 'mb_leave_date is not null';
-            } elseif ($params['status'] == 'intercept') {
-                $wheres[] = 'mb_intercept_date is not null';
-            } elseif ($params['status'] == 'normal') {
-                $wheres[] = 'mb_leave_date is null';
-                $wheres[] = 'mb_intercept_date is null';
-            }
-        }
-
-        if (isset($params['keyword'])) {
-            $wheres[] = "(mb_id LIKE :keyword1 OR mb_name LIKE :keyword2 OR mb_nick LIKE :keyword3)";
-            $values["keyword1"] = "%{$params['keyword']}%";
-            $values["keyword2"] = "%{$params['keyword']}%";
-            $values["keyword3"] = "%{$params['keyword']}%";
-        }
-
         if (isset($params['offset']) && isset($params['limit'])) {
             $values['offset'] = $params['offset'];
             $values['limit'] = $params['limit'];
             $sql_limit = 'LIMIT :offset, :limit';
         }
 
-        $sql_where = $wheres ? 'WHERE ' . implode(' AND ', $wheres) : '';
-
-        $query = "SELECT *
-                    FROM {$this->table}
+        $query = "SELECT member.*, COUNT(memo.id) AS memo_count
+                    FROM {$this->table} AS member
+                    LEFT JOIN new_member_memo AS memo ON member.mb_id = memo.mb_id
                     {$sql_where}
-                    ORDER BY created_at DESC, mb_no DESC
+                    GROUP BY member.mb_id
+                    ORDER BY member.created_at DESC, member.mb_no DESC
                     {$sql_limit}";
 
         return Db::getInstance()->run($query, $values)->fetchAll();
@@ -594,5 +562,34 @@ class MemberService
     {
         $query = "DELETE FROM {$this->memo_table} WHERE id = :id";
         Db::getInstance()->run($query, ['id' => $memo_id]);
+    }
+
+
+    /**
+     * 목록 검색 조건 추가
+     * @param array $params 검색 조건
+     * @param array $wheres WHERE 절
+     * @param array $values 바인딩 값
+     * @return void
+     */
+    private function addSearchConditions(?array &$wheres = [], ?array &$values = [], ?array $params = [])
+    {
+        if (isset($params['status'])) {
+            if ($params['status'] == 'leave') {
+                $wheres[] = 'member.mb_leave_date is not null';
+            } elseif ($params['status'] == 'intercept') {
+                $wheres[] = 'member.mb_intercept_date is not null';
+            } elseif ($params['status'] == 'normal') {
+                $wheres[] = 'member.mb_leave_date is null';
+                $wheres[] = 'member.mb_intercept_date is null';
+            }
+        }
+
+        if (isset($params['keyword'])) {
+            $wheres[] = "(member.mb_id LIKE :keyword1 OR member.mb_name LIKE :keyword2 OR member.mb_nick LIKE :keyword3)";
+            $values["keyword1"] = "%{$params['keyword']}%";
+            $values["keyword2"] = "%{$params['keyword']}%";
+            $values["keyword3"] = "%{$params['keyword']}%";
+        }
     }
 }

@@ -188,14 +188,6 @@
                                 <input type="text" name="mb_addr2" value="{{ old('mb_addr2', member) }}" id="mb_addr2" class="frm_input" size="60" placeholder="상세주소">
                             </td>
                         </tr>
-                        <tr>
-                            <th scope="row"><label for="mb_signature">서명</label></th>
-                            <td colspan="3">
-                                <textarea name="mb_signature" id="mb_signature">
-                                    {{- old('mb_signature', member) -}}
-                                </textarea>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -220,7 +212,7 @@
                             <td colspan="3">
                                 <input type="text" id="new_memo" class="frm_input" size="60">
                                 <button type="button" class="btn btn_03" id="btn_add_memo">메모 추가</button>
-                                <table>
+                                <table id="memo_list">
                                     <thead>
                                         <tr>
                                             <th>입력일시</th>

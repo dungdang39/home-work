@@ -318,14 +318,9 @@
                         </tr>
                         <tr>
                             <th scope="row">이름(실명) 사용</th>
-                            <td>
+                            <td colspan="3">
                                 <input type="radio" id="use_real_name_yes" name="use_real_name" value="1" {{ checked(1, old('use_real_name', board)) }}> <label for="use_real_name_yes">사용</label>
                                 <input type="radio" id="use_real_name_no" name="use_real_name" value="0" {{ checked(0, old('use_real_name', board)) }}> <label for="use_real_name_no">사용안함</label>
-                            </td>
-                            <th scope="row">서명보이기 사용</th>
-                            <td>
-                                <input type="radio" id="show_signature_yes" name="show_signature" value="1" {{ checked(1, old('show_signature', board)) }}> <label for="show_signature_yes">사용</label>
-                                <input type="radio" id="show_signature_no" name="show_signature" value="0" {{ checked(0, old('show_signature', board)) }}> <label for="show_signature_no">사용안함</label>
                             </td>
                         </tr>
                         <tr>

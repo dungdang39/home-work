@@ -13,7 +13,7 @@
         <h2 class="h2_frm">소셜로그인 설정</h2>
 
         <form name="form_social" id="form_social" method="post"
-            action="{{ url_for('admin.config.api.social.update') }}" onsubmit="return validate_social_form(this);">
+            action="{{ url_for('admin.config.api.social.update') }}" onsubmit="return validate_social_form(this);" enctype="multipart/form-data">
             {{ csrf.field|raw }}
             <input type="hidden" name="_METHOD" value="PUT">
 
@@ -48,8 +48,16 @@
                         {% endif %}
                             <th scope="row">{{ name ~ ' ' ~ key.display_name }}</th>
                             <td>
-                                <input type="{{ input_type }}" name="socials[{{ provider }}][keys][{{ key.key }}]"
+                                {% if key.name == 'key_file' %}
+                                    <input type="file" name="key_file">
+                                    {% if key.value %}
+                                        <br>
+                                        업로드 파일 : {{ key.value }}
+                                    {% endif %}
+                                {% else %}
+                                <input type="{{ input_type }}" name="socials[{{ provider }}][keys][{{ key.name }}]"
                                     value="{{ key.value }}" class="frm_input" size="40">
+                                {% endif %}
                                 {% if key.name == 'secret' %}
                                 <button type="button" class="btn btn_02 btn_display_secret">보기</button>
                                 {% endif %}
@@ -73,7 +81,7 @@
         <h2 class="h2_frm">새로운 소셜로그인 추가</h2>
 
         <form name="form_add_social" id="form_add_social" method="post"
-            action="{{ url_for('admin.config.api.social.insert') }}" onsubmit="return validate_add_form(this);">
+            action="{{ url_for('admin.config.api.social.insert') }}" onsubmit="return validate_add_form(this);" enctype="multipart/form-data">
             {{ csrf.field|raw }}
             <div class="tbl_frm01 tbl_wrap">
                 <table>
@@ -134,14 +142,21 @@
                 let html = '';
                 let count = 0;
                 $.each(keys, function (key, label) {
-                    html += (count % 2 === 0 ? '<tr>' : '') +
-                        `<th scope="row">${name} ${label}</th>
-                        <td><input type="text" name="keys[${key}]" class="frm_input" size="40"></td>` +
-                        (count % 2 === 1 ? '</tr>' : '');
+                    html += (count % 2 === 0 ? '<tr>' : '');
+                    html += `<th scope="row">${name} ${label}</th>`;
+                    html += `<td>`
+                    if (key === 'key_file') {
+                        html += `<input type="file" name="key_file" class="frm_input" size="40">`;
+                    } else {
+                        html += `<input type="text" name="keys[${key}]" class="frm_input" size="40">`;
+                    }
+                    html += `</td>`;
+                    html += (count % 2 === 1 ? '</tr>' : '');
+
                     count++;
                 });
                 html += `<tr><th scope="row">테스트/연동 중</th>
-                        <td><input type="checkbox" name="is_test" value="1"></td>
+                        <td colspan="3"><input type="checkbox" name="is_test" value="1"></td>
                         </tr>`
 
                 $("#area_keys").append(html);

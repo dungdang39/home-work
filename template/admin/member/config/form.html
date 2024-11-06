@@ -39,18 +39,11 @@
                     <tbody>
                         <tr>
                             <th scope="row">주소 입력</th>
-                            <td>
+                            <td colspan="3">
                                 <input type="checkbox" name="address_input_enabled" value="1" id="address_input_enabled" {{ checked(1, old('address_input_enabled', configs)) }}>
                                 <label for="address_input_enabled">사용</label>
                                 <input type="checkbox" name="address_input_required" value="1" id="address_input_required" {{ checked(1, old('address_input_required', configs)) }}>
                                 <label for="address_input_required">필수입력</label>
-                            </td>
-                            <th scope="row">서명 입력</th>
-                            <td>
-                                <input type="checkbox" name="signature_input_enabled" value="1" id="signature_input_enabled" {{ checked(1, old('signature_input_enabled', configs)) }}>
-                                <label for="signature_input_enabled">사용</label>
-                                <input type="checkbox" name="signature_input_required" value="1" id="signature_input_required" {{ checked(1, old('signature_input_required', configs)) }}>
-                                <label for="signature_input_required">필수입력</label>
                             </td>
                         </tr>
                         <tr>

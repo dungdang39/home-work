@@ -74,6 +74,18 @@ if (!function_exists('isHashedMemberId')) {
 }
 
 /**
+ * 파일 이름만 가져오기
+ * @param UploadedFileInterface $file 업로드 파일 객체
+ * @return string 파일 이름
+ */
+if (!function_exists('getFilename')) {
+    function getFilename(UploadedFileInterface $file): string
+    {
+        return pathinfo($file->getClientFilename(), PATHINFO_FILENAME);
+    }
+}
+
+/**
  * 파일 확장자 가져오기
  * @param UploadedFileInterface $file 업로드 파일 객체
  * @return string 파일 확장자

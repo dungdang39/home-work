@@ -3,7 +3,9 @@
 namespace App\Base\Model\Admin;
 
 use Core\Traits\SchemaHelperTrait;
+use Core\Validator\Validator;
 use Slim\Http\ServerRequest as Request;
+use Slim\Psr7\UploadedFile;
 
 class UpdateSocialProviderRequest
 {
@@ -14,15 +16,21 @@ class UpdateSocialProviderRequest
      */
     public array $socials = [];
 
-    /**
-     * SocialUpdateRequest constructor.
-     */
+    public ?UploadedFile $key_file = null;
+
     public function __construct(Request $request)
     {
         $this->initializeFromRequest($request);
     }
 
     protected function validate()
+    {
+        if ($this->key_file && !Validator::validExtension($this->key_file, ['p8'])) {
+            $this->throwException('키 파일은 p8 확장자만 업로드 가능합니다.');
+        }
+    }
+
+    protected function afterValidate()
     {
         $this->ensureDefaults();
     }

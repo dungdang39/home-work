@@ -3,9 +3,12 @@
 namespace App\Base\Service;
 
 use Core\Database\Db;
+use Core\FileService;
 use PDOException;
+use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Http\ServerRequest as Request;
+use Slim\Psr7\UploadedFile;
 
 class SocialService
 {
@@ -16,13 +19,16 @@ class SocialService
     public string $key_table;
 
     private Request $request;
+    private FileService $file_service;
 
     public function __construct(
-        Request $request
+        Request $request,
+        FileService $file_service
     ) {
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
         $this->key_table = $_ENV['DB_PREFIX'] . self::KEY_TABLE_NAME;
 
+        $this->file_service = $file_service;
         $this->request = $request;
     }
 
@@ -209,6 +215,19 @@ class SocialService
         Db::getInstance()->getPdo()->commit();
 
         return $row_count > 0;
+    }
+
+    /**
+     * 키 파일 업로드
+     * @param UploadedFile $file 업로드할 파일
+     * @return string 업로드된 파일 경로
+     */
+    public function uploadKeyFile(UploadedFile $file): string
+    {
+        if (getExtension($file) !== 'p8') {
+            throw new HttpBadRequestException($this->request, '키 파일은 p8 확장자만 업로드 가능합니다.');
+        }
+        return $this->file_service->upload($this->request, 'social', $file, getFilename($file));
     }
 
     /**

@@ -8,7 +8,7 @@ use Slim\Http\ServerRequest as Request;
 
 class AppleConfig extends ProviderConfig
 {
-    protected const PROVIDER = 'apple';
+    public const PROVIDER = 'apple';
     protected const PROVIDER_NAME = '애플';
     protected const KEYS = [
         'id' => 'ID', 

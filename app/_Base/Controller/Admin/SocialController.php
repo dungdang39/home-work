@@ -5,6 +5,7 @@ namespace App\Base\Controller\Admin;
 use App\Base\Model\Admin\CreateSocialProviderRequest;
 use App\Base\Model\Admin\UpdateSocialProviderRequest;
 use App\Base\Service\SocialService;
+use App\Base\Social\Provider\Config\AppleConfig;
 use Core\BaseController;
 use Core\Exception\HttpConflictException;
 use Slim\Http\Response;
@@ -35,6 +36,7 @@ class SocialController extends BaseController
             "socials" => $socials,
             "available_socials" => $available_socials,
         ];
+
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/config/api/social_form.html', $response_data);
     }
@@ -48,6 +50,10 @@ class SocialController extends BaseController
             throw new HttpConflictException($request, '이미 등록된 소셜 로그인입니다.');
         }
 
+        if (AppleConfig::PROVIDER === $data->provider) {
+            $data->keys['key_file'] = $this->service->uploadKeyFile($data->key_file);
+        }
+
         $this->service->createSocial($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.config.api.social');
@@ -58,6 +64,15 @@ class SocialController extends BaseController
      */
     public function update(Request $request, Response $response, UpdateSocialProviderRequest $data): Response
     {
+        if ($data->key_file) {
+            foreach ($data->socials as $key => $social) {
+                if (AppleConfig::PROVIDER === $key) {
+                    $data->socials[$key]['keys']['key_file'] = $this->service->uploadKeyFile($data->key_file);
+                    continue;
+                }
+            }
+        }
+
         $this->service->updateSocials($data->publics());
 
         return $this->redirectRoute($request, $response, 'admin.config.api.social');

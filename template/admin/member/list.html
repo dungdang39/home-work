@@ -18,10 +18,15 @@
             <span class="ov_txt">총 회원수 </span>
             <span class="ov_num"> {{ total_count|format_number }}명 </span>
         </span>
-        <a href="{{ url_for('admin.member.manage') }}" class="ov_listall">전체목록</a>
-        <a href="{{ url_for('admin.member.manage') }}?status=normal" class="ov_listall">일반</a>
-        <a href="{{ url_for('admin.member.manage') }}?status=intercept" class="ov_listall">차단</a>
-        <a href="{{ url_for('admin.member.manage') }}?status=leave" class="ov_listall">탈퇴</a>
+
+    {% with {status_list : {normal: '일반', intercept: '차단', leave: '탈퇴'}} %}
+        <a href="{{ url_for('admin.member.manage') }}"
+            class="btn {{ search.status is not defined ? 'btn_03' : 'btn_02' }}">전체목록</a>
+        {% for status, name in status_list %}
+        <a href="{{ url_for('admin.member.manage', {}, {status: status}) }}"
+            class="btn {{ search.status is same as(status) ? 'btn_03' : 'btn_02' }}">{{ name }}</a>
+        {% endfor %}
+    {% endwith %}
     </div>
 
     <form id="form_search" name="form_search" class="local_sch01 local_sch" method="get">
@@ -113,7 +118,8 @@
                             </select>
                         </td>
                         <td headers="mb_list_memo" class="td_mng_m">
-                            <button type="button" name="btn_modal_memo" class="btn btn_03" data-mb_id="{{ member.mb_id }}">메모</button>
+                            <button type="button" name="btn_modal_memo" class="btn btn_03" data-mb_id="{{ member.mb_id }}">추가</button>
+                            <a href="{{ url_for('admin.member.manage.view', {mb_id: member.mb_id}) }}#memo_list" class="btn btn_03">보기({{ member.memo_count|format_number }})</a>
                         </td>
                         <td headers="mb_list_blank" class="td_mng_m">
                             <button type="button" name="btn_notify" class="btn btn_03" data-mb_id="{{ member.mb_id }}">알림</button>
@@ -146,7 +152,7 @@
         <h2>메모 작성</h2>
         <h3>회원아이디 / 이름 / 닉네임</h3>
         <input type="text" name="memo" class="frm_input frm_input_full" value="">
-        <button type="button" id="btn_memo_add" class="btn btn_03">등록</button>
+        <button type="button" id="btn_memo_add" class="btn btn_03">메모추가</button>
     </form>
 </div>
 
@@ -210,46 +216,6 @@
         });
         
     });
-
-    /*
-    $("#btn_memo_remove").on("click", function () {
-        if (!confirm("메모를 삭제하시겠습니까?")) {
-            return;
-        }
-
-        modal_memo.find("textarea").text("");
-        update_memo();
-    });
-
-    async function update_memo() {
-        let mb_id = modal_memo.find("input[name='mb_id']").val();
-
-        $.ajax({
-            url: memo_update_url.replace('__REPLACE_ID__', mb_id),
-            type: "put",
-            data: {
-                mb_memo: modal_memo.find("textarea").val()
-            },
-            beforeSend: function (xhr) {
-                for (let key in csrf) {
-                    if (!csrf[key]) {
-                        alert("CSRF 토큰이 유효하지 않습니다. 새로고침 후 다시 시도해 주세요.");
-                        return false;
-                    }
-                    xhr.setRequestHeader(key, csrf[key]);
-                }
-            },
-            success: function (data) {
-                alert(data.message);
-                modal_memo.remodal().close();
-            },
-            error: function (xhr, status, error) {
-                let result = xhr.responseJSON;
-                alert(xhr.status + ' ' + error + ': ' + result.error.message);
-            }
-        });
-    }
-    */
 
     /**
      * 알림 전송

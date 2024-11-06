@@ -94,9 +94,9 @@
                         </td>
                         <td style="width:400px;">
                             <input type="checkbox" name="read[{{ index }}]" value="1" {{ checked(1, permission.read) }}>
-                            <label for="read">조회</label>
+                            <label for="read">읽기</label>
                             <input type="checkbox" name="write[{{ index }}]" value="1" {{ checked(1, permission.write) }}>
-                            <label for="write">추가/수정</label>
+                            <label for="write">쓰기</label>
                             <input type="checkbox" name="delete[{{ index }}]" value="1" {{ checked(1, permission.delete) }}>
                             <label for="delete">삭제</label>
 
@@ -174,9 +174,9 @@
                                 </select>
 
                                 <input type="checkbox" id="read" name="read" value="1">
-                                <label for="read">조회</label>
+                                <label for="read">읽기</label>
                                 <input type="checkbox" id="write" name="write" value="1">
-                                <label for="write">추가/수정</label>
+                                <label for="write">쓰기</label>
                                 <input type="checkbox" id="delete" name="delete" value="1">
                                 <label for="delete">삭제</label>
 
