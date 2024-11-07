@@ -745,10 +745,15 @@ $(function() {
  * @param string url 요청 URL
  * @param string method 요청 방식 (GET, POST, PUT, DELETE)
  * @param array send_data 전송할 데이터
- * @param object option 추가 옵션 (reload, callback)
+ * @param object option 추가 옵션 (message, reload, callback)
  * @returns 
  */
-function sendAjaxRequest(url, method = 'GET', send_data = {}, option = {message: true, reload: false, callback: null }) {
+function sendAjaxRequest(url, method = 'GET', send_data = {}, option = {}) {
+    // 옵션의 기본값 설정
+    option.message = option.message !== undefined ? option.message : true;
+    option.reload = option.reload !== undefined ? option.reload : false;
+    option.callback = option.callback !== undefined ? option.callback : null;
+
     const xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');

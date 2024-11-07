@@ -6,6 +6,9 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal.css">
+<link rel="stylesheet" href="{{ admin_url }}/assets/plugin/remodal/remodal-default-theme.css">
+<script src="{{ admin_url }}/assets/plugin/remodal/remodal.js"></script>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" async></script>
 {% endblock head %}
 
@@ -119,7 +122,7 @@
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row">발송 메일 주소</th>
+                            <th scope="row">메일 발송 주소</th>
                             <td>
                                 {{ info('발송메일은 연동한 SMTP 서버의 메일을 입력해야 메일이 정상 발송됩니다.') }}
                                 <input type="text" name="mail_address" id="mail_address" class="frm_input required" value="{{ old('mail_address', configs) }}" required>
@@ -293,8 +296,26 @@
     </form>
 </div>
 
+<div class="is_rewrite remodal" data-remodal-id="modal_mail_test" role="dialog" aria-labelledby="modal" aria-describedby="modal2Desc">
+    <button type="button" class="connect-close" data-remodal-action="close">
+        <i class="fa fa-close"></i>
+        <span class="txt">닫기</span>
+    </button>
+    <form name="form_mail_test">
+        <h3>메일 주소 입력</h3>
+        <h4 class="copy_title">
+            수신인이 여러 명이면 Enter 키로 구분해 보세요.
+        </h4>
+        <div style="text-align:left;">올바른 메일 형식이 아니거나, 중복된 메일 주소는 자동으로 제거됩니다.</div>
+        <textarea name="test_mail_addresses" rows="5" style="min-height:unset;" placeholder="메일 주소"></textarea>
+        <button type="button" id="btn_send_test_mail" class="btn btn_03">발송</button>
+    </form>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const $modal_mail_test = $('[data-remodal-id="modal_mail_test"]');
+
         // 사업자등록번호 입력시 자동으로 하이픈(-) 추가
         document.getElementById('biz_reg_no').addEventListener('input', function (e) {
             let value = e.target.value.replace(/[^0-9]/g, '');
@@ -302,7 +323,7 @@
                 value = value.substr(0, 12);
             }
             let formattedValue = '';
-    
+
             if (value.length > 3) {
                 formattedValue += value.substr(0, 3) + '-';
                 value = value.substr(3);
@@ -315,20 +336,39 @@
             e.target.value = formattedValue;
         });
 
-        // 메일 테스트 버튼 클릭
+        // 메일 테스트 버튼
         document.getElementById('btn_mail_test').addEventListener('click', function () {
-            const mail_address = document.getElementById('mail_address').value.trim();
-            const mail_name = document.getElementById('mail_name').value.trim();
-            if (!mail_address) {
-                alert('발송 메일 주소를 입력해 주세요.');
+            if (validateTestMailInputs()) {
+                $modal_mail_test.remodal().open();
+            }
+        });
+
+        // 메일 테스트 발송
+        document.getElementById('btn_send_test_mail').addEventListener('click', function () {
+            if (!validateTestMailInputs()) {
                 return;
             }
+            let testMailAddresses = document.querySelector('textarea[name="test_mail_addresses"]').value.trim();
+            if (!testMailAddresses) {
+                alert('테스트 메일 주소를 입력해 주세요.');
+                return;
+            }
+            testMailAddresses = testMailAddresses.split('\n').map(email => email.trim()).filter(email => email);
 
             const url = "{{ url_for('admin.config.basic.mail.test') }}";
-            sendAjaxRequest(url, 'POST', { mail_address: mail_address, mail_name: mail_name });
+            const data = {
+                mail_address: document.getElementById('mail_address').value.trim(),
+                mail_name: document.getElementById('mail_name').value.trim(),
+                test_mail_addresses: testMailAddresses
+            };
+            sendAjaxRequest(url, 'POST', data, {
+                callback: function (response) {
+                    document.querySelector('textarea[name="test_mail_addresses"]').value = '';
+                    $modal_mail_test.remodal().close();
+                }
+            });
         });
     });
-        
 
     function validate_config_form(f) {
         // IP 입력값 검증
@@ -358,6 +398,17 @@
             }
         }
 
+        return true;
+    }
+
+    // 메일 테스트 입력값 검증
+    function validateTestMailInputs() {
+        const mail_address = document.getElementById('mail_address').value.trim();
+        const mail_name = document.getElementById('mail_name').value.trim();
+        if (!mail_address || !mail_name) {
+            alert('메일 발송 주소와 메일 발송 이름을 모두 입력해 주세요.');
+            return false;
+        }
         return true;
     }
 </script>
