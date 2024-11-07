@@ -207,6 +207,7 @@ class MemberController extends BaseController
     {
         $params['field'] = $request->getQueryParams()['search_type'];
         $params['keyword'] = $request->getQueryParams()['keyword'];
+        $params['status'] = 'normal';
         $members = $this->service->getMembers($params);
 
         return $response->withJson([
