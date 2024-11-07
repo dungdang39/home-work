@@ -23,3 +23,4 @@ vendor/
 composer.lock
 .env
 plugin/*
+!plugin/.gitkeep
