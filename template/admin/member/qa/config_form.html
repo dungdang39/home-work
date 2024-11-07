@@ -24,7 +24,7 @@
         <h2 class="h2_frm">{{ sub_menus.category }}</h2>
         {{ anchor(sub_menus, 'category') }}
         
-        <form name="form_qa_category" id="form_qa_category" action="{{ url_for('admin.member.qa.config.category.create') }}"
+        <form name="form_quesition_category" id="form_quesition_category" action="{{ url_for('admin.member.qa.config.category.create') }}"
             method="post" onsubmit="return validate_form_category(this);" autocomplete="off">
             {{ csrf.field|raw }}
 

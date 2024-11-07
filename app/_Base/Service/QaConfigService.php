@@ -6,7 +6,7 @@ use Core\Database\Db;
 
 class QaConfigService
 {
-    public const CATEGORY_TABLE_NAME = 'qa_category';
+    public const CATEGORY_TABLE_NAME = 'question_category';
 
     private string $category_table;
     private QaService $qa_service;
