@@ -21,9 +21,6 @@
 
     <form name="form_search" id="form_search" class="local_sch01 local_sch" method="get">
         <input type="hidden" name="mb_id" value="{{ search.mb_id }}">
-        <label for="stx" class="sound_only">
-            회원아이디<strong class="sound_only"> 필수</strong>
-        </label>
         <a href="{{ url_for('admin.config.permission', {}, {'limit': pagination.limit}) }}"
             class="btn {{ html_classes({'btn_02': search.mb_id, 'btn_03': not search.mb_id}) }}">
             전체
