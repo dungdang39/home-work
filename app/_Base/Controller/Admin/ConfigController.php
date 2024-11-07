@@ -7,6 +7,7 @@ use App\Base\Model\Admin\UpdateConfigRequest;
 use App\Base\Service\ConfigService;
 use App\Base\Service\MemberService;
 use Core\BaseController;
+use Core\EditorService;
 use Core\Exception\HttpUnprocessableEntityException;
 use Core\FileService;
 use Core\MailService;
@@ -22,17 +23,20 @@ use Slim\Views\Twig;
 class ConfigController extends BaseController
 {
     private ConfigService $service;
+    private EditorService $editor_service;
     private FileService $file_service;
     private MailService $mail_service;
     private MemberService $member_service;
 
     public function __construct(
         ConfigService $service,
+        EditorService $editor_service,
         FileService $file_service,
         MailService $mail_service,
         MemberService $member_service
     ) {
         $this->service = $service;
+        $this->editor_service = $editor_service;
         $this->file_service = $file_service;
         $this->mail_service = $mail_service;
         $this->member_service = $member_service;
@@ -45,10 +49,12 @@ class ConfigController extends BaseController
     {
         $configs = $this->service->getConfigs('config');
         $admins = $this->member_service->fetchMemberByLevel(10);
+        $editors = $this->editor_service->getEditorsByPath();
 
         $response_data = [
             'configs' => $configs,
             'admins' => $admins,
+            'editors' => $editors,
             'current_ip' => getRealIp($request)
         ];
         $view = Twig::fromRequest($request);

@@ -23,6 +23,7 @@ class UpdateConfigRequest
     public string $super_admin = '';
     public string $privacy_officer_name = '';
     public string $privacy_officer_email = '';
+    public ?string $dhtml_editor = '';
     public ?string $mail_address = '';
     public ?string $mail_name = '';
     public ?string $company_name = '';
@@ -78,6 +79,7 @@ class UpdateConfigRequest
         $this->possible_ip = Sanitizer::removeDuplicateLines($this->possible_ip);
         $this->intercept_ip = Sanitizer::removeDuplicateLines($this->intercept_ip);
         $this->biz_zip_code = substr($this->biz_zip_code, 0, 5);
+        $this->dhtml_editor = strtolower($this->dhtml_editor);
     }
 
     /**
