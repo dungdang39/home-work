@@ -1,6 +1,18 @@
 {% extends "@admin/_layout.html" %}
 {% from "@admin/macro.html" import anchor, checked, info, selected %}
 
+{% block head %}
+    <style>
+        /* CKEditor 5 편집 영역의 높이를 설정 */
+        .ck-editor__editable_inline {
+            height: 400px; /* 원하는 높이로 변경 */
+            min-height: 300px; /* 최소 높이 설정 (선택 사항) */
+            max-height: 500px; /* 최대 높이 설정 (선택 사항) */
+        }
+    </style>
+    <link rel="stylesheet" href="{{ base_url }}/assets/library/editor/ckeditor5/43.3.1/ckeditor5.css" />
+{% endblock head %}
+
 {% set title = "회원 > 1:1문의 > 답변하기" %}
 {% block title %}{{ title }}{% endblock title %}
 
@@ -61,7 +73,7 @@
                             <tr>
                                 <th scope="row">내용</th>
                                 <td colspan="3">
-                                    <textarea class="frm_input" style="height: 300px;">
+                                    <textarea class="frm_input" style="height: 300px;" readonly>
                                         {{- question.content -}}
                                     </textarea>
                                 </td>
@@ -87,7 +99,7 @@
                             <tr>
                                 <th scope="row">답변내용</th>
                                 <td colspan="3">
-                                    <textarea name="content" id="content" class="frm_input" style="height: 400px;">
+                                    <textarea name="content" id="content" class="frm_input">
                                         {{- answer.content -}}
                                     </textarea>
                                 </td>
@@ -129,8 +141,43 @@
         </div>
     </form>
 </div>
+<script type="importmap">
+    {
+        "imports": {
+            "ckeditor5": "{{ base_url }}/assets/library/editor/ckeditor5/43.3.1/ckeditor5.js",
+            "ckeditor5/": "{{ base_url }}/assets/library/editor/ckeditor5/43.3.1/"
+        }
+    }
+</script>
+<script type="module">
+    import {
+        ClassicEditor,
+        Essentials,
+        Paragraph,
+        Bold,
+        Italic,
+        Font
+    } from 'ckeditor5';
+
+    ClassicEditor
+        .create( document.querySelector('#content'), {
+            plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
+            toolbar: [
+                'undo', 'redo', '|', 'bold', 'italic', '|',
+                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                'uploadImage'
+            ]
+        } )
+        .then( editor => {
+            window.editor = editor;
+        } )
+        .catch( error => {
+            console.error( error );
+        } );
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
     });
 
     function validate_form(form) {
