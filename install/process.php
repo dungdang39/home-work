@@ -48,9 +48,10 @@ try {
 
     // 데이터베이스 연결
     $database_setting = [
-        'driver' => 'mysql',
+        'connection' => 'mysql',
         'host' => $form['mysql_host'],
         'dbname' => $form['mysql_db'],
+        'port' => 3306,
         'user' => $form['mysql_user'],
         'password' => $form['mysql_pass']
     ];

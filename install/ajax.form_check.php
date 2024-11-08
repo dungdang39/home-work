@@ -29,9 +29,10 @@ if (!($mysql_host && $mysql_user && $mysql_pass && $mysql_db && $table_prefix &&
 
 // 데이터베이스 연결 테스트
 $database_setting = [
-    'driver' => 'mysql',
+    'connection' => 'mysql',
     'host' => $mysql_host,
     'dbname' => $mysql_db,
+    'port' => 3306,
     'user' => $mysql_user,
     'password' => $mysql_pass
 ];

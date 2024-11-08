@@ -10,13 +10,15 @@ class PostgreSQLConnection implements DbConnect
 {
     private string $host = '';
     private string $dbname = '';
+    private string $port = '';
     private string $user = '';
     private string $password = '';
 
-    public function __construct(string $host, string $dbname, string $user, string $password)
+    public function __construct(string $host, string $dbname, string $user, string $password, ?string $port = '5432')
     {
         $this->host = $host;
         $this->dbname = $dbname;
+        $this->port = $port;
         $this->user = $user;
         $this->password = $password;
     }
@@ -25,7 +27,7 @@ class PostgreSQLConnection implements DbConnect
     {
         try {
             $pdo = new PDO(
-                "mysql:host={$this->host};dbname={$this->dbname}",
+                "pgsql:host={$this->host};dbname={$this->dbname};port={$this->port}",
                 $this->user,
                 $this->password,
                 [

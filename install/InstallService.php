@@ -91,7 +91,7 @@ class InstallService
         DB_CONNECTION=mysql
         DB_HOST={$form['mysql_host']}
         DB_PORT=3306
-        DB_DATABASE={$form['mysql_db']}
+        DB_DBNAME={$form['mysql_db']}
         DB_USERNAME={$form['mysql_user']}
         DB_PASSWORD={$form['mysql_pass']}
         DB_PREFIX={$form['table_prefix']}
