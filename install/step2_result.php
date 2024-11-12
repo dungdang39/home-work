@@ -22,15 +22,10 @@ $template = $install->loadTemplate();
 $validate = new InstallValidateService();
 
 // 설치 가능 여부 체크
-$validate->validateInstall($template);
+$validate->checkInstallByStep2($template);
 
 // 폼 데이터 체크
 $form = [];
-$form['mysql_host']  = $validate->validateInstallInput($_POST['mysql_host']);
-$form['mysql_user']  = $validate->validateInstallInput($_POST['mysql_user']);
-$form['mysql_pass']  = $validate->validateInstallInput($_POST['mysql_pass']);
-$form['mysql_db']    = $validate->validateInstallInput($_POST['mysql_db']);
-$form['table_prefix']= $validate->validateInstallInput($_POST['table_prefix']);
 $form['reinstall'] = isset($_POST['reinstall']) ? (int) $_POST['reinstall'] : 0;
 $form['site_title'] = $validate->validateInstallInput($_POST['site_title']);
 $form['admin_id']    = isset($_POST['admin_id']) ? $_POST['admin_id'] : '';
@@ -43,4 +38,4 @@ $_SESSION['install_form'] = $form;
 $response_data = [
     "form" => $form,
 ];
-echo $template->render('install_result.html', $response_data);
+echo $template->render('step2_result.html', $response_data);

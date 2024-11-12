@@ -5,8 +5,10 @@ namespace Install;
 use Bootstrap\EnvLoader;
 use Core\AppConfig;
 use Core\Database\Db;
+use Slim\App;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Exception;
 
 /**
  * 설치 서비스 클래스
@@ -14,6 +16,7 @@ use Twig\Loader\FilesystemLoader;
 class InstallService
 {
     public const TEMPLATE_DIR = '/install/template';
+    public const ENV_EXAMPLE_FILE = '.env.example';
 
     /**
      * 템플릿 로드
@@ -28,6 +31,9 @@ class InstallService
         $twig->addGlobal('app_name', $app_config->get('APP_NAME'));
         $twig->addGlobal('base_url', $app_config->get('BASE_URL'));
         $twig->addGlobal('version', AppConfig::VERSION);
+        $twig->addGlobal('php_version', PHP_VERSION);
+        $twig->addGlobal('slim_version', App::VERSION);
+        $twig->addGlobal('twig_version', Environment::VERSION);
 
         return $twig;
     }
@@ -74,6 +80,7 @@ class InstallService
      * .env 파일 생성
      * @param array $form 폼 데이터
      * @return void
+     * @throws Exception
      */
     public function createEnvFile(array $form): void
     {
@@ -81,23 +88,34 @@ class InstallService
         $key = getRandomTokenString(16);
         $url = $app_config->get('BASE_URL');
 
-        $env_file = fopen($app_config->get('BASE_PATH') . '/' . EnvLoader::ENV_FILE, 'w');
-        $env_content = <<<EOD
-        APP_ENV=production
-        APP_DEBUG=false
-        APP_KEY=base64:{$key}
-        APP_URL={$url}
+        $env_example_path = $app_config->get('BASE_PATH') . '/' . self::ENV_EXAMPLE_FILE;
+        if (!file_exists($env_example_path)) {
+            throw new Exception('.env.example 파일을 찾을 수 없습니다.');
+        }
 
-        DB_CONNECTION=mysql
-        DB_HOST={$form['mysql_host']}
-        DB_PORT=3306
-        DB_DBNAME={$form['mysql_db']}
-        DB_USERNAME={$form['mysql_user']}
-        DB_PASSWORD={$form['mysql_pass']}
-        DB_PREFIX={$form['table_prefix']}
-        EOD;
-        fwrite($env_file, $env_content);
-        fclose($env_file);
+        $env_content = file_get_contents($env_example_path);
+        if ($env_content === false) {
+            throw new Exception('.env.example 파일을 읽을 수 없습니다.');
+        }
+
+        $replacements = [
+            'APP_KEY=' => 'APP_KEY=base64:' . $key,
+            'APP_URL=' => 'APP_URL=' . $url,
+            'DB_HOST=' => 'DB_HOST=' . $form['db_host'],
+            'DB_DBNAME=' => 'DB_DBNAME=' . $form['db_dbname'],
+            'DB_USERNAME=' => 'DB_USERNAME=' . $form['db_user'],
+            'DB_PASSWORD=' => 'DB_PASSWORD=' . $form['db_password'],
+            'DB_PREFIX=' => 'DB_PREFIX=' . $form['db_prefix']
+        ];
+
+        foreach ($replacements as $key => $value) {
+            $env_content = preg_replace('/^' . preg_quote($key, '/') . '.*$/m', $value, $env_content);
+        }
+
+        $env_file_path = $app_config->get('BASE_PATH') . '/' . EnvLoader::ENV_FILE;
+        if (file_put_contents($env_file_path, $env_content) === false) {
+            throw new Exception('.env 파일을 생성할 수 없습니다.');
+        }
     }
 
     /**

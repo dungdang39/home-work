@@ -19,11 +19,11 @@ $validate = new InstallValidateService();
 $template = $install->loadTemplate();
 
 // 설치 가능 여부 체크
-$validate->validateInstall($template);
+$validate->checkInstallByStep1($template);
 
 // 라이센스 동의 체크
 $agree = $_POST['agree'] ?? '';
-if (!$validate->checkLicenseAgree($agree)) {
+if ($agree !== '동의함') {
     echo $template->render('error/license_agree.html');
     exit;
 }
@@ -32,4 +32,4 @@ if (!$validate->checkLicenseAgree($agree)) {
 $response_data = [
     'ajax_token' => $validate->createAjaxToken()
 ];
-echo $template->render('install_form.html', $response_data);
+echo $template->render('step1_form.html', $response_data);

@@ -1,0 +1,15 @@
+{% extends "/_layout.html" %}
+{% block title %}{{ app_name }} 설치 오류{% endblock %}
+
+{% block content %}
+<h1>{{ app_name }} 설치 오류</h1>
+
+<div class="ins_inner">
+    <p>
+        설치를 진행하기 위해서는 .env.example 파일이 필요합니다.
+        <br/><a href="https://github.com/gnuboard/new-gnuboard" target="_blank">{{ app_name }} Github</a>를 방문하여 .env.example 파일을 복사/다운로드 하신 후
+        <br/>프로젝트 루트 디렉토리에 .env.example 파일로 저장하여 주십시오.
+    </p>
+</div>
+
+{% endblock content %}

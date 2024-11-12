@@ -8,13 +8,14 @@ use Bootstrap\TwigConfig;
 use Bootstrap\ContainerConfig;
 use Bootstrap\EnvLoader;
 use Bootstrap\RouterConfig;
+use Core\AppConfig;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use Core\Middleware\JsonBodyParserMiddleware;
 use Core\PluginService;
-use Core\Validator\Installation;
 use DI\Container;
 use DI\Bridge\Slim\Bridge;
+use Install\InstallValidateService;
 use Slim\Http\ServerRequest as Request;
 use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
@@ -28,11 +29,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-// 설치 여부 확인
-Installation::validate(__DIR__);
-
-// 환경 설정 로드
-EnvLoader::load(["only_env" => true]);
+// 환경설정 로드
+EnvLoader::load();
 
 // Slim App 생성
 $container = new Container();
@@ -64,6 +62,9 @@ register_shutdown_function($shutdownHandler);
 
 $errorMiddleware = $app->addErrorMiddleware($app_debug, true, true);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
+
+// 설치 여부 확인
+InstallValidateService::checkInstall();
 
 // Twig 설정
 $twig = TwigConfig::configure($container);

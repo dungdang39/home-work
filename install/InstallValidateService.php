@@ -2,8 +2,11 @@
 
 namespace Install;
 
+use App\Base\Service\ConfigService;
 use Bootstrap\EnvLoader;
 use Core\AppConfig;
+use Core\Database\Db;
+use Core\Database\PDO\Exception\DbConnectException;
 use Twig\Environment;
 
 /**
@@ -23,85 +26,108 @@ class InstallValidateService
     }
 
     /**
-     * 설치 가능 여부 체크
+     * 설치 여부 체크
+     * @return void
+     */
+    public static function checkInstall()
+    {
+        $base_url = AppConfig::getInstance()->get('BASE_URL');
+        if (!self::isExistsEnv()) {
+            header('Location: ' . $base_url . '/install');
+            exit;
+        }
+        try {
+        if (!self::isExistsConfigTable()) {
+            header('Location: ' . $base_url . '/install/step2_form.php');
+            exit;
+        }
+        } catch (DbConnectException $e) {
+            echo self::renderDbConnectError();
+            exit;
+        }
+    }
+
+    /**
+     * 설치 Step1 단계에서 설치 여부 체크
      * @return void
      * @param Environment $templates
      */
-    public function validateInstall(Environment $templates): void
+    public function checkInstallByStep1(Environment $templates): void
     {
         $error_data = [
-            "env_file" => "/" . EnvLoader::ENV_FILE,
+            "env_file" => '/' . EnvLoader::ENV_FILE,
             "data_dir" => $this->data_dir,
         ];
-        if ($this->isInstalled()) {
-            echo $templates->render("error/installed.html", $error_data);
-            exit;
-        }
-        if (!$this->isDataDirExists()) {
-            echo $templates->render("error/data_directory.html", $error_data);
-            exit;
-        }
-        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-            $sapi_type = php_sapi_name();
-            if (substr($sapi_type, 0, 3) == 'cgi') {
-                if (!$this->isDataDirWritableFromCgi()) {
-                    echo $templates->render("error/permission_705.html", $error_data);
+        // 이미 설치된 경우
+        if ($this->isExistsEnv()) {
+            try {
+                if ($this->isExistsConfigTable()) {
+                    echo $templates->render("error/installed.html", $error_data);
+                    exit;
+                } else {
+                    header('Location: ' . AppConfig::getInstance()->get('BASE_URL') . '/install/step2_form.php');
                     exit;
                 }
-            } else {
-                if (!$this->isDataDirWritable()) {
-                    echo $templates->render("error/permission_707.html", $error_data);
-                    exit;
-                }
+            } catch (DbConnectException $e) {
+                echo self::renderDbConnectError($e->getMessage());
+                exit;
             }
         }
+        $this->checkCommonInstallConditions($templates, $error_data);
     }
 
     /**
-     * 이미 그누보드가 설치됬는지 체크
-     * - .env 파일 존재여부 확인
-     * @return bool
+     * 설치 Step1 단계에서 설치 여부 체크
+     * @return void
+     * @param Environment $templates
      */
-    public function isInstalled(): bool
+    public function checkInstallByStep2(Environment $templates): void
     {
-        return file_exists($this->base_path . "/" . EnvLoader::ENV_FILE);
-    }
-
-    /**
-     * data 디렉토리 존재 여부 체크
-     * @return bool
-     */
-    public function isDataDirExists(): bool
-    {
-        return is_dir($this->data_path);
-    }
-
-    /**
-     * data 디렉토리에 파일 생성 가능 여부 체크
-     * @return bool
-     */
-    public function isDataDirWritable(): bool
-    {
-        if (
-            !is_readable($this->data_path)
-            || !is_writeable($this->data_path)
-            || !is_executable($this->data_path)
-        ) {
-            return false;
+        // 이미 설치된 경우
+        if (!$this->isExistsEnv()) {
+            header('Location: ' . AppConfig::getInstance()->get('BASE_URL'));
+            exit;
         }
-        return true;
+
+        $error_data = [
+            "env_file" => '/' . EnvLoader::ENV_FILE,
+            "data_dir" => $this->data_dir,
+        ];
+        try {
+            if ($this->isExistsConfigTable()) {
+                echo $templates->render("error/installed.html", $error_data);
+                exit;
+            }
+        } catch (DbConnectException $e) {
+            echo self::renderDbConnectError($e->getMessage());
+            exit;
+        }
+        $this->checkCommonInstallConditions($templates, $error_data);
     }
 
     /**
-     * data 디렉토리에 파일 생성 가능 여부 체크 (CGI)
+     * .env 파일 존재 여부 확인
      * @return bool
      */
-    public function isDataDirWritableFromCgi(): bool
+    public static function isExistsEnv()
     {
-        if (!is_readable($this->data_path) || !is_executable($this->data_path)) {
-            return false;
-        }
-        return true;
+        $env = EnvLoader::ENV_FILE;
+        $env_path = str_replace('\\', '/', dirname(__DIR__)) . '/' . $env;
+
+        return file_exists($env_path);
+    }
+
+    /**
+     * 설정 테이블 존재 여부 확인
+     * @return bool
+     */
+    public static function isExistsConfigTable()
+    {
+        // 환경설정 로드
+        EnvLoader::load();
+
+        $table_name = $_ENV['DB_PREFIX'] . ConfigService::TABLE_NAME;
+        return Db::getInstance()->isTableExists($table_name);
     }
 
     /**
@@ -111,16 +137,6 @@ class InstallValidateService
     public function isGdLibraryExists(): bool
     {
         return extension_loaded('gd') && function_exists('gd_info');
-    }
-
-    /**
-     * 라이센스 동의 체크
-     * @param string|null $agree 동의 여부
-     * @return bool
-     */
-    public function checkLicenseAgree(?string $agree = ''): bool
-    {
-        return $agree === '동의함';
     }
 
     /**
@@ -138,7 +154,7 @@ class InstallValidateService
      * @param bool $is_json JSON 형식으로 메시지를 반환할지 여부
      * @return string|array
      */
-    function validateInstallInput(?string $str = null)
+    public function validateInstallInput(?string $str = null)
     {
         if (!isset($str)) {
             return '';
@@ -159,8 +175,92 @@ class InstallValidateService
         return array_map_deep('stripslashes', $str);
     }
 
+    /**
+     * JSON 형식으로 메시지 반환
+     * @param string $message 메시지
+     * @param string $type 메시지 타입
+     * @return string
+     */
     public function jsonResponse(string $message, string $type = 'error'): string
     {
         return json_encode(['type' => $type, 'message' => $message]);
+    }
+
+    /**
+     * 공통 설치 조건 체크
+     * @param Environment $templates
+     * @param array $error_data
+     * @return void
+     */
+    private function checkCommonInstallConditions(Environment $templates, array $error_data): void
+    {
+        // 기본 디렉토리에 쓰기 권한이 없을 경우
+        if (!is_writable($this->base_path)) {
+            echo $templates->render("error/root_directory.html", $error_data);
+            exit;
+        }
+        // data 디렉토리가 존재하지 않을 경우
+        if (!is_dir($this->data_path)) {
+            echo $templates->render("error/data_directory.html", $error_data);
+            exit;
+        }
+        // data 디렉토리에 쓰기 권한이 없을 경우
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $sapi_type = php_sapi_name();
+            if (substr($sapi_type, 0, 3) == 'cgi') {
+                if (!$this->isDataDirWritableFromCgi()) {
+                    echo $templates->render("error/permission_705.html", $error_data);
+                    exit;
+                }
+            } else {
+                if (!$this->isDataDirWritable()) {
+                    echo $templates->render("error/permission_707.html", $error_data);
+                    exit;
+                }
+            }
+        }
+    }
+
+    /**
+     * data 디렉토리에 파일 생성 가능 여부 체크
+     * @return bool
+     */
+    private function isDataDirWritable(): bool
+    {
+        if (
+            !is_readable($this->data_path)
+            || !is_writeable($this->data_path)
+            || !is_executable($this->data_path)
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * data 디렉토리에 파일 생성 가능 여부 체크 (CGI)
+     * @return bool
+     */
+    private function isDataDirWritableFromCgi(): bool
+    {
+        if (
+            !is_readable($this->data_path)
+            || !is_executable($this->data_path)
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 데이터베이스 연결 오류 페이지 출력
+     * @param string|null $message 오류 메시지
+     * @return string
+     */
+    private static function renderDbConnectError(?string $message = ''): string
+    {
+        $install_service = new InstallService();
+        $template = $install_service->loadTemplate();
+        return $template->render('error/db_connect.html', ['message' => $message]);
     }
 }
