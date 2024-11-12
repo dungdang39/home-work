@@ -5,9 +5,44 @@
 <h1>{{ app_name }} 설치 오류</h1>
 
 <div class="ins_inner">
+    <h2>프로젝트 경로에 .env 파일을 생성할 수 없습니다.</h2>
     <p>
-        설치를 진행하기 위해서는 프로젝트 루트 디렉토리에 쓰기 권한이 필요합니다.
+        <br>
+        이는 파일 권한 문제 또는 디렉토리 권한 문제로 인해 발생할 수 있습니다.
+        서버 설정을 확인하고 아래 해결 방법을 참고하여 .env 파일을 생성하세요.
     </p>
+    <ol>
+        <li>
+            <strong>Shell 명령어로 .env 파일 생성</strong>
+            <ul>
+                <li>터미널을 열고 프로젝트 경로로 이동합니다.</li>
+                <li>
+                    다음 명령어를 실행하여 설치 스크립트를 실행합니다:
+                    <pre style="font-size:1.6em;"><code>$> php install/env.php</code></pre>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>수동으로 .env 파일 생성</strong>
+            <ul>
+                <li>터미널을 열고 프로젝트 경로로 이동합니다.</li>
+                <li>
+                    다음 명령어를 실행하여 .env.example 파일을 복사해 .env 파일을 생성합니다:
+                    <pre style="font-size:1.6em;"><code>cp .env.example .env</code></pre>
+                </li>
+                <li>.env 파일을 열고 필요한 설정을 수동으로 입력합니다.</li>
+                <ul>
+                    <li><strong>DB_CONNECTION</strong>: 사용할 데이터베이스 드라이버 (예: mysql)</li>
+                    <li><strong>DB_HOST</strong>: 데이터베이스 서버의 호스트명 (예: localhost)</li>
+                    <li><strong>DB_PORT</strong>: 데이터베이스 서버의 포트 번호 (예: 3306)</li>
+                    <li><strong>DB_DBNAME</strong>: 데이터베이스 이름</li>
+                    <li><strong>DB_USERNAME</strong>: 데이터베이스 사용자명</li>
+                    <li><strong>DB_PASSWORD</strong>: 데이터베이스 비밀번호</li>
+                    <li><strong>DB_PREFIX</strong>: 데이터베이스 테이블 접두사 (예: new_)</li>
+                </ul>
+            </ul>
+        </li>
+    </ol>
 </div>
 
 {% endblock content %}

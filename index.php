@@ -8,7 +8,6 @@ use Bootstrap\TwigConfig;
 use Bootstrap\ContainerConfig;
 use Bootstrap\EnvLoader;
 use Bootstrap\RouterConfig;
-use Core\AppConfig;
 use Core\Handlers\HttpErrorHandler;
 use Core\Handlers\ShutdownHandler;
 use Core\Middleware\JsonBodyParserMiddleware;

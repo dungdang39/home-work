@@ -43,5 +43,13 @@
             "api/functions.php",
             "core/Lib/functions.php"
         ]
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "if [ ! -f .env ]; then php install/env.php; fi"
+        ]
+    },
+    "scripts-descriptions": {
+        "post-install-cmd": "Run setup script"
     }
 }

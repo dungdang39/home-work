@@ -86,7 +86,7 @@ class InstallService
     {
         $app_config = AppConfig::getInstance();
         $key = getRandomTokenString(16);
-        $url = $app_config->get('BASE_URL');
+        $url = $form['app_url'] ?? $app_config->get('BASE_URL');
 
         $env_example_path = $app_config->get('BASE_PATH') . '/' . self::ENV_EXAMPLE_FILE;
         if (!file_exists($env_example_path)) {

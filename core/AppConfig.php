@@ -160,6 +160,10 @@ class AppConfig
     */
     private function base_url()
     {
+        if (!isset($_SERVER['SERVER_NAME']) || !isset($_SERVER['SERVER_PORT'])) {
+            return '';
+        }
+
         $chroot = substr($_SERVER['SCRIPT_FILENAME'], 0, strpos($_SERVER['SCRIPT_FILENAME'], __DIR__));
         //root 경로 슬래시 변경
         $path = str_replace('\\', '/', $chroot . dirname(__DIR__));

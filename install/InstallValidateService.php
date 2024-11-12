@@ -73,11 +73,21 @@ class InstallValidateService
                 exit;
             }
         }
+        // .env.example 파일이 존재하지 않을 경우
+        if (!file_exists($this->base_path . '/' . InstallService::ENV_EXAMPLE_FILE)) {
+            echo $templates->render("error/env_example.html", $error_data);
+            exit;
+        }
+        // 기본 디렉토리에 쓰기 권한이 없을 경우
+        if (!is_writable($this->base_path)) {
+            echo $templates->render("error/root_directory.html", $error_data);
+            exit;
+        }
         $this->checkCommonInstallConditions($templates, $error_data);
     }
 
     /**
-     * 설치 Step1 단계에서 설치 여부 체크
+     * 설치 Step2 단계에서 설치 여부 체크
      * @return void
      * @param Environment $templates
      */
@@ -194,11 +204,6 @@ class InstallValidateService
      */
     private function checkCommonInstallConditions(Environment $templates, array $error_data): void
     {
-        // 기본 디렉토리에 쓰기 권한이 없을 경우
-        if (!is_writable($this->base_path)) {
-            echo $templates->render("error/root_directory.html", $error_data);
-            exit;
-        }
         // data 디렉토리가 존재하지 않을 경우
         if (!is_dir($this->data_path)) {
             echo $templates->render("error/data_directory.html", $error_data);

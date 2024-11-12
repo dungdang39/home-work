@@ -38,7 +38,11 @@ class EnvLoader
      * @return void
      */
     public static function load(): void
-    {
+    {   
+        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . self::ENV_FILE;
+        if (!file_exists($path)) {
+            return;
+        }
         $instance = self::getInstance();
         $instance->dotenv->load();
     }
