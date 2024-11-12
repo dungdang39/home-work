@@ -20,9 +20,10 @@ use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\TwigMiddleware;
 
+define('_GNUBOARD_', true);
+
 require __DIR__ . '/vendor/autoload.php';
 
-define('_GNUBOARD_', true);
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
