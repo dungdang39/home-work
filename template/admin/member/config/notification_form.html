@@ -159,17 +159,10 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // 알림 프리셋 복사
-        document.querySelectorAll('.btn_copy_preset').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                var textarea = this.previousElementSibling;
-                textarea.select();
-                document.execCommand('copy');
-                alert('프리셋이 복사되었습니다.');
-            });
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        initCopyPresetButtons();
     });
+
     /**
      * 회원 알림/푸시 설정 폼 유효성 검사
      */

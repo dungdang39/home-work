@@ -3,6 +3,8 @@
 namespace App\Base\Service;
 
 use Core\Database\Db;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Http\ServerRequest as Request;
 
 class NotificationService
 {
@@ -12,8 +14,13 @@ class NotificationService
     public string $table;
     public string $setting_table;
 
-    public function __construct()
-    {
+    private Request $request;
+
+    public function __construct(
+        Request $request
+    ){
+        $this->request = $request;
+
         $this->table = $_ENV['DB_PREFIX'] . self::TABLE_NAME;
         $this->setting_table = $_ENV['DB_PREFIX'] . self::SETTING_TABLE_NAME;
     }
@@ -34,6 +41,23 @@ class NotificationService
         }
 
         return $notifications;
+    }
+
+    /**
+     * 알림 정보 조회
+     * @param string $type  알림 타입
+     * @return array
+     * @throws HttpNotFoundException
+     */
+    public function getNotificationByType(string $type): array
+    {
+        $notification = $this->fetchNotificationByType($type);
+        if (empty($notification)) {
+            throw new HttpNotFoundException($this->request, '알림 정보를 찾을 수 없습니다.');
+        }
+        $notification['settings'] = $this->getSettings($notification['id']);
+
+        return $notification;
     }
 
     /**
@@ -66,6 +90,19 @@ class NotificationService
     public function fetchNotifications()
     {
         return Db::getInstance()->run("SELECT * FROM {$this->table}")->fetchAll();
+    }
+
+    /**
+     * 알림 타입으로 정보 조회
+     * @param string $type  알림 타입
+     * @return array|false
+     */
+    public function fetchNotificationByType(string $type)
+    {
+        $values = ['type' => $type];
+        $query = "SELECT * FROM {$this->table} WHERE type = :type";
+
+        return Db::getInstance()->run($query, $values)->fetch();
     }
 
     /**
