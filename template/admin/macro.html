@@ -104,3 +104,29 @@
 
     <img src="{{ base_url ~ member_image }}" width="22" height="22" alt="{{ alt }}" onerror="this.src='{{ base_url ~ base_image }}'">
 {% endmacro %}
+
+{% macro initEditor(selectors = []) %}
+    {% set editor = configs.dhtml_editor %}
+    {% if editor is same as('') %}
+        <script>console.log('설정된 에디터가 없습니다.')</script>
+    {% elseif not editor %}
+        <script>console.log('에디터 설정을 불러올 수 없습니다.')</script>
+    {% elseif 'ckeditor5' in editor %}
+        <script type="importmap">
+            {
+                "imports": {
+                    "ckeditor5": "{{ base_url }}/assets/library/editor/{{ editor }}/ckeditor5.js",
+                    "ckeditor5/": "{{ base_url }}/assets/library/editor/{{ editor }}/"
+                }
+            }
+        </script>
+        <script type="module">
+            import { initializeEditor } from '{{ base_url }}/assets/library/editor/{{ editor }}/main.js';
+            document.addEventListener('DOMContentLoaded', function () {
+                {% for selector in selectors %}
+                    initializeEditor('{{ selector }}');
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
+{% endmacro initEditor %}
