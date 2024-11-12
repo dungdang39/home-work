@@ -1,0 +1,14 @@
+{% extends "/_layout.html" %}
+{% block title %}{{ app_name }} 설치하기{% endblock %}
+
+{% block content %}
+<h1>데이터베이스 연결 오류</h1>
+<div class="ins_inner">
+    <p>데이터베이스 연결에 실패했습니다. 데이터베이스 연결정보를 다시 확인해주세요.</p>
+    <p>{{ message }}</p>
+    <p>1. DB_HOST : 데이터베이스 호스트 주소</p>
+    <p>2. DB_DBNAME : 데이터베이스 이름</p>
+    <p>3. DB_USERNAME : 데이터베이스 사용자 이름</p>
+    <p>4. DB_PASSWORD : 데이터베이스 비밀번호</p>
+</div>
+{% endblock content %}

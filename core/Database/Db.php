@@ -2,7 +2,6 @@
 
 namespace Core\Database;
 
-use Core\AppConfig;
 use PDO;
 use Exception;
 

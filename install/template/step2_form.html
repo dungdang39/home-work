@@ -1,0 +1,107 @@
+{% extends "/_layout.html" %}
+
+{% block title %}{{ app_name }} 초기환경설정 2/3{% endblock %}
+
+{% block content %}
+<form id="frm_install" method="post" action="./step2_result.php" autocomplete="off" onsubmit="return validate_form(this)">
+    <input type="hidden" name="ajax_token" value="{{ ajax_token }}">
+
+    <div class="ins_inner">
+        <table class="ins_frm">
+            <caption>사이트 정보입력</caption>
+            <colgroup>
+                <col style="width:150px">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="site_title">사이트 타이틀</label></th>
+                    <td><input type="text" id="site_title" name="site_title" value="{{ app_name }}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="ins_frm">
+            <caption>최고관리자 정보입력</caption>
+            <colgroup>
+                <col style="width:150px">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="admin_id">회원 ID</label></th>
+                    <td><input type="text" id="admin_id" name="admin_id" value="admin" required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="admin_pass">비밀번호</label></th>
+                    <td><input type="password" id="admin_pass" name="admin_pass" value="1234" required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="admin_name">이름</label></th>
+                    <td>
+                        <input type="text" id="admin_name" name="admin_name" value="최고관리자" required>
+                        <span><strong>개인정보관리책임자명으로 표시</strong>되며, '기본환경설정 > 사이트설정' 에서 수정할 수 있습니다.</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="admin_email">E-mail</label></th>
+                    <td>
+                        <input type="email" id="admin_email" name="admin_email" value="admin@domain.com" required>
+                        <span><strong>개인정보관리책임자 메일 주소로 표시</strong>되며, '기본환경설정 > 사이트설정' 에서 수정할 수 있습니다.</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="ins_frm">
+            <caption>데이터베이스</caption>
+            <colgroup>
+                <col style="width:150px">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="reinstall">{{ app_name ~ version }} 삭제 후 다시 설치</label></th>
+                    <td><input type="checkbox" id="reinstall" name="reinstall" value="1"> 재설치</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <strong class="st_strong">주의! 이미 `{{ app_name }}` 테이블이 존재한다면 자료가 망실되므로 주의하십시오.</strong><br>
+            주의사항을 이해했으며, 설치를 계속 진행하시려면 다음을 누르십시오.
+        </p>
+
+        <div class="inner_btn">
+            <input type="submit" value="다음">
+        </div>
+    </div>
+</form>
+
+<script>
+    function validate_form(f) {
+        const requiredFields = [
+            { field: f.admin_id, message: '최고관리자 ID 를 입력하십시오.' },
+            { field: f.admin_pass, message: '최고관리자 비밀번호를 입력하십시오.' },
+            { field: f.admin_name, message: '최고관리자 이름을 입력하십시오.' },
+            { field: f.admin_email, message: '최고관리자 E-mail 을 입력하십시오.' }
+        ];
+
+        for (const { field, message } of requiredFields) {
+            if (field.value.trim() === '') {
+                alert(message);
+                field.focus();
+                return false;
+            }
+        }
+
+        if (!/^[a-z]+[a-z0-9]{2,19}$/i.test(f.admin_id.value)) {
+            alert('최고관리자 회원 ID는 첫자는 반드시 영문자 그리고 영문자와 숫자로만 만드셔야 합니다.');
+            f.admin_id.focus();
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends "_layout.html" %}
+{% block title %}{{ app_name }} 라이센스 확인 1/3{% endblock title %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="install_uncnf">{{ app_name }} {{ version }} 설치</h1>
+        
+        <div class="ins_inner">
+            <h2>
+                데이터베이스 연결이 완료되었습니다. 다음 단계로 이동합니다.
+            </h2>
+            <div class="inner_btn">
+                <a href="./step2_form.php" class="btn">다음</a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

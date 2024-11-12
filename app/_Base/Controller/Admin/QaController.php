@@ -9,7 +9,6 @@ use App\Base\Service\QaService;
 use Core\BaseController;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 class QaController extends BaseController

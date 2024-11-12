@@ -809,3 +809,20 @@ function isValidFileExtension(file, allowedExtensions) {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     return allowedExtensions.includes(fileExtension);
 }
+
+/**
+ * 프리셋 복사 버튼 초기화
+ */
+function initCopyPresetButtons() {
+    document.querySelectorAll('.btn_copy_preset').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var textarea = this.previousElementSibling;
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(function() {
+                alert('프리셋이 복사되었습니다.');
+            }).catch(function(err) {
+                alert('복사 실패:' + err);
+            });
+        });
+    });
+}

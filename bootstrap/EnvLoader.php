@@ -12,8 +12,24 @@ class EnvLoader
 
     public static array $option = [
         "names" => [self::ENV_FILE],
-        "only_env" => false
+        "only_env" => true
     ];
+
+    private $dotenv;
+
+    private static ?self $instance = null;
+
+    private function __construct(array $option = [])
+    {
+        $path = dirname(__DIR__);
+        $option = array_merge(self::$option, $option);
+
+        if ($option['only_env']) {
+            $this->dotenv = self::createOnlyEnvConstAdapter($path);
+        } else {
+            $this->dotenv = self::create($path);
+        }
+    }
 
     /**
      * .env 파일 로드
@@ -21,18 +37,23 @@ class EnvLoader
      * @param array $option  only_env: $_ENV 전역변수만 사용하도록 설정
      * @return void
      */
-    public static function load(array $option = []): void
-    {
-        $path = dirname(__DIR__);
-        $option = array_merge(self::$option, $option);
+    public static function load(): void
+    {   
+        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . self::ENV_FILE;
+        if (!file_exists($path)) {
+            return;
+        }
+        $instance = self::getInstance();
+        $instance->dotenv->load();
+    }
 
-        if ($option['only_env']) {
-            $dotenv = self::createOnlyEnvConstAdapter($path);
-        } else {
-            $dotenv = self::create($path);
+    public static function getInstance(array $option = []): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self($option);
         }
 
-        $dotenv->load();
+        return self::$instance;
     }
 
     /**

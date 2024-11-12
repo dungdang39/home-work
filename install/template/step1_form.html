@@ -1,0 +1,89 @@
+{% extends "/_layout.html" %}
+
+{% block title %}{{ app_name }} 초기환경설정 2/3{% endblock %}
+
+{% block content %}
+<form id="frm_install" method="post" action="./step1_result.php" autocomplete="off" onsubmit="return validate_form(this)">
+    <input type="hidden" name="ajax_token" value="{{ ajax_token }}">
+
+    <div class="ins_inner">
+        <table class="ins_frm">
+            <caption>MySQL 정보입력</caption>
+            <colgroup>
+                <col style="width:150px">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="db_host">Host</label></th>
+                    <td><input type="text" id="db_host" name="db_host" value="localhost" required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="db_user">User</label></th>
+                    <td><input type="text" id="db_user" name="db_user" value="kjh" required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="db_password">Password</label></th>
+                    <td><input type="text" id="db_password" name="db_password" value="1234"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="db_dbname">DB</label></th>
+                    <td><input type="text" id="db_dbname" name="db_dbname" value="gnuboard7" required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="db_prefix">TABLE 접두사</label></th>
+                    <td>
+                        <input type="text" id="db_prefix" name="db_prefix" value="new_">
+                        <span>TABLE명 접두사는 영문자, 숫자, _ 만 입력 가능합니다.</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="inner_btn">
+            <input type="submit" value="다음">
+        </div>
+    </div>
+</form>
+
+<script>
+    function validate_form(f) {
+        const requiredFields = [
+            { field: f.db_host, message: 'Database Host 를 입력하십시오.' },
+            { field: f.db_user, message: 'Database User 를 입력하십시오.' },
+            { field: f.db_password, message: 'Database PASSWORD 를 입력하십시오.' },
+            { field: f.db_dbname, message: 'Database Name 을 입력하십시오.' },
+            { field: f.db_prefix, message: 'TABLE 접두사를 입력하십시오.' },
+        ];
+
+        for (const { field, message } of requiredFields) {
+            if (field.value.trim() === '') {
+                alert(message);
+                field.focus();
+                return false;
+            }
+        }
+
+        const reg = /\);(passthru|eval|pcntl_exec|exec|system|popen|fopen|fsockopen|file|file_get_contents|readfile|unlink|include|include_once|require|require_once)\s?\(\$_(get|post|request)\s?\[.*?\]\s?\)/gi;
+        const reg_msg = " 에 유효하지 않는 문자가 있습니다. 다른 문자로 대체해 주세요.";
+
+        const fieldsToValidate = [
+            { field: f.db_host, message: 'Database Host' },
+            { field: f.db_user, message: 'Database User' },
+            { field: f.db_password, message: 'Database PASSWORD' },
+            { field: f.db_dbname, message: 'Database Name' },
+            { field: f.db_prefix, message: 'TABLE명 접두사' },
+        ];
+
+        for (const { field, message } of fieldsToValidate) {
+            if (field.value && reg.test(field.value)) {
+                alert(message + reg_msg);
+                field.focus();
+                return false;
+            }
+        }
+
+        return true;
+    }
+</script>
+{% endblock content %}

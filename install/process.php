@@ -14,6 +14,7 @@ use App\Base\Service\FaqService;
 use App\Base\Service\MemberService;
 use App\Base\Service\NotificationService;
 use App\Base\Service\ThemeService;
+use Bootstrap\EnvLoader;
 use Core\AppConfig;
 use Core\Database\Db;
 use Install\InstallService;
@@ -32,59 +33,37 @@ try {
     $install_service = new InstallService();
 
     $form = $_SESSION['install_form'];
-    $prefix = $form['table_prefix'];
     unset($_SESSION['install_form']);
+
+    EnvLoader::load();
+    $prefix = $_ENV['DB_PREFIX'];
 
     // 설치 정보 확인
     if (empty($form)) {
         throw new Exception('설치 정보가 없습니다.');
-    }
-    if (preg_match("/[^0-9a-z_]+/i", $prefix)) {
-        throw new Exception('TABLE명 접두사는 영문자, 숫자, _ 만 입력하세요.');
     }
     if (preg_match("/[^0-9a-z_]+/i", $form['admin_id'])) {
         throw new Exception('관리자 아이디는 영문자, 숫자, _ 만 입력하세요.');
     }
 
     // 데이터베이스 연결
-    $database_setting = [
-        'driver' => 'mysql',
-        'host' => $form['mysql_host'],
-        'dbname' => $form['mysql_db'],
-        'user' => $form['mysql_user'],
-        'password' => $form['mysql_pass']
-    ];
-    Db::setInstance(new Db($database_setting));
     $db = Db::getInstance();
 
     $is_exists_table = $db->isTableExists($prefix . ConfigService::TABLE_NAME);
 
-    /**
-     * 테이블 생성
-     */
-    // $mysql_set_mode = 'false';
-    // sql_set_charset(G5_DB_CHARSET, $dblink);
-    // $result = sql_query(" SELECT @@sql_mode as mode ", true, $dblink);
-    // $row = sql_fetch_array($result);
-    // if($row['mode']) {
-    //     sql_query("SET SESSION sql_mode = ''", true, $dblink);
-    //     $mysql_set_mode = 'true';
-    // }
-    // unset($result);
-    // unset($row);
     if ($form['reinstall'] || $is_exists_table === false) {
+        /**
+         * 테이블 생성
+         */
         $install_service->createTable($db, $prefix, './data/new-gnuboard.sql');
-    }
 
-    send_message('create_table', '전체 테이블 생성 완료');
-
-    /**
-     * 초기 데이터 생성
-     */
-    if ($form['reinstall'] || $is_exists_table === false) {
+        send_message('create_table', '전체 테이블 생성 완료');
 
         $db->getPdo()->beginTransaction();
 
+        /**
+         * 초기 데이터 생성
+         */
         // 기본 데이터 파일 불러오기
         $default_values = json_decode(file_get_contents('./data/default_value.json'), true);
 
@@ -98,9 +77,9 @@ try {
         createBoardData($db, $prefix, $default_values['board']);
 
         $db->getPdo()->commit();
-    }
 
-    send_message('create_data', 'DB 데이터 설정 완료');
+        send_message('create_data', 'DB 데이터 설정 완료');
+    }
 
     /**
      * Data 디렉토리 설정
@@ -120,13 +99,6 @@ try {
     $install_service->createHtaccessToDataDirectory($data_path);
 
     send_message('data_directory', '데이터 디렉토리 생성 완료');
-
-    /**
-     * 기타 파일 생성
-     */
-    $install_service->createEnvFile($form);
-    $install_service->createHtaccess();
-
     send_message('end', '설치 완료');
 } catch (Exception $e) {
     send_message('error', '설치 실패 - ' . $e->getMessage());

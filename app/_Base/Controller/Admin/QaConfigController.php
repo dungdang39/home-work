@@ -5,6 +5,7 @@ namespace App\Base\Controller\Admin;
 use App\Base\Model\Admin\QaConfigRequest;
 use App\Base\Model\Admin\UpdateQaCategoryReqeust;
 use App\Base\Service\ConfigService;
+use App\Base\Service\NotificationService;
 use App\Base\Service\QaConfigService;
 use Core\BaseController;
 use Core\Lib\FlashMessage;
@@ -17,14 +18,17 @@ class QaConfigController extends BaseController
 {
     private ConfigService $config_service;
     private FlashMessage $flash;
+    private NotificationService $noti_service;
     private QaConfigService $service;
 
     public function __construct(
         Container $container,
         ConfigService $config_service,
+        NotificationService $noti_service,
         QaConfigService $service
     ) {
         $this->config_service = $config_service;
+        $this->noti_service = $noti_service;
         $this->service = $service;
         $this->flash = $container->get('flash');
     }
@@ -39,9 +43,14 @@ class QaConfigController extends BaseController
         // Q&A 카테고리 조회
         $qa_categories = $this->service->getCategories();
 
+        $alimtalk_enabled = (bool)$this->noti_service->getNotificationByType('alimtalk')['is_enabled'];
+        $sms_enabled = (bool)$this->noti_service->getNotificationByType('sms')['is_enabled'];
+
         $response_data = [
             "qa_config" => $qa_config,
-            "qa_categories" => $qa_categories
+            "qa_categories" => $qa_categories,
+            "alimtalk_enabled" => $alimtalk_enabled,
+            "sms_enabled" => $sms_enabled,
         ];
         $view = Twig::fromRequest($request);
         return $view->render($response, '@admin/member/qa/config_form.html', $response_data);

@@ -24,4 +24,9 @@ if (!$validate->isGdLibraryExists()) {
     echo $template->render('error/gd_library.html');
 }
 
-echo $template->render('index.html');
+// 라이센스 동의 폼 출력
+$license = $install->getLicense();
+$response_data = [
+    'license' => $license,
+];
+echo $template->render('license.html', $response_data);

@@ -126,15 +126,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">SMS 알림</th>
-                            <td>
-                                <label for="sms_notification_1" class="rules_label">사용</label>
-                                <input name="sms_notification" id="sms_notification_1" type="radio" value="1" {{ checked(1, old('sms_notification', qa_config)) }}>
-                                <label for="sms_notification_0" class="rules_label">사용안함</label>
-                                <input name="sms_notification" id="sms_notification_0" type="radio" value="0" {{ checked(0, old('sms_notification', qa_config)) }}>
-                            </td>
-                        </tr>
-                        <tr>
                             <th scope="row">DHTML 에디터 사용</th>
                             <td>
                                 <label for="is_use_editor_1" class="rules_label">사용</label>
@@ -185,38 +176,83 @@
                             <th scope="row">회원님에게 발송</th>
                             <td>
                                 <select name="notification_member" id="notification_member">
+                                    <option value="" {{ selected('', old('notification_member', qa_config), true) }}>발송안함</option>
                                     <option value="all" {{ selected('all', old('notification_member', qa_config)) }}>문의&답변 등록 시</option>
                                     <option value="inquiry" {{ selected('inquiry', old('notification_member', qa_config)) }}>문의 등록 시</option>
                                     <option value="response" {{ selected('response', old('notification_member', qa_config)) }}>답변 등록 시</option>
-                                    <option value="none" {{ selected('none', old('notification_member', qa_config)) }}>발송안함</option>
                                 </select>
                             </td>
                             <th scope="row">회원님에게 발송 유형</th>
                             <td>
+                                {% if not sms_enabled and not alimtalk_enabled %}
+                                {{ info('기본환경 > API 연동설정 > 메시지 설정을 완료하셔야 알림톡(SMS)을 선택하실 수 있어요.') }}
+                                {% elseif sms_enabled and not alimtalk_enabled %}
+                                {{ info('알림이 SMS로 발송됩니다.') }}
+                                {% elseif not sms_enabled and alimtalk_enabled %}
+                                {{ info('알림이 알림톡으로 발송됩니다. 회원이 알림톡 수신거부한 경우 SMS로 대체 발송됩니다.') }}
+                                {% endif %}
                                 <select name="notification_member_type" id="notification_member_type">
-                                    <option value="all" {{ selected('all', old('notification_member_type', qa_config)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_member_type', qa_config)) }}>메일</option>
+                                    {% if alimtalk_enabled or sms_enabled %}
+                                    <option value="all" {{ selected('all', old('notification_member_type', qa_config)) }}>메일+알림톡(SMS)</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_member_type', qa_config)) }}>알림톡(SMS)</option>
+                                    {% endif %}
                                 </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">문의 등록 알림 템플릿</th>
+                            <td>
+                                {{ info('템플릿을 수정하시면 기본환경 > API연동 설정 > 알림톡 관리자에서 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_member_question_preset" id="notification_member_question_preset" rows="5" class="frm_input">
+                                    {{- old('notification_member_question_preset', configs) -}}
+                                </textarea>
+                                <button type="button" class="btn btn_03 btn_copy_preset">복사</button>
+                            </td>
+                            <th scope="row">답변 등록 알림 템플릿</th>
+                            <td>
+                                {{ info('템플릿을 수정하시면 기본환경 > API연동 설정 > 알림톡 관리자에서 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_member_answer_preset" id="notification_member_answer_preset" rows="5" class="frm_input">
+                                    {{- old('notification_member_answer_preset', configs) -}}
+                                </textarea>
+                                <button type="button" class="btn btn_03 btn_copy_preset">복사</button>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">운영진에게 발송</th>
                             <td>
-                                <select name="notification_admin" id="notification_admin">
-                                    <option value="all" {{ selected('all', old('notification_admin', qa_config)) }}>문의&답변 등록 시</option>
-                                    <option value="inquiry" {{ selected('inquiry', old('notification_admin', qa_config)) }}>문의 등록 시</option>
-                                    <option value="response" {{ selected('response', old('notification_admin', qa_config)) }}>답변 등록 시</option>
-                                    <option value="none" {{ selected('none', old('notification_admin', qa_config)) }}>발송안함</option>
-                                </select>
+                                {{ info('설정된 운영진 모두에게 알림이 발송됩니다.') }}
+                                <label for="notification_admin_1" class="rules_label">사용</label>
+                                <input name="notification_admin" id="notification_admin_1" type="radio" value="1" {{ checked(1, old('notification_admin', qa_config), true) }}>
+                                <label for="notification_admin_0" class="rules_label">사용안함</label>
+                                <input name="notification_admin" id="notification_admin_0" type="radio" value="0" {{ checked(0, old('notification_admin', qa_config)) }}>
                             </td>
                             <th scope="row">운영진에게 발송 유형</th>
                             <td>
+                                {% if not sms_enabled and not alimtalk_enabled %}
+                                {{ info('기본환경 > API 연동설정 > 메시지 설정을 완료하셔야 알림톡(SMS)을 선택하실 수 있어요.') }}
+                                {% elseif sms_enabled and not alimtalk_enabled %}
+                                {{ info('알림이 SMS로 발송됩니다.') }}
+                                {% elseif not sms_enabled and alimtalk_enabled %}
+                                {{ info('알림이 알림톡으로 발송됩니다. 회원이 알림톡 수신거부한 경우 SMS로 대체 발송됩니다.') }}
+                                {% endif %}
                                 <select name="notification_admin_type" id="notification_admin_type">
-                                    <option value="all" {{ selected('all', old('notification_admin_type', qa_config)) }}>메일+알림톡(SMS)</option>
                                     <option value="mail" {{ selected('mail', old('notification_admin_type', qa_config)) }}>메일</option>
+                                    {% if alimtalk_enabled or sms_enabled %}
+                                    <option value="all" {{ selected('all', old('notification_admin_type', qa_config), true) }}>메일+알림톡(SMS)</option>
                                     <option value="alimtalk" {{ selected('alimtalk', old('notification_admin_type', qa_config)) }}>알림톡(SMS)</option>
+                                    {% endif %}
                                 </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">문의 등록 알림 템플릿</th>
+                            <td colspan="3">
+                                {{ info('템플릿을 수정하시면 기본환경 > API연동 설정 > 알림톡 관리자에서 템플릿을 새로 등록하셔야 합니다.') }}
+                                <textarea name="notification_admin_question_preset" id="notification_admin_question_preset" rows="5" class="frm_input">
+                                    {{- old('notification_admin_question_preset', configs) -}}
+                                </textarea>
+                                <button type="button" class="btn btn_03 btn_copy_preset">복사</button>
                             </td>
                         </tr>
                     </tbody>
@@ -268,6 +304,8 @@
     const form_template = document.getElementById('form_template');
     
     document.addEventListener('DOMContentLoaded', function() {
+        initCopyPresetButtons();
+
         // 카테고리 기본서식 모달 버튼
         const btn_modal_basic_template = document.getElementById('btn_modal_basic_template');
         btn_modal_basic_template.addEventListener('click', function() {
