@@ -1,6 +1,4 @@
 <?php
-if (!defined('_GNUBOARD_')) exit;
-
 /*
  * Password Hashing with PBKDF2 (http://crackstation.net/hashing-security.htm).
  * Copyright (c) 2013, Taylor Hornby
