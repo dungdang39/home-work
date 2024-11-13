@@ -503,15 +503,6 @@ win_password_lost = function(href)
 }
 
 /**
- * 쿠폰
- **/
-var win_coupon = function(href) {
-    var new_win = window.open(href, "win_coupon", "left=100,top=100,width=700, height=600, scrollbars=1");
-    new_win.focus();
-}
-
-
-/**
  * 스크린리더 미사용자를 위한 스크립트 - 지운아빠 2013-04-22
  * alt 값만 갖는 그래픽 링크에 마우스오버 시 title 값 부여, 마우스아웃 시 title 값 제거
  **/
@@ -543,26 +534,6 @@ function font_resize(id, rmv_class, add_class, othis)
     }
 }
 
-/**
- * 댓글 수정 토큰
-**/
-function set_comment_token(f)
-{
-    if(typeof f.token === "undefined")
-        $(f).prepend('<input type="hidden" name="token" value="">');
-
-    $.ajax({
-        url: g5_bbs_url+"/ajax.comment_token.php",
-        type: "GET",
-        dataType: "json",
-        async: false,
-        cache: false,
-        success: function(data, textStatus) {
-            f.token.value = data.token;
-        }
-    });
-}
-
 $(function(){
     $(".win_point").click(function() {
         win_point(this.href);
@@ -589,18 +560,8 @@ $(function(){
         return false;
     });
 
-    $(".win_homepage").click(function() {
-        win_homepage(this.href);
-        return false;
-    });
-
     $(".win_password_lost").click(function() {
         win_password_lost(this.href);
-        return false;
-    });
-
-    $(".win_coupon").click(function() {
-        win_coupon(this.href);
         return false;
     });
 
@@ -686,60 +647,6 @@ $(function(){
     });
 });
 
-function get_write_token(bo_table)
-{
-    var token = "";
-
-    $.ajax({
-        type: "POST",
-        url: g5_bbs_url+"/write_token.php",
-        data: { bo_table: bo_table },
-        cache: false,
-        async: false,
-        dataType: "json",
-        success: function(data) {
-            if(data.error) {
-                alert(data.error);
-                if(data.url)
-                    document.location.href = data.url;
-
-                return false;
-            }
-
-            token = data.token;
-        }
-    });
-
-    return token;
-}
-
-$(function() {
-    $(document).on("click", "form[name=fwrite] input:submit, form[name=fwrite] button:submit, form[name=fwrite] input:image", function() {
-        var f = this.form;
-
-        if (typeof(f.bo_table) == "undefined") {
-            return;
-        }
-
-        var bo_table = f.bo_table.value;
-        var token = get_write_token(bo_table);
-
-        if(!token) {
-            alert("토큰 정보가 올바르지 않습니다.");
-            return false;
-        }
-
-        var $f = $(f);
-
-        if(typeof f.token === "undefined")
-            $f.prepend('<input type="hidden" name="token" value="">');
-
-        $f.find("input[name=token]").val(token);
-
-        return true;
-    });
-});
-
 /**
  * XMLHttpRequest를 이용한 Ajax 요청
  * @param string url 요청 URL
@@ -788,26 +695,6 @@ function sendAjaxRequest(url, method = 'GET', send_data = {}, option = {}) {
     };
 
     xhr.send(JSON.stringify(send_data));
-}
-
-/**
- * 이미지 파일 검사
- * @param {*} file
- * @returns 
- */
-function isValidImageFile(file) {
-    return file.type.startsWith('image/');
-}
-
-/**
- * 파일 확장자 검사
- * @param {*} file 
- * @param {*} allowedExtensions 
- * @returns 
- */
-function isValidFileExtension(file, allowedExtensions) {
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    return allowedExtensions.includes(fileExtension);
 }
 
 /**
