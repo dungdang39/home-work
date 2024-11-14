@@ -89,7 +89,8 @@ class ConfigController extends BaseController
         $mail = $data->mail_address;
         $mail_name = $data->mail_name;
         $test_mail_addresses = $data->test_mail_addresses;
-        $success_mail_addresses = [];
+        $success = [];
+        $fail = [];
 
         $content = Twig::fromRequest($request)->fetch('@mail/test.html');
         $option = ['from_mail' => $mail, 'from_name' => $mail_name];
@@ -97,9 +98,16 @@ class ConfigController extends BaseController
         foreach ($test_mail_addresses as $test_mail) {
             $result = $this->mail_service->send($test_mail, '테스트 메일 발송', $content, $option);
             if ($result) {
-                $success_mail_addresses[] = $test_mail;
+                $success[] = $test_mail;
+            } else {
+                $fail[] = $test_mail;
             }
         }
-        return $response->withJson(['message' => implode(', ', $test_mail_addresses) . ' 메일로 테스트 메일을 발송하였습니다.']);
+
+        $message = number_format(count($success)) . '건의 테스트 이메일 발송에 성공했어요.';
+        if (count($fail) > 0) {
+            $message .= ' (실패 : ' . number_format(count($fail)) . '건)';
+        }
+        return $response->withJson(['message' => $message]);
     }
 }

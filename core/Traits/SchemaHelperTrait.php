@@ -169,6 +169,16 @@ trait SchemaHelperTrait
     }
 
     /**
+     * 이메일 유효성 검사
+     */
+    protected function validateEmail(string $field, string $label): void
+    {
+        if (!Validator::isValidEmail($this->$field)) {
+            $this->throwException("{$label}은(는) 올바르지 않은 이메일 형식입니다.");
+        }
+    }
+
+    /**
      * 예외를 던지는 유틸리티 메서드
      * 
      * @param string $message 예외 메시지

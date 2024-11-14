@@ -41,12 +41,13 @@
         "classmap": ["plugin/"],
         "files": [
             "api/functions.php",
-            "core/Lib/functions.php"
+            "core/Lib/functions.php",
+            "core/Lib/pbkdf2.compat.php"
         ]
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ ! -f .env ]; then php install/env.php; fi"
+            "php -r \"if (!file_exists('.env')) { shell_exec('php install/env.php'); }\""
         ]
     },
     "scripts-descriptions": {
