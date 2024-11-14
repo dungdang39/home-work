@@ -99,10 +99,10 @@
 {% endmacro %}
 
 {% macro member_icon(member_image, alt = '') %}
-    {% set base_image = '/img/no_profile.gif' %}
+    {% set base_image = '/assets/images/no_profile.gif' %}
     {% set member_image = member_image ?? base_image %}
 
-    <img src="{{ base_url ~ member_image }}" width="22" height="22" alt="{{ alt }}" onerror="this.src='{{ base_url ~ base_image }}'">
+    <img src="{{ base_url ~ member_image }}" width="22" height="22" alt="{{ alt }}" onerror="this.onerror=null; this.src='{{ base_url ~ base_image }}'">
 {% endmacro %}
 
 {% macro initEditor(selectors = []) %}
