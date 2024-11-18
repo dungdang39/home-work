@@ -1,135 +1,85 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>드래그 앤 드롭 예제 - 상하 이동 (수정)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드래그 앤 드롭 예제 - 상하 이동</title>
+    <!-- Font Awesome CDN 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .container {
-            width: 300px;
-            margin: 20px auto;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
-        
-        .draggable-item {
             width: 100%;
-            margin: 8px 0;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sortable-item {
+            position: relative; /* 드래그 핸들의 절대 위치를 위해 필요 */
+            background-color: #f5f5f5;
+            margin: 10px 0;
             padding: 15px;
-            background: #fff;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             border-radius: 4px;
+        }
+
+        .drag-handle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
             cursor: move;
-            user-select: none;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
+            color: #666;
+            padding: 5px;
         }
-        
-        .draggable-item:hover {
-            transform: scale(1.01);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .draggable-item.dragging {
+
+        /* 드래그 중인 아이템 스타일 */
+        .sortable-item.dragging {
             opacity: 0.5;
-            background: #e9e9e9;
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .draggable-item.drag-over {
-            border: 2px dashed #4a90e2;
-            background: #f8f9fa;
-            transform: scale(1.01);
+            background-color: #e0e0e0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="draggable-item" draggable="true">아이템 1</div>
-        <div class="draggable-item" draggable="true">아이템 2</div>
-        <div class="draggable-item" draggable="true">아이템 3</div>
-        <div class="draggable-item" draggable="true">아이템 4</div>
-        <div class="draggable-item" draggable="true">아이템 5</div>
+        <ul class="sortable-list">
+            <li class="sortable-item">
+                Item 1
+                <i class="drag-handle fas fa-grip-vertical"></i>
+            </li>
+            <li class="sortable-item">
+                Item 2
+                <i class="drag-handle fas fa-grip-vertical"></i>
+            </li>
+            <li class="sortable-item">
+                Item 3
+                <i class="drag-handle fas fa-grip-vertical"></i>
+            </li>
+            <li class="sortable-item">
+                Item 4
+                <i class="drag-handle fas fa-grip-vertical"></i>
+            </li>
+            <li class="sortable-item">
+                Item 5
+                <i class="drag-handle fas fa-grip-vertical"></i>
+            </li>
+        </ul>
     </div>
 
+    <!-- Sortable.js 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.querySelector('.container');
-            let draggedItem = null;
-            let draggedItemIndex = null;
-
-            // 드래그 시작 시 현재 아이템의 인덱스를 저장
-            function handleDragStart(e) {
-                draggedItem = this;
-                draggedItemIndex = Array.from(container.children).indexOf(this);
-                this.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', ''); // Firefox 호환성
-            }
-
-            // 드래그 종료 시 모든 스타일 초기화
-            function handleDragEnd() {
-                this.classList.remove('dragging');
-                document.querySelectorAll('.draggable-item').forEach(item => {
-                    item.classList.remove('drag-over');
-                });
-                draggedItem = null;
-                draggedItemIndex = null;
-            }
-
-            // 드래그 오버 시 시각적 피드백
-            function handleDragOver(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                if (this !== draggedItem) {
-                    this.classList.add('drag-over');
-                }
-            }
-
-            // 드래그가 요소를 벗어날 때 시각적 피드백 제거
-            function handleDragLeave() {
-                this.classList.remove('drag-over');
-            }
-
-            // 드롭 시 위치 교환
-            function handleDrop(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (this === draggedItem) return;
-
-                const items = Array.from(container.children);
-                const droppedItemIndex = items.indexOf(this);
-
-                // 위치 교환 로직
-                if (draggedItemIndex !== null && draggedItem) {
-                    // 드래그한 아이템 임시 저장
-                    const tempNode = draggedItem;
-                    
-                    // 기존 위치에서 제거
-                    container.removeChild(draggedItem);
-                    
-                    // 새로운 위치에 삽입
-                    if (droppedItemIndex > draggedItemIndex) {
-                        container.insertBefore(tempNode, this.nextSibling);
-                    } else {
-                        container.insertBefore(tempNode, this);
-                    }
-                }
-
-                this.classList.remove('drag-over');
-                return false;
-            }
-
-            // 모든 드래그 가능한 아이템에 이벤트 리스너 추가
-            document.querySelectorAll('.draggable-item').forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('dragend', handleDragEnd);
-                item.addEventListener('dragover', handleDragOver);
-                item.addEventListener('dragleave', handleDragLeave);
-                item.addEventListener('drop', handleDrop);
-            });
+        // Sortable 초기화
+        const sortableList = document.querySelector('.sortable-list');
+        new Sortable(sortableList, {
+            animation: 150,
+            handle: '.drag-handle', // 드래그 핸들 클래스 지정
+            ghostClass: 'dragging', // 드래그 중인 아이템에 적용할 클래스
         });
     </script>
 </body>
