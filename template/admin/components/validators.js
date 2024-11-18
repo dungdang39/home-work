@@ -59,3 +59,11 @@ export const isValidIpAddress = (value) => {
     return true;
   });
 };
+
+// 본인인증 내역, 메모 유효성 검사 (32,767자까지 글자수 제한)
+export const isValidMaxLength = (value) => {
+  // 빈 문자열 체크
+  if (!value) return true;
+
+  return value.length <= 32767;
+};
