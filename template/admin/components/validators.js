@@ -73,3 +73,12 @@ export const formatPostalCode = (value) => {
   // 숫자 외 문자 제거 후 5자리 제한
   return value.replace(/[^0-9]/g, '').slice(0, 5);
 };
+
+// 우편번호 유효성 검사 (5자리 숫자만 허용)
+export const isValidPostalCode = (value) => {
+  // 숫자만 추출
+  const numberOnly = value.replace(/[^0-9]/g, '');
+  
+  // 정확히 5자리 숫자인지 체크
+  return /^\d{5}$/.test(numberOnly);
+};
