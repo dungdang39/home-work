@@ -67,3 +67,9 @@ export const isValidMaxLength = (value) => {
 
   return value.length <= 32767;
 };
+
+// 우편번호 입력값 포맷팅 (숫자만 입력 & 5자리 제한)
+export const formatPostalCode = (value) => {
+  // 숫자 외 문자 제거 후 5자리 제한
+  return value.replace(/[^0-9]/g, '').slice(0, 5);
+};
