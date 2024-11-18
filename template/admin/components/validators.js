@@ -11,3 +11,8 @@ export const isValidBusinessNumber = (value) => {
   const validLength = numberOnly.length === 12;
 return validCharacters && validLength;
 };
+
+// 부가통신사업자번호 유효성 검사 (5자리 숫자만 허용)
+export const isValidZipCode = (value) => {
+  return /^\d{5}$/.test(value);
+};
