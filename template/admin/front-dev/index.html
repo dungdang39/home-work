@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        /* =========================================
+            Global Styles
+        ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background: #ffffff;
+        }
+
+        /* =========================================
+            Header Styles
+        ========================================= */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background: #fff;
+            box-shadow: 0 1px 0 0 rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            height: 20px;
+            margin-right: 24px;
+            cursor: pointer;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 345px;
+        }
+
+        .search-input {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            width: 100%;
+            height: 36px;
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f9fafb;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            color: #6b7280;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .profile-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+        }
+
+        /* =========================================
+            Sidebar Styles
+        ========================================= */
+        .sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            width: 272px;
+            height: calc(100vh - 64px);
+            background: #fff;
+            transition: width 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 999;
+            padding-top: 6px;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+            padding: 6px 18px;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px 0 24px;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            color: #4B5666;
+        }
+
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 6px 24px;
+            transition: padding 0.3s ease;
+            flex: 1;
+        }
+
+        .sidebar.collapsed .menu-list {
+            padding: 6px 0;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            color: #90969F;
+            position: relative;
+            white-space: nowrap;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .menu-item:hover {
+            color: #3D40FF;
+        }
+
+        .menu-item.active {
+            color: #3D40FF;
+        }
+
+        .menu-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 12px;
+            transition: background-color 0.16s ease;
+            border-radius: 6px;
+        }
+
+        .menu-item:hover .menu-item-header,
+        .menu-item.active .menu-item-header {
+            background: #F2F3FF;
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-item-left .fas {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-item i.fa-chevron-up {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .menu-item.active i.fa-chevron-up {
+            transform: rotate(180deg);
+        }
+
+        .sidebar .sidebar-header span,
+        .sidebar .menu-item span,
+        .sidebar .menu-item i.fa-chevron-up {
+            transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header span,
+        .sidebar.collapsed .menu-item span,
+        .sidebar.collapsed .menu-item i.fa-chevron-up {
+            opacity: 0;
+            visibility: hidden;
+            width: 0;
+        }
+
+        .menu-tooltip {
+            display: block;
+            position: absolute;
+            left: calc(100% + 18px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: #393940;
+            color: white;
+            padding: 5px 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-left: 8px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .menu-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent #333 transparent transparent;
+        }
+
+        .sidebar.collapsed .menu-item:hover .menu-tooltip {
+            opacity: 1;
+            visibility: visible;
+            display: block;
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-top: 5px;
+        }
+
+        .submenu-item {
+            padding: 10px 32px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4B5666;
+            cursor: pointer;
+            transition: background-color 0.16s ease;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            line-height: 20px;
+        }
+
+        .submenu-item:last-child {
+            margin-bottom: 8px;
+        }
+
+        .submenu-item:hover,
+        .submenu-item.active {
+            background: #f6f6f9;
+        }
+
+        .menu-item.active .submenu {
+            max-height: 500px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .sidebar.collapsed .submenu {
+            display: none;
+        }
+
+        .sidebar-footer {
+            padding: 24px;
+            color: #90969F;
+            font-size: 12px;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 사이드바가 접힌 상태일 때 */
+        .sidebar.collapsed .sidebar-footer {
+            padding: 32px 0;
+            font-size: 0;  /* 텍스트 숨기기 */
+            opacity: 0;
+        }
+
+        /* =========================================
+            Main Content Styles
+        ========================================= */
+        .main-content {
+            margin-top: 64px;
+            margin-left: 272px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        .main-content .content-wrapper {
+            padding: 40px 64px;
+        }
+
+        @media screen and (max-width: 834px) {
+            /* 헤더 수정 */
+            .header {
+                flex-direction: column;
+                height: auto;
+                padding: 16px;
+            }
+
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+                margin-bottom: 16px;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            /* 사이드바 수정 */
+            .sidebar,
+            .sidebar.collapsed {
+                position: static;
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .sidebar-header {
+                display: none;
+            }
+
+            .menu-list {
+                padding: 0 16px;
+            }
+
+            .menu-item {
+                margin-bottom: 8px;
+            }
+
+            .menu-item-header {
+                background: #f8f9fa;
+                border-radius: 8px;
+            }
+
+            .submenu {
+                max-height: none;
+                display: none;
+                margin: 8px 0;
+            }
+
+            .menu-item.active .submenu {
+                display: block;
+            }
+
+            .submenu-item {
+                padding: 12px 16px;
+                margin-left: 16px;
+                border-left: 2px solid #e9ecef;
+            }
+
+            /* 메인 컨텐츠 수정 */
+            .main-content {
+                margin-left: 0;
+                margin-top: 0;
+            }
+
+            .main-content.expanded {
+                margin-left: 0;
+            }
+
+            /* 사이드바 토글 관련 스타일 제거 */
+            .sidebar.collapsed,
+            .menu-tooltip,
+            .toggle-btn {
+                display: none;
+            }
+            .sidebar .sidebar-footer {
+                padding: 32px 0;
+                font-size: 0;  /* 텍스트 숨기기 */
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-left">
+            <img src="../assets/img/logo.svg" alt="Logo" class="header-logo">
+        </div>
+        <div class="header-right">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="검색">
+            </div>
+            <div class="header-icons">
+                <i class="fas fa-moon header-icon"></i>
+                <i class="fas fa-bell header-icon"></i>
+                <div class="profile-img"></div>
+            </div>
+        </div>
+    </header>
+    <!-- 사이드 바 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button class="toggle-btn" id="sidebarToggle">
+                <img src="../assets/img/sidebar-menu.svg" alt="sidebar-toggle">
+            </button>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item active">
+                <div class="menu-item-header">
+                    <div class="menu-item-left">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </div>
+                </div>    
+                <div class="menu-tooltip">Home</div>
+                <div class="submenu-item" data-page="home" style="display: none;"></div>
+            </li>
+            <li class="menu-item has-submenu">
+                <div class="menu-item-header">
+                    <div class="menu-item-left">
+                        <i class="fas fa-palette"></i>
+                        <span>디자인/UI</span>
+                    </div>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="menu-tooltip">디자인/UI</div>
+                <ul class="submenu">
+                    <li class="submenu-item" data-page="design-theme">테마 설정</li>
+                    <li class="submenu-item" data-page="design-logo">로고 관리</li>
+                    <li class="submenu-item" data-page="design-banner">배너 관리</li>
+                    <li class="submenu-item" data-page="design-popup">팝업 레이어 관리</li>
+                    <li class="submenu-item" data-page="design-main">메인 화면 설정</li>
+                    <li class="submenu-item" data-page="design-menu">메뉴 설정</li>
+                </ul>
+            </li>
+            <li class="menu-item has-submenu">
+                <div class="menu-item-header">
+                    <div class="menu-item-left">
+                        <i class="fas fa-users"></i>
+                        <span>회원</span>
+                    </div>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="menu-tooltip">회원</div>
+                <ul class="submenu">
+                    <li class="submenu-item" data-page="member-config">회원 설정</li>
+                    <li class="submenu-item" data-page="member-manage">회원 관리</li>
+                    <li class="submenu-item" data-page="member-inquiry">1:1 문의</li>
+                    <li class="submenu-item" data-page="member-point">포인트 관리</li>
+                </ul>
+            </li>
+            <li class="menu-item has-submenu">
+                <div class="menu-item-header">
+                    <div class="menu-item-left">
+                        <i class="fas fa-file-alt"></i>
+                        <span>콘텐츠</span>
+                    </div>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="menu-tooltip">콘텐츠</div>
+                <ul class="submenu">
+                    <li class="submenu-item" data-page="content-manage">콘텐츠 관리</li>
+                    <li class="submenu-item" data-page="content-faq">FAQ</li>
+                </ul>
+            </li>
+            <li class="menu-item has-submenu">
+                <div class="menu-item-header">
+                    <div class="menu-item-left">
+                        <i class="fas fa-cog"></i>
+                        <span>기본환경</span>
+                    </div>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="menu-tooltip">기본환경</div>
+                <ul class="submenu">
+                    <li class="submenu-item" data-page="config-basic">기본 환경 설정</li>
+                    <li class="submenu-item" data-page="config-admin">운영진 설정</li>
+                    <li class="submenu-item" data-page="config-api">API 연동 설정</li>
+                    <li class="submenu-item" data-page="config-cache">캐시파일 일괄삭제</li>
+                    <li class="submenu-item" data-page="config-plugin">플러그인 관리</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            Copyright ⓒ sir
+        </div>
+    </div>
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content" id="mainContent"></div>
+
+    <script>
+        // 페이지 관리 클래스
+        class PageManager {
+            constructor() {
+                this.currentPageId = '';
+                this.sidebar = document.getElementById('sidebar');
+                this.mainContent = document.getElementById('mainContent');
+                this.menuItems = document.querySelectorAll('.menu-item');
+                this.submenuItems = document.querySelectorAll('.submenu-item');
+                this.pageMapping = {
+                    '404': './pages/404.html',
+                    'home': './pages/home.html',
+                    // 디자인/UI
+                    'design-theme': './pages/design/theme.html',
+                    'design-logo': './pages/design/logo.html',
+                    'design-banner': './pages/design/banner.html',
+                    'design-popup': './pages/design/popup.html',
+                    'design-main': './pages/design/main.html',
+                    'design-menu': './pages/design/menu.html',
+                    
+                    // 회원
+                    'member-config': './pages/member/config.html',
+                    'member-manage': './pages/member/manage.html',
+                    'member-inquiry': './pages/member/inquiry.html',
+                    'member-point': './pages/member/point.html',
+                    
+                    // 콘텐츠
+                    'content-manage': './pages/content/manage.html',
+                    'content-faq': './pages/content/faq.html',
+                    
+                    // 기본환경
+                    'config-basic': './pages/config/basic.html',
+                    'config-admin': './pages/config/admin.html',
+                    'config-api': './pages/config/api.html',
+                    'config-cache': './pages/config/cache.html',
+                    'config-plugin': './pages/config/plugin.html'
+                };
+                
+                this.initializeEventListeners();
+            }
+        
+            initializeEventListeners() {
+                // 사이드바 토글 버튼
+                document.getElementById('sidebarToggle').addEventListener('click', () => {
+                    this.toggleSidebar();
+                });
+        
+                // 메뉴 아이템 클릭
+                this.menuItems.forEach(item => {
+                    item.addEventListener('click', () => this.handleMenuClick(item));
+                });
+        -
+                // 서브메뉴 아이템 클릭
+                this.submenuItems.forEach(item => {
+                    item.addEventListener('click', (e) => this.handleSubmenuClick(e, item));
+                });
+        
+                // 로고 클릭
+                document.querySelector('.header-logo').addEventListener('click', () => {
+                    this.loadPage('home');
+                });
+        
+                // 브라우저 뒤로가기/앞으로가기
+                window.addEventListener('popstate', (event) => {
+                    if (event.state && event.state.pageId) {
+                        this.loadPage(event.state.pageId);
+                    }
+                });
+
+                this.menuItems.forEach(item => {
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.handleMenuClick(item);
+            }
+        });
+    });
+
+    this.submenuItems.forEach(item => {
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.handleSubmenuClick(e, item);
+            }
+        });
+    });
+            }
+        
+            toggleSidebar() {
+                if (window.innerWidth <= 834) return;
+                this.sidebar.classList.toggle('collapsed');
+                this.mainContent.classList.toggle('expanded');
+            }
+        
+            handleMenuClick(item) {
+                const menuHeader = item.querySelector('.menu-item-header');
+                const isMenuHeaderClick = event.target === menuHeader || menuHeader.contains(event.target);
+                
+                if (!isMenuHeaderClick) {
+                    return;
+                }
+
+                if (!item.classList.contains('has-submenu')) {
+                    this.loadPage('home');
+                    return;
+                }
+        
+                if (this.sidebar.classList.contains('collapsed')) {
+                    const firstSubmenuItem = item.querySelector('.submenu-item');
+                    if (firstSubmenuItem) {
+                        const pageId = firstSubmenuItem.getAttribute('data-page');
+                        if (pageId) {
+                            this.loadPage(pageId);
+                        }
+                    }
+                    return;
+                }
+        
+                if (item.classList.contains('active')) {
+                    item.classList.remove('active');
+                    return;
+                }
+                
+                this.menuItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            }
+        
+            handleSubmenuClick(e, item) {
+                e.stopPropagation();
+                const pageId = item.getAttribute('data-page');
+                if (pageId) {
+                    this.loadPage(pageId);
+                }
+            }
+        
+            async loadPage(pageId) {
+                try {
+                    if (!this.pageMapping[pageId]) {
+                        return this.load404Page();
+                    }
+        
+                    const response = await fetch(this.pageMapping[pageId]);
+                    if (!response.ok) {
+                        return this.load404Page();
+                    }
+        
+                    const content = await response.text();
+                    this.updateContent(content);
+                    this.updateURL(pageId);
+                    this.updateMenuState(pageId);
+                    this.currentPageId = pageId;
+        
+                } catch (error) {
+                    console.error('페이지 로드 중 오류:', error);
+                    return this.load404Page();
+                }
+            }
+        
+            async load404Page() {
+                const response = await fetch(this.pageMapping['404']);
+                const content = await response.text();
+                this.updateContent(content);
+                this.updateURL('404');
+                this.menuItems.forEach(i => i.classList.remove('active'));
+                this.submenuItems.forEach(i => i.classList.remove('active'));
+            }
+        
+            updateContent(content) {
+                this.mainContent.innerHTML = content;
+            }
+        
+            updateURL(pageId) {
+                const newUrl = `${window.location.pathname}?page=${pageId}`;
+                history.pushState({ pageId }, '', newUrl);
+            }
+        
+            updateMenuState(pageId) {
+                this.menuItems.forEach(i => i.classList.remove('active'));
+                this.submenuItems.forEach(i => i.classList.remove('active'));
+        
+                if (pageId === 'home') {
+                    this.menuItems[0].classList.add('active');
+                    return;
+                }
+        
+                const activeSubmenu = document.querySelector(`.submenu-item[data-page="${pageId}"]`);
+                if (activeSubmenu) {
+                    activeSubmenu.classList.add('active');
+                    const parentMenuItem = activeSubmenu.closest('.menu-item');
+                    if (parentMenuItem) {
+                        parentMenuItem.classList.add('active');
+                    }
+                }
+            }
+        
+            getCurrentPageFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('page') || 'home';
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            const pageManager = new PageManager();
+            const currentPageId = pageManager.getCurrentPageFromUrl();
+            pageManager.loadPage(currentPageId);
+        });
+    </script>
+</body>
+</html>
