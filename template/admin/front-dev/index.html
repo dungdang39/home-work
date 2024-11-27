@@ -172,18 +172,15 @@
             transition: all 0.3s;
             display: flex;
             flex-direction: column;
-            color: #90969F;
+            color: #4B5666;
             position: relative;
             white-space: nowrap;
             font-size: 16px;
             font-weight: 700;
         }
 
-        .menu-item:hover {
-            color: #3D40FF;
-        }
-
-        .menu-item.active {
+        .menu-item:hover, .menu-item:hover .fas,
+        .menu-item.active, .menu-item.active .fas {
             color: #3D40FF;
         }
 
@@ -214,6 +211,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #90969F;
+            transition: color 0.3s ease;
         }
 
         .menu-item i.fa-chevron-up {
@@ -306,7 +305,7 @@
 
         .menu-item.active .submenu {
             max-height: 500px;
-            transition: max-height 0.5s ease-in;
+            transition: max-height 0.3s ease-in;
         }
 
         .sidebar.collapsed .submenu {
@@ -442,17 +441,26 @@
     <!-- 헤더 -->
     <header class="header">
         <div class="header-left">
-            <img src="../assets/img/logo.svg" alt="Logo" class="header-logo">
+            <a href="./" class="header-logo" role="button" tabindex="0">
+                <img src="../assets/img/logo.svg" alt="관리자 로고">
+            </a>
         </div>
         <div class="header-right">
             <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="검색">
+                <label for="searchInput" class="sr-only">검색어 입력</label>
+                <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="검색">
             </div>
             <div class="header-icons">
-                <i class="fas fa-moon header-icon"></i>
-                <i class="fas fa-bell header-icon"></i>
-                <div class="profile-img"></div>
+                <button class="header-icon-btn" aria-label="다크모드 전환">
+                    <i class="fas fa-moon header-icon" aria-hidden="true"></i>
+                </button>
+                <button class="header-icon-btn" aria-label="알림">
+                    <i class="fas fa-bell header-icon" aria-hidden="true"></i>
+                </button>
+                <button class="header-icon-btn" aria-label="프로필">
+                    <div class="profile-img" aria-hidden="true"></div>
+                </button>
             </div>
         </div>
     </header>
@@ -460,84 +468,84 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <span class="sidebar-title">Menu</span>
-            <button class="toggle-btn" id="sidebarToggle">
-                <img src="../assets/img/sidebar-menu.svg" alt="sidebar-toggle">
+            <button class="toggle-btn" id="sidebarToggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                <img src="../assets/img/sidebar-menu.svg" alt="" aria-hidden="true">
             </button>
         </div>
         <ul class="menu-list">
-            <li class="menu-item active">
+            <li class="menu-item active" role="button" tabindex="0">
                 <div class="menu-item-header">
                     <div class="menu-item-left">
                         <i class="fas fa-home"></i>
                         <span>Home</span>
                     </div>
                 </div>    
-                <div class="menu-tooltip">Home</div>
+                <div class="menu-tooltip" aria-hidden="true">Home</div>
                 <div class="submenu-item" data-page="home" style="display: none;"></div>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu" role="button" tabindex="0" aria-expanded="false" aria-controls="submenu-design">
                 <div class="menu-item-header">
                     <div class="menu-item-left">
                         <i class="fas fa-palette"></i>
                         <span>디자인/UI</span>
                     </div>
-                    <i class="fas fa-chevron-up"></i>
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
                 </div>
-                <div class="menu-tooltip">디자인/UI</div>
-                <ul class="submenu">
-                    <li class="submenu-item" data-page="design-theme">테마 설정</li>
-                    <li class="submenu-item" data-page="design-logo">로고 관리</li>
-                    <li class="submenu-item" data-page="design-banner">배너 관리</li>
-                    <li class="submenu-item" data-page="design-popup">팝업 레이어 관리</li>
-                    <li class="submenu-item" data-page="design-main">메인 화면 설정</li>
-                    <li class="submenu-item" data-page="design-menu">메뉴 설정</li>
+                <div class="menu-tooltip" aria-hidden="true">디자인/UI</div>
+                <ul class="submenu" id="submenu-design" role="menu">
+                    <li class="submenu-item" data-page="design-theme" role="menuitem" tabindex="0">테마 설정</li>
+                    <li class="submenu-item" data-page="design-logo" role="menuitem" tabindex="0">로고 관리</li>
+                    <li class="submenu-item" data-page="design-banner" role="menuitem" tabindex="0">배너 관리</li>
+                    <li class="submenu-item" data-page="design-popup" role="menuitem" tabindex="0">팝업 레이어 관리</li>
+                    <li class="submenu-item" data-page="design-main" role="menuitem" tabindex="0">메인 화면 설정</li>
+                    <li class="submenu-item" data-page="design-menu" role="menuitem" tabindex="0">메뉴 설정</li>
                 </ul>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu" role="button" tabindex="0" aria-expanded="false" aria-controls="submenu-member">
                 <div class="menu-item-header">
                     <div class="menu-item-left">
                         <i class="fas fa-users"></i>
                         <span>회원</span>
                     </div>
-                    <i class="fas fa-chevron-up"></i>
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
                 </div>
-                <div class="menu-tooltip">회원</div>
-                <ul class="submenu">
-                    <li class="submenu-item" data-page="member-config">회원 설정</li>
-                    <li class="submenu-item" data-page="member-manage">회원 관리</li>
-                    <li class="submenu-item" data-page="member-inquiry">1:1 문의</li>
-                    <li class="submenu-item" data-page="member-point">포인트 관리</li>
+                <div class="menu-tooltip" aria-hidden="true">회원</div>
+                <ul class="submenu" id="submenu-member" role="menu">
+                    <li class="submenu-item" data-page="member-config" role="menuitem" tabindex="0">회원 설정</li>
+                    <li class="submenu-item" data-page="member-manage" role="menuitem" tabindex="0">회원 관리</li>
+                    <li class="submenu-item" data-page="member-inquiry" role="menuitem" tabindex="0">1:1 문의</li>
+                    <li class="submenu-item" data-page="member-point" role="menuitem" tabindex="0">포인트 관리</li>
                 </ul>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu" role="button" tabindex="0" aria-expanded="false" aria-controls="submenu-content">
                 <div class="menu-item-header">
                     <div class="menu-item-left">
                         <i class="fas fa-file-alt"></i>
                         <span>콘텐츠</span>
                     </div>
-                    <i class="fas fa-chevron-up"></i>
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
                 </div>
-                <div class="menu-tooltip">콘텐츠</div>
-                <ul class="submenu">
-                    <li class="submenu-item" data-page="content-manage">콘텐츠 관리</li>
-                    <li class="submenu-item" data-page="content-faq">FAQ</li>
+                <div class="menu-tooltip" aria-hidden="true">콘텐츠</div>
+                <ul class="submenu" id="submenu-content" role="menu">
+                    <li class="submenu-item" data-page="content-manage" role="menuitem" tabindex="0">콘텐츠 관리</li>
+                    <li class="submenu-item" data-page="content-faq" role="menuitem" tabindex="0">FAQ</li>
                 </ul>
             </li>
-            <li class="menu-item has-submenu">
+            <li class="menu-item has-submenu" role="button" tabindex="0" aria-expanded="false" aria-controls="submenu-config">
                 <div class="menu-item-header">
                     <div class="menu-item-left">
                         <i class="fas fa-cog"></i>
                         <span>기본환경</span>
                     </div>
-                    <i class="fas fa-chevron-up"></i>
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
                 </div>
-                <div class="menu-tooltip">기본환경</div>
-                <ul class="submenu">
-                    <li class="submenu-item" data-page="config-basic">기본 환경 설정</li>
-                    <li class="submenu-item" data-page="config-admin">운영진 설정</li>
-                    <li class="submenu-item" data-page="config-api">API 연동 설정</li>
-                    <li class="submenu-item" data-page="config-cache">캐시파일 일괄삭제</li>
-                    <li class="submenu-item" data-page="config-plugin">플러그인 관리</li>
+                <div class="menu-tooltip" aria-hidden="true">기본환경</div>
+                <ul class="submenu" id="submenu-config" role="menu">
+                    <li class="submenu-item" data-page="config-basic" role="menuitem" tabindex="0">기본 환경 설정</li>
+                    <li class="submenu-item" data-page="config-admin" role="menuitem" tabindex="0">운영진 설정</li>
+                    <li class="submenu-item" data-page="config-api" role="menuitem" tabindex="0">API 연동 설정</li>
+                    <li class="submenu-item" data-page="config-cache" role="menuitem" tabindex="0">캐시파일 일괄삭제</li>
+                    <li class="submenu-item" data-page="config-plugin" role="menuitem" tabindex="0">플러그인 관리</li>
                 </ul>
             </li>
         </ul>
@@ -599,15 +607,10 @@
                 this.menuItems.forEach(item => {
                     item.addEventListener('click', () => this.handleMenuClick(item));
                 });
-        -
+        
                 // 서브메뉴 아이템 클릭
                 this.submenuItems.forEach(item => {
                     item.addEventListener('click', (e) => this.handleSubmenuClick(e, item));
-                });
-        
-                // 로고 클릭
-                document.querySelector('.header-logo').addEventListener('click', () => {
-                    this.loadPage('home');
                 });
         
                 // 브라우저 뒤로가기/앞으로가기
@@ -616,32 +619,71 @@
                         this.loadPage(event.state.pageId);
                     }
                 });
-
+                
+                // 키보드 네비게이션
                 this.menuItems.forEach(item => {
-        item.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.handleMenuClick(item);
-            }
-        });
-    });
+                    item.addEventListener('keydown', (e) => {
+                        switch(e.key) {
+                            case 'Enter':
+                            case ' ':
+                                e.preventDefault();
+                                this.handleMenuClick(item);
+                                break;
+                            case 'ArrowDown':
+                                e.preventDefault();
+                                this.focusNextItem(item);
+                                break;
+                            case 'ArrowUp':
+                                e.preventDefault();
+                                this.focusPreviousItem(item);
+                                break;
+                            case 'ArrowRight':
+                                if (item.classList.contains('has-submenu')) {
+                                    e.preventDefault();
+                                    // 다른 모든 메뉴의 active 제거
+                                    this.menuItems.forEach(i => i.classList.remove('active'));
+                                    // 현재 메뉴에 active 추가
+                                    item.classList.add('active');
+                                    item.setAttribute('aria-expanded', 'true');
+                                    const firstSubmenu = item.querySelector('.submenu-item');
+                                    if (firstSubmenu) firstSubmenu.focus();
+                                }
+                                break;
+                            case 'ArrowLeft':
+                                if (item.closest('.submenu')) {
+                                    e.preventDefault();
+                                    const parentMenu = item.closest('.menu-item');
+                                    if (parentMenu) {
+                                        // 서브메뉴 닫기
+                                        parentMenu.classList.remove('active');
+                                        parentMenu.setAttribute('aria-expanded', 'false');
+                                        parentMenu.focus();
+                                    }
+                                }
+                                break;
+                        }
+                    });
+                });
 
-    this.submenuItems.forEach(item => {
-        item.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.handleSubmenuClick(e, item);
+                // 서브메뉴 아이템 키보드 이벤트
+                this.submenuItems.forEach(item => {
+                    item.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            // 다른 모든 서브메뉴 아이템의 active 제거
+                            this.submenuItems.forEach(i => i.classList.remove('active'));
+                            // 현재 서브메뉴 아이템에 active 추가
+                            item.classList.add('active');
+                            const pageId = item.getAttribute('data-page');
+                            if (pageId) {
+                                this.loadPage(pageId);
+                            }
+                        }
+                    });
+                });
             }
-        });
-    });
-            }
-        
-            toggleSidebar() {
-                if (window.innerWidth <= 834) return;
-                this.sidebar.classList.toggle('collapsed');
-                this.mainContent.classList.toggle('expanded');
-            }
-        
+
+            // 메뉴 아이템 클릭 이벤트 처리
             handleMenuClick(item) {
                 const menuHeader = item.querySelector('.menu-item-header');
                 const isMenuHeaderClick = event.target === menuHeader || menuHeader.contains(event.target);
@@ -651,10 +693,13 @@
                 }
 
                 if (!item.classList.contains('has-submenu')) {
+                    // 다른 모든 메뉴의 active 제거
+                    this.menuItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
                     this.loadPage('home');
                     return;
                 }
-        
+
                 if (this.sidebar.classList.contains('collapsed')) {
                     const firstSubmenuItem = item.querySelector('.submenu-item');
                     if (firstSubmenuItem) {
@@ -665,16 +710,48 @@
                     }
                     return;
                 }
-        
+
                 if (item.classList.contains('active')) {
                     item.classList.remove('active');
+                    item.setAttribute('aria-expanded', 'false');
                     return;
                 }
                 
-                this.menuItems.forEach(i => i.classList.remove('active'));
+                // 다른 모든 메뉴의 active 제거
+                this.menuItems.forEach(i => {
+                    i.classList.remove('active');
+                    i.setAttribute('aria-expanded', 'false');
+                });
+                
+                // 현재 메뉴에 active 추가
                 item.classList.add('active');
+                item.setAttribute('aria-expanded', 'true');
             }
         
+            // 다음 메뉴 아이템으로 포커스 이동
+            focusNextItem(currentItem) {
+                const items = [...this.menuItems];
+                const currentIndex = items.indexOf(currentItem);
+                const nextItem = items[currentIndex + 1] || items[0];
+                nextItem.focus();
+            }
+        
+            // 이전 메뉴 아이템으로 포커스 이동
+            focusPreviousItem(currentItem) {
+                const items = [...this.menuItems];
+                const currentIndex = items.indexOf(currentItem);
+                const previousItem = items[currentIndex - 1] || items[items.length - 1];
+                previousItem.focus();
+            }
+        
+            // 사이드바 접기/펼치기 토글
+            toggleSidebar() {
+                if (window.innerWidth <= 834) return;
+                this.sidebar.classList.toggle('collapsed');
+                this.mainContent.classList.toggle('expanded');
+            }
+        
+            // 서브메뉴 아이템 클릭 이벤트 처리
             handleSubmenuClick(e, item) {
                 e.stopPropagation();
                 const pageId = item.getAttribute('data-page');
@@ -682,7 +759,8 @@
                     this.loadPage(pageId);
                 }
             }
-        
+
+            // 페이지 로드 및 렌더링
             async loadPage(pageId) {
                 try {
                     if (!this.pageMapping[pageId]) {
@@ -706,6 +784,7 @@
                 }
             }
         
+            // 404 페이지 로드
             async load404Page() {
                 const response = await fetch(this.pageMapping['404']);
                 const content = await response.text();
@@ -715,15 +794,18 @@
                 this.submenuItems.forEach(i => i.classList.remove('active'));
             }
         
+            // 메인 컨텐츠 영역 업데이트
             updateContent(content) {
                 this.mainContent.innerHTML = content;
             }
         
+            // 브라우저 URL 업데이트
             updateURL(pageId) {
                 const newUrl = `${window.location.pathname}?page=${pageId}`;
                 history.pushState({ pageId }, '', newUrl);
             }
         
+            // 메뉴 활성화 상태 업데이트
             updateMenuState(pageId) {
                 this.menuItems.forEach(i => i.classList.remove('active'));
                 this.submenuItems.forEach(i => i.classList.remove('active'));
@@ -743,6 +825,7 @@
                 }
             }
         
+            // URL에서 현재 페이지 ID 추출
             getCurrentPageFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
                 return urlParams.get('page') || 'home';
